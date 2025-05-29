@@ -8,6 +8,10 @@ on:
 jobs:
   build-deploy:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
     steps:
       # Step 1: Check out the repository
       - uses: actions/checkout@v3
@@ -24,11 +28,10 @@ jobs:
 
       # Step 4: Build the Angular app
       - name: Build Angular app
-        run: npx ng build --configuration production --base-href="/ward-tools/"
-
-      # Step 5: Deploy to GitHub Pages
+        run: npx ng build --configuration production --base-href="/ward-tools/"      # Step 5: Deploy to GitHub Pages
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
           branch: gh-pages
           folder: dist/ward-tools
