@@ -21,6 +21,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "404.html",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "_config.yml",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [
@@ -88,6 +98,16 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "404.html",
+                "input": "src",
+                "output": "/"
+              },
+              {
+                "glob": "_config.yml",
+                "input": "src",
+                "output": "/"
               }
             ],
             "styles": [
