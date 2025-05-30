@@ -1,17 +1,34 @@
 import { Injectable } from '@angular/core';
+import { configureSynced } from '@legendapp/state/sync';
+import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
+import { ObservablePersistIndexedDB } from '@legendapp/state/persist-plugins/indexeddb'
+import { generateUUIDv7 } from '../shared/utils/crypto-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
-  private supabase: SupabaseClient;
+  private readonly supabase: SupabaseClient;
 
-  constructor() {
-    this.supabase = createClient(
-      environment.supabaseUrl,
-      environment.supabaseKey
-    );
-  }
+    constructor() {
+        this.supabase = createClient(
+            environment.supabaseUrl,
+            environment.supabaseKey
+        );
+        const customSynced = configureSynced(syncedSupabase, {
+            // Use React Native Async Storage
+            persist: {
+                plugin: ObservablePersistIndexedDB,
+            },
+            generateId: () => generateUUIDv7(),
+            supabase: this.supabase,
+            changesSince: 'last-sync',
+            fieldCreatedAt: 'created_at',
+            fieldUpdatedAt: 'modified_at',
+            // Optionally enable soft deletes
+            fieldDeleted: 'deleted',
+        });
+    }
 
   get client(): SupabaseClient {
     return this.supabase;

@@ -25,6 +25,7 @@
         "@angular/service-worker": "^20.0.0",
         "@angular/ssr": "^20.0.0",
         "@fluentui/web-components": "^2.6.1",
+        "@legendapp/state": "^3.0.0-beta.30",
         "@supabase/supabase-js": "^2.49.8",
         "rxjs": "~7.8.0",
         "tslib": "^2.3.0"
