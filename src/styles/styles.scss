@@ -1,0 +1,13 @@
+@forward "shadow";
+@forward "color";
+@forward "font" as font-*;
+@forward "animation";
+@forward "card";
+@forward "layout";
+
+body {
+    position: relative;
+    min-height: 100vh;
+    margin: 0;
+    @media (prefers-color-scheme: dark) { color-scheme: dark; }
+}
