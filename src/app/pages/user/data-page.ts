@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { PageComponent } from './shared/page';
+import { PageComponent } from '../shared/page';
 
 @Component({
     selector: 'app-data-page',

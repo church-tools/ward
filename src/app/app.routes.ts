@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { LoginComponent } from './auth/login/login.component';
-import { DataPageComponent } from './pages/data-page';
-import { ShellComponent } from './pages/main/shell';
+import { DataPageComponent } from './pages/user/data-page';
+import { ShellComponent } from './pages/user/shell/shell';
 
 const userRoutes: Routes = [
     { path: 'data', component: DataPageComponent },
