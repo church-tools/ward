@@ -1,5 +1,16 @@
+@use "layout";
 
 // Background
 :host {
 
+}
+
+
+.nav-and-content {
+    display: flex;
+    flex-direction: row;
+    @include layout.smaller-than(md) {
+        flex-direction: column-reverse;
+    }
+    height: 100%;
 }
