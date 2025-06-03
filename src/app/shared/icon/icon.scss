@@ -2,8 +2,29 @@
 
 $sizes: (xs: 12px, sm: 16px, smaller: 20px, md: 24px, lg: 32px, xl: 48px, xxl: 64px, xxxl: 96px);
 
+$icon-family: "FluentSystemIcons-Resizable";
+
+@font-face {
+    font-family: $icon-family;
+    // update from here: https://github.com/microsoft/fluentui-system-icons/blob/main/fonts/FluentSystemIcons-Resizable.woff2
+    src: url("../../../assets/fonts/FluentSystemIcons-Resizable.woff2") format("woff2");
+}
+
 :host {
-    @extend .icon-font;
+    font-family: $icon-family !important;
+    font-style: normal;
+    font-variant: normal;
+    text-transform: none;
+    line-height: 1;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
     display: block;
     font-weight: normal !important;
     -webkit-text-stroke: 0px;

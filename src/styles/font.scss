@@ -27,14 +27,6 @@ $color-subtle-dark: #bbc0c4;
 $color-muted: #bbc0c4;
 $color-muted-dark: #6c757d;
 
-$icon-family: "FluentSystemIcons-Resizable";
-
-@font-face {
-    font-family: $icon-family;
-    // update from here: https://github.com/microsoft/fluentui-system-icons/blob/main/fonts/FluentSystemIcons-Resizable.woff2
-    src: url("../assets/fonts/FluentSystemIcons-Resizable.woff2") format("woff2");
-}
-
 html {
     font-size: $size;
 }
@@ -221,21 +213,4 @@ h6, .h6 {
 
 .strike-through {
     text-decoration: line-through;
-}
-
-.icon-font {
-    font-family: $icon-family !important;
-    font-style: normal;
-    font-variant: normal;
-    text-transform: none;
-    line-height: 1;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-touch-callout: none;
-    -webkit-user-select: none;
-    -khtml-user-select: none;
-    -moz-user-select: none;
-    -ms-user-select: none;
-    -o-user-select: none;
-    user-select: none;
 }
