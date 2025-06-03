@@ -4,7 +4,7 @@ $sizes: (xs: 12px, sm: 16px, smaller: 20px, md: 24px, lg: 32px, xl: 48px, xxl: 6
 @font-face {
     font-family: IconFont;
     // update from here: https://github.com/microsoft/fluentui-system-icons/blob/main/fonts/FluentSystemIcons-Resizable.woff2
-    src: url("/assets/fonts/FluentSystemIcons-Resizable.woff2") format("woff2");
+    src: url("../../../assets/fonts/FluentSystemIcons-Resizable.woff2") format("woff2");
 }
 
 :host {
