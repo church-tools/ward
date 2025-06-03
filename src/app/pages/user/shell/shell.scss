@@ -25,6 +25,8 @@
         content: '';
         @extend .fullscreen;
         transition: opacity animation.$duration ease;
+        z-index: -1;
+        opacity: 1;
     
         background-image: radial-gradient(farthest-corner at 100% 0%,
             rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-1), color.$navbar-background), 0.95) 0%,
@@ -41,8 +43,6 @@
         // background-image: light-dark(card.$acrylic-noise, card.$acrylic-noise-dark);
         // background-color: rgba(#111, 0.1);
         
-        z-index: -1;
-        opacity: 1;
     }
     &.focused :after {
         opacity: 1;
@@ -53,10 +53,10 @@
 .nav-and-content {
     display: flex;
     flex-direction: row;
+    height: 100%;
     @include layout.smaller-than(md) {
         flex-direction: column-reverse;
     }
-    height: 100%;
     .content {
         @extend .grow-1;
     }
