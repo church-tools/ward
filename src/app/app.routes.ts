@@ -1,11 +1,11 @@
 import { Routes } from '@angular/router';
-import { LoginComponent } from './auth/login/login.component';
-import { ShellComponent } from './pages/user/shell/shell';
-import { userRoutes } from './pages/user/user.routes';
+import { privateRoutes } from './pages/private/private.routes';
+import { PrivateShellComponent } from './pages/private/shell/private-shell';
+import { publicRoutes } from './pages/public/public.routes';
+import { PublicShellComponent } from './pages/public/shell/public-shell';
 
 export const routes: Routes = [
-    { path: '', component: ShellComponent, children: userRoutes, pathMatch: 'prefix' },
-    { path: '', redirectTo: '/data', pathMatch: 'full' },
-    { path: 'login', component: LoginComponent },
-
+    { path: '', component: PrivateShellComponent, children: privateRoutes, pathMatch: 'prefix' },
+    { path: '', component: PublicShellComponent, children: publicRoutes, pathMatch: 'prefix' },
+    { path: '', redirectTo: '/login', pathMatch: 'full' },
 ];
