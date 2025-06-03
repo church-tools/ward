@@ -6,7 +6,7 @@ export type IconPath = keyof typeof IconPathMap;
 export type IconSize = 'xs' | 'sm' | 'smaller' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl';
 
 export enum IconPathMap {
-    throbber = 'assets/img/throbber.svg',
+    throbber = 'ward/assets/img/throbber.svg',
 }
 
 // See https://fluenticon.netlify.app/ or https://fluenticons.co/
