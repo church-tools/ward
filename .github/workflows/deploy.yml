@@ -12,9 +12,10 @@ jobs:
       contents: read
       pages: write
       id-token: write
-    steps:
-      # Step 1: Check out the repository
+    steps:      # Step 1: Check out the repository
       - uses: actions/checkout@v3
+        with:
+          lfs: true
 
       # Step 2: Setup Node.js environment
       - name: Setup Node.js
