@@ -45,7 +45,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/ward-tools/",
+              "baseHref": "/ward/",
               "budgets": [
                 {
                   "type": "initial",

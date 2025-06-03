@@ -8,15 +8,15 @@
     // https://github.com/rafgraph/spa-github-pages
     // Redirect script for GitHub Pages subdirectory deployment
     
-    // For ward-tools subdirectory: pathSegmentsToKeep = 1 (keeps /ward-tools/)
+    // For ward subdirectory: pathSegmentsToKeep = 1 (keeps /ward-tools/)
     var pathSegmentsToKeep = 1;
     
     var l = window.location;
     var pathname = l.pathname;
     
     // If we're already at the base path, redirect to index
-    if (pathname === '/ward-tools/' || pathname === '/ward-tools') {
-      l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/ward-tools/');
+    if (pathname === '/ward/' || pathname === '/ward') {
+      l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/ward/');
     } else {
       // Convert path to query string format for SPA routing
       var redirectPath = pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
@@ -24,7 +24,7 @@
       var redirectHash = l.hash;
       
       var newUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + 
-                   '/ward-tools/?/' + redirectPath + redirectSearch + redirectHash;
+                   '/ward/?/' + redirectPath + redirectSearch + redirectHash;
       
       l.replace(newUrl);
     }
@@ -33,7 +33,7 @@
 <body>
   <div style="text-align: center; padding: 50px; font-family: Arial, sans-serif;">
     <h2>Redirecting...</h2>
-    <p>If you are not redirected automatically, <a href="/ward-tools/">click here</a>.</p>
+    <p>If you are not redirected automatically, <a href="/ward/">click here</a>.</p>
   </div>
 </body>
 </html>
