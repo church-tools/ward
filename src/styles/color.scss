@@ -33,7 +33,7 @@ $actives: (
     forest: #498205,
     yellow: #fde300,
     brass: #986f0b,
-    peach: #ff8c00,
+    peach: #ff8c00,  
     orange: #da3b01,
 );
 $actives-dark: (
@@ -155,8 +155,10 @@ $accent-background: map.get($backgrounds, 'accent');
 $accent-background-dark: map.get($backgrounds-dark, 'accent');
 $accent-foreground: map.get($foregrounds, 'accent');
 $accent-foreground-dark: map.get($foregrounds-dark, 'accent');
-$accent-variation-1: #b21f1f;
-$accent-variation-2: #1a2a6c;
+$accent-variation-1: peach;
+$accent-variation-2: red;
+$accent-variation-3: purple;
+
 
 $gray: map.get($actives, 'gray');
 $gray-800: #343a40;
@@ -170,59 +172,6 @@ $gray-100: #f8f9fa;
 
 $color-bg-opacity: 1;
 $color-bg-opacity-dark: 1;
-
-@each $color in $names {
-    @media (prefers-color-scheme: light) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds, $color), $color-bg-opacity); }
-            .color-fg { background-color: map.get($foregrounds, $color); }
-            .color-border { border-color: map.get($foregrounds, $color); }
-            .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
-            .color-active { color: map.get($actives, $color); }
-            app-icon { color: map.get($foregrounds, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds, $color), $color-bg-opacity); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
-        .#{"" + $color}-active { color: map.get($actives, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
-    }
-    @media (prefers-color-scheme: dark) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds-dark, $color), $color-bg-opacity-dark); }
-            .color-fg { background-color: map.get($foregrounds-dark, $color); }
-            .color-border { border-color: map.get($foregrounds-dark, $color); }
-            .color-text { color: map.get($foregrounds-dark, $color); }
-            .color-active { color: map.get($actives-dark, $color); }
-            app-icon { color: map.get($foregrounds-dark, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds-dark, $color), $color-bg-opacity-dark); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives-dark, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active { color: map.get($actives-dark, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds-dark, $color); }
-    }
-    @each $color2 in $names {
-        .bg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
-                    light-dark(map.get($backgrounds, $color), map.get($backgrounds-dark, $color)),
-                    light-dark(map.get($actives, $color2), map.get($actives-dark, $color2)));
-            }
-        }
-        .fg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
-                    light-dark(map.get($actives, $color), map.get($actives-dark, $color)),
-                    light-dark(map.get($foregrounds, $color2), map.get($foregrounds-dark, $color2)));
-            }
-        }
-    }
-}
 
 body {
     background-color: light-dark($canvas-background, $canvas-background-dark);

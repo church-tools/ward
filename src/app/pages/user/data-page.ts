@@ -1,12 +1,13 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { PageComponent } from '../shared/page';
 
 @Component({
     selector: 'app-data-page',
     template: `
-        <h1>Data</h1>
+        <span class="display-text">Display</span>
         <p>Data component content goes here.</p>
     `,
+    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataPageComponent extends PageComponent {
 

@@ -1,8 +1,52 @@
+@use "animation";
+@use "card";
 @use "layout";
+@use "color";
+@use 'sass:color' as sassColor;
+@use 'sass:map';
 
 // Background
 :host {
+    @extend .fullscreen;
+    @extend .column;
+    transition: all animation.$duration-lg ease;
+    background-color: light-dark(color.$navbar-background, color.$navbar-background-dark);
+    
+    // background: linear-gradient(15deg,
+    //     rgba(sassColor.mix(color.$accent-variation-2, color.$navbar-background, 15%), 0.95),
+    //     rgba(sassColor.mix(color.$accent-variation-1, color.$navbar-background, 15%), 0.95));
+    // @media (prefers-color-scheme: dark) {
+    //     background: linear-gradient(15deg,
+    //         rgba(sassColor.mix(color.$accent-variation-2-dark, color.$navbar-background-dark, 15%), 0.95),
+    //         rgba(sassColor.mix(color.$accent-variation-1-dark, color.$navbar-background-dark, 15%), 0.95));
+    // }
 
+    ::after {
+        content: '';
+        @extend .fullscreen;
+        transition: opacity animation.$duration ease;
+    
+        background-image: radial-gradient(farthest-corner at 100% 0%,
+            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-1), color.$navbar-background), 0.95) 0%,
+            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-2), color.$navbar-background), 0.95) 40%,
+            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-3), color.$navbar-background), 0.95) 100%);
+        @media (prefers-color-scheme: dark) {
+            background-image: radial-gradient(farthest-corner at 100% 0%,
+                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-1), color.$navbar-background-dark), 0.95) 0%,
+                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-2), color.$navbar-background-dark), 0.95) 40%,
+                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-3), color.$navbar-background-dark), 0.95) 100%);
+        }
+
+        // @include color.radial-background-gradient(210deg, peach, red, purple);
+        // background-image: light-dark(card.$acrylic-noise, card.$acrylic-noise-dark);
+        // background-color: rgba(#111, 0.1);
+        
+        z-index: -1;
+        opacity: 1;
+    }
+    &.focused :after {
+        opacity: 1;
+    }
 }
 
 
@@ -13,4 +57,7 @@
         flex-direction: column-reverse;
     }
     height: 100%;
+    .content {
+        @extend .grow-1;
+    }
 }

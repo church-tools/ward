@@ -99,39 +99,41 @@ a, .link {
 
 h1, h2, h3, h4, h5, h6, .h0 .h1, .h2, .h3, .h4, .h5, .h6 {
     font-family: $family-heading;
-    font-weight: 300;
-    line-height: 1.15em;
-    margin: 0;
     display: flex;
     align-items: center;
+    margin: 0;
+}
+
+.display-text, .h0, h1, .h1, h2, .h2, h3, .h3 {
+    font-weight: $weight-semibold;
+}
+
+.display-text {
+    font-size: 68px;
+    line-height: 92px;
 }
 
 .h0 {
-    font-size: 32pt;
-    font-weight: $weight-md;
-    line-height: 3rem;
+    font-size: 40px;
+    line-height: 52px;
     gap: 0.5rem;
-    margin: 2rem 0rem;
-    word-wrap: break-word;
     app-icon { margin: 0 0.25rem; }
 }
 h1, .h1 {
-    font-size: 18pt;
-    font-weight: $weight-md;
+    font-size: 32px;
+    line-height: 40px;
     gap: 0.5rem;
     app-icon { margin: 0 0.25rem; }
 }
 h2, .h2 {
-    font-size: 14pt;
-    font-weight: 600;
-    margin-bottom: 0;
+    font-size: 28px;
+    line-height: 36px;
     gap: 0.5rem;
     app-icon { margin: 0 0.25rem; }
 }
 h3, .h3 {
-    font-size: 12pt;
-    font-weight: $weight-md;
-    margin-bottom: 0;
+    font-size: 24px;
+    line-height: 32px;
     app-icon {
         margin-right: 0.5rem;
         font-size: 14pt !important;

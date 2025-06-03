@@ -1,0 +1,20 @@
+@use "styles";
+
+$sizes: (xs: 12px, sm: 16px, smaller: 20px, md: 24px, lg: 32px, xl: 48px, xxl: 64px, xxxl: 96px);
+
+:host {
+    @extend .icon-font;
+    display: block;
+    font-weight: normal !important;
+    -webkit-text-stroke: 0px;
+    text-stroke: 0px;
+
+    @each $size, $value in $sizes {
+        &.#{"" + $size} {
+            font-size: $value;
+            min-height: $value;
+            min-width: $value;
+        }
+    }
+}
+
