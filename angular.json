@@ -103,7 +103,8 @@
             "assets": [
               {
                 "glob": "**/*",
-                "input": "public"
+                "input": "public",
+                "output": "/"
               },
               {
                 "glob": "404.html",
