@@ -18,16 +18,7 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "/ward/assets"
-              },
-              {
-                "glob": "**/*",
-                "input": "src/assets",
-                "output": "/assets"
-              },
+              "src/assets",
               {
                 "glob": "404.html",
                 "input": "src",
@@ -105,7 +96,8 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",            "assets": [
+            "tsConfig": "tsconfig.spec.json",
+            "assets": [
               "src/assets",
               {
                 "glob": "404.html",
