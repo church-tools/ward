@@ -48,6 +48,17 @@ export class SupabaseService {
         return await this.supabase.auth.signInWithPassword({ email, password });
     }
 
+    async signInWithOAuth(provider: 'google' | 'azure') {
+        const { data, error } = await this.supabase.auth.signInWithOAuth({
+            provider,
+            options: {
+                redirectTo: window.location.origin,
+            },
+        });
+        if (error) throw error;
+        return data;
+    }
+
     /**
      * Sign out the current user
      */
