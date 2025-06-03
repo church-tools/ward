@@ -16,12 +16,8 @@
             "outputPath": "dist/ward-tools",
             "index": "src/index.html",
             "browser": "src/main.ts",
-            "tsConfig": "tsconfig.app.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public"
-              },
+            "tsConfig": "tsconfig.app.json",            "assets": [
+              "src/assets",
               {
                 "glob": "404.html",
                 "input": "src",
@@ -99,13 +95,8 @@
               "zone.js",
               "zone.js/testing"
             ],
-            "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              {
-                "glob": "**/*",
-                "input": "public",
-                "output": "/"
-              },
+            "tsConfig": "tsconfig.spec.json",            "assets": [
+              "src/assets",
               {
                 "glob": "404.html",
                 "input": "src",
