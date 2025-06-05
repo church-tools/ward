@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { SupabaseService } from '../../shared/supabase.service';
 import { PageComponent } from '../shared/page';
 
@@ -11,7 +11,6 @@ import { PageComponent } from '../shared/page';
         <button (click)="loginWithProvider('azure')">Login with Microsoft</button>
 
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class LoginPageComponent extends PageComponent {
 

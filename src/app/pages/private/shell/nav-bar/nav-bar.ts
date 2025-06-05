@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { TablistWrapperModule, TabWrapperModule } from "@fabric-msft/fluent-angular";
 import { Icon, IconComponent } from '../../../../shared/icon/icon';
 
@@ -20,7 +20,6 @@ export type NavTab = {
             }
         </fluent-Tablist>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [TablistWrapperModule, TabWrapperModule, IconComponent],
     styleUrl: './nav-bar.scss',
 })

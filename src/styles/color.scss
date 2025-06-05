@@ -14,6 +14,14 @@ $navbar-background-dark: #202020;
 $names: (accent, success, warning, danger, gray,
     red, pink, berry, purple, lavender, navy, blue, teal, seafoam, green, forest, yellow, brass, peach, orange);
 
+$accent: seafoam;
+$accent-variation-1: teal;
+$accent-variation-2: forest;
+// $accent: peach;
+// $accent-variation-1: brass; // red;
+// $accent-variation-2: mustard; // purple;
+
+// https://www.w3schools.com/colors/colors_names.asp
 $actives: (
     accent: #7160e8, // lavender
     success: #107c10,
@@ -33,7 +41,8 @@ $actives: (
     forest: #498205,
     yellow: #fde300,
     brass: #986f0b,
-    peach: #ff8c00,  
+    mustard: #c67c06,
+    peach: #ff8c00,
     orange: #da3b01,
 );
 $actives-dark: (
@@ -55,6 +64,7 @@ $actives-dark: (
     forest: #85b44c,
     yellow: #feee66,
     brass: #c1a256,
+    mustard: #ddad5d,
     peach: #ffba66,
     orange: #e9835e,
 );
@@ -78,6 +88,7 @@ $backgrounds: (
     forest: #bdd99b,
     yellow: #fef7b2,
     brass: #e0cea2,
+    mustard: #eed5aa,
     peach: #ffddb3,
     orange: #f4bfab,
 );
@@ -100,6 +111,7 @@ $backgrounds-dark: (
     forest: hsl(87, 92%, 15%),
     yellow: hsl(54, 100%, 25%),
     brass: hsl(43, 87%, 28%),
+    mustard: hsl(38, 93%, 28%),
     peach: hsl(33, 100%, 28%),
     orange: hsl(16, 98%, 24%),
 );
@@ -123,6 +135,7 @@ $foregrounds: (
     forest: hsl(87, 92%, 25%),
     yellow: hsl(54, 100%, 35%),
     brass: hsl(43, 87%, 32%),
+    mustard: hsl(38, 93%, 35%),
     peach: hsl(33, 100%, 38%),
     orange: hsl(16, 98%, 34%),
 );
@@ -145,20 +158,10 @@ $foregrounds-dark: (
     forest: #bdd99b,
     yellow: #fef7b2,
     brass: #e0cea2,
+    mustard: #eed5aa,
     peach: #ffddb3,
     orange: #f4bfab,
 );
-
-$accent: map.get($actives, 'accent');
-$accent-dark: map.get($actives-dark, 'accent');
-$accent-background: map.get($backgrounds, 'accent');
-$accent-background-dark: map.get($backgrounds-dark, 'accent');
-$accent-foreground: map.get($foregrounds, 'accent');
-$accent-foreground-dark: map.get($foregrounds-dark, 'accent');
-$accent-variation-1: peach;
-$accent-variation-2: red;
-$accent-variation-3: purple;
-
 
 $gray: map.get($actives, 'gray');
 $gray-800: #343a40;

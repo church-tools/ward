@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { SupabaseService } from '../../../shared/supabase.service';
 import WindowService from '../../../shared/window.service';
@@ -8,7 +8,6 @@ import { NavBarComponent, NavTab } from './nav-bar/nav-bar';
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrl: './private-shell.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterOutlet, NavBarComponent],
 })
 export class PrivateShellComponent implements OnInit {

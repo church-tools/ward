@@ -68,10 +68,10 @@ a, .link {
         @extend .font-color;
     }
     &:not(.stealth) {
-        color: light-dark(color.$accent-foreground, color.$accent-foreground-dark);
+        color: light-dark(map.get(color.$foregrounds, color.$accent), map.get(color.$foregrounds-dark, color.$accent));
         transition: all 0.1s ease-in-out;
         &:hover, &:focus{
-            color: light-dark(color.$accent, color.$accent-dark);
+            color: light-dark(map.get(color.$actives, color.$accent), map.get(color.$actives-dark, color.$accent));
         }
     }
     &:hover { text-decoration: none; }

@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
 import { PageComponent } from '../shared/page';
 
 @Component({
@@ -7,7 +7,6 @@ import { PageComponent } from '../shared/page';
         <span class="display-text">Display</span>
         <p>Data component content goes here.</p>
     `,
-    changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class DataPageComponent extends PageComponent {
 

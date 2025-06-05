@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, computed, input } from "@angular/core";
+import { Component, computed, input } from "@angular/core";
 import { iconCodes } from "./icon-codes";
 
 export type IconPath = keyof typeof IconPathMap;
@@ -26,7 +26,6 @@ export function getIconChar(icon: Icon, filled?: boolean) {
     selector: 'app-icon',
     template: '{{content()}}',
     styleUrl: './icon.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     host: {
         '[style]': 'style()',
         '[class]': 'size()',

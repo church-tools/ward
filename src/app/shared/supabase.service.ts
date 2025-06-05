@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core';
+import { ObservablePersistIndexedDB } from '@legendapp/state/persist-plugins/indexeddb';
 import { configureSynced } from '@legendapp/state/sync';
 import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import { environment } from '../../environments/environment';
-import { ObservablePersistIndexedDB } from '@legendapp/state/persist-plugins/indexeddb'
 import { generateUUIDv7 } from '../shared/utils/crypto-utils';
+import { getSiteOrigin } from './utils/url-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -53,7 +54,7 @@ export class SupabaseService {
             provider,
             options: {
                 scopes: 'email',
-                redirectTo: window.location.origin,
+                redirectTo: getSiteOrigin(),
             },
         });
         if (error) throw error;
