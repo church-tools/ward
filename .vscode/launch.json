@@ -4,7 +4,7 @@
   "configurations": [
     {
       "name": "Launch Edge",
-      "type": "msedge",
+      "type": "vscode-edge-devtools.debug",
       "request": "launch",
       "url": "http://localhost:4200",
       "webRoot": "${workspaceFolder}"

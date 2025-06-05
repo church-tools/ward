@@ -52,6 +52,7 @@ export class SupabaseService {
         const { data, error } = await this.supabase.auth.signInWithOAuth({
             provider,
             options: {
+                scopes: 'email',
                 redirectTo: window.location.origin,
             },
         });
