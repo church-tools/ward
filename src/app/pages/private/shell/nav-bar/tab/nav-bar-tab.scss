@@ -50,25 +50,26 @@
     opacity: 0;
     transition: all $duration-sm ease;
     pointer-events: none;
+    
     &.visible {
         top: 0.6rem;
         opacity: 1;
     }
-
+    
     .count-dot {
         transform: translate(50%, -50%);
         border-radius: $border-radius-round;
+        transition: all $duration-sm ease;
         width: 0px;
         height: 0px;
         opacity: 0;
         margin-bottom: 0;
-        transition: all $duration-sm ease;
-        &.visible {
-            @include box(1);
+          &.visible {
             width: 6px;
             height: 6px;
             margin-bottom: 2px;
             opacity: 0.5;
+            @include box(1);
         }
     }
 }

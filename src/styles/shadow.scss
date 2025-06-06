@@ -1,15 +1,17 @@
 
+@use 'sass:math';
+
 $levels: (1, 2, 4, 8, 16, 32, 64);
 
 @mixin box($level) {
     @media (prefers-color-scheme: light) {
-        $shadow: rgba(black, 14%) 0px #{$level * 0.5}px #{$level}px, rgba(black, 14%) 0px #{$level * 0.5}px #{$level}px;
+        $shadow: rgba(black, 14%) 0px #{math.div($level, 2)}px #{$level}px, rgba(black, 14%) 0px #{math.div($level, 2)}px #{$level}px;
         -webkit-box-shadow: $shadow !important;
         -moz-box-shadow: $shadow !important;
         box-shadow: $shadow !important;
     }
     @media (prefers-color-scheme: dark) {
-        $shadow: rgba(black, 28%) 0px #{$level * 0.5}px #{$level}px, rgba(black, 14%) 0px #{$level * 0.5}px #{$level}px;
+        $shadow: rgba(black, 28%) 0px #{math.div($level, 2)}px #{$level}px, rgba(black, 14%) 0px #{math.div($level, 2)}px #{$level}px;
         -webkit-box-shadow: $shadow !important;
         -moz-box-shadow: $shadow !important;
         box-shadow: $shadow !important;

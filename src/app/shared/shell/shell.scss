@@ -6,7 +6,9 @@
     @include fullscreen;
     @include column;
     transition: all $duration-lg ease;
-    background-color: light-dark($navbar-background, $navbar-background-dark);    ::after {
+    background-color: light-dark($navbar-background, $navbar-background-dark);
+    
+    ::after {
         content: '';
         @include fullscreen;
         transition: opacity $duration ease;
