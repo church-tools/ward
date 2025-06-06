@@ -11,8 +11,8 @@ $navbar-background-dark: #202020;
 
 // see https://react.fluentui.dev/?path=/docs/theme-colors--page
 
-$names: (accent, success, warning, danger, gray,
-    red, pink, berry, purple, lavender, navy, blue, teal, seafoam, green, forest, yellow, brass, peach, orange);
+$names: (success, warning, danger, gray,
+    red, pink, berry, purple, lavender, navy, blue, teal, seafoam, green, forest, yellowgreen, yellow, brass, mustard, peach, orange);
 
 $accent: seafoam;
 $accent-variation-1: teal;
@@ -20,10 +20,12 @@ $accent-variation-2: forest;
 // $accent: peach;
 // $accent-variation-1: brass; // red;
 // $accent-variation-2: mustard; // purple;
+// $accent: mustard;
+// $accent-variation-1: forest;
+// $accent-variation-2: brass;
 
 // https://www.w3schools.com/colors/colors_names.asp
 $actives: (
-    accent: #7160e8, // lavender
     success: #107c10,
     warning: #f7630c,
     danger: #c50f1f,
@@ -39,6 +41,7 @@ $actives: (
     seafoam: #00cc6a,
     green: #107c10,
     forest: #498205,
+    yellowgreen: #a3b202,
     yellow: #fde300,
     brass: #986f0b,
     mustard: #c67c06,
@@ -46,7 +49,6 @@ $actives: (
     orange: #da3b01,
 );
 $actives-dark: (
-    accent: #a79cf1,
     success: #54b054,
     warning: #faa06b,
     danger: #dc626d,
@@ -62,6 +64,7 @@ $actives-dark: (
     seafoam: #5ae0a0,
     green: #54b054,
     forest: #85b44c,
+    yellowgreen: #c2d159,
     yellow: #feee66,
     brass: #c1a256,
     mustard: #ddad5d,
@@ -70,7 +73,6 @@ $actives-dark: (
 );
 
 $backgrounds: (
-    accent: #d2ccf8,
     success: #9fd89f,
     warning: #fdcfb4,
     danger: #eeacb2,
@@ -86,6 +88,7 @@ $backgrounds: (
     seafoam: #a8f0cd,
     green: #9fd89f,
     forest: #bdd99b,
+    yellowgreen: #dee8a6,
     yellow: #fef7b2,
     brass: #e0cea2,
     mustard: #eed5aa,
@@ -93,7 +96,6 @@ $backgrounds: (
     orange: #f4bfab,
 );
 $backgrounds-dark: (
-    accent: hsl(247, 41%, 36%),
     success: hsl(120, 77%, 15%),
     warning: hsl(22, 90%, 28%),
     danger: hsl(355, 86%, 23%),
@@ -109,6 +111,7 @@ $backgrounds-dark: (
     seafoam: hsl(151, 100%, 22%),
     green: hsl(120, 77%, 15%),
     forest: hsl(87, 92%, 15%),
+    yellowgreen: hsl(66, 96%, 19%),
     yellow: hsl(54, 100%, 25%),
     brass: hsl(43, 87%, 28%),
     mustard: hsl(38, 93%, 28%),
@@ -117,7 +120,6 @@ $backgrounds-dark: (
 );
 
 $foregrounds: (
-    accent: hsl(247, 41%, 46%),
     success: hsl(120, 77%, 25%),
     warning: hsl(22, 90%, 38%),
     danger: hsl(355, 86%, 33%),
@@ -133,6 +135,7 @@ $foregrounds: (
     seafoam: hsl(151, 100%, 32%),
     green: hsl(120, 77%, 25%),
     forest: hsl(87, 92%, 25%),
+    yellowgreen: hsl(68, 97%, 28%),
     yellow: hsl(54, 100%, 35%),
     brass: hsl(43, 87%, 32%),
     mustard: hsl(38, 93%, 35%),
@@ -140,7 +143,6 @@ $foregrounds: (
     orange: hsl(16, 98%, 34%),
 );
 $foregrounds-dark: (
-    accent: #d2ccf8,
     success: #9fd89f,
     warning: #f0b18c,
     danger: #eeacb2,
@@ -156,6 +158,7 @@ $foregrounds-dark: (
     seafoam: #a8f0cd,
     green: #9fd89f,
     forest: #bdd99b,
+    yellowgreen: #dee8a6,
     yellow: #fef7b2,
     brass: #e0cea2,
     mustard: #eed5aa,
@@ -196,5 +199,60 @@ body {
         --#{"" + $color}-bg-dark: #{map.get($backgrounds-dark, $color)};
         --#{"" + $color}-fg: #{map.get($foregrounds, $color)};
         --#{"" + $color}-fg-dark: #{map.get($foregrounds-dark, $color)};
+    }
+}
+
+// Fluent 2 Web Components theming
+:root {
+    // Accent fill colors for buttons, tabs, etc.
+    --accent-fill-rest: #{map.get($actives, $accent)};
+    --accent-fill-hover: #{map.get($actives-dark, $accent)};
+    --accent-fill-active: #{map.get($actives, $accent)};
+    --accent-fill-focus: #{map.get($actives, $accent)};
+    
+    // Accent foreground colors for text
+    --accent-foreground-rest: #{map.get($foregrounds, $accent)};
+    --accent-foreground-hover: #{map.get($actives, $accent)};
+    --accent-foreground-active: #{map.get($actives, $accent)};
+    --accent-foreground-focus: #{map.get($actives, $accent)};
+    
+    // Accent stroke colors for borders
+    --accent-stroke-control-rest: #{map.get($foregrounds, $accent)};
+    --accent-stroke-control-hover: #{map.get($actives, $accent)};
+    --accent-stroke-control-active: #{map.get($actives, $accent)};
+    --accent-stroke-control-focus: #{map.get($actives, $accent)};
+    
+    // Neutral colors that work with the accent
+    --neutral-fill-rest: #{map.get($backgrounds, $accent)};
+    --neutral-fill-hover: #{map.get($backgrounds-dark, $accent)};
+    --neutral-fill-active: #{map.get($actives, $accent)};
+    --neutral-fill-focus: #{map.get($backgrounds, $accent)};
+    
+    // CSS accent-color property for native form controls
+    accent-color: #{map.get($actives, $accent)};
+    
+    @media (prefers-color-scheme: dark) {
+        // Dark mode accent colors
+        --accent-fill-rest: #{map.get($actives-dark, $accent)};
+        --accent-fill-hover: #{map.get($actives, $accent)};
+        --accent-fill-active: #{map.get($actives-dark, $accent)};
+        --accent-fill-focus: #{map.get($actives-dark, $accent)};
+        
+        --accent-foreground-rest: #{map.get($foregrounds-dark, $accent)};
+        --accent-foreground-hover: #{map.get($actives-dark, $accent)};
+        --accent-foreground-active: #{map.get($actives-dark, $accent)};
+        --accent-foreground-focus: #{map.get($actives-dark, $accent)};
+        
+        --accent-stroke-control-rest: #{map.get($foregrounds-dark, $accent)};
+        --accent-stroke-control-hover: #{map.get($actives-dark, $accent)};
+        --accent-stroke-control-active: #{map.get($actives-dark, $accent)};
+        --accent-stroke-control-focus: #{map.get($actives-dark, $accent)};
+        
+        --neutral-fill-rest: #{map.get($backgrounds-dark, $accent)};
+        --neutral-fill-hover: #{map.get($backgrounds, $accent)};
+        --neutral-fill-active: #{map.get($actives-dark, $accent)};
+        --neutral-fill-focus: #{map.get($backgrounds-dark, $accent)};
+        
+        accent-color: #{map.get($actives-dark, $accent)};
     }
 }

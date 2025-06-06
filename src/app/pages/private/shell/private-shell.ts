@@ -9,6 +9,9 @@ import { NavBarComponent, NavTab } from './nav-bar/nav-bar';
     templateUrl: './private-shell.html',
     styleUrl: './private-shell.scss',
     imports: [RouterOutlet, NavBarComponent],
+    host: {
+        '[class.focused]': 'windowService.focused()',
+    }
 })
 export class PrivateShellComponent implements OnInit {
 
