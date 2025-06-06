@@ -1,6 +1,6 @@
-@use "shared" as *; // Import only shared variables and mixins, no CSS output
+// @use "shared" as *; // Import only shared variables and mixins, no CSS output
 
-$sizes: (xs: $size-xs, sm: $size-sm, smaller: 20px, md: $size, lg: $size-lg, xl: 48px, xxl: 64px, xxxl: 96px);
+$sizes: (xs: 12px, sm: 16px, smaller: 20px, md: 24px, lg: 32px, xl: 48px, xxl: 64px, xxxl: 96px);
 
 @font-face {
     font-family: IconFont;
