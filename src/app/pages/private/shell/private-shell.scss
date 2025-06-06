@@ -1,24 +1,10 @@
 @use "shared" as *; // Import only shared variables and mixins, no CSS output
 
 .header {
-    @extend .row;
-    @extend .no-wrap;
-    @extend .gap-3;
-    @extend .m-2;
     .handle {
-        @extend .row;
-        @extend .items-center;
-        @extend .gap-5;
-        @extend .ms-3;
         width: 100%;
         .app-name {
-            @extend .display-when-not-small;
-            @extend .small-text;
-            @extend .subtle-text;
             transition: color $duration-sm ease;
-            &.focused {
-                @extend .font-color;
-            }
         }
     }
     app-omni-search {
@@ -32,16 +18,14 @@
     flex-direction: row;
     height: 100%;
     .canvas {
-        @extend .grow-1;
-        @extend .column;
-        @extend .transparent-canvas-background;
         transition: opacity $duration-lg ease;
         border-top: 0.25px inset light-dark(rgba($canvas-border, 0.25), rgba($canvas-border-dark, 0.25));
         // opacity: 0;
         // &.visible {
         //     opacity: 1;
         // }
-    }    @include larger-than($sm) {
+    }
+    @include larger-than($sm) {
         .canvas {
             align-content: stretch;
             border-top-left-radius: $border-radius-lg;

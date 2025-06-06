@@ -1,7 +1,8 @@
-<div class="header">
-    <div class="handle">
+<div class="header row no-wrap gap-3 m-2">
+    <div class="handle row items-center gap-5 ms-3">
         <div class="app-logo">👨‍👩‍👧‍👦</div>
-        <div class="app-name" [class.focused]="windowService.focused()">Gemeinde Tools</div>
+        <div class="app-name display-when-not-small small-text subtle-text"
+            [class.font-color]="windowService.focused()">Gemeinde Tools</div>
     </div>
     <app-omni-search/>
     <div class="handle">
@@ -10,7 +11,7 @@
 </div>
 <div class="nav-and-canvas">
     <app-nav-bar [tabs]="tabs()" [horizontal]="windowService.isSmall()"/>
-    <div class="canvas">
+    <div class="canvas grow-1 column transparent-canvas-background">
         <router-outlet/>
     </div>
 </div>

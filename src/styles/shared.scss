@@ -223,6 +223,20 @@ $xl: 1000000px;
 // ===== LAYOUT VARIABLES =====
 $gutter: 0.25rem;
 
+// ===== LAYOUT MIXINS =====
+@mixin fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+}
+
+@mixin column {
+    display: flex;
+    flex-direction: column;
+}
+
 // ===== SHADOW MIXINS =====
 @mixin box($level) {
     @media (prefers-color-scheme: light) {

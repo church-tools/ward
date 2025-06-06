@@ -29,7 +29,7 @@
     &:hover {
         background-color: light-dark(rgba($color, 0.05), rgba($color-dark, 0.05));
         .icon, .tab-title {
-            @extend .font-color;
+            color: light-dark($color, $color-dark);
         }
     }
     &.active {
@@ -64,7 +64,7 @@
         margin-bottom: 0;
         transition: all $duration-sm ease;
         &.visible {
-            @extend .shadow-1;
+            @include box(1);
             width: 6px;
             height: 6px;
             margin-bottom: 2px;

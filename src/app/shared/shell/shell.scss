@@ -3,14 +3,12 @@
 @use 'sass:map';
 
 :host {
-    @extend .fullscreen;
-    @extend .column;
+    @include fullscreen;
+    @include column;
     transition: all $duration-lg ease;
-    background-color: light-dark($navbar-background, $navbar-background-dark);
-
-    ::after {
+    background-color: light-dark($navbar-background, $navbar-background-dark);    ::after {
         content: '';
-        @extend .fullscreen;
+        @include fullscreen;
         transition: opacity $duration ease;
         z-index: -1;
         opacity: 0;
