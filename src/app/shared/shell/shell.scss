@@ -1,32 +1,29 @@
-@use "animation";
-@use "layout";
-@use "font";
-@use "color";
+@use "shared" as *; // Import only shared variables and mixins, no CSS output
 @use 'sass:color' as sassColor;
 @use 'sass:map';
 
 :host {
     @extend .fullscreen;
     @extend .column;
-    transition: all animation.$duration-lg ease;
-    background-color: light-dark(color.$navbar-background, color.$navbar-background-dark);
+    transition: all $duration-lg ease;
+    background-color: light-dark($navbar-background, $navbar-background-dark);
 
     ::after {
         content: '';
         @extend .fullscreen;
-        transition: opacity animation.$duration ease;
+        transition: opacity $duration ease;
         z-index: -1;
         opacity: 0;
     
         background-image: radial-gradient(farthest-corner at 100% 0%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent), color.$navbar-background, 30%), 0.95) 0%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-1), color.$navbar-background, 20%), 0.95) 40%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-2), color.$navbar-background, 30%), 0.95) 100%);
+            rgba(sassColor.mix(map.get($backgrounds, $accent), $navbar-background, 30%), 0.95) 0%,
+            rgba(sassColor.mix(map.get($backgrounds, $accent-variation-1), $navbar-background, 20%), 0.95) 40%,
+            rgba(sassColor.mix(map.get($backgrounds, $accent-variation-2), $navbar-background, 30%), 0.95) 100%);
         @media (prefers-color-scheme: dark) {
             background-image: radial-gradient(farthest-corner at 100% 0%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent), color.$navbar-background-dark, 15%), 0.95) 0%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-1), color.$navbar-background-dark, 10%), 0.95) 40%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-2), color.$navbar-background-dark, 15%), 0.95) 100%);
+                rgba(sassColor.mix(map.get($backgrounds-dark, $accent), $navbar-background-dark, 15%), 0.95) 0%,
+                rgba(sassColor.mix(map.get($backgrounds-dark, $accent-variation-1), $navbar-background-dark, 10%), 0.95) 40%,
+                rgba(sassColor.mix(map.get($backgrounds-dark, $accent-variation-2), $navbar-background-dark, 15%), 0.95) 100%);
         }
     }
     &.focused ::after {

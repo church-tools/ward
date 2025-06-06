@@ -1,5 +1,4 @@
-@use "font";
-@use "layout";
+@use "shared" as *; // Import only shared variables and mixins, no CSS output
 
 $translation: 1.5rem;
 $duration: 0.3s;
@@ -11,7 +10,7 @@ $duration: 0.3s;
     height: 2rem;
     width: 2rem;
     border-radius: 50%;
-    font-weight: font.$weight-md;
+    font-weight: $weight-md;
     transition: opacity $duration ease;
     &.small {
         @extend .small-text;

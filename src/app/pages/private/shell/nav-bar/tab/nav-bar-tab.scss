@@ -1,26 +1,24 @@
-@use "card";
-@use "font";
-@use "animation";
+@use "shared" as *; // Import only shared variables and mixins, no CSS output
 
 .btn {
     text-decoration: none !important;
     min-height: 4rem;
     width: 4.5rem;
-    border-radius: card.$border-radius-sm;
-    transition: background-color animation.$duration-sm ease;
+    border-radius: $border-radius-sm;
+    transition: background-color $duration-sm ease;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     .icon, .active-icon, .tab-title {
-        transition: all animation.$duration-sm ease;
+        transition: all $duration-sm ease;
     }
     .icon, .active-icon {
         position: fixed;
         margin-top: -0.75rem;
     }
     .icon, .tab-title {
-        color: light-dark(rgba(font.$color, 0.75), rgba(font.$color-dark, 0.666));
+        color: light-dark(rgba($color, 0.75), rgba($color-dark, 0.666));
     }
     .active-icon { opacity: 0; }
     .tab-title {
@@ -29,13 +27,13 @@
         margin-top: 2.5rem;
     }
     &:hover {
-        background-color: light-dark(rgba(font.$color, 0.05), rgba(font.$color-dark, 0.05));
+        background-color: light-dark(rgba($color, 0.05), rgba($color-dark, 0.05));
         .icon, .tab-title {
             @extend .font-color;
         }
     }
     &.active {
-        background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.1));
+        background-color: light-dark(rgba($color, 0.1), rgba($color-dark, 0.1));
         .icon, .tab-title { opacity: 0; }
         .active-icon { opacity: 1; }
         .icon, .active-icon {
@@ -50,7 +48,7 @@
     top: 0.9rem;
     right: 0.6rem;
     opacity: 0;
-    transition: all animation.$duration-sm ease;
+    transition: all $duration-sm ease;
     pointer-events: none;
     &.visible {
         top: 0.6rem;
@@ -59,12 +57,12 @@
 
     .count-dot {
         transform: translate(50%, -50%);
-        border-radius: card.$border-radius-round;
+        border-radius: $border-radius-round;
         width: 0px;
         height: 0px;
         opacity: 0;
         margin-bottom: 0;
-        transition: all animation.$duration-sm ease;
+        transition: all $duration-sm ease;
         &.visible {
             @extend .shadow-1;
             width: 6px;
