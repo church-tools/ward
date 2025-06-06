@@ -1,13 +1,9 @@
-// This file generates ALL global CSS classes and utilities
-// Component SCSS files should only import shared.scss for variables/mixins
-
-@use "shadow";
-@use "color";
-@use "font";
-@use "animation";
-@use "card";
-@use "breakpoints";
-@use "layout";
+@forward "shadow-classes";
+@forward "color-classes";
+@forward "font-classes";
+@forward "animation-classes";
+@forward "card-classes";
+@forward "layout-classes";
 
 body {
     position: relative;

@@ -1,0 +1,9 @@
+@use "shadow" as *;
+
+@each $level in $levels {
+    .shadow-#{$level} { @include box($level); }
+}
+
+.dropdown-box-shadow {
+    @include box(8);
+}

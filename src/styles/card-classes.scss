@@ -1,0 +1,168 @@
+@use "card" as *;
+@use "color";
+@use "shadow";
+@use "animation";
+@use "layout-classes";
+@use "shadow-classes";
+@use 'sass:map';
+@use 'sass:color' as sassColor;
+
+.card {
+    display: flex;
+    flex-direction: column;
+    border-radius: $border-radius;
+    background-color: light-dark($background-color, $background-color-dark);
+    
+    &:not(.clear) {
+        @include shadow.box(2);
+    }
+    @each $color in color.$names {
+        &.#{"" + $color} {
+            background-color: light-dark(map.get(color.$backgrounds, $color), map.get(color.$backgrounds-dark, $color));
+            color: light-dark(map.get(color.$foregrounds, $color), map.get(color.$foregrounds-dark, $color));
+        }
+    }
+
+    &.same-height {
+        height: 100%;
+        .card-body {
+            justify-content: end;
+        }
+    }
+
+    &.clear {
+        background-color: transparent;
+    }
+    &.round {
+        border-radius: $border-radius-round;
+    }
+
+    &.background-card {
+        background-color: light-dark(color.$canvas-background, color.$canvas-background-dark);
+    }
+
+    &.canvas-background-card {
+        background-color: light-dark(
+            sassColor.mix(rgba(color.$canvas-background, 0.6), $background-transparent-color),
+            sassColor.mix(rgba(color.$canvas-background-dark, 0.333), $background-transparent-color-dark));
+        @include shadow.box(3);
+        &:not(.suppress-canvas-card-animation) {
+            animation: appear-on-page animation.$duration-lg ease-out;
+        }
+    }
+
+    &.selectable-card {
+        cursor: pointer;
+        &:hover {
+            background-color: light-dark($hover-background-color, $hover-background-color-dark);
+            @include shadow.box(4);
+        }
+    }
+
+    &.canvas-card {
+        background-color: light-dark($background-transparent-color, $background-transparent-color-dark);
+        &:not(.suppress-canvas-card-animation) {
+            animation: appear-on-page animation.$duration-lg ease-out;
+        }
+
+        @each $color in color.$names {
+            &.#{"" + $color} {
+                background-color: light-dark(rgba(map.get(color.$backgrounds, $color), 0.667), rgba(map.get(color.$backgrounds-dark, $color), 0.333));
+                color: light-dark(map.get(color.$foregrounds, $color), map.get(color.$foregrounds-dark, $color));
+            }
+        }
+        &.selectable-card:hover {
+            background-color: light-dark($hover-background-transparent-color, $hover-background-transparent-color-dark);
+        }
+    }
+
+    .card-footer {
+        margin-top: auto;
+        display: flex;
+        justify-content: space-between;
+        grid-column-gap: 0.75rem;
+        border-top: $divider;
+        border-top-color: light-dark($divider-color, $divider-color-dark);
+        padding: 1rem 1.5rem;
+        &.center {
+            justify-content: center;
+        }
+        & > * {
+            &:only-child {
+                margin: 0 auto;
+            }
+        }
+    }
+
+    .card-body {
+        @extend .gap-3;
+        &.sparse { @extend .gap-5; }
+        &.dense { @extend .gap-1; }
+        padding: 1rem;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+        &.row { flex-direction: row; }
+        box-sizing: border-box;
+    }
+
+    .background-card-body {
+        @extend .card-body;
+        @extend .gap-4;
+    }
+}
+
+.acrylic {
+    -webkit-backdrop-filter: $acrylic-blur;
+    backdrop-filter: $acrylic-blur;
+    background-image: light-dark($acrylic-noise, $acrylic-noise-dark);
+    background-blend-mode: $acrylic-blend-mode;
+}
+
+.acrylic-card {
+    @extend .dropdown-box-shadow;
+    @extend .acrylic;
+    margin: 0;
+    padding: 0.25rem;
+    border-radius: $border-radius;
+    gap: 0.25rem;
+    border: 1px solid light-dark(color.$canvas-border, color.$canvas-border-dark);
+    background-color: light-dark(
+        rgba($background-color, 0.5),
+        rgba($background-color-dark, 0.75));
+}
+
+.divider-border-top {
+    border-top: $divider;
+    border-top-color: light-dark($divider-color, $divider-color-dark);
+}
+.divider-border-left {
+    border-left: $divider;
+    border-left-color: light-dark($divider-color, $divider-color-dark);
+}
+.divider-border-right {
+    border-right: $divider;
+    border-right-color: light-dark($divider-color, $divider-color-dark);
+}
+.divider-border-bottom {
+    border-bottom: $divider;
+    border-bottom-color: light-dark($divider-color, $divider-color-dark);
+}
+
+@keyframes appear-on-page {
+    0% {
+        opacity: 0.75;
+        transform: translateY(0.5rem);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+hr {
+    margin-top: 1rem 0 0 0;
+    background: none;
+    opacity: 1;
+    border-top: $divider;
+}

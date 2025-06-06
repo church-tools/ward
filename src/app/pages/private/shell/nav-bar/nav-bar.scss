@@ -1,7 +1,5 @@
-@use "shared" as *; // Import only shared variables and mixins, no CSS output
-
-
-
+@use "card";
+@use "animation";
 
 :host {
     width: 4.25rem;
@@ -18,7 +16,7 @@
         width: 100%;
         flex-direction: row;
         justify-content: center;
-        background-color: light-dark($hover-background-transparent-color, $hover-background-transparent-color-dark);
+        background-color: light-dark(card.$hover-background-transparent-color, card.$hover-background-transparent-color-dark);
     }
 }
 
@@ -31,11 +29,11 @@
     width: 4px;
     height: 22px;
     left: 0.25rem;
-    border-radius: $border-radius-sm;
-    transition: all $duration-sm ease-out;
+    border-radius: card.$border-radius-sm;
+    transition: all animation.$duration-sm ease-out;
     &.visible {
         &.bottom {
-            animation: fade-to-bottom $duration-sm ease-in-out;
+            animation: fade-to-bottom animation.$duration-sm ease-in-out;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.tab-#{$tab} {
                     transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
@@ -43,7 +41,7 @@
             }
         }
         &:not(.bottom) {
-            animation: fade-to-top $duration-sm ease-in-out;
+            animation: fade-to-top animation.$duration-sm ease-in-out;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.tab-#{$tab} {
                     transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));
@@ -52,10 +50,10 @@
         }
     }
     &:not(.visible) {
-        animation: fadeOut $duration-sm ease-in-out;
+        animation: fadeOut animation.$duration-sm ease-in-out;
         opacity: 0;
         &.prev-bottom {
-            animation: fade-to-bottom $duration-sm ease-in-out;
+            animation: fade-to-bottom animation.$duration-sm ease-in-out;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.prev-tab-#{$tab} {
                     transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
@@ -63,7 +61,7 @@
             }
         }
         &:not(.prev-bottom) {
-            animation: fade-to-top $duration-sm ease-in-out;
+            animation: fade-to-top animation.$duration-sm ease-in-out;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.prev-tab-#{$tab} {
                     transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));

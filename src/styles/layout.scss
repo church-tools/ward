@@ -1,158 +1,24 @@
-@use "breakpoints";
-@use 'sass:map';
 
 $tiny-horizontal-spacing: 2px;
 
-.position-relative { position: relative !important; }
-.position-absolute { position: absolute !important; }
-.position-sticky { position: -webkit-sticky; position: sticky; }
-.display-none { display: none; }
-.display-flex { display: flex; }
-.display-block { display: block; }
-.display-contents { display: contents; }
-.display-grid { display: inline-grid !important; }
-
 $gutter: 0.25rem;
-
-@each $gs in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-    .gap-#{$gs} { gap: $gs * $gutter; }
-    .column-gap-#{$gs} { column-gap: $gs * $gutter; }
-    .row-gap-#{$gs} { row-gap: $gs * $gutter; }
-}
-.grid {
-    display: grid;
-}
 
 $column-widths: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
 
-.column-grid {
-    @extend .gap-3;
-    &.dense {
-        @extend .gap-1;
-    }
-    &.sparse {
-        @extend .gap-5;
-    }
-    display: grid !important;
-    grid-template-columns: repeat(12, [col-start] 1fr);
+$sm: 640px;
+$md: 1007px;
+$lg: 1366px;
+$xl: 1000000px;
 
-    & > .column {
-        width: 100%;
-    }
-    @each $cw in $column-widths {
-        .col-#{$cw}, .col-sm-#{$cw} { grid-column: span $cw; }
-    }
-
-    @include breakpoints.smaller-than(breakpoints.$xl) {
-        @each $cw in $column-widths {
-            .col-xl-#{$cw} { grid-column: span 12; }
-        }
-    }
-
-    @include breakpoints.smaller-than(breakpoints.$lg) {
-        @each $cw in $column-widths {
-            .col-lg-#{$cw} { grid-column: span 12; }
-        }
-    }
-
-    @include breakpoints.smaller-than(breakpoints.$md) {
-        @each $cw in $column-widths {
-            .col-md-#{$cw} { grid-column: span 12; }
-            .col-#{$cw}, .col-sm-#{$cw} { grid-column: span $cw; }
-        }
-    }
-
-    @include breakpoints.larger-than(breakpoints.$sm) {
-        @each $cw in $column-widths {
-            .col-md-#{$cw} { grid-column: span $cw; }
-        }
-    }
-
-    @include breakpoints.larger-than(breakpoints.$md) {
-        @each $cw in $column-widths {
-            .col-lg-#{$cw} { grid-column: span $cw; }
-        }
-    }
-
-    @include breakpoints.larger-than(breakpoints.$lg) {
-        @each $cw in $column-widths {
-            .col-xl-#{$cw} { grid-column: span $cw; }
-        }
-    }
-
+@mixin larger-than($breakpoint) {
+    @media only screen and (min-width: $breakpoint) { @content; }
 }
 
-.text-center {
-    text-align: center;
-}
-.text-left {
-    text-align: left;
-}
-.text-right {
-    text-align: right;
+@mixin smaller-than($breakpoint) {
+    @media only screen and (max-width: calc($breakpoint - 1px)) { @content; }
 }
 
-@each $size in (-3, -2, -1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-    .m-#{$size} { margin: $size * $gutter !important; }
-    .mt-#{$size} { margin-top: $size * $gutter !important; }
-    .mb-#{$size} { margin-bottom: $size * $gutter !important; }
-    .ms-#{$size} { margin-left: $size * $gutter !important; }
-    .me-#{$size} { margin-right: $size * $gutter !important; }
-    .p-#{$size} { padding: $size * $gutter !important; }
-    .pt-#{$size} { padding-top: $size * $gutter !important; }
-    .pb-#{$size} { padding-bottom: $size * $gutter !important; }
-    .ps-#{$size} { padding-left: $size * $gutter !important; }
-    .pe-#{$size} { padding-right: $size * $gutter !important; }
-}
-.mt-auto { margin-top: auto !important; }
-.mb-auto { margin-bottom: auto !important; }
-.ms-auto { margin-left: auto !important; }
-.me-auto { margin-right: auto !important; }
-
-ul {
-    margin-block-start: 0.5em;
-    padding-inline-start: 2em;
-}
-
-.row {
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-}
-
-.column {
-    display: flex;
-    flex-direction: column;
-}
-.center-content { justify-content: center !important; }
-.spread-content { justify-content: space-between; }
-.spread-content-evenly { justify-content: space-evenly; }
-.start-content { justify-content: start; }
-.end-content { justify-content: end; }
-.wrap-reverse { flex-wrap: wrap-reverse; }
-.no-wrap { flex-wrap: nowrap; }
-.items-center {
-    display: flex;
-    align-items: center;
-}
-.items-start {
-    align-items: start;
-}
-.items-end {
-    align-items: end;
-}
-
-@each $direction in ("height", "width") {
-    .full-#{$direction} { #{$direction}: 100% !important; }
-    .three-quarter-#{$direction} { #{$direction}: 75%; }
-    .half-#{$direction} { #{$direction}: 50%; }
-    .min-content-#{$direction} { #{$direction}: min-content; }
-    .fit-content-#{$direction} {
-        #{$direction}: fit-content;
-        #{$direction}: -moz-fit-content;
-    }
-}
-.fullscreen {
+@mixin fullscreen {
     position: fixed;
     top: 0;
     left: 0;
@@ -160,36 +26,7 @@ ul {
     bottom: 0;
 }
 
-@each $grow in (0, 1, 2, 3, 4, 5, 6) {
-    .grow-#{$grow} { flex-grow: $grow; }
-}
-
-.canvas-height {
-    height: calc(100vh - 14.5rem);
-}
-.max-popover-height {
-    max-height: calc(100vh - 8.5rem);
-}
-
-.overflow-scroll {
-    overflow: auto;
-}
-.overflow-hidden {
-    overflow: hidden;
-}
-
-.float-left { float: left; }
-.float-right { float: right; }
-
-
-@each $size in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-    .max-height-#{$size} { max-height: $size * $gutter; }
-}
-.click-through {
-    pointer-events: none;
-}
-
-.footer {
-    @extend .row, .gap-3, .spread-content;
-    margin-top: 1.25rem;
+@mixin column {
+    display: flex;
+    flex-direction: column;
 }

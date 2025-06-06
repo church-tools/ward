@@ -1,10 +1,13 @@
-@use "shared" as *; // Import only shared variables and mixins, no CSS output
+@use "color";
+@use "card";
+@use "layout";
+@use "animation";
 
 .header {
     .handle {
         width: 100%;
         .app-name {
-            transition: color $duration-sm ease;
+            transition: color animation.$duration-sm ease;
         }
     }
     app-omni-search {
@@ -18,18 +21,18 @@
     flex-direction: row;
     height: 100%;
     .canvas {
-        transition: opacity $duration-lg ease;
-        border-top: 0.25px inset light-dark(rgba($canvas-border, 0.25), rgba($canvas-border-dark, 0.25));
+        transition: opacity animation.$duration-lg ease;
+        border-top: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
         // opacity: 0;
         // &.visible {
         //     opacity: 1;
         // }
     }
-    @include larger-than($sm) {
+    @include layout.larger-than(layout.$sm) {
         .canvas {
             align-content: stretch;
-            border-top-left-radius: $border-radius-lg;
-            border-left: 0.25px inset light-dark(rgba($canvas-border, 0.25), rgba($canvas-border-dark, 0.25));
+            border-top-left-radius: card.$border-radius-lg;
+            border-left: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
             .page-container {
                 padding: 2rem;
                 overflow-y: clip;
@@ -37,7 +40,7 @@
         }
     }
 
-    @include smaller-than($sm) {
+    @include layout.smaller-than(layout.$sm) {
         flex-direction: column-reverse;
         .canvas {
             align-content: flex-start;
