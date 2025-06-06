@@ -1,39 +1,35 @@
 @use "animation";
 @use "card";
-@use "layout";
 @use "color";
-@use 'sass:color' as sassColor;
-@use 'sass:map';
+@use "font";
+@use "breakpoints";
 
-:host {
-    @extend .fullscreen;
-    @extend .column;
-    transition: all animation.$duration-lg ease;
-    background-color: light-dark(color.$navbar-background, color.$navbar-background-dark);
-
-    ::after {
-        content: '';
-        @extend .fullscreen;
-        transition: opacity animation.$duration ease;
-        z-index: -1;
-        opacity: 0;
-    
-        background-image: radial-gradient(farthest-corner at 100% 0%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent), color.$navbar-background, 30%), 0.95) 0%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-1), color.$navbar-background, 20%), 0.95) 40%,
-            rgba(sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-2), color.$navbar-background, 30%), 0.95) 100%);
-        @media (prefers-color-scheme: dark) {
-            background-image: radial-gradient(farthest-corner at 100% 0%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent), color.$navbar-background-dark, 15%), 0.95) 0%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-1), color.$navbar-background-dark, 10%), 0.95) 40%,
-                rgba(sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-2), color.$navbar-background-dark, 15%), 0.95) 100%);
+.header {
+    @extend .row;
+    @extend .no-wrap;
+    @extend .gap-3;
+    @extend .m-2;
+    .handle {
+        @extend .row;
+        @extend .items-center;
+        @extend .gap-5;
+        @extend .ms-3;
+        width: 100%;
+        .app-name {
+            @extend .display-when-not-small;
+            @extend .small-text;
+            @extend .subtle-text;
+            transition: color animation.$duration-sm ease;
+            &.focused {
+                @extend .font-color;
+            }
         }
     }
-    &.focused :after {
-        opacity: 1;
+    app-omni-search {
+        width: 100%;
+        min-width: 15rem;
     }
 }
-
 
 .nav-and-canvas {
     display: flex;
@@ -50,7 +46,7 @@
         //     opacity: 1;
         // }
     }
-    @include layout.larger-than(sm) {
+    @include breakpoints.larger-than(breakpoints.$sm) {
         .canvas {
             align-content: stretch;
             border-top-left-radius: card.$border-radius-lg;
@@ -62,7 +58,7 @@
         }
     }
 
-    @include layout.smaller-than(md) {
+    @include breakpoints.smaller-than(breakpoints.$sm) {
         flex-direction: column-reverse;
         .canvas {
             align-content: flex-start;

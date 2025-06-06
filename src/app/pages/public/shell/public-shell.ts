@@ -1,26 +1,15 @@
-import { ChangeDetectionStrategy, Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { SupabaseService } from '../../../shared/supabase.service';
-import WindowService from '../../../shared/window.service';
+import { ShellComponent } from '../../../shared/shell/shell';
 
 @Component({
     selector: 'app-public-shell',
     templateUrl: './public-shell.html',
-    styleUrl: './public-shell.scss',
-    changeDetection: ChangeDetectionStrategy.OnPush,
+    styleUrls: ['../../../shared/shell/shell.scss', './public-shell.scss'],
     imports: [RouterOutlet],
 })
-export class PublicShellComponent implements OnInit {
+export class PublicShellComponent extends ShellComponent {
 
-    protected readonly windowService = inject(WindowService);
-    private readonly supabaseService = inject(SupabaseService);
     private readonly router = inject(Router);
-
-    constructor() {
-    }
-
-    ngOnInit() {
-        
-    }
 
 }

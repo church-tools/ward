@@ -1,15 +1,5 @@
+@use "breakpoints";
 @use 'sass:map';
-
-$breakpoints: (
-    sm: 640px,
-    md: 1007px,
-    lg: 1366px
-);
-$smaller-than-breakpoints: (
-    md: 639px,
-    lg: 1006px,
-    xl: 1365px,
-);
 
 $tiny-horizontal-spacing: 2px;
 
@@ -21,23 +11,6 @@ $tiny-horizontal-spacing: 2px;
 .display-block { display: block; }
 .display-contents { display: contents; }
 .display-grid { display: inline-grid !important; }
-
-@mixin larger-than($breakpoint) {
-    @media only screen and (min-width: map.get($breakpoints, $breakpoint)) { @content; }
-}
-@mixin smaller-than($breakpoint) {
-    @media only screen and (max-width: map.get($smaller-than-breakpoints, $breakpoint)) { @content; }
-}
-
-.display-when-small {
-    @include larger-than(sm) { display: none !important; }
-}
-.display-when-large {
-    @include smaller-than(lg) { display: none !important; }
-}
-.display-when-not-small {
-    @include smaller-than(md) { display: none !important; }
-}
 
 $gutter: 0.25rem;
 
@@ -70,38 +43,38 @@ $column-widths: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12);
         .col-#{$cw}, .col-sm-#{$cw} { grid-column: span $cw; }
     }
 
-    @include smaller-than(xl) {
+    @include breakpoints.smaller-than(breakpoints.$xl) {
         @each $cw in $column-widths {
             .col-xl-#{$cw} { grid-column: span 12; }
         }
     }
 
-    @include smaller-than(lg) {
+    @include breakpoints.smaller-than(breakpoints.$lg) {
         @each $cw in $column-widths {
             .col-lg-#{$cw} { grid-column: span 12; }
         }
     }
 
-    @include smaller-than(md) {
+    @include breakpoints.smaller-than(breakpoints.$md) {
         @each $cw in $column-widths {
             .col-md-#{$cw} { grid-column: span 12; }
             .col-#{$cw}, .col-sm-#{$cw} { grid-column: span $cw; }
         }
     }
 
-    @include larger-than(sm) {
+    @include breakpoints.larger-than(breakpoints.$sm) {
         @each $cw in $column-widths {
             .col-md-#{$cw} { grid-column: span $cw; }
         }
     }
 
-    @include larger-than(md) {
+    @include breakpoints.larger-than(breakpoints.$md) {
         @each $cw in $column-widths {
             .col-lg-#{$cw} { grid-column: span $cw; }
         }
     }
 
-    @include larger-than(lg) {
+    @include breakpoints.larger-than(breakpoints.$lg) {
         @each $cw in $column-widths {
             .col-xl-#{$cw} { grid-column: span $cw; }
         }

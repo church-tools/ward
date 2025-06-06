@@ -191,68 +191,61 @@ body {
     background-color: light-dark($canvas-background-transparent, $canvas-background-transparent-dark);
 }
 
+.accent-bg { @extend .#{$accent}-bg; }
+.accent-fg { @extend .#{$accent}-fg; }
+.accent-border { @extend .#{$accent}-border; }
+.accent-text { @extend .#{$accent}-text; }
+.accent-active { @extend .#{$accent}-active; }
+    
 @each $color in $names {
-    :root {
-        --#{"" + $color}: #{map.get($actives, $color)};
-        --#{"" + $color}-dark: #{map.get($actives-dark, $color)};
-        --#{"" + $color}-bg: #{map.get($backgrounds, $color)};
-        --#{"" + $color}-bg-dark: #{map.get($backgrounds-dark, $color)};
-        --#{"" + $color}-fg: #{map.get($foregrounds, $color)};
-        --#{"" + $color}-fg-dark: #{map.get($foregrounds-dark, $color)};
+    @media (prefers-color-scheme: light) {
+        .#{"" + $color} {
+            .color-bg { background-color: rgba(map.get($backgrounds, $color), $color-bg-opacity); }
+            .color-fg { background-color: map.get($foregrounds, $color); }
+            .color-border { border-color: map.get($foregrounds, $color); }
+            .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
+            .color-active { color: map.get($actives, $color); }
+            app-icon { color: map.get($foregrounds, $color); }
+        }
+        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds, $color), $color-bg-opacity); }
+        .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
+        .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
+        .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
+        .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
+        .#{"" + $color}-active { color: map.get($actives, $color); }
+        app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
     }
-}
-
-// Fluent 2 Web Components theming
-:root {
-    // Accent fill colors for buttons, tabs, etc.
-    --accent-fill-rest: #{map.get($actives, $accent)};
-    --accent-fill-hover: #{map.get($actives-dark, $accent)};
-    --accent-fill-active: #{map.get($actives, $accent)};
-    --accent-fill-focus: #{map.get($actives, $accent)};
-    
-    // Accent foreground colors for text
-    --accent-foreground-rest: #{map.get($foregrounds, $accent)};
-    --accent-foreground-hover: #{map.get($actives, $accent)};
-    --accent-foreground-active: #{map.get($actives, $accent)};
-    --accent-foreground-focus: #{map.get($actives, $accent)};
-    
-    // Accent stroke colors for borders
-    --accent-stroke-control-rest: #{map.get($foregrounds, $accent)};
-    --accent-stroke-control-hover: #{map.get($actives, $accent)};
-    --accent-stroke-control-active: #{map.get($actives, $accent)};
-    --accent-stroke-control-focus: #{map.get($actives, $accent)};
-    
-    // Neutral colors that work with the accent
-    --neutral-fill-rest: #{map.get($backgrounds, $accent)};
-    --neutral-fill-hover: #{map.get($backgrounds-dark, $accent)};
-    --neutral-fill-active: #{map.get($actives, $accent)};
-    --neutral-fill-focus: #{map.get($backgrounds, $accent)};
-    
-    // CSS accent-color property for native form controls
-    accent-color: #{map.get($actives, $accent)};
-    
     @media (prefers-color-scheme: dark) {
-        // Dark mode accent colors
-        --accent-fill-rest: #{map.get($actives-dark, $accent)};
-        --accent-fill-hover: #{map.get($actives, $accent)};
-        --accent-fill-active: #{map.get($actives-dark, $accent)};
-        --accent-fill-focus: #{map.get($actives-dark, $accent)};
-        
-        --accent-foreground-rest: #{map.get($foregrounds-dark, $accent)};
-        --accent-foreground-hover: #{map.get($actives-dark, $accent)};
-        --accent-foreground-active: #{map.get($actives-dark, $accent)};
-        --accent-foreground-focus: #{map.get($actives-dark, $accent)};
-        
-        --accent-stroke-control-rest: #{map.get($foregrounds-dark, $accent)};
-        --accent-stroke-control-hover: #{map.get($actives-dark, $accent)};
-        --accent-stroke-control-active: #{map.get($actives-dark, $accent)};
-        --accent-stroke-control-focus: #{map.get($actives-dark, $accent)};
-        
-        --neutral-fill-rest: #{map.get($backgrounds-dark, $accent)};
-        --neutral-fill-hover: #{map.get($backgrounds, $accent)};
-        --neutral-fill-active: #{map.get($actives-dark, $accent)};
-        --neutral-fill-focus: #{map.get($backgrounds-dark, $accent)};
-        
-        accent-color: #{map.get($actives-dark, $accent)};
+        .#{"" + $color} {
+            .color-bg { background-color: rgba(map.get($backgrounds-dark, $color), $color-bg-opacity-dark); }
+            .color-fg { background-color: map.get($foregrounds-dark, $color); }
+            .color-border { border-color: map.get($foregrounds-dark, $color); }
+            .color-text { color: map.get($foregrounds-dark, $color); }
+            .color-active { color: map.get($actives-dark, $color); }
+            app-icon { color: map.get($foregrounds-dark, $color); }
+        }
+        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds-dark, $color), $color-bg-opacity-dark); }
+        .#{"" + $color}-fg { background-color: map.get($foregrounds-dark, $color); }
+        .#{"" + $color}-active-bg { background-color: map.get($actives-dark, $color); }
+        .#{"" + $color}-border { border-color: map.get($foregrounds-dark, $color); }
+        .#{"" + $color}-text { color: map.get($foregrounds-dark, $color); }
+        .#{"" + $color}-active { color: map.get($actives-dark, $color); }
+        app-icon.#{"" + $color} { color: map.get($foregrounds-dark, $color); }
+    }
+    @each $color2 in $names {
+        .bg-gradient {
+            &.from-#{"" + $color}.to-#{"" + $color2} {
+                background: linear-gradient(135deg,
+                    light-dark(map.get($backgrounds, $color), map.get($backgrounds-dark, $color)),
+                    light-dark(map.get($actives, $color2), map.get($actives-dark, $color2)));
+            }
+        }
+        .fg-gradient {
+            &.from-#{"" + $color}.to-#{"" + $color2} {
+                background: linear-gradient(135deg,
+                    light-dark(map.get($actives, $color), map.get($actives-dark, $color)),
+                    light-dark(map.get($foregrounds, $color2), map.get($foregrounds-dark, $color2)));
+            }
+        }
     }
 }

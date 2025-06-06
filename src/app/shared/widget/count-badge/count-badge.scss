@@ -1,0 +1,59 @@
+@use "font";
+@use "layout";
+
+$translation: 1.5rem;
+$duration: 0.3s;
+
+:host {
+    @extend .inverse-font-color;
+    @extend .center-content;
+    @extend .items-center;
+    height: 2rem;
+    width: 2rem;
+    border-radius: 50%;
+    font-weight: font.$weight-md;
+    transition: opacity $duration ease;
+    &.small {
+        @extend .small-text;
+        height: 1.5rem;
+        width: 1.5rem;
+    }
+
+    &.changing {
+        .count { animation: fadeInUp $duration ease-out; }
+        .previous-count { animation: fadeOutUp $duration ease-out; }
+        &.increasing {
+            .count { animation: fadeInDown $duration ease-out; }
+            .previous-count { animation: fadeOutDown $duration ease-out; }
+        }
+    }
+
+    .previous-count {
+        position: absolute;
+        opacity: 0;
+    }
+
+    &.hidden {
+        opacity: 0;
+    }
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY($translation); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeInDown {
+    from { opacity: 0; transform: translateY(-$translation); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeOutUp {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY(-$translation); }
+}
+
+@keyframes fadeOutDown {
+    from { opacity: 1; transform: translateY(0); }
+    to { opacity: 0; transform: translateY($translation); }
+}

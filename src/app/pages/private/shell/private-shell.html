@@ -1,5 +1,12 @@
 <div class="header">
-    <h1>My App</h1>
+    <div class="handle">
+        <div class="app-logo">👨‍👩‍👧‍👦</div>
+        <div class="app-name" [class.focused]="windowService.focused()">Gemeinde Tools</div>
+    </div>
+    <app-omni-search/>
+    <div class="handle">
+        <!-- user icon -->
+    </div>
 </div>
 <div class="nav-and-canvas">
     <app-nav-bar [tabs]="tabs()" [horizontal]="windowService.isSmall()"/>

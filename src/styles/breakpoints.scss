@@ -1,0 +1,25 @@
+
+$sm: 640px;
+$md: 1007px;
+$lg: 1366px;
+$xl: 1000000px;
+
+@mixin larger-than($breakpoint) {
+    @media only screen and (min-width: $breakpoint) { @content; }
+}
+
+@mixin smaller-than($breakpoint) {
+    @media only screen and (max-width: calc($breakpoint - 1px)) { @content; }
+}
+
+.display-when-small {
+    @include larger-than($sm) { display: none !important; }
+}
+
+.display-when-large {
+    @include smaller-than($lg) { display: none !important; }
+}
+
+.display-when-not-small {
+    @include smaller-than($sm) { display: none !important; }
+}

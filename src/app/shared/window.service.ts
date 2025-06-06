@@ -1,6 +1,7 @@
 import { computed, DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
 import { filter, tap } from "rxjs";
 import { executeOnce } from "./utils/flow-control-utils";
+import { NavigationEnd, Router } from "@angular/router";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -16,13 +17,17 @@ const BREAKPOINT_LG = 1366;
 export default class WindowService {
 
     private readonly document = inject<Document>(DOCUMENT);
+    private readonly router = inject(Router);
     readonly timeout = 10;
 
     private readonly onKeyPress = new EventEmitter<KeyboardEvent>();
+    readonly onRouteChange = new EventEmitter<string>();
     readonly onResize = new EventEmitter<Screen>();
     readonly onResizeBreakpoint = new EventEmitter<WindowSize>();
     readonly onFocusChange = new EventEmitter<boolean>();
 
+    private readonly _currentRoute = signal<string>(this.router.url);
+    readonly currentRoute = this._currentRoute.asReadonly();
     private readonly _size = signal<WindowSize>(this.getSize(this.document.defaultView!.innerWidth));
     readonly size = this._size.asReadonly();
     private readonly _focused = signal(this.document.hasFocus?.()); 
@@ -52,6 +57,12 @@ export default class WindowService {
                 }
                 this.onResize.emit(window.screen);
             }, this.timeout);
+        });
+        this.router.events.subscribe(res => {
+            if (res instanceof NavigationEnd) {
+                this.onRouteChange.emit(res.urlAfterRedirects);
+                this._currentRoute.set(res.urlAfterRedirects);
+            }
         });
         if (this.document.defaultView) {
             this.document.defaultView.onfocus = () => {

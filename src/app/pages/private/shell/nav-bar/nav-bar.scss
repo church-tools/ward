@@ -1,0 +1,86 @@
+@use "card";
+@use "font";
+@use "animation";
+
+:host {
+    width: 4.25rem;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.25rem * 1.5;
+    padding-top: 1px;
+
+    &.horizontal {
+        padding-top: 0.25rem * 1.5;
+        min-height: 3.25rem;
+        width: 100%;
+        flex-direction: row;
+        justify-content: center;
+        background-color: light-dark(card.$hover-background-transparent-color, card.$hover-background-transparent-color-dark);
+    }
+}
+
+.spacer {
+    margin-top: auto;
+}
+
+.indicator {
+    position: absolute;
+    width: 4px;
+    height: 22px;
+    left: 0.25rem;
+    border-radius: card.$border-radius-sm;
+    transition: all animation.$duration-sm ease-out;
+    &.visible {
+        &.bottom {
+            animation: fade-to-bottom animation.$duration-sm ease-in-out;
+            @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+                &.tab-#{$tab} {
+                    transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
+                }
+            }
+        }
+        &:not(.bottom) {
+            animation: fade-to-top animation.$duration-sm ease-in-out;
+            @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+                &.tab-#{$tab} {
+                    transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));
+                }
+            }
+        }
+    }
+    &:not(.visible) {
+        animation: fadeOut animation.$duration-sm ease-in-out;
+        opacity: 0;
+        &.prev-bottom {
+            animation: fade-to-bottom animation.$duration-sm ease-in-out;
+            @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+                &.prev-tab-#{$tab} {
+                    transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
+                }
+            }
+        }
+        &:not(.prev-bottom) {
+            animation: fade-to-top animation.$duration-sm ease-in-out;
+            @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+                &.prev-tab-#{$tab} {
+                    transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));
+                }
+            }
+        }
+    }
+}
+
+@keyframes fade-to-top {
+    0% { opacity: 100%; }
+    33% { opacity: 0%; }
+    67% { opacity: 0%; }
+    100% { opacity: 100%; }
+}
+@keyframes fade-to-bottom {
+    0% { opacity: 100%; }
+    33% { opacity: 0%; }
+    67% { opacity: 0%; }
+    100% { opacity: 100%; }
+}
