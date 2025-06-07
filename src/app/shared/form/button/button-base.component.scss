@@ -87,10 +87,10 @@ $background-disabled-dark: #141414;
     &.secondary-btn {
         button, .button {
             &:not(:disabled):not(.disabled) {
-                @include font.color;
-                @include shadow.box(1);
                 border-style: solid;
                 border-width: 1px;
+                @include font.color;
+                @include shadow.box(1);
                 &:hover, &:focus { @include font.color; }
                 @media (prefers-color-scheme: light) {
                     border-color: rgba(input.$border-color, 0.5);

@@ -38,12 +38,16 @@
             "styles": [
               "src/styles/styles.scss"
             ],
-            "scripts": []
+            "scripts": [],
+            "allowedCommonJsDependencies": [
+              "ws"
+            ]
           },
           "configurations": {
             "production": {
               "baseHref": "/ward/",
-              "deployUrl": "/ward/",              "budgets": [
+              "deployUrl": "/ward/",
+              "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "1MB",
