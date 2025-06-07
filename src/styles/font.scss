@@ -24,3 +24,31 @@ $color-subtle-dark: #bbc0c4;
 
 $color-muted: #bbc0c4;
 $color-muted-dark: #6c757d;
+
+@mixin color {
+    color: light-dark($color, $color-dark);
+}
+
+@mixin inverse-color {
+    color: light-dark($color-dark, $color);
+}
+
+@mixin small {
+    font-size: $size-sm;
+    line-height: $line-height-sm;
+}
+
+@mixin tiny {
+    font-size: $size-xs;
+    line-height: $line-height-xs;
+}
+
+@mixin muted {
+    color: light-dark($color-muted, $color-muted-dark);
+}
+
+@mixin overflow-ellipsis {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}

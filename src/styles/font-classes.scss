@@ -2,42 +2,16 @@
 @use "color";
 @use 'sass:map';
 
-$size-xs: 10px;
-$size-sm: 12px;
-$size: 14px;
-$size-lg: 16px;
-
-$line-height-xs: 12px;
-$line-height-sm: 16px;
-$line-height-dense: 18px;
-$line-height: 20px;
-$line-height-lg: 24px;
-
-$weight: 400;
-$weight-md: 501;
-$weight-semibold: 600;
-$family: 'Segoe UI', 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
-$family-heading: "Segoe UI", 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
-
-$font-color: #242424;
-$font-color-dark: white;
-
-$font-color-subtle: #6c757d;
-$font-color-subtle-dark: #bbc0c4;
-
-$font-color-muted: #bbc0c4;
-$font-color-muted-dark: #6c757d;
-
 html {
     font-size: $size;
 }
 
 .font-color {
-    color: light-dark($font-color, $font-color-dark);
+    @include color;
 }
 
 .inverse-font-color {
-    color: light-dark($font-color-dark, $font-color);
+    @include inverse-color;
 }
 
 .normal-text {
@@ -163,22 +137,20 @@ h6, .h6 {
     }
 }
 .muted-text {
-    color: light-dark($font-color-muted, $font-color-muted-dark);
+    @include muted;
 }
 .subtle-text {
-    color: light-dark($font-color-subtle, $font-color-subtle-dark);
+    color: light-dark($color-subtle, $color-subtle-dark);
 }
 .large-text {
     font-size: $size-lg;
     line-height: $line-height-lg;
 }
 .small-text {
-    font-size: $size-sm;
-    line-height: $line-height-sm;
+    @include small;
 }
 .tiny-text {
-    font-size: $size-xs;
-    line-height: $line-height-xs;
+    @include tiny;
 }
 .strong-text {
     font-weight: bold;
@@ -195,9 +167,7 @@ h6, .h6 {
 }
 
 .overflow-ellipsis {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    @include overflow-ellipsis;
 }
 
 .dense-text {

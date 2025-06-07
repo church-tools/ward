@@ -1,8 +1,10 @@
-<div class="header">
-    <h1>My App</h1>
-</div>
-<div class="nav-and-content">
-    <div class="content">
-        <router-outlet/>
+<div class="header row no-wrap gap-3 m-2">
+    <div class="handle row items-center gap-5 ms-3">
+        <div class="app-logo">👨‍👩‍👧‍👦</div>
+        <div class="app-name display-when-not-small small-text subtle-text"
+            [class.font-color]="windowService.focused()">Gemeinde Tools</div>
     </div>
+</div>
+<div class="content row center-content">
+    <router-outlet/>
 </div>

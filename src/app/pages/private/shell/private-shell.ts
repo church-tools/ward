@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { UnitService } from '../../../shared/module/unit/unit.service';
 import { ShellComponent } from '../../../shared/shell/shell';
 import { SupabaseService } from '../../../shared/supabase.service';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
@@ -17,15 +18,15 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     protected readonly tabs = signal<NavBarTab[]>([]);
 
     private readonly supabaseService = inject(SupabaseService);
+    private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
 
     constructor() {
         super();
-        this.authenticate()
-        .then(authenticated => this.authenticated.set(authenticated));
+        this.authenticate();
     }
 
-    ngOnInit() {
+    async ngOnInit() {
         this.tabs.set([
             { path: 'data', label: 'Daten', icon: 'database' },
             { path: 'tab1', label: 'Tab 1', icon: 'access_time' },
@@ -34,11 +35,17 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         ]);
     }
 
-    private async authenticate(): Promise<boolean> {
+    private async authenticate() {
         const session = await this.supabaseService.getSession();
-        if (session) return true;
-        // If no session, redirect to login
-        this.router.navigate(['/login']);
-        return false;
+        if (!session) {
+            this.router.navigate(['/login']);
+            return;
+        }
+        const unit = await this.unitService.getUnit();
+        if (!unit) {
+            this.router.navigate(['/setup']);
+            return;
+        }
+        this.authenticated.set(true);
     }
 }

@@ -1,0 +1,4 @@
+<button (click)="click($event)" [disabled]="disabled()" title="{{title()}}">
+    @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" [size]="iconSize()"/> }
+    <ng-content/>
+</button>

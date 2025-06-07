@@ -1,33 +1,88 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Ward Tools</title>
-  <base href="/">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="icon" type="image/x-icon" href="favicon.ico">
-  
-  <!-- Start Single Page Apps for GitHub Pages -->
-  <script type="text/javascript">
-    // Single Page Apps for GitHub Pages
-    // https://github.com/rafgraph/spa-github-pages
-    // This script checks to see if a redirect is present in the query string,
-    // converts it back into the correct url and adds it to the
-    // browser's history using window.history.replaceState(...)
-    (function(l) {
-      if (l.search && l.search[1] === '/') {
-        var decoded = l.search.slice(1).split('&').map(function(s) { 
-          return s.replace(/~and~/g, '&')
-        }).join('?');
-        window.history.replaceState(null, null,
-            l.pathname.slice(0, -1) + decoded + l.hash
-        );
-      }
-    }(window.location))
-  </script>
-  <!-- End Single Page Apps for GitHub Pages -->
+    <meta charset="utf-8">
+    <meta lang="de"/>
+    <title>Gemeinde Tools</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico"/>
+    <link rel="apple-touch-icon" href="favicon.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <meta name="theme-color" content="#e8e8e8"/>
+    <meta name="mobile-web-app-capable" content="yes"/>
+    <link rel="manifest" href="manifest.webmanifest"/>
+    
+    <!-- IOS -->
+    <meta name="apple-mobile-web-app-status-bar-style" content="#e8e8e8"/>
+    <meta name="apple-mobile-web-app-title" content="Gemeinde Tools"/>
+
+    <link rel="preload" href="assets/fonts/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous">
+    
+    <!-- Start Single Page Apps for GitHub Pages -->
+    <script type="text/javascript">
+        // Single Page Apps for GitHub Pages
+        // https://github.com/rafgraph/spa-github-pages
+        // This script checks to see if a redirect is present in the query string,
+        // converts it back into the correct url and adds it to the
+        // browser's history using window.history.replaceState(...)
+        (function(l) {
+        if (l.search && l.search[1] === '/') {
+            var decoded = l.search.slice(1).split('&').map(function(s) { 
+            return s.replace(/~and~/g, '&')
+            }).join('?');
+            window.history.replaceState(null, null,
+                l.pathname.slice(0, -1) + decoded + l.hash
+            );
+        }
+        }(window.location));
+        if (window.matchMedia('(prefers-color-scheme: dark)').matches)
+            document.querySelector('meta[name=theme-color]').setAttribute('content', '#272727');
+        document.addEventListener("DOMContentLoaded", function() {
+            const font = new FontFace('FluentSystemIcons-Resizable', 'url(assets/fonts/FluentSystemIcons-Resizable.woff2)');
+            font.load()
+            .then(function(loadedFont) { document.fonts.add(loadedFont); })
+            .catch(function(error) { console.error('Font failed to load:', error); })
+            .finally(function() { document.querySelector('app-root').style.display = 'block'; });
+        }, { once: true });
+    </script>
+
+    <!-- Loading Page -->
+    <style>
+        app-root {
+            display: none;
+        }
+        .page-loading {
+            app-region: drag;
+            position: fixed;
+            z-index: -10;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            overflow: hidden;
+            background-color: #f3f3f3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 1;
+
+            img {
+                margin: auto;
+                width: 192px;
+                height: 192px;
+                filter: drop-shadow(0 0.25rem 0.5rem rgba(0, 0, 0, 0.25));
+            }
+        }
+        @media (prefers-color-scheme: dark) {
+            html { color-scheme: dark; }
+            .page-loading { background-color: #272727; }
+        }
+    </style>
 </head>
 <body>
-  <app-root></app-root>
+    <app-root></app-root>
+    <div class="page-loading">
+        <img title="logo" src="assets/img/logos/logo.svg"/>
+    </div>
+    <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>
 </html>

@@ -9,35 +9,92 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      agenda: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+          unit: number
+          uuid: string
+        }
+        Insert: {
+          created_at?: string
+          id: number
+          name: string
+          unit: number
+          uuid?: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+          unit?: number
+          uuid?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       agenda_item: {
         Row: {
+          agenda: number
           content: string | null
           created_at: string
           created_by: number
           id: number
-          in_agenda: Database["public"]["Enums"]["agenda"] | null
           modified_at: string
           title: string | null
+          unit: number
         }
         Insert: {
+          agenda: number
           content?: string | null
           created_at?: string
           created_by: number
-          id?: number
-          in_agenda?: Database["public"]["Enums"]["agenda"] | null
+          id: number
           modified_at?: string
           title?: string | null
+          unit: number
         }
         Update: {
+          agenda?: number
           content?: string | null
           created_at?: string
           created_by?: number
           id?: number
-          in_agenda?: Database["public"]["Enums"]["agenda"] | null
           modified_at?: string
           title?: string | null
+          unit?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "agenda_item_unit_agenda_fkey"
+            columns: ["unit", "agenda"]
+            isOneToOne: false
+            referencedRelation: "agenda"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "agenda_item_unit_created_by_fkey"
+            columns: ["unit", "created_by"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "agenda_item_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       calling: {
         Row: {
@@ -49,16 +106,20 @@ export type Database = {
           is_unique: boolean
           modified_at: string
           name: string
+          organization: number | null
+          unit: number
         }
         Insert: {
           caller?: Database["public"]["Enums"]["calling_caller"]
           created_at?: string
           full_name: string
-          id?: number
+          id: number
           is_temporary?: boolean
           is_unique?: boolean
           modified_at?: string
           name: string
+          organization?: number | null
+          unit?: number
         }
         Update: {
           caller?: Database["public"]["Enums"]["calling_caller"]
@@ -69,8 +130,25 @@ export type Database = {
           is_unique?: boolean
           modified_at?: string
           name?: string
+          organization?: number | null
+          unit?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "calling_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "calling_unit_organization_fkey"
+            columns: ["unit", "organization"]
+            isOneToOne: false
+            referencedRelation: "organization"
+            referencedColumns: ["unit", "id"]
+          },
+        ]
       }
       calling_process: {
         Row: {
@@ -79,13 +157,15 @@ export type Database = {
           id: number
           member: number | null
           modified_at: string
+          unit: number
         }
         Insert: {
           calling?: number | null
           created_at?: string
-          id?: number
+          id: number
           member?: number | null
           modified_at?: string
+          unit: number
         }
         Update: {
           calling?: number | null
@@ -93,21 +173,29 @@ export type Database = {
           id?: number
           member?: number | null
           modified_at?: string
+          unit?: number
         }
         Relationships: [
           {
-            foreignKeyName: "calling_process_calling_fkey"
-            columns: ["calling"]
+            foreignKeyName: "calling_process_unit_calling_fkey"
+            columns: ["unit", "calling"]
             isOneToOne: false
             referencedRelation: "calling"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "calling_process_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "calling_process_member_fkey"
-            columns: ["member"]
+            foreignKeyName: "calling_process_unit_member_fkey"
+            columns: ["unit", "member"]
             isOneToOne: false
             referencedRelation: "member"
-            referencedColumns: ["id"]
+            referencedColumns: ["unit", "id"]
           },
         ]
       }
@@ -118,13 +206,15 @@ export type Database = {
           modified_at: string
           name: string
           number: number
+          unit: number
         }
         Insert: {
           created_at?: string
-          id?: number
+          id: number
           modified_at?: string
           name: string
           number: number
+          unit: number
         }
         Update: {
           created_at?: string
@@ -132,8 +222,17 @@ export type Database = {
           modified_at?: string
           name?: string
           number?: number
+          unit?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "hymn_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       language: {
         Row: {
@@ -141,23 +240,35 @@ export type Database = {
           id: number
           modified_at: string
           name: string | null
+          unit: number
         }
         Insert: {
           created_at?: string
-          id?: number
+          id: number
           modified_at?: string
           name?: string | null
+          unit: number
         }
         Update: {
           created_at?: string
           id?: number
           modified_at?: string
           name?: string | null
+          unit?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "language_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       member: {
         Row: {
+          agenda_permissions: number[] | null
           created_at: string
           first_name: string
           id: number
@@ -165,17 +276,25 @@ export type Database = {
           modified_at: string
           nick_name: string | null
           notes: string | null
+          permissions: Database["public"]["Enums"]["permission"][] | null
+          unit: number
+          user_id: string | null
         }
         Insert: {
+          agenda_permissions?: number[] | null
           created_at?: string
           first_name: string
-          id?: number
+          id: number
           last_name?: string | null
           modified_at?: string
           nick_name?: string | null
           notes?: string | null
+          permissions?: Database["public"]["Enums"]["permission"][] | null
+          unit: number
+          user_id?: string | null
         }
         Update: {
+          agenda_permissions?: number[] | null
           created_at?: string
           first_name?: string
           id?: number
@@ -183,8 +302,62 @@ export type Database = {
           modified_at?: string
           nick_name?: string | null
           notes?: string | null
+          permissions?: Database["public"]["Enums"]["permission"][] | null
+          unit?: number
+          user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "member_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_agenda_permission: {
+        Row: {
+          agenda: number
+          created_at: string
+          member: number
+          unit: number
+        }
+        Insert: {
+          agenda: number
+          created_at?: string
+          member: number
+          unit: number
+        }
+        Update: {
+          agenda?: number
+          created_at?: string
+          member?: number
+          unit?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_agenda_permission_unit_agenda_fkey"
+            columns: ["unit", "agenda"]
+            isOneToOne: false
+            referencedRelation: "agenda"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "member_agenda_permission_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_agenda_permission_unit_member_fkey"
+            columns: ["unit", "member"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["unit", "id"]
+          },
+        ]
       }
       member_calling: {
         Row: {
@@ -192,33 +365,43 @@ export type Database = {
           created_at: string
           member: number
           modified_at: string
+          unit: number
         }
         Insert: {
           calling: number
           created_at?: string
-          member?: number
+          member: number
           modified_at?: string
+          unit: number
         }
         Update: {
           calling?: number
           created_at?: string
           member?: number
           modified_at?: string
+          unit?: number
         }
         Relationships: [
           {
-            foreignKeyName: "member_calling_calling_fkey"
-            columns: ["calling"]
+            foreignKeyName: "member_calling_unit_calling_fkey"
+            columns: ["unit", "calling"]
             isOneToOne: false
             referencedRelation: "calling"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "member_calling_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "member_calling_member_fkey"
-            columns: ["member"]
+            foreignKeyName: "member_calling_unit_member_fkey"
+            columns: ["unit", "member"]
             isOneToOne: false
             referencedRelation: "member"
-            referencedColumns: ["id"]
+            referencedColumns: ["unit", "id"]
           },
         ]
       }
@@ -228,33 +411,43 @@ export type Database = {
           language: number
           member: number
           modified_at: string
+          unit: number
         }
         Insert: {
           created_at?: string
           language: number
-          member?: number
+          member: number
           modified_at?: string
+          unit: number
         }
         Update: {
           created_at?: string
           language?: number
           member?: number
           modified_at?: string
+          unit?: number
         }
         Relationships: [
           {
-            foreignKeyName: "member_language_language_fkey"
-            columns: ["language"]
+            foreignKeyName: "member_language_unit_fkey"
+            columns: ["unit"]
             isOneToOne: false
-            referencedRelation: "language"
+            referencedRelation: "unit"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "member_language_member_fkey"
-            columns: ["member"]
+            foreignKeyName: "member_language_unit_language_fkey"
+            columns: ["unit", "language"]
+            isOneToOne: false
+            referencedRelation: "language"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "member_language_unit_member_fkey"
+            columns: ["unit", "member"]
             isOneToOne: false
             referencedRelation: "member"
-            referencedColumns: ["id"]
+            referencedColumns: ["unit", "id"]
           },
         ]
       }
@@ -264,13 +457,15 @@ export type Database = {
           created_at: string
           id: number
           name: string
+          unit: number
           updated_at: string
         }
         Insert: {
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
-          id?: number
+          id: number
           name: string
+          unit: number
           updated_at?: string
         }
         Update: {
@@ -278,9 +473,18 @@ export type Database = {
           created_at?: string
           id?: number
           name?: string
+          unit?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "organization_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       sacrament_meeting: {
         Row: {
@@ -354,13 +558,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "talk_member_fkey"
-            columns: ["member"]
-            isOneToOne: false
-            referencedRelation: "member"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "talk_sacrament_meeting_fkey"
             columns: ["sacrament_meeting"]
             isOneToOne: false
@@ -368,6 +565,24 @@ export type Database = {
             referencedColumns: ["date"]
           },
         ]
+      }
+      unit: {
+        Row: {
+          created_at: string
+          id: number
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          name: string
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          name?: string
+        }
+        Relationships: []
       }
     }
     Views: {
@@ -377,7 +592,6 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      agenda: "bishopric" | "extended_bishopric" | "ward_council"
       callability: "callable" | "other_needs" | "retired"
       calling_caller: "bishopric" | "elders_quorum" | "stake_presidency"
       calling_process_state:
@@ -409,6 +623,7 @@ export type Database = {
         | "general_conference"
         | "stake_conference"
         | "ward_conference"
+      permission: "calling" | "sacrament_meeting" | "music"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -524,7 +739,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      agenda: ["bishopric", "extended_bishopric", "ward_council"],
       callability: ["callable", "other_needs", "retired"],
       calling_caller: ["bishopric", "elders_quorum", "stake_presidency"],
       calling_process_state: [
@@ -559,6 +773,7 @@ export const Constants = {
         "stake_conference",
         "ward_conference",
       ],
+      permission: ["calling", "sacrament_meeting", "music"],
     },
   },
 } as const

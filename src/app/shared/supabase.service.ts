@@ -3,16 +3,18 @@ import { ObservablePersistIndexedDB } from '@legendapp/state/persist-plugins/ind
 import { configureSynced } from '@legendapp/state/sync';
 import { syncedSupabase } from '@legendapp/state/sync-plugins/supabase';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { Database } from '../../../database.types';
 import { environment } from '../../environments/environment';
 import { generateUUIDv7 } from '../shared/utils/crypto-utils';
 import { getSiteOrigin } from './utils/url-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
-  private readonly supabase: SupabaseClient;
+
+    readonly client: SupabaseClient<Database>;
 
     constructor() {
-        this.supabase = createClient(
+        this.client = createClient(
             environment.supabaseUrl,
             environment.supabaseKey
         );
@@ -22,7 +24,7 @@ export class SupabaseService {
                 plugin: ObservablePersistIndexedDB,
             },
             generateId: () => generateUUIDv7(),
-            supabase: this.supabase,
+            supabase: this.client,
             changesSince: 'last-sync',
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'modified_at',
@@ -31,26 +33,22 @@ export class SupabaseService {
         });
     }
 
-    get client(): SupabaseClient {
-        return this.supabase;
-    }
-
     /**
      * Sign up a new user with email and password
      */
     async signUp(email: string, password: string) {
-        return await this.supabase.auth.signUp({ email, password });
+        return await this.client.auth.signUp({ email, password });
     }
 
     /**
      * Sign in an existing user with email and password
      */
     async signIn(email: string, password: string) {
-        return await this.supabase.auth.signInWithPassword({ email, password });
+        return await this.client.auth.signInWithPassword({ email, password });
     }
 
     async signInWithOAuth(provider: 'google' | 'azure') {
-        const { data, error } = await this.supabase.auth.signInWithOAuth({
+        const { data, error } = await this.client.auth.signInWithOAuth({
             provider,
             options: {
                 scopes: 'email',
@@ -65,14 +63,14 @@ export class SupabaseService {
      * Sign out the current user
      */
     async signOut() {
-        return await this.supabase.auth.signOut();
+        return await this.client.auth.signOut();
     }
 
     /**
      * Get current session data
      */
     async getSession() {
-        const { data, error } = await this.supabase.auth.getSession();
+        const { data, error } = await this.client.auth.getSession();
         if (error) throw error;
         return data.session;
     }
@@ -81,6 +79,6 @@ export class SupabaseService {
      * Listen to auth state changes
      */
     onAuthStateChange(callback: (event: any, session: any) => void) {
-        return this.supabase.auth.onAuthStateChange(callback);
+        return this.client.auth.onAuthStateChange(callback);
     }
 }

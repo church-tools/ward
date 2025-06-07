@@ -1,0 +1,159 @@
+@use "input" as *;
+@use "font";
+@use "color";
+@use "card";
+@use "layout";
+@use "animation";
+@use 'sass:map';
+
+.input-color {
+    color: light-dark($color, $color-dark);
+}
+.input-color-reverse {
+    color: light-dark($color-dark, $color);
+}
+
+.input-box { @include box; }
+.input-box-hovered { @include box-hovered; }
+.input-box-focused { @include box-focused; }
+.input-box-active { @include box-active; }
+.input-box-disabled { @include box-disabled; }
+
+.form-input {
+    display: inline-flex;
+    align-items: center;
+    position: relative;
+    box-sizing: border-box;
+    min-height: $min-height;
+    font-size: font.$size;
+    line-height: font.$line-height;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
+    gap: layout.$tiny-horizontal-spacing;
+    padding: 0 $padding-x;
+    
+    @extend .input-box;
+
+    &::placeholder {
+        color: $placeholder-color;
+    }
+
+    &::after {
+        box-sizing: border-box;
+        content: "";
+        position: absolute;
+        left: -1px;
+        bottom: -1px;
+        right: -1px;
+        height: max(2px, card.$border-radius-sm);
+        border-bottom-left-radius: card.$border-radius-sm;
+        border-bottom-right-radius: card.$border-radius-sm;
+        border-bottom-width: 2px;
+        border-bottom-style: solid;
+        border-bottom-color: light-dark(map.get(color.$foregrounds, color.$accent), map.get(color.$foregrounds-dark, color.$accent));
+        clip-path: inset(calc(100% - 2px) 0px 0px);
+        transform: scaleX(0);
+        transition-property: transform;
+        transition-duration: 0.1s;
+        transition-delay: cubic-bezier(0.7,0,1,0.5);
+    }
+
+    input, textarea {
+        @include font.color;
+        box-sizing: border-box;
+        margin: 0;
+        flex-grow: 1;
+        border-style: none;
+        background-color: transparent;
+        outline-style: none;
+        font-family: inherit;
+        font-size: inherit;
+        font-weight: inherit;
+        line-height: inherit;
+    }
+
+    input {
+        padding: 0 layout.$tiny-horizontal-spacing;
+        width: 0;
+        min-width: 0px;
+        overflow: visible;
+        &:-webkit-autofill, &:-webkit-autofill:focus {
+            transition: background-color 0s 600000s, color 0s 600000s;
+        }
+    }
+
+    textarea {
+        padding: $padding-y layout.$tiny-horizontal-spacing;
+    }
+
+    .input-btn {
+        margin-right: -0.75rem;
+    }
+
+    .unit {
+        margin-left: 0.25rem;
+        color: light-dark(font.$color-muted, font.$color-muted-dark);
+    }
+
+    @each $size in (0, 1, 2, 3, 4) {
+        &.inner-padding-right-#{"" + $size} input {
+            padding-right: $size * 4rem;
+        }
+    }
+}
+
+.input:not(.disabled) {
+
+    .form-input {
+        cursor: text;
+        &:hover { @include box-hovered; }
+        &:active { @include box-active; }
+        &:focus-within { @include box-focused; }
+    }
+
+    &.is-invalid, &.ng-invalid.ng-touched {
+        .form-input {
+            border-color: light-dark(map.get(color.$actives, danger), map.get(color.$actives-dark, danger));
+            &::after {
+                border-bottom-color: light-dark(map.get(color.$foregrounds, danger), map.get(color.$foregrounds-dark, danger));
+            }
+        }
+    }
+}
+
+.disabled .form-input {
+    @include box-disabled;
+}
+
+.required-indicator {
+    color: light-dark(map.get(color.$actives, danger), map.get(color.$actives-dark, danger));
+    font-weight: bold;
+    font-size: 1em;
+}
+
+.label {
+    cursor: default;
+    @include font.overflow-ellipsis;
+    display: block;
+    // margin-bottom: layout.$tiny-horizontal-spacing;
+    // padding: layout.$tiny-horizontal-spacing 0;
+    line-height: font.$line-height;
+    font-size: font.$size;
+}
+
+fieldset {
+    border: none;
+    padding: 0;
+    margin: 0;
+}
+
+.input-card {
+    cursor: pointer;
+    transition: $transition;
+    padding: $padding-y $padding-x;
+    @include box;
+    &:not(.disabled) {
+        &:hover { @include box-hovered; }
+        &:active { @include box-active; }
+    }
+    &.disabled { @include box-disabled; }
+}

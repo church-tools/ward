@@ -18,7 +18,7 @@ body {
 .accent-border { @extend .#{$accent}-border; }
 .accent-text { @extend .#{$accent}-text; }
 .accent-active { @extend .#{$accent}-active; }
-    
+
 @each $color in $names {
     @media (prefers-color-scheme: light) {
         .#{"" + $color} {

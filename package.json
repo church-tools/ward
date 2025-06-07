@@ -7,7 +7,7 @@
         "build": "ng build",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
-        "supabase-types": "npx supabase gen types typescript --project-id angular-devkit/build-angular --schema public > database.types.ts"
+        "gen-types": "supabase gen types typescript --project-id bfozbjjsbwakbucgdpao > database.types.ts"
     },
     "private": true,
     "dependencies": {
@@ -24,8 +24,6 @@
         "@angular/router": "^20.0.1",
         "@angular/service-worker": "^20.0.1",
         "@angular/ssr": "^20.0.1",
-        "@fabric-msft/fluent-angular": "^2.0.0-beta.5",
-        "@fluentui/web-components": "^3.0.0-beta.83",
         "@legendapp/state": "^3.0.0-beta.30",
         "@supabase/supabase-js": "^2.49.10",
         "rxjs": "~7.8.0",

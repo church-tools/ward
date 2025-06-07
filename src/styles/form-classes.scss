@@ -1,0 +1,16 @@
+@use "form" as *;
+@use "layout";
+
+form, fieldset {
+    @include layout.gap(3);
+    @include layout.column;
+    margin: 0;
+}
+
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.highlight {
+    @include highlight;
+}

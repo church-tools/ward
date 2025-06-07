@@ -30,3 +30,7 @@ $xl: 1000000px;
     display: flex;
     flex-direction: column;
 }
+
+@mixin gap($size) { gap: $size * $gutter; }
+@mixin column-gap($size) { column-gap: $size * $gutter; }
+@mixin row-gap($size) { row-gap: $size * $gutter; }
