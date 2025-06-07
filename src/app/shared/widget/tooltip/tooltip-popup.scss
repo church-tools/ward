@@ -1,0 +1,13 @@
+@use "styles";
+
+:host {
+    display: contents;
+    position: absolute;
+}
+.tooltip {
+    animation: appearDropdown 0.1s ease;
+    position: absolute;
+    z-index: 1;
+    padding: 2px 5px;
+}
+   

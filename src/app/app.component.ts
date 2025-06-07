@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { trimPastedStrings } from './shared/utils/clipboard-utils';
 
 @Component({
 	selector: 'app-root',
@@ -9,4 +10,7 @@ import { RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   	
+    constructor() {
+        trimPastedStrings();
+    }
 }

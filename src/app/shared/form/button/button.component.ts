@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, output } from "@angular/core";
+import { Component, OnDestroy, output } from "@angular/core";
 import { IconComponent } from "../../icon/icon";
 import ButtonBaseComponent from "./button-base.component";
 
 @Component({
     selector: 'app-button',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [IconComponent],
     templateUrl: './button.component.html',
     styleUrl: './button-base.component.scss'

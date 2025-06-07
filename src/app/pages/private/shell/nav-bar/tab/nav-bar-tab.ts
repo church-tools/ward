@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, input, signal } from '@angular/core';
+import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Observable } from '@legendapp/state';
 import { Icon, IconComponent } from '../../../../../shared/icon/icon';
@@ -16,7 +16,6 @@ export type InnerNavBarTab = {
 
 @Component({
     selector: 'app-nav-bar-tab',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [RouterModule, IconComponent],
     template: `
         <a class="btn" [routerLink]="tab().path" [class.active]="active()">
