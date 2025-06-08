@@ -278,7 +278,7 @@ export type Database = {
           notes: string | null
           permissions: Database["public"]["Enums"]["permission"][] | null
           unit: number
-          user_id: string | null
+          user: number | null
         }
         Insert: {
           agenda_permissions?: number[] | null
@@ -291,7 +291,7 @@ export type Database = {
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
           unit: number
-          user_id?: string | null
+          user?: number | null
         }
         Update: {
           agenda_permissions?: number[] | null
@@ -304,7 +304,7 @@ export type Database = {
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
           unit?: number
-          user_id?: string | null
+          user?: number | null
         }
         Relationships: [
           {
@@ -312,6 +312,13 @@ export type Database = {
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_user_fkey"
+            columns: ["user"]
+            isOneToOne: false
+            referencedRelation: "user"
             referencedColumns: ["id"]
           },
         ]
@@ -569,20 +576,52 @@ export type Database = {
       unit: {
         Row: {
           created_at: string
+          created_by: string
           id: number
           name: string
         }
         Insert: {
           created_at?: string
+          created_by: string
           id?: number
           name: string
         }
         Update: {
           created_at?: string
+          created_by?: string
           id?: number
           name?: string
         }
         Relationships: []
+      }
+      user: {
+        Row: {
+          created_at: string
+          id: number
+          uid: string
+          unit: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          uid: string
+          unit?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          uid?: string
+          unit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {

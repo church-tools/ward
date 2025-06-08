@@ -1,0 +1,59 @@
+@use "animation";
+@use "font";
+
+:host {
+    flex-direction: column;
+}
+
+.bounce {
+    animation: 0.3s bounce ease;
+}
+
+.wiggle {
+    animation: wiggle 5s linear infinite;
+}
+
+@keyframes bounce {
+    0% { transform: scale(0.75); }
+    50% { transform: scale(1.25); }
+    100% { transform: scale(1); }
+}
+
+$wiggleTransformA: rotate(15deg);
+$wiggleTransformB: rotate(-15deg);
+
+@keyframes wiggle {
+    20% { transform: rotate(0); }
+    30% { transform: $wiggleTransformB; }
+    35% { transform: $wiggleTransformA; }
+    40% { transform: $wiggleTransformB; }
+    45% { transform: $wiggleTransformA; }
+    50% { transform: $wiggleTransformB; }
+    55% { transform: $wiggleTransformA; }
+    60% { transform: $wiggleTransformB; }
+    65% { transform: $wiggleTransformA; }
+    70% { transform: $wiggleTransformB; }
+    80% { transform: rotate(0); }
+}
+
+button {
+    overflow: hidden;
+    .progress-bar {
+        transition: width animation.$duration-sm ease, opacity animation.$duration ease-out;
+        background-color: light-dark(font.$color, font.$color-dark);
+        position: absolute;
+        height: 0.125rem;
+        bottom: 0;
+        left: 0;
+        &.done {
+            opacity: 0;
+        }
+    }
+}
+:host {
+    &.primary-btn {
+        .progress-bar {
+            background-color: light-dark(font.$color-dark, font.$color);
+        }
+    }
+}

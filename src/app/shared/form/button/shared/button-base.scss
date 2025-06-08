@@ -285,4 +285,4 @@ $background-disabled-dark: #141414;
 
 }
 
-.accent-btn { @extend .#{color.$accent}-btn; }
+.accent-btn { @extend .#{"" + color.$accent}-btn; }

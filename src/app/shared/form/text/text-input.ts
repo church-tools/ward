@@ -12,9 +12,10 @@ import InputLabelComponent from "../shared/input-label";
             <app-input-label/>
             <div class="form-input">
                 <input [required]="true" type="text"
-                    [(ngModel)]="value" [disabled]="false"
+                    [(ngModel)]="value" [attr.disabled]="disabledState()"
                     [placeholder]="placeholder()" [pattern]="pattern()"
                     [autocomplete]="autocomplete()" (click)="onClick($event)"
+                    (input)="emitChange()"
                     (keypress)="onKeyPress($event)">
                 @if (copyable()) {
                     <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"

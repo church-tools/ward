@@ -37,6 +37,7 @@ export default class WindowService {
     readonly isSmall = computed(() => this.size() === WindowSize.sm);
     readonly isLarge = computed(() => this.size() > WindowSize.md);
     readonly isExtraLarge = computed(() => this.size() > WindowSize.lg);
+    readonly isOnline = signal(navigator.onLine);
 
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
@@ -58,6 +59,8 @@ export default class WindowService {
                 this.onResize.emit(window.screen);
             }, this.timeout);
         });
+        this.document.defaultView!.addEventListener?.('online', () => this.isOnline.set(true));
+        this.document.defaultView!.addEventListener?.('offline', () => this.isOnline.set(false));
         this.router.events.subscribe(res => {
             if (res instanceof NavigationEnd) {
                 this.onRouteChange.emit(res.urlAfterRedirects);

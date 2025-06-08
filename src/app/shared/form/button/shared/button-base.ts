@@ -1,8 +1,8 @@
 import { Component, OnDestroy, effect, inject, input, signal } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Icon, IconPath, IconSize } from "../../icon/icon";
-import { ColorName } from "../../utils/color-utitls";
-import WindowService from "../../window.service";
+import { Icon, IconPath, IconSize } from "../../../icon/icon";
+import { ColorName } from "../../../utils/color-utitls";
+import WindowService from "../../../window.service";
 
 export type ButtonType = 'primary' | 'secondary' | 'subtle' | 'transparent' | 'form';
 export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';
@@ -33,7 +33,7 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     
     protected readonly _type = signal<ButtonType | null>(null);
     
-    private readonly windowService = inject(WindowService);
+    protected readonly windowService = inject(WindowService);
     private hotkeySubscription: Subscription | undefined;
 
     constructor() {

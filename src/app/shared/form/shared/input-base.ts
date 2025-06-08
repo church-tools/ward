@@ -1,4 +1,4 @@
-import { Component, forwardRef, ForwardRefFn, input, model } from "@angular/core";
+import { Component, forwardRef, ForwardRefFn, input, model, signal } from "@angular/core";
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from "@angular/forms";
 import { Icon } from "../../icon/icon";
 
@@ -14,7 +14,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
     template: '',
     host: {
         'class': 'input',
-        '[class.disabled]': 'isDisabled()',
+        '[class.disabled]': 'disabledState()',
         '(focusout)': 'onTouched()'
     },
 })
@@ -24,11 +24,13 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
     readonly labelIcon = input<Icon | null>(null);
     readonly placeholder = input<string>('');
 
-    protected readonly value = model<T | null>(null);
-    isDisabled = false;
+    protected readonly value = signal<T | null>(null);
+    protected readonly disabledState = signal<boolean>(false);
 
-    onChange = (value: any) => {};
-    onTouched = () => {};
+    private justClickedSomething = false;
+
+    private onChange = (value: any) => {};
+    private onTouched = () => {};
 
     writeValue(value: any): void {
         this.value.set(value);
@@ -43,14 +45,33 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
     }
 
     setDisabledState(isDisabled: boolean): void {
-        this.isDisabled = isDisabled;
+        this.disabledState.set(isDisabled);
     }
 
     validate(control: AbstractControl): ValidationErrors | null {
         return null;
     }
 
+    protected async emitChange() {
+        this.onTouched?.();
+        if (!this.onChange) return;
+        const mapped = await this.mapOut(this.value());
+        this.onChange?.(mapped);
+    }
+
+    protected async mapOut(value: T | null) {
+        return value;
+    }
+
     protected onFocusOut(event: FocusEvent): void {
         
+    }
+    
+    protected isRealClick() {
+        if (this.justClickedSomething)
+            return false;
+        this.justClickedSomething = true;
+        setTimeout(() => this.justClickedSomething = false, 200);
+        return true;
     }
 }

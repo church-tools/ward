@@ -13,11 +13,11 @@ body {
     background-color: light-dark($canvas-background-transparent, $canvas-background-transparent-dark);
 }
 
-.accent-bg { @extend .#{$accent}-bg; }
-.accent-fg { @extend .#{$accent}-fg; }
-.accent-border { @extend .#{$accent}-border; }
-.accent-text { @extend .#{$accent}-text; }
-.accent-active { @extend .#{$accent}-active; }
+.accent-bg { @extend .#{"" + $accent}-bg; }
+.accent-fg { @extend .#{"" + $accent}-fg; }
+.accent-border { @extend .#{"" + $accent}-border; }
+.accent-text { @extend .#{"" + $accent}-text; }
+.accent-active { @extend .#{"" + $accent}-active; }
 
 @each $color in $names {
     @media (prefers-color-scheme: light) {
@@ -84,11 +84,11 @@ body {
     background-color: light-dark($canvas-background-transparent, $canvas-background-transparent-dark);
 }
 
-.accent-bg { @extend .#{$accent}-bg; }
-.accent-fg { @extend .#{$accent}-fg; }
-.accent-border { @extend .#{$accent}-border; }
-.accent-text { @extend .#{$accent}-text; }
-.accent-active { @extend .#{$accent}-active; }
+.accent-bg { @extend .#{"" + $accent}-bg; }
+.accent-fg { @extend .#{"" + $accent}-fg; }
+.accent-border { @extend .#{"" + $accent}-border; }
+.accent-text { @extend .#{"" + $accent}-text; }
+.accent-active { @extend .#{"" + $accent}-active; }
     
 @each $color in $names {
     @media (prefers-color-scheme: light) {
