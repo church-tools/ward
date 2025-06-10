@@ -13,9 +13,7 @@ import { PageComponent } from '../../shared/page';
     templateUrl: './setup-page.html',
     styleUrls: ['../../shared/page.scss'],
     changeDetection: ChangeDetectionStrategy.OnPush,
-    host: {
-        class: 'narrow',
-    }
+    host: { class: 'narrow' },
 })
 export class SetupPageComponent extends PageComponent {
 

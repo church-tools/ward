@@ -1,9 +1,14 @@
-import { Component } from '@angular/core';
+import { Component, signal } from '@angular/core';
 
 @Component({
     selector: 'app-page',
     template: ``,
+    host: {
+        class: "animated column gap-3",
+        '[class.hidden]': "!show()",
+    },
 })
 export abstract class PageComponent {
-    constructor() { }
+    
+    protected readonly show = signal<boolean>(true);
 }

@@ -20,11 +20,6 @@
     
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
-        // Single Page Apps for GitHub Pages
-        // https://github.com/rafgraph/spa-github-pages
-        // This script checks to see if a redirect is present in the query string,
-        // converts it back into the correct url and adds it to the
-        // browser's history using window.history.replaceState(...)
         (function(l) {
         if (l.search && l.search[1] === '/') {
             var decoded = l.search.slice(1).split('&').map(function(s) { 
@@ -42,30 +37,53 @@
             font.load()
             .then(function(loadedFont) { document.fonts.add(loadedFont); })
             .catch(function(error) { console.error('Font failed to load:', error); })
-            .finally(function() { document.querySelector('app-root').style.display = 'block'; });
+            .finally(function() {
+                const pageLoading = document.querySelector('.page-loading');
+                pageLoading.classList.add('hidden');
+                setTimeout(function() { pageLoading.remove() }, 500);
+            });
         }, { once: true });
     </script>
 
     <!-- Loading Page -->
     <style>
-        app-root {
-            display: none;
+        :root {
+            --navbar-background: light-dark(#e0e0e0, #202020);
+            --accent-background: light-dark(hsl(182, 47%, 73%), hsl(182, 95%, 15%));
+            --accent-variation-1-background: light-dark(hsl(150, 71%, 80%), hsl(150, 100%, 20%));
+            --accent-variation-2-background: light-dark(hsl(205, 74%, 81%), hsl(206, 100%, 23%));
+            --color-ratio-1: light-dark(30%, 15%);
+            --color-ratio-2: light-dark(20%, 10%);
         }
         .page-loading {
             app-region: drag;
             position: fixed;
-            z-index: -10;
             left: 0;
             top: 0;
             bottom: 0;
             right: 0;
             overflow: hidden;
-            background-color: #f3f3f3;
+            background-color: var(--navbar-background);
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+        .page-loading.hidden {
+            opacity: 0;
+        }
+        .page-loading-color {
+            position: fixed;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            right: 0;
+            background-image: radial-gradient(farthest-corner at 100% 0%,
+                color-mix(in srgb, var(--accent-background) 30%, var(--navbar-background)) 0%,
+                color-mix(in srgb, var(--accent-variation-1-background) 20%, var(--navbar-background)) 40%,
+                color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
+            opacity: 0.95;
             display: flex;
             align-items: center;
             justify-content: center;
-            opacity: 1;
-
             img {
                 margin: auto;
                 width: 192px;
@@ -75,14 +93,21 @@
         }
         @media (prefers-color-scheme: dark) {
             html { color-scheme: dark; }
-            .page-loading { background-color: #272727; }
+            .page-loading-color {
+                background-image: radial-gradient(farthest-corner at 100% 0%,
+                    color-mix(in srgb, var(--accent-background) 15%, var(--navbar-background)) 0%,
+                    color-mix(in srgb, var(--accent-variation-1-background) 10%, var(--navbar-background)) 40%,
+                    color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
+            }
         }
     </style>
 </head>
 <body>
     <app-root></app-root>
     <div class="page-loading">
-        <img title="logo" src="assets/img/logo/logo.svg"/>
+        <div class="page-loading-color">
+            <img title="logo" src="assets/img/logo/logo.svg"/>
+        </div>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>

@@ -5,6 +5,7 @@ import { ShellComponent } from '../../../shared/shell/shell';
 import { SupabaseService } from '../../../shared/supabase.service';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
+import { privateTabs } from '../private.routes';
 
 @Component({
     selector: 'app-private-shell',
@@ -27,12 +28,8 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     }
 
     async ngOnInit() {
-        this.tabs.set([
-            { path: 'data', label: 'Daten', icon: 'database' },
-            { path: 'tab1', label: 'Tab 1', icon: 'access_time' },
-            { path: 'tab2', label: 'Tab 2', icon: 'add_subtract_circle' },
-            { path: 'tab3', label: 'Tab 3', icon: 'alert' },
-        ]);
+        this.tabs.set(privateTabs.map(({ path, label, icon }) =>
+            <NavBarTab>{ path, label, icon }));
     }
 
     private async authenticate() {

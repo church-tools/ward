@@ -18,7 +18,7 @@ export type InnerNavBarTab = {
     selector: 'app-nav-bar-tab',
     imports: [RouterModule, IconComponent],
     template: `
-        <a class="btn" [routerLink]="tab().path" [class.active]="active()">
+        <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <app-icon class="icon" [icon]="tab().icon"/>
             <app-icon class="active-icon accent" [icon]="tab().icon" [filled]="true"/>
             <div class="tab-title">{{tab().label}}</div>
