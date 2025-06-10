@@ -10,7 +10,7 @@ import { PageComponent } from '../shared/page';
     styleUrls: ['../shared/page.scss'],
     host: { class: 'narrow' },
 })
-export class ServicePageComponent extends PageComponent {
+export class ChurchServicePageComponent extends PageComponent {
 
     constructor() {
         super();
