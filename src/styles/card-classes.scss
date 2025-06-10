@@ -53,6 +53,7 @@
 
     &.selectable-card {
         cursor: pointer;
+        transition: all animation.$duration ease;
         &:hover {
             background-color: light-dark($hover-background-color, $hover-background-color-dark);
             @include shadow.box(4);

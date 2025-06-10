@@ -1,8 +1,8 @@
-import { Component, forwardRef, input, signal } from '@angular/core';
-import { FormsModule, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Component, input, signal } from '@angular/core';
+import { FormsModule } from '@angular/forms';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import ButtonComponent from "../button/button.component";
-import { InputBaseComponent } from '../shared/input-base';
+import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 
 @Component({
@@ -24,13 +24,7 @@ import InputLabelComponent from "../shared/input-label";
             </div>
         </label>
     `,
-    providers: [
-        {
-            provide: NG_VALUE_ACCESSOR,
-            useExisting: forwardRef(() => TextInputComponent),
-            multi: true
-        }
-    ],
+    providers: getProviders(() => TextInputComponent),
     imports: [FormsModule, InputLabelComponent, ButtonComponent]
 })
 export class TextInputComponent extends InputBaseComponent<string> {

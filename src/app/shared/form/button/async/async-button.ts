@@ -13,7 +13,8 @@ export type ProgressCallback = (progress: number) => void;
     template: `
         <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"
             [title]="windowService.isOnline() ? title() : 'Server kann nicht erreicht werden'"
-            title="{{title()}}" type="button">
+            title="{{title()}}" type="button"
+            [class]="classes()">
             @if (progressIcon()) {
                 <app-icon [icon]="progressIcon()!" [filled]="iconFilled()" [size]="iconSize()"
                     [class.bounce]="success() !== null"
@@ -26,7 +27,7 @@ export type ProgressCallback = (progress: number) => void;
         </button>
         <app-error-message/>
     `,
-    styleUrls: ['../shared/button-base.scss', './async-button.scss']
+    styleUrl: './async-button.scss'
 })
 export default class AsyncButtonComponent extends ButtonBaseComponent {
     

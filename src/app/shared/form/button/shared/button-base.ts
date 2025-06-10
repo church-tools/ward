@@ -3,19 +3,13 @@ import { Subscription } from "rxjs";
 import { Icon, IconPath, IconSize } from "../../../icon/icon";
 import { ColorName } from "../../../utils/color-utitls";
 import WindowService from "../../../window.service";
+import { multiComputed } from "../../../utils/signal-utils";
 
 export type ButtonType = 'primary' | 'secondary' | 'subtle' | 'transparent' | 'form';
 export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';
 
 @Component({
     template: '',
-    host: {
-        "[class]": "`${_type() ?? type()}-btn ${size()}-btn ${color()}-btn`",
-        "[class.highlight-btn]": "highlight()",
-        "[class.disabled]": "disabled()",
-        "[class.icon-colored]": "iconColored()",
-    },
-    standalone: false
 })
 export default abstract class ButtonBaseComponent implements OnDestroy {
 
@@ -32,6 +26,9 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     readonly shortcut = input<string | null>(null);
     
     protected readonly _type = signal<ButtonType | null>(null);
+    protected readonly classes = multiComputed([this._type, this.type, this.size, this.color, this.disabled, this.iconColored],
+        (_type, type, size, color, disabled, iconColored) =>
+            `${_type ?? type} ${size} ${color}-btn ${disabled ? 'disabled' : ''} ${iconColored ? 'icon-colored' : ''}`);
     
     protected readonly windowService = inject(WindowService);
     private hotkeySubscription: Subscription | undefined;

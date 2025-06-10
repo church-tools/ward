@@ -38,6 +38,10 @@
     height: 18px;
 }
 
+.app-name {
+    animation: color animation.$duration ease;
+}
+
 .header {
     min-height: 2.5rem;
 }

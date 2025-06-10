@@ -1,0 +1,75 @@
+@use "animation";
+@use "input";
+@use "font";
+@use "shadow";
+@use "sass:math";
+
+.value-container {
+    margin-left: -0.55rem;
+    .value-btn {
+        padding: 0 input.$padding-x;
+        padding-right: 0;
+        gap: 0.25rem;
+        width: auto;
+        min-height: 2rem;
+        animation: fadeIn animation.$duration-xs ease;
+        .delete-btn {
+            padding: 0.25rem;
+            min-height: 0rem;
+            opacity: 0;
+        }
+        &:hover, &:focus {
+            .delete-btn {
+                opacity: 1;
+            }
+        }
+    }
+}
+
+.top-anchor .options-card {
+    bottom: 0;
+    .option { transform: translateY(1rem); }
+}
+
+.bottom-anchor .options-card {
+    top: 0;
+    .option { transform: translateY(-1rem); }
+}
+
+.top-anchor, .bottom-anchor {
+    position: relative;
+    width: 100%;
+}
+
+.options-card {
+    box-sizing: border-box;
+    max-width: 100vw;
+    width: 100%;
+    z-index: 1;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+    padding: math.div(input.$padding-y, 2) math.div(input.$padding-y, 2);
+    gap: 0;
+    transition: all animation.$duration-xs ease-out;
+    opacity: 0;
+    .option {
+        border-radius: input.$border-radius;
+        padding: input.$padding-y input.$padding-x;
+        transition: all animation.$duration-xs ease-out;
+        cursor: pointer;
+        &:hover, &.focused {
+            background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.075));
+        }
+        .highlighted {
+            @include shadow.box(1);
+            border-radius: input.$border-radius;
+        }
+    }
+    &.visible {
+        opacity: 1;
+        .option {
+            transform: translateY(0) !important;
+        }
+    }
+}

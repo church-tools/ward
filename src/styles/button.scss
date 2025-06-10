@@ -1,0 +1,8 @@
+@use "card";
+
+$color-disabled: #bdbdbd;
+$color-disabled-dark: #5c5c5c;
+$background-disabled: #f0f0f0;
+$background-disabled-dark: #141414;
+
+$border-radius: card.$border-radius-sm;

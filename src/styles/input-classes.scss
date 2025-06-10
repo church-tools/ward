@@ -157,3 +157,16 @@ fieldset {
     }
     &.disabled { @include box-disabled; }
 }
+
+.input-acrylic-card {
+    @extend .dropdown-box-shadow;
+    @extend .acrylic;
+    margin: 0;
+    padding: 0.25rem;
+    border-radius: $border-radius;
+    gap: 0.25rem;
+    border: 1px solid light-dark(color.$canvas-border, color.$canvas-border-dark);
+    background-color: light-dark(
+        rgba($background-color, 0.66),
+        rgba($background-color-dark, 0.8));
+}

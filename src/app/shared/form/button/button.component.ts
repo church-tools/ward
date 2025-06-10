@@ -6,12 +6,11 @@ import ButtonBaseComponent from "./shared/button-base";
     selector: 'app-button',
     imports: [IconComponent],
     template: `
-        <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}">
-            @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" [size]="iconSize()"/> }
+        <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" [class]="classes()">
+            @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" class="small-btn"/> }
             <ng-content/>
         </button>
     `,
-    styleUrl: './shared/button-base.scss'
 })
 export default class ButtonComponent extends ButtonBaseComponent implements OnDestroy {
 

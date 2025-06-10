@@ -16,3 +16,12 @@ $levels: (1, 2, 4, 8, 16, 32, 64);
         box-shadow: $shadow !important;
     }
 }
+
+@mixin drop($level) {
+    @media (prefers-color-scheme: light) {
+        filter: drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.14)) drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.14)) !important;
+    }
+    @media (prefers-color-scheme: dark) {
+        filter: drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.28)) drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.14)) !important;
+    }
+}

@@ -5,8 +5,14 @@
     <div class="col-md-6 card canvas-card">
         <div class="card-body">
             <h3>Suchen</h3>
-            <app-text-input placeholder="Gemeinde suchen..."/>
-            <app-async-button [onClick]="createUnit" [needsInternet]="true" icon="home">Gemeinde beitreten</app-async-button>
+            <app-select
+                [options]="unitOptions()"
+                placeholder="Gemeinde suchen..."
+                [(ngModel)]="selectedUnit"/>
+            <app-async-button icon="home"
+                [disabled]="!selectedUnit()"
+                [needsInternet]="true"
+                [onClick]="joinUnit">Gemeinde beitreten</app-async-button>
         </div>
     </div>
     <div class="col-md-6 card canvas-card">
