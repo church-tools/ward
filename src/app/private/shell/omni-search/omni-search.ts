@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { SelectComponent, SelectOption } from "../../../../shared/form/select/select";
+import { SelectComponent, SelectOption } from '../../../shared/form/select/select';
 
 @Component({
     selector: 'app-omni-search',

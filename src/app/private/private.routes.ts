@@ -1,6 +1,6 @@
 import { Type } from "@angular/core";
 import { Routes } from "@angular/router";
-import { PageComponent } from "../shared/page";
+import { PageComponent } from "../shared/page/page";
 import { PrivateShellComponent } from "./shell/private-shell";
 
 export type PrivateTab = { path: string; label: string; icon: string; loadComponent: () => Promise<Type<PageComponent>> };
@@ -12,11 +12,9 @@ export const privateTabs: PrivateTab[] = [
     { path: 'church-service', label: 'Gottesdienst', icon: 'presenter', loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent) },
 ];
 
-export const privateRoutes: Routes = [
-    { 
-        path: '', 
-        component: PrivateShellComponent, 
-        children: privateTabs.map(({ path, loadComponent }) => ({ path, loadComponent })),
-        pathMatch: 'prefix' 
-    },
-];
+export const privateRoutes: Routes = [{ 
+    path: '', 
+    component: PrivateShellComponent, 
+    children: privateTabs.map(({ path, loadComponent }) => ({ path, loadComponent })),
+    pathMatch: 'prefix' 
+}];

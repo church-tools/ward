@@ -1,9 +1,9 @@
 import { Component, inject, OnDestroy } from '@angular/core';
-import { PageComponent } from '../shared/page';
-import AsyncButtonComponent from "../../shared/form/button/async/async-button";
-import { SupabaseService } from '../../shared/supabase.service';
-import { Agenda } from '../../../../database-table.types';
-import { firstFreeIndex } from '../../shared/utils/dict-utils';
+import { PageComponent } from '../shared/page/page';
+import AsyncButtonComponent from "../shared/form/button/async/async-button";
+import { SupabaseService } from '../shared/supabase.service';
+import { Agenda } from '../../../database-table.types';
+import { firstFreeIndex } from '../shared/utils/dict-utils';
 
 @Component({
     selector: 'app-meetings-page',
@@ -19,7 +19,7 @@ import { firstFreeIndex } from '../../shared/utils/dict-utils';
         </div>
         <app-async-button icon="add" type="form" [onClick]="addAgenda"></app-async-button>
     `,
-    styleUrls: ['../shared/page.scss'],
+    styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
     imports: [AsyncButtonComponent],
 })

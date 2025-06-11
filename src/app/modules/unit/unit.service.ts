@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-import { SupabaseService } from "../../supabase.service";
-import { Unit } from "../../../../../database-table.types";
+import { SupabaseService } from "../../shared/supabase.service";
+import { Unit } from "../../../../database-table.types";
 
 @Injectable({ providedIn: 'root' })
 export class UnitService {

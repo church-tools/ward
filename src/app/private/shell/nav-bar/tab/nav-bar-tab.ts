@@ -1,8 +1,8 @@
 import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Observable } from '@legendapp/state';
-import { Icon, IconComponent } from '../../../../../shared/icon/icon';
-import { ColorName } from '../../../../../shared/utils/color-utitls';
+import { Icon, IconComponent } from '../../../../shared/icon/icon';
+import { ColorName } from '../../../../shared/utils/color-utitls';
 
 export type InnerNavBarTab = {
     icon: Icon;

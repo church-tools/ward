@@ -1,16 +1,16 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { UnitService } from '../../../shared/module/unit/unit.service';
-import { ShellComponent } from '../../../shared/shell/shell';
-import { SupabaseService } from '../../../shared/supabase.service';
+import { UnitService } from '../../modules/unit/unit.service';
+import { ShellComponent } from '../../shared/shell/shell';
+import { SupabaseService } from '../../shared/supabase.service';
+import { privateTabs } from '../private.routes';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
-import { privateTabs } from '../private.routes';
 
 @Component({
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
-    styleUrls: ['../../../shared/shell/shell.scss', './private-shell.scss'],
+    styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
     imports: [RouterOutlet, NavBarComponent, OmniSearchComponent],
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {

@@ -50,7 +50,6 @@ export class Synced<T extends TableName> {
             fieldId: this.idField as string,
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'updated_at',
-            fieldDeleted: 'deleted', 
         })
         this.synced.set(observable(synced));
     }
@@ -101,8 +100,5 @@ export class Synced<T extends TableName> {
             const bIndex = b[indexField] as number;
             return aIndex - bIndex;
         });
-    }
-    
-    private sort(rows: RowOf<T>[]) {
     }
 }

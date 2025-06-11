@@ -1,6 +1,6 @@
 import { Component, computed, effect, inject, input, signal } from '@angular/core';
-import { groupBy } from '../../../../shared/utils/array-utils';
-import WindowService from '../../../../shared/window.service';
+import { groupBy } from '../../../shared/utils/array-utils';
+import WindowService from '../../../shared/window.service';
 import { InnerNavBarTab, NavbarTabComponent } from './tab/nav-bar-tab';
 
 export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
