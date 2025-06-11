@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { AfterViewInit, Component, inject } from '@angular/core';
 import WindowService from '../window.service';
 
 @Component({
@@ -8,7 +8,7 @@ import WindowService from '../window.service';
         '[class.focused]': 'windowService.focused()',
     }
 })
-export abstract class ShellComponent {
+export abstract class ShellComponent implements AfterViewInit {
 
     protected readonly windowService = inject(WindowService);
 
