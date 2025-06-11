@@ -62,8 +62,8 @@
             background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.075));
         }
         .highlighted {
-            @include shadow.box(1);
             border-radius: input.$border-radius;
+            @include shadow.box(1);
         }
     }
     &.visible {

@@ -12,23 +12,29 @@ export type Database = {
       agenda: {
         Row: {
           created_at: string
+          deleted: boolean
           id: number
           name: string
           unit: number
+          updated_at: string
           uuid: string
         }
         Insert: {
           created_at?: string
+          deleted?: boolean
           id: number
           name: string
           unit: number
+          updated_at?: string
           uuid?: string
         }
         Update: {
           created_at?: string
+          deleted?: boolean
           id?: number
           name?: string
           unit?: number
+          updated_at?: string
           uuid?: string
         }
         Relationships: [
@@ -318,7 +324,7 @@ export type Database = {
             foreignKeyName: "member_user_fkey"
             columns: ["user"]
             isOneToOne: false
-            referencedRelation: "user"
+            referencedRelation: "profile"
             referencedColumns: ["id"]
           },
         ]
@@ -493,6 +499,35 @@ export type Database = {
           },
         ]
       }
+      profile: {
+        Row: {
+          created_at: string
+          id: number
+          uid: string
+          unit: number | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          uid: string
+          unit?: number | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          uid?: string
+          unit?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       sacrament_meeting: {
         Row: {
           announcements: string[] | null
@@ -593,35 +628,6 @@ export type Database = {
           name?: string
         }
         Relationships: []
-      }
-      user: {
-        Row: {
-          created_at: string
-          id: number
-          uid: string
-          unit: number | null
-        }
-        Insert: {
-          created_at?: string
-          id?: number
-          uid: string
-          unit?: number | null
-        }
-        Update: {
-          created_at?: string
-          id?: number
-          uid?: string
-          unit?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-        ]
       }
     }
     Views: {

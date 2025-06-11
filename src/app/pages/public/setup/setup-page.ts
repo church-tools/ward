@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { User } from '../../../../../database-table.types';
+import { Profile } from '../../../../../database-table.types';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../../shared/form/select/select";
 import { TextInputComponent } from "../../../shared/form/text/text-input";
@@ -29,7 +29,7 @@ export class SetupPageComponent extends PageComponent {
     }
 
     protected createUnit = async () => {
-        const user = await this.assureUserExists();
+        const user = await this.assureProfileExists();
         const session = await this.supabaseService.getSession();
         const functions = this.supabaseService.client.functions;
         functions.setAuth(session?.access_token || '');
@@ -58,18 +58,18 @@ export class SetupPageComponent extends PageComponent {
 
     }
 
-    private async assureUserExists(): Promise<User> {
+    private async assureProfileExists(): Promise<Profile> {
         const session = await this.supabaseService.getSession();
         const uid = session?.user.id;
         if (!uid) throw new Error('Login fehlgeschlagen');
         const { data: existing } = await this.supabaseService.client
-            .from('user')
+            .from('profile')
             .select('*')
             .eq('uid', uid)
             .single();
         if (existing) return existing;
         const { data: created } = await this.supabaseService.client
-            .from('user')
+            .from('profile')
             .insert({ uid })
             .select('*')
             .single()

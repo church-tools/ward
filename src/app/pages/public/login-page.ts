@@ -1,4 +1,5 @@
 import { Component, inject } from '@angular/core';
+import ButtonComponent from "../../shared/form/button/button.component";
 import { SupabaseService } from '../../shared/supabase.service';
 import { PageComponent } from '../shared/page';
 
@@ -7,10 +8,25 @@ import { PageComponent } from '../shared/page';
     template: `
         <span class="display-text">Login</span>
         <p>Login component content goes here.</p>
-        <button (click)="loginWithProvider('google')">Login with Google</button>
-        <button (click)="loginWithProvider('azure')">Login with Microsoft</button>
-
+        <div class="column-grid">
+            
+        </div>
+        <div class="column-grid">
+            <app-button class="col-6" type="secondary" size="large" (onClick)="loginWithProvider('google')">
+                <img src="assets/img/brand/google.svg" sizes="16x16" alt="Google Icon" class="icon">
+            </app-button>
+            <app-button class="col-6" type="secondary" size="large" (onClick)="loginWithProvider('azure')">
+                <img src="assets/img/brand/microsoft.svg" sizes="16x16" alt="Microsoft Icon" class="icon">
+            </app-button>
+        </div>
     `,
+    imports: [ButtonComponent],
+    styles: [`
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+    `],
 })
 export class LoginPageComponent extends PageComponent {
 
@@ -20,7 +36,7 @@ export class LoginPageComponent extends PageComponent {
         super();
     }
 
-    protected loginWithProvider(provider: 'google' | 'azure'): void {
+    protected loginWithProvider(provider: 'google' | 'azure') {
         this.supabaseService.signInWithOAuth(provider);
     }
 
