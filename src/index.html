@@ -21,26 +21,42 @@
     <!-- Start Single Page Apps for GitHub Pages -->
     <script type="text/javascript">
         (function(l) {
-        if (l.search && l.search[1] === '/') {
-            var decoded = l.search.slice(1).split('&').map(function(s) { 
-            return s.replace(/~and~/g, '&')
-            }).join('?');
-            window.history.replaceState(null, null,
-                l.pathname.slice(0, -1) + decoded + l.hash
-            );
-        }
+            if (l.search && l.search[1] === '/') {
+                var decoded = l.search.slice(1).split('&').map(function(s) { 
+                return s.replace(/~and~/g, '&')
+                }).join('?');
+                window.history.replaceState(null, null,
+                    l.pathname.slice(0, -1) + decoded + l.hash
+                );
+            }
         }(window.location));
         if (window.matchMedia('(prefers-color-scheme: dark)').matches)
             document.querySelector('meta[name=theme-color]').setAttribute('content', '#272727');
+        
+        let fontLoaded = false;
+        let viewInitialized = false;
+
+        function hideLoadingScreen() {
+            if (fontLoaded && viewInitialized) {
+                const pageLoading = document.querySelector('.page-loading');
+                pageLoading.classList.add('hidden');
+                setTimeout(function() { pageLoading.remove() }, 1000);
+            }
+        }
+
+        window.addEventListener('view-initialized', function() {
+            viewInitialized = true;
+            hideLoadingScreen();
+        });
+
         document.addEventListener("DOMContentLoaded", function() {
             const font = new FontFace('FluentSystemIcons-Resizable', 'url(assets/fonts/FluentSystemIcons-Resizable.woff2)');
             font.load()
             .then(function(loadedFont) { document.fonts.add(loadedFont); })
             .catch(function(error) { console.error('Font failed to load:', error); })
             .finally(function() {
-                const pageLoading = document.querySelector('.page-loading');
-                pageLoading.classList.add('hidden');
-                setTimeout(function() { pageLoading.remove() }, 500);
+                fontLoaded = true;
+                hideLoadingScreen();
             });
         }, { once: true });
     </script>

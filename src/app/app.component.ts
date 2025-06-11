@@ -9,7 +9,7 @@ import { trimPastedStrings } from './shared/utils/clipboard-utils';
 	template: '<router-outlet/>',
 })
 export class AppComponent {
-  	
+    
     constructor() {
         trimPastedStrings();
     }

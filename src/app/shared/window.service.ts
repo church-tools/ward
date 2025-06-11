@@ -1,7 +1,7 @@
 import { computed, DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
+import { NavigationEnd, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
 import { executeOnce } from "./utils/flow-control-utils";
-import { NavigationEnd, Router } from "@angular/router";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 

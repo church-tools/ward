@@ -12,4 +12,7 @@ export abstract class ShellComponent implements AfterViewInit {
 
     protected readonly windowService = inject(WindowService);
 
+    ngAfterViewInit() {
+        window.dispatchEvent(new CustomEvent('view-initialized'));
+    }
 }
