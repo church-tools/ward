@@ -1,8 +1,8 @@
-import { Component, inject, OnDestroy } from '@angular/core';
-import { PageComponent } from '../shared/page/page';
-import AsyncButtonComponent from "../shared/form/button/async/async-button";
-import { SupabaseService } from '../shared/supabase.service';
+import { Component, inject } from '@angular/core';
 import { Agenda } from '../../../database-table.types';
+import AsyncButtonComponent from "../shared/form/button/async/async-button";
+import { PageComponent } from '../shared/page/page';
+import { SupabaseService } from '../shared/supabase.service';
 import { firstFreeIndex } from '../shared/utils/dict-utils';
 
 @Component({
@@ -17,6 +17,15 @@ import { firstFreeIndex } from '../shared/utils/dict-utils';
                 </div>
             }
         </div>
+        
+        <!-- <app-list [items]="agendas()">
+            <ng-template let-agenda>
+                <div>
+                <h3>{{ agenda.name }}</h3>
+                <p>{{ agenda.id }}</p>
+                </div>
+            </ng-template>
+        </app-list> -->
         <app-async-button icon="add" type="form" [onClick]="addAgenda"></app-async-button>
     `,
     styleUrls: ['../shared/page/page.scss'],

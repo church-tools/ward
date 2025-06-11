@@ -4,7 +4,6 @@ import { trimPastedStrings } from './shared/utils/clipboard-utils';
 
 @Component({
 	selector: 'app-root',
-	standalone: true,
 	imports: [RouterOutlet],
 	template: '<router-outlet/>',
 })

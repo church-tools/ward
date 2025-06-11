@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, ElementRef, effect, input, signal, inject } from "@angular/core";
+import { Component, ElementRef, effect, inject, input, signal } from "@angular/core";
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
 @Component({
     selector: 'app-tooltip-popup',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         @if (visible() || fading()) {
             <div class="tooltip acrylic-card" [class.fading]="fading()" [style]="style()"

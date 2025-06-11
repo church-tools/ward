@@ -1,0 +1,37 @@
+<div class="list-container">
+    @if (loading()) {
+    <div class="list-message loading-message">
+        {{ config().loadingMessage ?? 'Loading...' }}
+    </div>
+    } @else if (visibleItems().length === 0) {
+    <div class="list-message empty-message">
+        {{ config().emptyMessage ?? 'No items found' }}
+    </div>
+    } @else {
+    <div class="list-items">
+        @for (item of visibleItems(); track trackByFn(item, $index)) {
+        <div 
+            class="list-item"
+            [class.selectable]="config().selectable"
+            [class.selected]="isSelected(item)"
+            [attr.data-index]="$index"
+            (click)="onItemClick(item, $index)">
+            
+            @if (config().showIndex) {
+                <div class="item-index">{{ $index + 1 }}</div>
+            }
+            
+            <div class="item-content">
+                <ng-container 
+                    *ngTemplateOutlet="itemTemplate(); context: { 
+                    $implicit: item, 
+                    index: $index,
+                    selected: isSelected(item)
+                    }">
+                </ng-container>
+            </div>
+        </div>
+        }
+    </div>
+    }
+</div>

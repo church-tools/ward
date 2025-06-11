@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, Signal, input, output, signal, viewChild, inject } from '@angular/core';
+import { Component, ElementRef, Signal, inject, input, output, signal, viewChild } from '@angular/core';
 
 @Component({
     selector: 'app-collapse',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `<div #measuring class="measuring"><ng-content/></div>`,
     styles: [`
         :host {

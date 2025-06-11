@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input, signal, viewChild } from "@angular/core";
+import { Component, input, signal, viewChild } from "@angular/core";
 import { IconComponent } from "../../../icon/icon";
 import { multiComputed, multiEffect } from "../../../utils/signal-utils";
 import ErrorMessageComponent from "../../../widget/error-message/error-message";
@@ -8,7 +8,6 @@ export type ProgressCallback = (progress: number) => void;
 
 @Component({
     selector: 'app-async-button',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [IconComponent, ErrorMessageComponent],
     template: `
         <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"

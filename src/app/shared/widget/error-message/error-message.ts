@@ -1,10 +1,9 @@
-import { ChangeDetectionStrategy, Component, signal, viewChild } from '@angular/core';
-import CollapseComponent from '../collapse.component';
+import { Component, signal, viewChild } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
+import CollapseComponent from '../collapse.component';
 
 @Component({
     selector: 'app-error-message',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [CollapseComponent, IconComponent],
     template: `
         <app-collapse>

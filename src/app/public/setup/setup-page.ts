@@ -1,18 +1,17 @@
-import { ChangeDetectionStrategy, Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Profile } from '../../../../database-table.types';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../shared/form/select/select";
 import { TextInputComponent } from "../../shared/form/text/text-input";
-import { SupabaseService } from '../../shared/supabase.service';
 import { PageComponent } from '../../shared/page/page';
+import { SupabaseService } from '../../shared/supabase.service';
 
 @Component({
     selector: 'app-setup-page',
     imports: [FormsModule, AsyncButtonComponent, TextInputComponent, SelectComponent],
     templateUrl: './setup-page.html',
     styleUrls: ['../../shared/page/page.scss'],
-    changeDetection: ChangeDetectionStrategy.OnPush,
     host: { class: 'narrow' },
 })
 export class SetupPageComponent extends PageComponent {
