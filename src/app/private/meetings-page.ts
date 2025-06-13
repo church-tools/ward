@@ -4,33 +4,34 @@ import AsyncButtonComponent from "../shared/form/button/async/async-button";
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/supabase.service';
 import { firstFreeIndex } from '../shared/utils/dict-utils';
+import { ListComponent } from "../shared/widget/list/list";
 
 @Component({
     selector: 'app-meetings-page',
     template: `
         <span class="display-text">Sitzungen</span>
         <p>Meetings component content goes here.</p>
-        <div class="column gap-1">
+        <!-- <div class="column gap-1">
             @for (agenda of agendas(); track agenda.id) {
                 <div class="card canvas-card">
                     ID: {{agenda.id}}
                 </div>
             }
-        </div>
+        </div> -->
         
-        <!-- <app-list [items]="agendas()">
+        <app-list [items]="agendas()">
             <ng-template let-agenda>
-                <div>
-                <h3>{{ agenda.name }}</h3>
-                <p>{{ agenda.id }}</p>
+                <div class="card canvas-card">
+                    <h3>{{ agenda.name }}</h3>
+                    <p>{{ agenda.id }}</p>
                 </div>
             </ng-template>
-        </app-list> -->
+        </app-list>
         <app-async-button icon="add" type="form" [onClick]="addAgenda"></app-async-button>
     `,
     styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
-    imports: [AsyncButtonComponent],
+    imports: [AsyncButtonComponent, ListComponent],
 })
 export class MeetingsPageComponent extends PageComponent {
 

@@ -9,7 +9,7 @@
     </div>
     } @else {
     <div class="list-items">
-        @for (item of visibleItems(); track trackByFn(item, $index)) {
+        @for (item of visibleItems(); track item.id) {
         <div 
             class="list-item"
             [class.selectable]="config().selectable"

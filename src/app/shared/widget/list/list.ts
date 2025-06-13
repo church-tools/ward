@@ -1,4 +1,5 @@
 import { Component, computed, contentChild, input, output, signal, TemplateRef } from '@angular/core';
+import { NgTemplateOutlet } from '@angular/common';
 
 export interface ListItem {
   id: string | number;
@@ -14,6 +15,7 @@ export interface ListConfig {
 
 @Component({
   selector: 'app-list',
+  imports: [NgTemplateOutlet],
   templateUrl: './list.html',
   styles: [`
     .list-container {
