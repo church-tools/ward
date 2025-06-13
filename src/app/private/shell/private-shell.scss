@@ -19,6 +19,7 @@
 .nav-and-canvas {
     position: relative;
     height: 100%;
+    contain: size;
     @include layout.row;
     .canvas-container {
         border-top: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
