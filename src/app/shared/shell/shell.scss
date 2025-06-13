@@ -36,11 +36,11 @@
         justify-content: flex-start;
         overflow: auto;
         display: flex;
-        padding: 4 * layout.$gutter;
+        margin: 4 * layout.$gutter;
         height: 100%;
     }
     &:not(.narrow) .canvas {
-        padding: 12 * layout.$gutter 16 * layout.$gutter;
+        margin: 12 * layout.$gutter 16 * layout.$gutter;
     }
 }
 
@@ -52,6 +52,7 @@
     overflow: auto;
     justify-content: center;
     .canvas {
+        position: relative;
         width: 100%;
         box-sizing:border-box;
         display: flex;

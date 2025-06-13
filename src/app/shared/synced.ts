@@ -47,6 +47,7 @@ export class Synced<T extends TableName> {
             changesSince: 'last-sync',
             retry: { infinite: true },
             fieldId: this.idField as string,
+            fieldDeleted: 'deleted',
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'updated_at',
         })
