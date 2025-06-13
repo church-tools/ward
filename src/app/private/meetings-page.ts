@@ -4,7 +4,7 @@ import AsyncButtonComponent from "../shared/form/button/async/async-button";
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/supabase.service';
 import { firstFreeIndex } from '../shared/utils/dict-utils';
-import { ListComponent } from "../shared/widget/list/list";
+import { CardListComponent } from "../shared/widget/card-list/card-list";
 
 @Component({
     selector: 'app-meetings-page',
@@ -31,7 +31,7 @@ import { ListComponent } from "../shared/widget/list/list";
     `,
     styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
-    imports: [AsyncButtonComponent, ListComponent],
+    imports: [AsyncButtonComponent, CardListComponent],
 })
 export class MeetingsPageComponent extends PageComponent {
 

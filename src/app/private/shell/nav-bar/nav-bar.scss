@@ -2,7 +2,6 @@
 @use "animation";
 
 :host {
-    width: 4.25rem;
     align-items: center;
     display: flex;
     flex-direction: column;
@@ -28,7 +27,7 @@
     position: absolute;
     width: 4px;
     height: 22px;
-    left: 0.25rem;
+    left: 4px;
     border-radius: card.$border-radius-sm;
     transition: all animation.$duration-sm ease-out;
     &.visible {

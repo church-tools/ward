@@ -1,8 +1,8 @@
 <div class="list-container">
     @if (loading()) {
-    <div class="list-message loading-message">
-        {{ config().loadingMessage ?? 'Loading...' }}
-    </div>
+        <div class="list-message loading-message">
+            {{ config().loadingMessage ?? 'Loading...' }}
+        </div>
     } @else if (visibleItems().length === 0) {
     <div class="list-message empty-message">
         {{ config().emptyMessage ?? 'No items found' }}

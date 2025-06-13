@@ -24,17 +24,22 @@
     .canvas-container {
         border-top: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
     }
-    app-nav-bar {
-        width: auto;
-    }
 }
 
 :host {
     &.narrow .nav-and-canvas {
         flex-direction: column-reverse;
+        app-nav-bar {
+            width: auto;
+        }
     }
-    &:not(.narrow) .nav-and-canvas .canvas-container {
-        border-top-left-radius: card.$border-radius-lg;
-        border-left: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
+    &:not(.narrow) .nav-and-canvas {
+        app-nav-bar {
+            width: 4.25rem;
+        }
+        .canvas-container {
+            border-top-left-radius: card.$border-radius-lg;
+            border-left: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
+        }
     }
 }
