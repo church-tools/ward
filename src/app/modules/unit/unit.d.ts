@@ -1,6 +1,7 @@
+import type { Database } from "../../../../database.types.ts";
 
 export namespace Unit {
-    export type Insert = Tables["unit"]["Insert"];
-    export type Update = Tables["unit"]["Update"];
-    export type Row = Tables["unit"]["Row"];
+    export type Insert = Database["public"]["Tables"]["unit"]["Insert"];
+    export type Update = Database["public"]["Tables"]["unit"]["Update"];
+    export type Row = Database["public"]["Tables"]["unit"]["Row"];
 }

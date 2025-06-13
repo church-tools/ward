@@ -14,6 +14,7 @@ export type Database = {
           created_at: string
           deleted: boolean
           id: number
+          index: number
           name: string
           unit: number
           updated_at: string
@@ -23,6 +24,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id: number
+          index?: number
           name: string
           unit: number
           updated_at?: string
@@ -32,6 +34,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id?: number
+          index?: number
           name?: string
           unit?: number
           updated_at?: string
@@ -634,7 +637,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      access_token_hook: {
+        Args: { event: Json }
+        Returns: Json
+      }
     }
     Enums: {
       callability: "callable" | "other_needs" | "retired"

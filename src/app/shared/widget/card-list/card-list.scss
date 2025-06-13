@@ -1,0 +1,20 @@
+@use "layout";
+@use "animation";
+
+.card-item-container {
+    position: relative;
+    .card-item {
+        position: absolute;
+        @include layout.row;
+        width: 100%;
+        align-items: center;
+        // transition: all animation.$duration ease;
+        opacity: 0;
+        &.visible {
+            opacity: 1;
+        }
+        .drag-handle {
+            opacity: 0.25;
+        }
+    }
+}

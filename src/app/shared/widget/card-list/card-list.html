@@ -1,37 +1,19 @@
-<div class="list-container">
-    @if (loading()) {
-        <div class="list-message loading-message">
-            {{ config().loadingMessage ?? 'Loading...' }}
-        </div>
-    } @else if (visibleItems().length === 0) {
-    <div class="list-message empty-message">
-        {{ config().emptyMessage ?? 'No items found' }}
-    </div>
-    } @else {
-    <div class="list-items">
-        @for (item of visibleItems(); track item.id) {
-        <div 
-            class="list-item"
-            [class.selectable]="config().selectable"
-            [class.selected]="isSelected(item)"
-            [attr.data-index]="$index"
-            (click)="onItemClick(item, $index)">
-            
-            @if (config().showIndex) {
-                <div class="item-index">{{ $index + 1 }}</div>
+<div class="card-list-header">
+
+</div>
+<div #container class="card-item-container" style.height="{{totalHeight()}}px">
+    @for (itemCard of itemCards(); track itemCard.item) {
+        <div #card class="{{cardClasses()}} card-item"
+            [class.visible]="itemCard.visible()"
+            style.transform="translateY({{itemCard.offset()}}px)"
+            (click)="onItemClick(itemCard)">
+            @if (reorderable()) {
+                <div class="drag-handle">
+                    <app-icon icon="re_order_dots_vertical"/>
+                </div>
             }
-            
-            <div class="item-content">
-                <ng-container 
-                    *ngTemplateOutlet="itemTemplate(); context: { 
-                    $implicit: item, 
-                    index: $index,
-                    selected: isSelected(item)
-                    }">
-                </ng-container>
-            </div>
+            <ng-container *ngTemplateOutlet="itemTemplate();
+                context: { item: itemCard.item }"/>
         </div>
-        }
-    </div>
     }
 </div>

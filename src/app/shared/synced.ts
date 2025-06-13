@@ -4,8 +4,8 @@ import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/ind
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
-import { IdOf, RowOf, TableName } from "../../../database-table";
-import { Database } from "../../../database.types";
+import type { Database } from "../../../database";
+import type { IdOf, KeyWithValue, RowOf, TableName } from "./types";
 import { AsyncValue } from "./utils/async-value";
 import { generateUUIDv7 } from "./utils/crypto-utils";
 
@@ -14,7 +14,6 @@ configureSyncedSupabase({
 });
 
 type Records<T extends TableName> = Record<number, RowOf<T>>;
-type KeyWithValue<T, V> = { [K in keyof T]: T[K] extends V ? K : never; }[keyof T];
 
 export class Synced<T extends TableName> {
 

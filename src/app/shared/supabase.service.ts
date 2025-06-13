@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
-import { Database } from '../../../database.types';
+import type { Database } from '../../../database';
 import { environment } from '../../environments/environment';
 import { Synced } from './synced';
 import { getSiteOrigin } from './utils/url-utils';

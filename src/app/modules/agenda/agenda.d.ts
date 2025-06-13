@@ -1,6 +1,7 @@
+import type { Database } from "../../../../database.types.ts";
 
 export namespace Agenda {
-    export type Insert = Tables["agenda"]["Insert"];
-    export type Update = Tables["agenda"]["Update"];
-    export type Row = Tables["agenda"]["Row"];
+    export type Insert = Database["public"]["Tables"]["agenda"]["Insert"];
+    export type Update = Database["public"]["Tables"]["agenda"]["Update"];
+    export type Row = Database["public"]["Tables"]["agenda"]["Row"];
 }

@@ -34,10 +34,8 @@
     
     &.narrow .canvas {
         justify-content: flex-start;
-        overflow: auto;
         display: flex;
         margin: 4 * layout.$gutter;
-        height: 100%;
     }
     &:not(.narrow) .canvas {
         margin: 12 * layout.$gutter 16 * layout.$gutter;

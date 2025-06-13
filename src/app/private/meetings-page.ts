@@ -19,14 +19,14 @@ import { CardListComponent } from "../shared/widget/card-list/card-list";
             }
         </div> -->
         
-        <app-list [items]="agendas()">
-            <ng-template let-agenda>
-                <div class="card canvas-card">
-                    <h3>{{ agenda.name }}</h3>
-                    <p>{{ agenda.id }}</p>
+        <app-card-list [items]="agendas()" [reorderable]="true" orderByKey="index">
+            <ng-template let-agenda="item">
+                <div class="card-body column">
+                    <h3>{{ agenda.name || "Title" }}</h3>
+                    <span>{{ agenda.id }}</span>
                 </div>
             </ng-template>
-        </app-list>
+        </app-card-list>
         <app-async-button icon="add" type="form" [onClick]="addAgenda"></app-async-button>
     `,
     styleUrls: ['../shared/page/page.scss'],
