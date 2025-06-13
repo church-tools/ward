@@ -1,9 +1,10 @@
 <div class="card-list-header">
 
 </div>
-<div #container class="card-item-container" style.height="{{totalHeight()}}px">
+<div #container class="card-item-container" style.height="{{totalHeight()}}px"
+    cdkDropList (cdkDropListDropped)="onDrop($event)">
     @for (itemCard of itemCards(); track itemCard.item) {
-        <div #card class="{{cardClasses()}} card-item"
+        <div #card cdkDrag class="{{cardClasses()}} card-item"
             [class.visible]="itemCard.visible()"
             style.transform="translateY({{itemCard.offset()}}px)"
             (click)="onItemClick(itemCard)">

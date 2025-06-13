@@ -24,6 +24,9 @@ import { CardListComponent } from "../shared/widget/card-list/card-list";
                 <div class="card-body column">
                     <h3>{{ agenda.name || "Title" }}</h3>
                     <span>{{ agenda.id }}</span>
+                    @if (agenda.id == 2) {
+                        <span class="danger-text">This is a special agenda!</span>
+                    }
                 </div>
             </ng-template>
         </app-card-list>
