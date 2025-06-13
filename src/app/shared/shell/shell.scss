@@ -31,6 +31,29 @@
     &.focused ::after {
         opacity: 0.95;
     }
+    
+    &.narrow .canvas {
+        justify-content: flex-start;
+        overflow: auto;
+        display: flex;
+        padding: 4 * layout.$gutter;
+        height: 100%;
+    }
+    &:not(.narrow) .canvas {
+        padding: 12 * layout.$gutter 16 * layout.$gutter;
+    }
+}
+.canvas-container {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    .canvas {
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+    }
 }
 
 .app-logo {

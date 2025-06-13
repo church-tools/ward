@@ -15,6 +15,10 @@ export const privateTabs: PrivateTab[] = [
 export const privateRoutes: Routes = [{ 
     path: '', 
     component: PrivateShellComponent, 
-    children: privateTabs.map(({ path, loadComponent }) => ({ path, loadComponent })),
+    children: privateTabs.map(({ path, loadComponent }) => ({ 
+        path, 
+        loadComponent, 
+        data: { animation: path } 
+    })),
     pathMatch: 'prefix' 
 }];

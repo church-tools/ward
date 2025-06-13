@@ -5,8 +5,8 @@ export const publicRoutes: Routes = [{
     path: '', 
     component: PublicShellComponent, 
     children: [
-        { path: 'login', loadComponent: () => import('./login-page').then(m => m.LoginPageComponent) },
-        { path: 'setup', loadComponent: () => import('./setup/setup-page').then(m => m.SetupPageComponent) },
+        { path: 'login', loadComponent: () => import('./login-page').then(m => m.LoginPageComponent), data: { animation: 'login' } },
+        { path: 'setup', loadComponent: () => import('./setup/setup-page').then(m => m.SetupPageComponent), data: { animation: 'setup' } },
     ],
     pathMatch: 'prefix' 
 }];

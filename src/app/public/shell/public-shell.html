@@ -5,6 +5,8 @@
             [class.subtle-text]="!windowService.focused()">Gemeinde Tools</div>
     </div>
 </div>
-<div class="content row center-content">
-    <router-outlet/>
+<div class="canvas-container">
+    <div [@routeAnimations]="getRouteAnimationData()" class="canvas">
+        <router-outlet/>
+    </div>
 </div>

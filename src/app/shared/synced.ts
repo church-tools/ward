@@ -1,14 +1,13 @@
-import { Observable as LSObservable, observable, RemoveObservables } from "@legendapp/state";
+import { signal } from "@angular/core";
+import { Observable as LSObservable, observable } from "@legendapp/state";
 import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/indexeddb";
-import { SyncedCrudReturnType } from "@legendapp/state/sync-plugins/crud";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
-import { IdOf, RowOf, TableName } from "../../../database-table.types";
+import { IdOf, RowOf, TableName } from "../../../database-table";
 import { Database } from "../../../database.types";
 import { AsyncValue } from "./utils/async-value";
 import { generateUUIDv7 } from "./utils/crypto-utils";
-import { signal } from "@angular/core";
 
 configureSyncedSupabase({
     generateId: generateUUIDv7,

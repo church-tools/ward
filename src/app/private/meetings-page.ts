@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { Agenda } from '../../../database-table.types';
+import { Agenda } from '../modules/agenda/agenda';
 import AsyncButtonComponent from "../shared/form/button/async/async-button";
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/supabase.service';
@@ -44,7 +44,7 @@ export class MeetingsPageComponent extends PageComponent {
         const firstFreeId = firstFreeIndex(agendas);
         const { data } = await this.supabaseService.client
             .from('agenda')
-            .insert(<Agenda>{
+            .insert(<Agenda.Insert>{
                 id: firstFreeId,
                 name: "",
                 unit: 18,

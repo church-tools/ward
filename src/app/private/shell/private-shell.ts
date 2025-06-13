@@ -16,9 +16,7 @@ import { OmniSearchComponent } from './omni-search/omni-search';
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     protected readonly authenticated = signal<boolean>(false);
-    protected readonly tabs = signal<NavBarTab[]>([]);
-
-    private readonly supabaseService = inject(SupabaseService);
+    protected readonly tabs = signal<NavBarTab[]>([]);    private readonly supabaseService = inject(SupabaseService);
     private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
 
@@ -26,7 +24,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         super();
         this.authenticate();
     }
-
+    
     async ngOnInit() {
         this.tabs.set(privateTabs.map(({ path, label, icon }) =>
             <NavBarTab>{ path, label, icon }));

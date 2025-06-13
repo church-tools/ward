@@ -1,6 +1,6 @@
 import { Component, inject, model, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { Profile } from '../../../../database-table.types';
+import { Profile } from '../../modules/profile/profile';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../shared/form/select/select";
 import { TextInputComponent } from "../../shared/form/text/text-input";
@@ -57,7 +57,7 @@ export class SetupPageComponent extends PageComponent {
 
     }
 
-    private async assureProfileExists(): Promise<Profile> {
+    private async assureProfileExists(): Promise<Profile.Row> {
         const session = await this.supabaseService.getSession();
         const uid = session?.user.id;
         if (!uid) throw new Error('Login fehlgeschlagen');
