@@ -1,12 +1,12 @@
 <div class="card-list-header">
 
 </div>
-<div #container class="card-item-container" style.height="{{totalHeight()}}px"
+<div #container class="card-item-container column gap-2"
     cdkDropList (cdkDropListDropped)="onDrop($event)">
     @for (itemCard of itemCards(); track itemCard.item) {
-        <div #card cdkDrag class="{{cardClasses()}} card-item"
-            [class.visible]="itemCard.visible()"
-            style.transform="translateY({{itemCard.offset()}}px)"
+        <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
+            [class.hidden]="itemCard.height() === 0"
+            [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
             (click)="onItemClick(itemCard)">
             @if (reorderable()) {
                 <div class="drag-handle">

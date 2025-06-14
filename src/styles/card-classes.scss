@@ -5,13 +5,12 @@
 @use "layout-classes";
 @use "shadow-classes";
 @use 'sass:map';
-@use 'sass:color' as sassColor;
 
 .card {
     display: flex;
     flex-direction: column;
     border-radius: $border-radius;
-    background-color: light-dark($background-color, $background-color-dark);
+    background-color: $background;
     
     &:not(.clear) {
         @include shadow.box(2);
@@ -42,9 +41,7 @@
     }
 
     &.canvas-background-card {
-        background-color: light-dark(
-            sassColor.mix(rgba(color.$canvas-background, 0.6), $background-transparent-color),
-            sassColor.mix(rgba(color.$canvas-background-dark, 0.333), $background-transparent-color-dark));
+        background-color: $canvas-background;
         @include shadow.box(3);
         &:not(.suppress-canvas-card-animation) {
             animation: appear-on-page animation.$duration-lg ease-out;

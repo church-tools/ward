@@ -1,4 +1,4 @@
-import { CdkDrag, CdkDragDrop, CdkDropList } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChildren, WritableSignal } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
@@ -8,9 +8,7 @@ import { multiEffect } from '../../utils/signal-utils';
 
 type ItemCard<T> = {
     item: T;
-    offset: WritableSignal<number>;
-    height: number;
-    visible: WritableSignal<boolean>;
+    height: WritableSignal<number | null>; // 0 means hidden, null means not yet initialized
 }
 
 @Component({
@@ -26,18 +24,17 @@ export class CardListComponent<T> {
     readonly reorderable = input<boolean>(false);
     readonly showFilter = input(false);
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
-    readonly cardPxGap = input<number>(8);
 
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ item: T }>>(TemplateRef);
     private readonly cardViews: Signal<readonly ElementRef<HTMLDivElement>[]> = viewChildren('card', { read: ElementRef });
     
     private readonly selectedItem = signal<T | null>(null);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
-    protected readonly totalHeight = signal(0);
     
     // Events
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
+    readonly orderChange = output<T[]>();
 
     private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
     private readonly initialized = new AsyncValue<boolean>();
@@ -49,19 +46,17 @@ export class CardListComponent<T> {
         multiEffect([this.cardViews], cards => {
             const items = this.items();
             if (!cards || items.length != cards.length) return;
-            let heightChanged = false;
+            // let heightChanged = false;
             cards.forEach((card, index) => {
                 const item = items[index];
                 const listItem = this.listItemsByItem.get(item);
                 if (!listItem) return;
                 const newHeight = card.nativeElement.clientHeight;
-                if (newHeight === listItem.height) return;
-                listItem.height = newHeight;
-                heightChanged = true;
+                if (newHeight) listItem.height.set(newHeight);
             });
-            if (heightChanged) {
-                this.updateItemCardRendering();
-            }
+            // if (heightChanged) {
+            //     this.updateItemCardRendering();
+            // }
         });
     }
 
@@ -74,32 +69,51 @@ export class CardListComponent<T> {
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
-        
+        const itemCards = this.itemCards();
+        moveItemInArray(itemCards, event.previousIndex, event.currentIndex);
+        this.itemCards.set(itemCards);
+        const orderByKey = this.orderByKey()!;
+        const changed = itemCards.filter((itemCard, i) => {
+            if (itemCard.item[orderByKey] === i) return false;
+            itemCard.item[orderByKey] = <any>i;
+            return true;
+        });
+        if (changed.length)
+            this.orderChange.emit(changed.map(itemCard => itemCard.item));
     }
 
     private updateItemCards(items: T[]) {
-        const newItemCards = items.filter(item => !this.listItemsByItem.has(item)).map(item =>
-            <ItemCard<T>>{ item, height: 0, offset: signal(0), visible: signal(false) });
+        const newItemCards: ItemCard<T>[] = items
+            .filter(item => !this.listItemsByItem.has(item))
+            .map(item => ({ item, height: signal(null) }));
         if (!newItemCards.length) return;
         const existingItemCards = this.itemCards();
         for (const itemCard of newItemCards)
             this.listItemsByItem.set(itemCard.item, itemCard);
-        this.itemCards.set([...existingItemCards, ...newItemCards]);
+        const allItemCards = [...existingItemCards, ...newItemCards];
+        this.sort(allItemCards)
+        this.itemCards.set(allItemCards);
     }
 
-    private updateItemCardRendering() {
-        const safeItemCards = this.itemCards() as ItemCard<T>[];
+    // private updateItemCardRendering() {
+    //     const safeItemCards = this.itemCards() as ItemCard<T>[];
+    //     const orderbyKey = this.orderByKey();
+    //     if (orderbyKey)
+    //         safeItemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
+    //     let offset = 0;
+    //     const gap = this.cardPxGap();
+    //     for (const itemCard of safeItemCards) {
+    //         // if (!itemCard.visible()) continue;
+    //         itemCard.offset.set(offset);
+    //         itemCard.visible.set(true);
+    //         offset += itemCard.height + gap;
+    //     }
+    //     this.totalHeight.set(offset);
+    // }
+
+    private sort(itemCards: ItemCard<T>[]) {
         const orderbyKey = this.orderByKey();
-        if (orderbyKey)
-            safeItemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
-        let offset = 0;
-        const gap = this.cardPxGap();
-        for (const itemCard of safeItemCards) {
-            // if (!itemCard.visible()) continue;
-            itemCard.offset.set(offset);
-            itemCard.visible.set(true);
-            offset += itemCard.height + gap;
-        }
-        this.totalHeight.set(offset);
+        if (!orderbyKey) return;
+        return itemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
     }
 }

@@ -1,20 +1,35 @@
 @use "layout";
+@use "shadow";
+@use "card";
 @use "animation";
 
 .card-item-container {
-    position: relative;
-    .card-item {
-        position: absolute;
-        @include layout.row;
-        width: 100%;
-        align-items: center;
-        // transition: all animation.$duration ease;
+    
+}
+.card-item {
+    // position: absolute;
+    @include layout.row;
+    width: 100%;
+    align-items: center;
+    transition: box-shadow animation.$duration ease, background-color animation.$duration ease;
+    // opacity: 0;
+    &.hidden {
         opacity: 0;
-        &.visible {
-            opacity: 1;
-        }
-        .drag-handle {
-            opacity: 0.25;
-        }
     }
+    .drag-handle {
+        opacity: 0.25;
+    }
+}
+.cdk-drag-preview {
+    background-color: card.$background;
+    @include shadow.box(8);
+}
+.cdk-drag-placeholder {
+    opacity: 0;
+}
+.cdk-drag-animating {
+    transition: transform animation.$duration cubic-bezier(0, 0, 0.2, 1);
+}
+.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
+    transition: transform animation.$duration cubic-bezier(0, 0, 0.2, 1);
 }
