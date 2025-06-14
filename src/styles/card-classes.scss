@@ -10,15 +10,15 @@
     display: flex;
     flex-direction: column;
     border-radius: $border-radius;
-    background-color: $background;
+    background-color: $background-color;
     
     &:not(.clear) {
-        @include shadow.box(2);
+        @include shadow;
     }
     @each $color in color.$names {
         &.#{"" + $color} {
-            background-color: light-dark(map.get(color.$backgrounds, $color), map.get(color.$backgrounds-dark, $color));
-            color: light-dark(map.get(color.$foregrounds, $color), map.get(color.$foregrounds-dark, $color));
+            background-color: map.get(color.$backgrounds, $color);
+            color: map.get(color.$foregrounds, $color);
         }
     }
 
@@ -37,11 +37,11 @@
     }
 
     &.background-card {
-        background-color: light-dark(color.$canvas-background, color.$canvas-background-dark);
+        background-color: color.$canvas-background;
     }
 
     &.canvas-background-card {
-        background-color: $canvas-background;
+        background-color: $background-transparent-color;
         @include shadow.box(3);
         &:not(.suppress-canvas-card-animation) {
             animation: appear-on-page animation.$duration-lg ease-out;
@@ -52,25 +52,25 @@
         cursor: pointer;
         transition: all animation.$duration ease;
         &:hover {
-            background-color: light-dark($hover-background-color, $hover-background-color-dark);
+            background-color: $hover-background-color;
             @include shadow.box(4);
         }
     }
 
     &.canvas-card {
-        background-color: light-dark($background-transparent-color, $background-transparent-color-dark);
+        background-color: $background-transparent-color;
         &:not(.suppress-canvas-card-animation) {
             animation: appear-on-page animation.$duration-lg ease-out;
         }
 
         @each $color in color.$names {
             &.#{"" + $color} {
-                background-color: light-dark(rgba(map.get(color.$backgrounds, $color), 0.667), rgba(map.get(color.$backgrounds-dark, $color), 0.333));
-                color: light-dark(map.get(color.$foregrounds, $color), map.get(color.$foregrounds-dark, $color));
+                background-color: map.get(color.$backgrounds, $color) color.$alpha-66;
+                color: map.get(color.$foregrounds, $color);
             }
         }
         &.selectable-card:hover {
-            background-color: light-dark($hover-background-transparent-color, $hover-background-transparent-color-dark);
+            background-color: $hover-background-transparent-color;
         }
     }
 
@@ -80,7 +80,7 @@
         justify-content: space-between;
         grid-column-gap: 0.75rem;
         border-top: $divider;
-        border-top-color: light-dark($divider-color, $divider-color-dark);
+        border-top-color: $divider-color;
         padding: 1rem 1.5rem;
         &.center {
             justify-content: center;
@@ -113,7 +113,7 @@
 .acrylic {
     -webkit-backdrop-filter: $acrylic-blur;
     backdrop-filter: $acrylic-blur;
-    background-image: light-dark($acrylic-noise, $acrylic-noise-dark);
+    background-image: $acrylic-noise;
     background-blend-mode: $acrylic-blend-mode;
 }
 
@@ -124,27 +124,25 @@
     padding: 0.25rem;
     border-radius: $border-radius;
     gap: 0.25rem;
-    border: 1px solid light-dark(color.$canvas-border, color.$canvas-border-dark);
-    background-color: light-dark(
-        rgba($background-color, 0.5),
-        rgba($background-color-dark, 0.75));
+    border: 1px solid color.$canvas-border;
+    background-color: $background-color color.$alpha-50;
 }
 
 .divider-border-top {
     border-top: $divider;
-    border-top-color: light-dark($divider-color, $divider-color-dark);
+    border-top-color: $divider-color;
 }
 .divider-border-left {
     border-left: $divider;
-    border-left-color: light-dark($divider-color, $divider-color-dark);
+    border-left-color: $divider-color;
 }
 .divider-border-right {
     border-right: $divider;
-    border-right-color: light-dark($divider-color, $divider-color-dark);
+    border-right-color: $divider-color;
 }
 .divider-border-bottom {
     border-bottom: $divider;
-    border-bottom-color: light-dark($divider-color, $divider-color-dark);
+    border-bottom-color: $divider-color;
 }
 
 @keyframes appear-on-page {

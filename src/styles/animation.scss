@@ -4,10 +4,8 @@ $duration-sm: 0.2s;
 $duration: 0.3s;
 $duration-lg: 0.5s;
 
-$loading-color: #fdfdfd;
-$loading-color-dark: #323232;
-$loading-gradient: rgba(#ffffff, 0.5);
-$loading-gradient-dark: rgba(#2b2b2b, 0.5);
+$loading-color: light-dark(#fdfdfd, #323232);
+$loading-gradient: light-dark(rgba(#ffffff, 0.5), rgba(#2b2b2b, 0.5));
 
 @keyframes fadeIn {
     from { opacity: 0; }

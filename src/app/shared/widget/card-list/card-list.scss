@@ -4,14 +4,18 @@
 @use "animation";
 
 .card-item-container {
-    
+    &.cdk-drop-list-dragging .card-item:not(.cdk-drag-placeholder) {
+        transition: transform animation.$duration-sm ease,
+    }
 }
 .card-item {
     // position: absolute;
     @include layout.row;
     width: 100%;
     align-items: center;
-    transition: box-shadow animation.$duration ease, background-color animation.$duration ease;
+    transition: opacity animation.$duration-sm ease,
+                height animation.$duration-sm ease,
+                background-color animation.$duration-sm ease;
     // opacity: 0;
     &.hidden {
         opacity: 0;
@@ -21,15 +25,39 @@
     }
 }
 .cdk-drag-preview {
-    background-color: card.$background;
+    animation: elevate animation.$duration ease;
+    background-color: card.$hover-background-color;
     @include shadow.box(8);
 }
 .cdk-drag-placeholder {
     opacity: 0;
 }
 .cdk-drag-animating {
-    transition: transform animation.$duration cubic-bezier(0, 0, 0.2, 1);
+    transition: transform animation.$duration-sm ease;
+    animation: lower animation.$duration-sm ease;
+    background-color: card.$canvas-background-color;
+    @include card.shadow;
 }
-.example-list.cdk-drop-list-dragging .example-box:not(.cdk-drag-placeholder) {
-    transition: transform animation.$duration cubic-bezier(0, 0, 0.2, 1);
+
+// cdk-drag canvas-card card card-item selectable-card suppress-canvas-card-animation ng-star-inserted cdk-drag-preview cdk-drag-animating
+
+@keyframes elevate {
+    0% {
+        @include shadow.box(0);
+    }
+    100% {
+        @include shadow.box(8);
+        background-color: card.$hover-background-color;
+    }
+}
+
+@keyframes lower {
+    0% {
+        @include shadow.box(8);
+        background-color: card.$hover-background-color;
+    }
+    100% {
+        @include card.shadow;
+        background-color: card.$canvas-background-color;
+    }
 }

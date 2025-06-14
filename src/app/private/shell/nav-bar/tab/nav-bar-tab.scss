@@ -23,7 +23,7 @@
         margin-top: -0.75rem;
     }
     .icon, .tab-title {
-        color: light-dark(rgba(font.$color, 0.75), rgba(font.$color-dark, 0.666));
+        color: color.$navbar-tab;
     }
     .active-icon { opacity: 0; }
     .tab-title {
@@ -32,14 +32,16 @@
         margin-top: 2.5rem;
     }
     &:hover {
-        background-color: light-dark(rgba(font.$color, 0.05), rgba(font.$color-dark, 0.05));
+        background-color: color.$navbar-tab-hover-background;
         .icon, .tab-title {
-            color: light-dark(font.$color, font.$color-dark);
+            color: font.$color;
         }
-        .active-icon { color: light-dark(map.get(color.$foregrounds, color.$accent), map.get(color.$foregrounds-dark, color.$accent)); }
+        .active-icon {
+            color: map.get(color.$foregrounds, color.$accent);
+        }
     }
     &.active {
-        background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.1));
+        background-color: color.$navbar-tab-active-background;
         .icon, .tab-title { opacity: 0; }
         .active-icon { opacity: 1; }
         .icon, .active-icon {

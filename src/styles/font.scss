@@ -16,22 +16,10 @@ $weight-semibold: 600;
 $family: 'Segoe UI', 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
 $family-heading: "Segoe UI", 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
 
-$color: #242424;
-$color-dark: white;
-
-$color-subtle: #6c757d;
-$color-subtle-dark: #bbc0c4;
-
-$color-muted: #bbc0c4;
-$color-muted-dark: #6c757d;
-
-@mixin color {
-    color: light-dark($color, $color-dark);
-}
-
-@mixin inverse-color {
-    color: light-dark($color-dark, $color);
-}
+$color: light-dark(#242424, white);
+$color-subtle: light-dark(#6c757d, #bbc0c4);
+$color-muted: light-dark(#bbc0c4, #6c757d);
+$color-inverse: light-dark(white, #242424);
 
 @mixin small {
     font-size: $size-sm;
@@ -41,10 +29,6 @@ $color-muted-dark: #6c757d;
 @mixin tiny {
     font-size: $size-xs;
     line-height: $line-height-xs;
-}
-
-@mixin muted {
-    color: light-dark($color-muted, $color-muted-dark);
 }
 
 @mixin overflow-ellipsis {

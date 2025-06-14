@@ -4,58 +4,49 @@
 @use "card-classes";
 @use "shadow-classes";
 
-$background-color: #fafafa;
-$background-color-dark: #292929;
+$background-color: light-dark(#fafafa, #292929);
+$background-transparent-color: light-dark(rgba(#fafafa, 0.75), rgba(#292929, 0.75));
 $color: font.$color;
-$color-dark: font.$color-dark;
 
 $border-width: 1px;
 $border-radius: card.$border-radius-sm;
-$border-color: #d1d1d1;
-$border-color-dark: #666666;
+$border-color: light-dark(#d1d1d1, #666666);
 
-$strong-border-color: #616161;
-$strong-border-color-dark: #adadad;
+$strong-border-color: light-dark(#616161, #adadad);
 
 $border: $border-width solid $border-color;
 
 $disabled-background-color: transparent;
-$disabled-border-color: #e0e0e0;
-$disabled-border-color-dark: #424242;
+$disabled-border-color: light-dark(#e0e0e0, #424242);
 
-$active-background-color: #e0e0e0;
-$active-background-color-dark: #1f1f1f;
-$active-border-color: #b3b3b3;
-$active-border-color-dark: #6b6b6b;
-$active-strong-border-color: #4d4d4d;
-$active-strong-border-color-dark: #b3b3b3;
+$active-background-color: light-dark(#e0e0e0, #1f1f1f);
+$active-border-color: light-dark(#b3b3b3, #6b6b6b);
+$active-strong-border-color: light-dark(#4d4d4d, #b3b3b3);
 
-$hover-background-color: #f5f5f5;
-$hover-background-color-dark: #3d3d3d;
-$hover-border-color: #c7c7c7;
-$hover-border-color-dark: #757575;
-$hover-strong-border-color: #575757;
-$hover-strong-border-color-dark: #bdbdbd;
+$hover-background-color: light-dark(#f5f5f5, #3d3d3d);
+$hover-border-color: light-dark(#c7c7c7, #757575);
+$hover-strong-border-color: light-dark(#575757, #bdbdbd);
 
 $padding-x: 10px;
 $padding-y: 5px;
 $min-height: 32px;
 
-$placeholder-color: #707070;
-$placeholder-color-dark: #999999;
+$placeholder-color: light-dark(#707070, #999999);
 
 $transition: all 0.1s ease-out;
 
+$option-hover-background-color: light-dark(rgba(#242424, 0.075), rgba(#f5f5f5, 0.075));
+
 @mixin box {
     border-radius: $border-radius;
-    background-color: light-dark($background-color, $background-color-dark);
+    background-color: $background-color;
     border: $border;
-    border-color: light-dark($border-color, $border-color-dark);
-    border-bottom-color: light-dark($strong-border-color, $strong-border-color-dark);
+    border-color: $border-color;
+    border-bottom-color: $strong-border-color;
 }
 @mixin box-hovered {
-    border-color: light-dark($hover-border-color, $hover-border-color-dark);
-    border-bottom-color: light-dark($hover-strong-border-color, $hover-strong-border-color-dark);
+    border-color: $hover-border-color;
+    border-bottom-color: $hover-strong-border-color;
 }
 @mixin box-focused {
     outline: transparent solid 2px;
@@ -67,10 +58,10 @@ $transition: all 0.1s ease-out;
     }
 }
 @mixin box-active {
-    border-color: light-dark($active-border-color, $active-border-color-dark);
-    border-bottom-color: light-dark($active-strong-border-color, $active-strong-border-color-dark);
+    border-color: $active-border-color;
+    border-bottom-color: $active-strong-border-color;
 }
 @mixin box-disabled {
     background-color: $disabled-background-color !important;
-    border-color: light-dark($disabled-border-color, $disabled-border-color-dark) !important;
+    border-color: $disabled-border-color !important;
 }

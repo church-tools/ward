@@ -22,7 +22,7 @@
     contain: size;
     @include layout.row;
     .canvas-container {
-        border-top: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
+        border-top: 0.25px inset color.$canvas-transparent-border;
     }
 }
 
@@ -39,7 +39,7 @@
         }
         .canvas-container {
             border-top-left-radius: card.$border-radius-lg;
-            border-left: 0.25px inset light-dark(rgba(color.$canvas-border, 0.25), rgba(color.$canvas-border-dark, 0.25));
+            border-left: 0.25px inset color.$canvas-transparent-border;
         }
     }
 }

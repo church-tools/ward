@@ -40,7 +40,7 @@ button {
     overflow: hidden;
     .progress-bar {
         transition: width animation.$duration-sm ease, opacity animation.$duration ease-out;
-        background-color: light-dark(font.$color, font.$color-dark);
+        background-color: font.$color;
         position: absolute;
         height: 0.125rem;
         bottom: 0;
@@ -53,7 +53,7 @@ button {
 :host {
     &.primary-btn {
         .progress-bar {
-            background-color: light-dark(font.$color-dark, font.$color);
+            background-color: font.$color-inverse;
         }
     }
 }

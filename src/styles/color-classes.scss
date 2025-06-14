@@ -2,15 +2,15 @@
 @use 'sass:map';
 
 body {
-    background-color: light-dark($canvas-background, $canvas-background-dark);
+    background-color: $canvas-background;
 }
 
 .canvas-background {
-    background-color: light-dark($canvas-background, $canvas-background-dark);
+    background-color: $canvas-background;
 }
 
 .transparent-canvas-background {
-    background-color: light-dark($canvas-background-transparent, $canvas-background-transparent-dark);
+    background-color: $canvas-background-transparent;
 }
 
 .accent-bg { @extend .#{"" + $accent}-bg; }
@@ -20,68 +20,50 @@ body {
 .accent-active { @extend .#{"" + $accent}-active; }
 
 @each $color in $names {
-    @media (prefers-color-scheme: light) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds, $color), $bg-opacity); }
-            .color-fg { background-color: map.get($foregrounds, $color); }
-            .color-border { border-color: map.get($foregrounds, $color); }
-            .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
-            .color-active { color: map.get($actives, $color); }
-            app-icon { color: map.get($foregrounds, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds, $color), $bg-opacity); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
-        .#{"" + $color}-active { color: map.get($actives, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
+    .#{"" + $color} {
+        .color-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+        .color-fg { background-color: map.get($foregrounds, $color); }
+        .color-border { border-color: map.get($foregrounds, $color); }
+        .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
+        .color-active { color: map.get($actives, $color); }
+        app-icon { color: map.get($foregrounds, $color); }
     }
-    @media (prefers-color-scheme: dark) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds-dark, $color), $bg-opacity-dark); }
-            .color-fg { background-color: map.get($foregrounds-dark, $color); }
-            .color-border { border-color: map.get($foregrounds-dark, $color); }
-            .color-text { color: map.get($foregrounds-dark, $color); }
-            .color-active { color: map.get($actives-dark, $color); }
-            app-icon { color: map.get($foregrounds-dark, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds-dark, $color), $bg-opacity-dark); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives-dark, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active { color: map.get($actives-dark, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds-dark, $color); }
-    }
+    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+    .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
+    .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
+    .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
+    .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
+    .#{"" + $color}-active { color: map.get($actives, $color); }
+    app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
+    
     @each $color2 in $names {
         .bg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    light-dark(map.get($backgrounds, $color), map.get($backgrounds-dark, $color)),
-                    light-dark(map.get($actives, $color2), map.get($actives-dark, $color2)));
+                    map.get($backgrounds, $color),
+                    map.get($actives, $color2));
             }
         }
         .fg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    light-dark(map.get($actives, $color), map.get($actives-dark, $color)),
-                    light-dark(map.get($foregrounds, $color2), map.get($foregrounds-dark, $color2)));
+                    map.get($actives, $color),
+                    map.get($foregrounds, $color2));
             }
         }
     }
 }
 
 body {
-    background-color: light-dark($canvas-background, $canvas-background-dark);
+    background-color: $canvas-background;
 }
 
 .canvas-background {
-    background-color: light-dark($canvas-background, $canvas-background-dark);
+    background-color: $canvas-background;
 }
 
 .transparent-canvas-background {
-    background-color: light-dark($canvas-background-transparent, $canvas-background-transparent-dark);
+    background-color: $canvas-background-transparent;
 }
 
 .accent-bg { @extend .#{"" + $accent}-bg; }
@@ -91,53 +73,35 @@ body {
 .accent-active { @extend .#{"" + $accent}-active; }
     
 @each $color in $names {
-    @media (prefers-color-scheme: light) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds, $color), $bg-opacity); }
-            .color-fg { background-color: map.get($foregrounds, $color); }
-            .color-border { border-color: map.get($foregrounds, $color); }
-            .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
-            .color-active { color: map.get($actives, $color); }
-            app-icon { color: map.get($foregrounds, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds, $color), $bg-opacity); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
-        .#{"" + $color}-active { color: map.get($actives, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
+    .#{"" + $color} {
+        .color-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+        .color-fg { background-color: map.get($foregrounds, $color); }
+        .color-border { border-color: map.get($foregrounds, $color); }
+        .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
+        .color-active { color: map.get($actives, $color); }
+        app-icon { color: map.get($foregrounds, $color); }
     }
-    @media (prefers-color-scheme: dark) {
-        .#{"" + $color} {
-            .color-bg { background-color: rgba(map.get($backgrounds-dark, $color), $bg-opacity-dark); }
-            .color-fg { background-color: map.get($foregrounds-dark, $color); }
-            .color-border { border-color: map.get($foregrounds-dark, $color); }
-            .color-text { color: map.get($foregrounds-dark, $color); }
-            .color-active { color: map.get($actives-dark, $color); }
-            app-icon { color: map.get($foregrounds-dark, $color); }
-        }
-        .#{"" + $color}-bg { background-color: rgba(map.get($backgrounds-dark, $color), $bg-opacity-dark); }
-        .#{"" + $color}-fg { background-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active-bg { background-color: map.get($actives-dark, $color); }
-        .#{"" + $color}-border { border-color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-text { color: map.get($foregrounds-dark, $color); }
-        .#{"" + $color}-active { color: map.get($actives-dark, $color); }
-        app-icon.#{"" + $color} { color: map.get($foregrounds-dark, $color); }
-    }
+    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+    .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
+    .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
+    .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
+    .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
+    .#{"" + $color}-active { color: map.get($actives, $color); }
+    app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
+    
     @each $color2 in $names {
         .bg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    light-dark(map.get($backgrounds, $color), map.get($backgrounds-dark, $color)),
-                    light-dark(map.get($actives, $color2), map.get($actives-dark, $color2)));
+                    map.get($backgrounds, $color),
+                    map.get($actives, $color2));
             }
         }
         .fg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    light-dark(map.get($actives, $color), map.get($actives-dark, $color)),
-                    light-dark(map.get($foregrounds, $color2), map.get($foregrounds-dark, $color2)));
+                    map.get($actives, $color),
+                    map.get($foregrounds, $color2));
             }
         }
     }

@@ -1,5 +1,6 @@
 @use "animation";
 @use "input";
+@use "color";
 @use "font";
 @use "shadow";
 @use "sass:math";
@@ -59,7 +60,7 @@
         transition: all animation.$duration-xs ease-out;
         cursor: pointer;
         &:hover, &.focused {
-            background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.075));
+            background-color: input.$option-hover-background-color;
         }
         .highlighted {
             border-radius: input.$border-radius;

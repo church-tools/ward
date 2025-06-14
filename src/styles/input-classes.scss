@@ -7,10 +7,10 @@
 @use 'sass:map';
 
 .input-color {
-    color: light-dark($color, $color-dark);
+    color: $color;
 }
 .input-color-reverse {
-    color: light-dark($color-dark, $color);
+    color: font.$color-inverse;
 }
 
 .input-box { @include box; }
@@ -49,7 +49,7 @@
         border-bottom-right-radius: card.$border-radius-sm;
         border-bottom-width: 2px;
         border-bottom-style: solid;
-        border-bottom-color: light-dark(map.get(color.$foregrounds, color.$accent), map.get(color.$foregrounds-dark, color.$accent));
+        border-bottom-color: map.get(color.$foregrounds, color.$accent);
         clip-path: inset(calc(100% - 2px) 0px 0px);
         transform: scaleX(0);
         transition-property: transform;
@@ -58,7 +58,7 @@
     }
 
     input, textarea {
-        @include font.color;
+        color: font.$color;
         box-sizing: border-box;
         margin: 0;
         flex-grow: 1;
@@ -91,7 +91,7 @@
 
     .unit {
         margin-left: 0.25rem;
-        color: light-dark(font.$color-muted, font.$color-muted-dark);
+        color: font.$color-muted;
     }
 
     @each $size in (0, 1, 2, 3, 4) {
@@ -112,9 +112,9 @@
 
     &.is-invalid, &.ng-invalid.ng-touched {
         .form-input {
-            border-color: light-dark(map.get(color.$actives, danger), map.get(color.$actives-dark, danger));
+            border-color: map.get(color.$actives, danger);
             &::after {
-                border-bottom-color: light-dark(map.get(color.$foregrounds, danger), map.get(color.$foregrounds-dark, danger));
+                border-bottom-color: map.get(color.$foregrounds, danger);
             }
         }
     }
@@ -125,7 +125,7 @@
 }
 
 .required-indicator {
-    color: light-dark(map.get(color.$actives, danger), map.get(color.$actives-dark, danger));
+    color: map.get(color.$actives, danger);
     font-weight: bold;
     font-size: 1em;
 }
@@ -165,8 +165,6 @@ fieldset {
     padding: 0.25rem;
     border-radius: $border-radius;
     gap: 0.25rem;
-    border: 1px solid light-dark(color.$canvas-border, color.$canvas-border-dark);
-    background-color: light-dark(
-        rgba($background-color, 0.66),
-        rgba($background-color-dark, 0.8));
+    border: 1px solid color.$canvas-border;
+    background-color: $background-transparent-color;
 }

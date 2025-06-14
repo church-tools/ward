@@ -43,20 +43,15 @@ export class CardListComponent<T> {
         multiEffect([this.items], items => {
             this.updateItemCards(items);
         });
-        multiEffect([this.cardViews], cards => {
-            const items = this.items();
-            if (!cards || items.length != cards.length) return;
-            // let heightChanged = false;
-            cards.forEach((card, index) => {
-                const item = items[index];
-                const listItem = this.listItemsByItem.get(item);
-                if (!listItem) return;
+        multiEffect([this.cardViews], cardViews => {
+            if (!cardViews) return;
+            const itemCards = this.itemCards();
+            cardViews.forEach((card, index) => {
+                const itemCard = itemCards[index];
+                if (!itemCard) return;
                 const newHeight = card.nativeElement.clientHeight;
-                if (newHeight) listItem.height.set(newHeight);
+                if (newHeight) itemCard.height.set(newHeight);
             });
-            // if (heightChanged) {
-            //     this.updateItemCardRendering();
-            // }
         });
     }
 
@@ -94,22 +89,6 @@ export class CardListComponent<T> {
         this.sort(allItemCards)
         this.itemCards.set(allItemCards);
     }
-
-    // private updateItemCardRendering() {
-    //     const safeItemCards = this.itemCards() as ItemCard<T>[];
-    //     const orderbyKey = this.orderByKey();
-    //     if (orderbyKey)
-    //         safeItemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
-    //     let offset = 0;
-    //     const gap = this.cardPxGap();
-    //     for (const itemCard of safeItemCards) {
-    //         // if (!itemCard.visible()) continue;
-    //         itemCard.offset.set(offset);
-    //         itemCard.visible.set(true);
-    //         offset += itemCard.height + gap;
-    //     }
-    //     this.totalHeight.set(offset);
-    // }
 
     private sort(itemCards: ItemCard<T>[]) {
         const orderbyKey = this.orderByKey();

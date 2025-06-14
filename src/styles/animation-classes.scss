@@ -51,7 +51,7 @@
 
 /* height: 100%; */
 .content-loading {
-    background-color: light-dark($loading-color, $loading-color-dark);
+    background-color: $loading-color;
 
     cursor: progress;
     
@@ -64,6 +64,6 @@
         right: 0;
         top: 0;
         animation: contentLoading 1.3s linear infinite;
-        background: linear-gradient(90deg, transparent, light-dark($loading-gradient, $loading-gradient-dark), transparent);
+        background: linear-gradient(90deg, transparent, $loading-gradient, transparent);
     }
 }

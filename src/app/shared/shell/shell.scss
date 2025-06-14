@@ -8,24 +8,21 @@
     @include layout.fullscreen;
     @include layout.column;
     transition: all animation.$duration-lg ease;
-    background-color: light-dark(color.$navbar-background, color.$navbar-background-dark);
-
-    ::after {
+    background-color: color.$navbar-background;    ::after {
         content: '';
         @include layout.fullscreen;
         transition: opacity animation.$duration ease;
         z-index: -1;
         opacity: 0;
-    
         background-image: radial-gradient(farthest-corner at 100% 0%,
-            sassColor.mix(map.get(color.$backgrounds, color.$accent), color.$navbar-background, 30%) 0%,
-            sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-1), color.$navbar-background, 20%) 40%,
-            sassColor.mix(map.get(color.$backgrounds, color.$accent-variation-2), color.$navbar-background, 30%) 100%);
+            color-mix(in srgb, map.get(color.$backgrounds, color.$accent) 30%, color.$navbar-background) 0%,
+            color-mix(in srgb, map.get(color.$backgrounds, color.$accent-variation-1) 20%, color.$navbar-background) 40%,
+            color-mix(in srgb, map.get(color.$backgrounds, color.$accent-variation-2) 30%, color.$navbar-background) 100%);
         @media (prefers-color-scheme: dark) {
             background-image: radial-gradient(farthest-corner at 100% 0%,
-                sassColor.mix(map.get(color.$backgrounds-dark, color.$accent), color.$navbar-background-dark, 15%) 0%,
-                sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-1), color.$navbar-background-dark, 10%) 40%,
-                sassColor.mix(map.get(color.$backgrounds-dark, color.$accent-variation-2), color.$navbar-background-dark, 15%) 100%);
+                color-mix(in srgb, map.get(color.$backgrounds, color.$accent) 15%, color.$navbar-background) 0%,
+                color-mix(in srgb, map.get(color.$backgrounds, color.$accent-variation-1) 10%, color.$navbar-background) 40%,
+                color-mix(in srgb, map.get(color.$backgrounds, color.$accent-variation-2) 15%, color.$navbar-background) 100%);
         }
     }
     &.focused ::after {

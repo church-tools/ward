@@ -1,13 +1,13 @@
 @use "sass:map";
 
-$canvas-background: #e8e8e8;
-$canvas-background-dark: #272727;
-$canvas-background-transparent: rgba(246, 246, 246, 0.6);
-$canvas-background-transparent-dark: rgba(54, 54, 54, 0.333);
-$canvas-border: #c2c2c2;
-$canvas-border-dark: #1d1d1d;
-$navbar-background: #e0e0e0;
-$navbar-background-dark: #202020;
+$canvas-background: light-dark(#e8e8e8, #272727);
+$canvas-background-transparent: light-dark(rgba(246, 246, 246, 0.6), rgba(54, 54, 54, 0.333));
+$canvas-border: light-dark(#c2c2c2, #1d1d1d);
+$canvas-transparent-border: light-dark(rgba(#c2c2c2, 0.25), rgba(#1d1d1d, 0.25));
+$navbar-background: light-dark(#e0e0e0, #202020);
+$navbar-tab: light-dark(rgba(#242424, 0.75), rgba(white, 0.666));
+$navbar-tab-hover-background: light-dark(rgba(#242424, 0.05), rgba(white, 0.05));
+$navbar-tab-active-background: light-dark(rgba(#242424, 0.1), rgba(white, 0.1));
 
 // see https://react.fluentui.dev/?path=/docs/theme-colors--page
 
@@ -29,145 +29,77 @@ $accent-variation-2: blue;
 
 // https://www.w3schools.com/colors/colors_names.asp
 $actives: (
-    success: hsl(120, 77%, 27%),
-    warning: hsl(22, 94%, 51%),
-    danger: hsl(355, 86%, 42%),
-    gray: hsl(208, 7%, 46%),
-    red: hsl(358, 63%, 51%),
-    pink: hsl(322, 76%, 56%),
-    berry: hsl(307, 55%, 49%),
-    purple: hsl(268, 52%, 37%),
-    lavender: hsl(248, 75%, 64%),
-    navy: hsl(227, 100%, 35%),
-    blue: hsl(206, 100%, 42%),
-    teal: hsl(182, 96%, 27%),
-    seafoam: hsl(150, 100%, 30%),
-    green: hsl(120, 77%, 27%),
-    forest: hsl(87, 93%, 26%),
-    yellowgreen: hsl(65, 98%, 35%),
-    yellow: hsl(54, 100%, 50%),
-    brass: hsl(43, 87%, 32%),
-    mustard: hsl(37, 94%, 40%),
-    peach: hsl(33, 100%, 50%),
-    orange: hsl(16, 99%, 43%),
-);
-$actives-dark: (
-    success: hsl(120, 37%, 51%),
-    warning: hsl(22, 93%, 70%),
-    danger: hsl(355, 64%, 62%),
-    gray: hsl(208, 7%, 46%),
-    red: hsl(358, 65%, 69%),
-    pink: hsl(322, 77%, 73%),
-    berry: hsl(307, 55%, 67%),
-    purple: hsl(268, 37%, 59%),
-    lavender: hsl(248, 75%, 78%),
-    navy: hsl(227, 58%, 58%),
-    blue: hsl(206, 72%, 63%),
-    teal: hsl(182, 43%, 51%),
-    seafoam: hsl(150, 68%, 62%),
-    green: hsl(120, 37%, 51%),
-    forest: hsl(87, 41%, 50%),
-    yellowgreen: hsl(68, 57%, 58%),
-    yellow: hsl(54, 99%, 70%),
-    brass: hsl(43, 46%, 55%),
-    mustard: hsl(38, 65%, 62%),
-    peach: hsl(33, 100%, 70%),
-    orange: hsl(16, 76%, 64%),
+    success: light-dark(hsl(120, 77%, 27%), hsl(120, 37%, 51%)),
+    warning: light-dark(hsl(22, 94%, 51%), hsl(22, 93%, 70%)),
+    danger: light-dark(hsl(355, 86%, 42%), hsl(355, 64%, 62%)),
+    gray: light-dark(hsl(208, 7%, 46%), hsl(208, 7%, 46%)),
+    red: light-dark(hsl(358, 63%, 51%), hsl(358, 65%, 69%)),
+    pink: light-dark(hsl(322, 76%, 56%), hsl(322, 77%, 73%)),
+    berry: light-dark(hsl(307, 55%, 49%), hsl(307, 55%, 67%)),
+    purple: light-dark(hsl(268, 52%, 37%), hsl(268, 37%, 59%)),
+    lavender: light-dark(hsl(248, 75%, 64%), hsl(248, 75%, 78%)),
+    navy: light-dark(hsl(227, 100%, 35%), hsl(227, 58%, 58%)),
+    blue: light-dark(hsl(206, 100%, 42%), hsl(206, 72%, 63%)),
+    teal: light-dark(hsl(182, 96%, 27%), hsl(182, 43%, 51%)),
+    seafoam: light-dark(hsl(150, 100%, 30%), hsl(150, 68%, 62%)),
+    green: light-dark(hsl(120, 77%, 27%), hsl(120, 37%, 51%)),
+    forest: light-dark(hsl(87, 93%, 26%), hsl(87, 41%, 50%)),
+    yellowgreen: light-dark(hsl(65, 98%, 35%), hsl(68, 57%, 58%)),
+    yellow: light-dark(hsl(54, 100%, 50%), hsl(54, 99%, 70%)),
+    brass: light-dark(hsl(43, 87%, 32%), hsl(43, 46%, 55%)),
+    mustard: light-dark(hsl(37, 94%, 40%), hsl(38, 65%, 62%)),
+    peach: light-dark(hsl(33, 100%, 50%), hsl(33, 100%, 70%)),
+    orange: light-dark(hsl(16, 99%, 43%), hsl(16, 76%, 64%)),
 );
 
 $backgrounds: (
-    success: hsl(120, 42%, 74%),
-    warning: hsl(22, 95%, 85%),
-    danger: hsl(355, 66%, 80%),
-    gray: hsl(210, 11%, 71%),
-    red: hsl(359, 66%, 84%),
-    pink: hsl(322, 77%, 86%),
-    berry: hsl(307, 58%, 83%),
-    purple: hsl(268, 41%, 78%),
-    lavender: hsl(248, 76%, 89%),
-    navy: hsl(227, 60%, 77%),
-    blue: hsl(205, 74%, 81%),
-    teal: hsl(182, 47%, 73%),
-    seafoam: hsl(150, 71%, 80%),
-    green: hsl(120, 42%, 74%),
-    forest: hsl(87, 45%, 73%),
-    yellowgreen: hsl(69, 59%, 78%),
-    yellow: hsl(54, 97%, 85%),
-    brass: hsl(43, 50%, 76%),
-    mustard: hsl(38, 67%, 80%),
-    peach: hsl(33, 100%, 85%),
-    orange: hsl(16, 77%, 81%),
-);
-$backgrounds-dark: (
-    success: hsl(120, 77%, 15%),
-    warning: hsl(22, 90%, 28%),
-    danger: hsl(355, 86%, 23%),
-    gray: hsl(208, 7%, 46%),
-    red: hsl(359, 60%, 29%),
-    pink: hsl(322, 59%, 32%),
-    berry: hsl(307, 55%, 28%),
-    purple: hsl(268, 51%, 21%),
-    lavender: hsl(247, 41%, 36%),
-    navy: hsl(227, 100%, 20%),
-    blue: hsl(206, 100%, 23%),
-    teal: hsl(182, 95%, 15%),
-    seafoam: hsl(150, 100%, 20%),
-    green: hsl(120, 77%, 15%),
-    forest: hsl(87, 92%, 15%),
-    yellowgreen: hsl(66, 96%, 19%),
-    yellow: hsl(54, 100%, 25%),
-    brass: hsl(43, 87%, 28%),
-    mustard: hsl(38, 93%, 28%),
-    peach: hsl(33, 100%, 28%),
-    orange: hsl(16, 98%, 24%),
+    success: light-dark(hsl(120, 42%, 74%), hsl(120, 77%, 15%)),
+    warning: light-dark(hsl(22, 95%, 85%), hsl(22, 90%, 28%)),
+    danger: light-dark(hsl(355, 66%, 80%), hsl(355, 86%, 23%)),
+    gray: light-dark(hsl(210, 11%, 71%), hsl(208, 7%, 46%)),
+    red: light-dark(hsl(359, 66%, 84%), hsl(359, 60%, 29%)),
+    pink: light-dark(hsl(322, 77%, 86%), hsl(322, 59%, 32%)),
+    berry: light-dark(hsl(307, 58%, 83%), hsl(307, 55%, 28%)),
+    purple: light-dark(hsl(268, 41%, 78%), hsl(268, 51%, 21%)),
+    lavender: light-dark(hsl(248, 76%, 89%), hsl(247, 41%, 36%)),
+    navy: light-dark(hsl(227, 60%, 77%), hsl(227, 100%, 20%)),
+    blue: light-dark(hsl(205, 74%, 81%), hsl(206, 100%, 23%)),
+    teal: light-dark(hsl(182, 47%, 73%), hsl(182, 95%, 15%)),
+    seafoam: light-dark(hsl(150, 71%, 80%), hsl(150, 100%, 20%)),
+    green: light-dark(hsl(120, 42%, 74%), hsl(120, 77%, 15%)),
+    forest: light-dark(hsl(87, 45%, 73%), hsl(87, 92%, 15%)),
+    yellowgreen: light-dark(hsl(69, 59%, 78%), hsl(66, 96%, 19%)),
+    yellow: light-dark(hsl(54, 97%, 85%), hsl(54, 100%, 25%)),
+    brass: light-dark(hsl(43, 50%, 76%), hsl(43, 87%, 28%)),
+    mustard: light-dark(hsl(38, 67%, 80%), hsl(38, 93%, 28%)),
+    peach: light-dark(hsl(33, 100%, 85%), hsl(33, 100%, 28%)),
+    orange: light-dark(hsl(16, 77%, 81%), hsl(16, 98%, 24%)),
 );
 
 $foregrounds: (
-    success: hsl(120, 77%, 25%),
-    warning: hsl(22, 90%, 38%),
-    danger: hsl(355, 29%, 51%),
-    gray: hsl(208, 7%, 56%),
-    red: hsl(359, 60%, 39%),
-    pink: hsl(322, 59%, 42%),
-    berry: hsl(307, 55%, 44%),
-    purple: hsl(268, 51%, 31%),
-    lavender: hsl(247, 41%, 46%),
-    navy: hsl(227, 100%, 30%),
-    blue: hsl(206, 100%, 33%),
-    teal: hsl(182, 95%, 25%),
-    seafoam: hsl(150, 100%, 25%),
-    green: hsl(120, 77%, 25%),
-    forest: hsl(87, 92%, 25%),
-    yellowgreen: hsl(68, 97%, 28%),
-    yellow: hsl(54, 100%, 35%),
-    brass: hsl(43, 87%, 32%),
-    mustard: hsl(38, 93%, 35%),
-    peach: hsl(33, 100%, 38%),
-    orange: hsl(16, 98%, 34%),
+    success: light-dark(hsl(120, 77%, 25%), hsl(120, 42%, 74%)),
+    warning: light-dark(hsl(22, 90%, 38%), hsl(22, 77%, 75%)),
+    danger: light-dark(hsl(355, 29%, 51%), hsl(355, 66%, 80%)),
+    gray: light-dark(hsl(208, 7%, 56%), hsl(210, 11%, 71%)),
+    red: light-dark(hsl(359, 60%, 39%), hsl(359, 66%, 84%)),
+    pink: light-dark(hsl(322, 59%, 42%), hsl(322, 77%, 86%)),
+    berry: light-dark(hsl(307, 55%, 44%), hsl(307, 58%, 83%)),
+    purple: light-dark(hsl(268, 51%, 31%), hsl(268, 41%, 78%)),
+    lavender: light-dark(hsl(247, 41%, 46%), hsl(248, 76%, 89%)),
+    navy: light-dark(hsl(227, 100%, 30%), hsl(227, 60%, 77%)),
+    blue: light-dark(hsl(206, 100%, 33%), hsl(205, 74%, 81%)),
+    teal: light-dark(hsl(182, 95%, 25%), hsl(182, 47%, 73%)),
+    seafoam: light-dark(hsl(150, 100%, 25%), hsl(150, 71%, 80%)),
+    green: light-dark(hsl(120, 77%, 25%), hsl(120, 42%, 74%)),
+    forest: light-dark(hsl(87, 92%, 25%), hsl(87, 45%, 73%)),
+    yellowgreen: light-dark(hsl(68, 97%, 28%), hsl(69, 59%, 78%)),
+    yellow: light-dark(hsl(54, 100%, 35%), hsl(54, 97%, 85%)),
+    brass: light-dark(hsl(43, 87%, 32%), hsl(43, 50%, 76%)),
+    mustard: light-dark(hsl(38, 93%, 35%), hsl(38, 67%, 80%)),
+    peach: light-dark(hsl(33, 100%, 38%), hsl(33, 100%, 85%)),
+    orange: light-dark(hsl(16, 98%, 34%), hsl(16, 77%, 81%)),
 );
-$foregrounds-dark: (
-    success: hsl(120, 42%, 74%),
-    warning: hsl(22, 77%, 75%),
-    danger: hsl(355, 66%, 80%),
-    gray: hsl(210, 11%, 71%),
-    red: hsl(359, 66%, 84%),
-    pink: hsl(322, 77%, 86%),
-    berry: hsl(307, 58%, 83%),
-    purple: hsl(268, 41%, 78%),
-    lavender: hsl(248, 76%, 89%),
-    navy: hsl(227, 60%, 77%),
-    blue: hsl(205, 74%, 81%),
-    teal: hsl(182, 47%, 73%),
-    seafoam: hsl(150, 71%, 80%),
-    green: hsl(120, 42%, 74%),
-    forest: hsl(87, 45%, 73%),
-    yellowgreen: hsl(69, 59%, 78%),
-    yellow: hsl(54, 97%, 85%),
-    brass: hsl(43, 50%, 76%),
-    mustard: hsl(38, 67%, 80%),
-    peach: hsl(33, 100%, 85%),
-    orange: hsl(16, 77%, 81%),
-);
+
 
 $gray: map.get($actives, 'gray');
 $gray-800: #343a40;
@@ -179,5 +111,10 @@ $gray-300: #dee2e5;
 $gray-200: #e8ecef;
 $gray-100: #f8f9fa;
 
-$bg-opacity: 1;
-$bg-opacity-dark: 1;
+$bg-opacity: light-dark(1, 1);
+
+$alpha-66: light-dark(66%, 33%);
+$alpha-50: light-dark(50%, 25%);
+$alpha-30: light-dark(30%, 15%);
+$alpha-20: light-dark(20%, 10%);
+$alpha-10: light-dark(10%, 05%);

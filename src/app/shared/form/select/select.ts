@@ -21,45 +21,7 @@ type VisibleOption<T> = SelectOption<T> & { highlights: [string, boolean][] };
 @Component({
     selector: 'app-select',
     imports: [FormsModule, InputLabelComponent, IconComponent],
-    template: `
-        <app-input-label/>
-        <label class="column">
-            <div class="top-anchor"><ng-container #topContainer/></div>
-            <div #inputContainer class="form-input">
-                @if (selectedOption()) {
-                    <div class="value-container row gap-1">
-                        <button class="value-btn subtle" type="button">
-                            <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
-                            @if (!disabledState()) {
-                                <button class="delete-btn subtle" type="button" (click)="clearSelection()">
-                                    <app-icon icon="dismiss" size="xs"/>
-                                </button>
-                            }
-                        </button>
-                    </div>
-                }
-                @if (!disabledState()) {
-                    <input #input type="text"
-                        [(ngModel)]="search"
-                        [placeholder]="selectedOption() ? '' : placeholder()"
-                        (focus)="onFocus()" (blur)="onBlur()"
-                        (input)="updateVisibleOptions()">
-                }
-            </div>
-            <div class="bottom-anchor"><ng-container #bottomContainer/></div>
-        </label>
-        <ng-template #optionsTemplate>
-            <div class="options-card input-acrylic-card">
-                @for (option of visibleOptions(); track option.value) {
-                    <div #option class="option {{option.color}}-text" (click)="selectOption(option, $event)">
-                        @for (label of option.highlights; track $index) {
-                            <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{label[0]}}</span>
-                        }
-                    </div>
-                }
-            </div>
-        </ng-template>
-    `,
+    templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => SelectComponent),
 })

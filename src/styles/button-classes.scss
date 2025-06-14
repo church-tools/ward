@@ -33,37 +33,34 @@ button, .button {
 
     &:disabled, &.disabled {
         cursor: not-allowed;
-        color: light-dark($color-disabled, $color-disabled-dark);
-        background-color: light-dark($background-disabled, $background-disabled-dark);
+        color: $color-disabled;
+        background-color: $background-disabled;
         &.form {
             background-color: input.$disabled-background-color;
-            color: light-dark(input.$disabled-border-color, input.$disabled-border-color-dark);
-            border: 1px solid light-dark(input.$disabled-border-color, input.$disabled-border-color-dark);
+            color: input.$disabled-border-color;
+            border: 1px solid input.$disabled-border-color;
         }
     }
     &.primary {
         font-weight: font.$weight-md;
         &:not(:disabled):not(.disabled) {
-            @include font.inverse-color;
+            color: font.$color-inverse;
             @include shadow.box(2);
             &:hover, &:focus {
-                @include font.inverse-color;
+                color: font.$color-inverse;
             }
         }
         @each $color in color.$names {
             &.#{"" + $color}-btn {
                 &:not(:disabled):not(.disabled) {
-                    @media (prefers-color-scheme: light) {
-                        $value: map.get(color.$foregrounds, $color);
-                        background-color: $value;
-                        &:hover { background-color: sassColor.adjust($value, $lightness: 5%); }
-                        &:active { background-color: sassColor.adjust($value, $lightness: 10%); }
+                    $value: map.get(color.$foregrounds, $color);
+                    background-color: $value;
+                    &:hover { 
+                        background-color: color-mix(in srgb, $value, white 20%);
                     }
-                    @media (prefers-color-scheme: dark) {
-                        $value: map.get(color.$foregrounds-dark, $color);
-                        background-color: $value;
-                        &:hover { background-color: sassColor.adjust($value, $lightness: 5%); }
-                        &:active { background-color: sassColor.adjust($value, $lightness: 10%); }
+                    &:active { 
+                        
+                        background-color: color-mix(in srgb, $value, white 40%);
                     }
                 }
             }
@@ -75,28 +72,16 @@ button, .button {
         &:not(:disabled):not(.disabled) {
             border-style: solid;
             border-width: 1px;
-            @include font.color;
+            border-color: input.$border-color light-dark(0.5, 0.1);
+            color: font.$color;
+            background-color: card.$background-transparent-color;
             @include shadow.box(1);
-            &:hover, &:focus { @include font.color; }
-            @media (prefers-color-scheme: light) {
-                border-color: rgba(input.$border-color, 0.5);
-                background-color: card.$background-transparent-color;
-                &:hover {
-                    background-color: card.$hover-background-transparent-color;
-                }
-                &:active {
-                    background-color: card.$active-background-transparent-color;
-                }
+            &:hover, &:focus { color: font.$color; }
+            &:hover {
+                background-color: card.$hover-background-transparent-color;
             }
-            @media (prefers-color-scheme: dark) {
-                border-color: rgba(input.$border-color-dark, 0.1);
-                background-color: card.$background-transparent-color-dark;
-                &:hover {
-                    background-color: card.$hover-background-transparent-color-dark;
-                }
-                &:active {
-                    background-color: card.$active-background-transparent-color-dark;
-                }
+            &:active {
+                background-color: card.$active-background-transparent-color;
             }
         }
     }
@@ -105,24 +90,24 @@ button, .button {
         background-color: transparent;
         border: none;
         &:disabled, &.disabled {
-            @include font.muted;
+            color: font.$color-muted;
         }
         &:not(:disabled):not(.disabled) {
-            @include font.color;
+            color: font.$color;
             &:focus, &:hover {
-                background-color: light-dark(rgba(font.$color, 0.1), rgba(font.$color-dark, 0.1));
+                background-color: font.$color 0.1;
             }
             &:active {
-                background-color: light-dark(rgba(font.$color, 0.2), rgba(font.$color-dark, 0.2));
+                background-color: font.$color 0.2;
             }
         }
         &.invert {
-            color: light-dark(font.$color-dark, font.$color) !important;
+            color: font.$color-inverse !important;
             &:hover {
-                background-color: light-dark(rgba(font.$color-dark, 0.1), rgba(font.$color, 0.1)) !important;
+                background-color: font.$color-inverse 0.1 !important;
             }
             &:active {
-                background-color: light-dark(rgba(font.$color-dark, 0.2), rgba(font.$color, 0.2)) !important;
+                background-color: font.$color-inverse 0.2 !important;
             }
         }
     }
@@ -130,19 +115,19 @@ button, .button {
     &.form {
         &:disabled, &.disabled {
             background-color: input.$disabled-background-color;
-            color: light-dark(input.$disabled-border-color, input.$disabled-border-color-dark);
-            border: 1px solid light-dark(input.$disabled-border-color, input.$disabled-border-color-dark);
+            color: input.$disabled-border-color;
+            border: 1px solid input.$disabled-border-color;
         }
         &:not(:disabled):not(.disabled) {
-            @include font.color;
+            font: font.$color;
             border: input.$border;
-            border-color: light-dark(input.$border-color, input.$border-color-dark);
-            background-color: light-dark(input.$background-color, input.$background-color-dark);
+            border-color: input.$border-color;
+            background-color: input.$background-color;
             &:hover {
-                border-color: light-dark(input.$hover-border-color, input.$hover-border-color-dark);
+                border-color: input.$hover-border-color;
             }
             &:active {
-                border-color: light-dark(input.$hover-border-color, input.$hover-border-color-dark);
+                border-color: input.$hover-border-color;
             }
         }
     }
@@ -153,7 +138,7 @@ button, .button {
                 button, .button {
                     &:not(:disabled):not(.disabled) {
                         app-icon {
-                            color: light-dark(map.get(color.$foregrounds, $color), map.get(color.$foregrounds-dark, $color)) !important;
+                            color: map.get(color.$foregrounds, $color) !important;
                         }
                     }
                 }

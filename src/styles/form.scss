@@ -18,10 +18,10 @@
         pointer-events: none;
         background: conic-gradient(from
             var(--highlight-rotation),
-            map.get(color.$actives-dark, color.$accent),
-            map.get(color.$actives-dark, color.$accent-variation-1),
-            map.get(color.$actives-dark, color.$accent-variation-2),
-            map.get(color.$actives-dark, color.$accent)) border-box;
+            map.get(color.$actives, color.$accent),
+            map.get(color.$actives, color.$accent-variation-1),
+            map.get(color.$actives, color.$accent-variation-2),
+            map.get(color.$actives, color.$accent)) border-box;
         -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
