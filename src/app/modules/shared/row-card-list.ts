@@ -1,10 +1,11 @@
-import { Component, inject, Injector, input, OnDestroy, signal, viewChild, ViewContainerRef } from "@angular/core";
+import { CommonModule } from "@angular/common";
+import { Component, inject, Injector, input, OnDestroy, signal } from "@angular/core";
 import { Subscription } from "rxjs";
 import type { Row, TableName } from "../../shared/types";
 import { asyncComputed, multiEffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
-import { getTableService } from "./module-injections";
-import { CommonModule } from "@angular/common";
+import { getListRowComponent } from "./list-row";
+import { getTableService } from "./table.service";
 
 @Component({
     selector: 'app-row-card-list',
@@ -36,15 +37,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly filter = input<(row: Row<T>) => boolean>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
-    protected readonly tableService = asyncComputed([this.tableName],
-        tableName => getTableService(this.injector, tableName));
-    protected readonly rowComponent = asyncComputed([this.tableName], async tableName => {
-        switch (tableName) {
-            case 'agenda': return (await import('../agenda/agenda-list-row')).AgendaListRowComponent;
-            case 'profile': return (await import('../profile/profile-list-row')).ProfileListRowComponent;
-            default: return null;
-        }
-    });
+    protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
+    protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);
     
     protected readonly items = signal<Row<T>[]>([]);
     private subscription: Subscription | undefined;

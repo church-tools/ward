@@ -1,4 +1,4 @@
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Injectable, Injector, signal } from "@angular/core";
 import { Observable as LSObservable, observable } from "@legendapp/state";
 import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/indexeddb";
 import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
@@ -8,6 +8,17 @@ import { SupabaseService } from "../../shared/supabase.service";
 import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
 import { generateUUIDv7 } from "../../shared/utils/crypto-utils";
+
+export async function getTableService<T extends TableName>(injector: Injector, tableName: T) {
+    const service = await (async () => {
+        switch (tableName) {
+            case 'agenda': return (await import('../agenda/agenda.service')).AgendaService;
+            case 'profile': return (await import('../profile/profile.service')).ProfileService;
+            default: throw new Error(`No service found for table: ${tableName}`);
+        }
+    })();
+    return <TableService<T>>injector.get(<InstanceType<any>>service);
+}
 
 configureSyncedSupabase({ generateId: generateUUIDv7 });
 
