@@ -20,12 +20,12 @@ type ItemCard<T> = {
 export class CardListComponent<T> {
 
     readonly items = input.required<T[]>();
-    readonly orderByKey = input<KeyWithValue<T, number>>();
+    readonly orderByKey = input<KeyWithValue<T, number> | null | undefined>();
     readonly reorderable = input<boolean>(false);
-    readonly showFilter = input(false);
+    readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
-    protected readonly itemTemplate = contentChild.required<TemplateRef<{ item: T }>>(TemplateRef);
+    protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>(TemplateRef);
     private readonly cardViews: Signal<readonly ElementRef<HTMLDivElement>[]> = viewChildren('card', { read: ElementRef });
     
     private readonly selectedItem = signal<T | null>(null);
@@ -93,6 +93,6 @@ export class CardListComponent<T> {
     private sort(itemCards: ItemCard<T>[]) {
         const orderbyKey = this.orderByKey();
         if (!orderbyKey) return;
-        return itemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
+        itemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
     }
 }

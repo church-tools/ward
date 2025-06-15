@@ -1,4 +1,4 @@
-import type { Database } from "../../../../database.types.ts";
+import type { Database } from "../../../../database";
 
 export namespace Agenda {
     export type Insert = Database["public"]["Tables"]["agenda"]["Insert"];

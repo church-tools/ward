@@ -14,7 +14,7 @@
                 </div>
             }
             <ng-container *ngTemplateOutlet="itemTemplate();
-                context: { item: itemCard.item }"/>
+                context: { $implicit: itemCard.item }"/>
         </div>
     }
 </div>

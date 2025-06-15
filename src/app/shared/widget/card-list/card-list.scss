@@ -13,10 +13,7 @@
     @include layout.row;
     width: 100%;
     align-items: center;
-    transition: opacity animation.$duration-sm ease,
-                height animation.$duration-sm ease,
-                background-color animation.$duration-sm ease;
-    // opacity: 0;
+    transition: all animation.$duration-sm ease, transform 0s;
     &.hidden {
         opacity: 0;
     }

@@ -2,27 +2,12 @@ import { Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../../database';
 import { environment } from '../../environments/environment';
-import { Synced } from './synced';
 import { getSiteOrigin } from './utils/url-utils';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
-
-    readonly collection = {
-        agenda: new Synced(this.client, 'agenda', 'id'),
-    } as const;
-
-    constructor() {
-        this.client.auth.getUser()
-        .then(({ data: { user } }) => {
-            if (!user?.id)
-                throw 'User not authenticated, syncing will not work';
-            for (const collection of Object.values(this.collection))
-                collection.setup(user);
-        });
-    }
 
     /**
      * Sign up a new user with email and password

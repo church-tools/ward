@@ -1,9 +1,15 @@
-import { inject, Injectable } from "@angular/core";
-import { SupabaseService } from "../../shared/supabase.service";
+import { Injectable } from "@angular/core";
+import { TableService } from "../shared/table.service";
+import type { Agenda } from "./agenda";
 
 @Injectable({ providedIn: 'root' })
-export class AgendaService {
+export class AgendaService extends TableService<'agenda'> {
 
-    private readonly supabaseService = inject(SupabaseService);
+    readonly tableName = 'agenda';
+    readonly idField = 'id';
+    readonly indexField = 'index';
 
+    override toString(row: Agenda.Row): string {
+        return row.name;
+    }
 }
