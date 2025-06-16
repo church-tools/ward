@@ -7,7 +7,8 @@ export class ProfileService extends TableService<'profile'> {
 
     readonly tableName = 'profile';
     readonly idField = 'id';
-    readonly indexField = null;
+    readonly orderField = null;
+    readonly uuidField = 'uid';
 
     override toString(row: Profile.Row): string {
         return '' + row.id;

@@ -1,13 +1,12 @@
 import { inject, Injectable, Injector, signal } from "@angular/core";
-import { Observable as LSObservable, observable } from "@legendapp/state";
-import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/indexeddb";
-import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
+import { Database } from "../../../../database";
+import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
 import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
-import { generateUUIDv7 } from "../../shared/utils/crypto-utils";
+import { SupaLegend } from "../../shared/utils/supa-legend";
 
 export async function getTableService<T extends TableName>(injector: Injector, tableName: T) {
     const service = await (async () => {
@@ -20,20 +19,19 @@ export async function getTableService<T extends TableName>(injector: Injector, t
     return <TableService<T>>injector.get(<InstanceType<any>>service);
 }
 
-configureSyncedSupabase({ generateId: generateUUIDv7 });
-
 @Injectable({ providedIn: 'root' })
 export abstract class TableService<T extends TableName> {
 
-    private readonly supabase = inject(SupabaseService);
-    
-    private readonly synced = new AsyncValue<LSObservable<Record<IdOf<T>, Row<T>>>>();
+    protected readonly supabase = inject(SupabaseService);
+
+    protected readonly supaLegend = new AsyncValue<SupaLegend<Database, T>>();
 
     abstract readonly tableName: T;
     abstract readonly idField: KeyWithValue<Row<T>, string | number>;
-    abstract readonly indexField?: KeyWithValue<Row<T>, number> | null;
+    abstract readonly orderField?: KeyWithValue<Row<T>, number> | null;
+    abstract readonly uuidField?: KeyWithValue<Row<T>, string> | null;
 
-    public get table() { return this.supabase.client.from(this.tableName); }
+    public get direct() { return this.supabase.client.from(this.tableName); }
 
     constructor() {
         this.supabase.getSession()
@@ -41,20 +39,20 @@ export abstract class TableService<T extends TableName> {
     }
 
     public async getAllById(): Promise<Record<number, Row<T>>> {
-        const synced = await this.synced.get();
-        return synced.get() || {};
+        const supaLegend = await this.supaLegend.get();
+        return supaLegend.get() || {};
     }
 
     public syncAll() {
         return new Observable<Record<number, Row<T>>> (subscriber => {
             let unsubscribe: (() => void) | undefined;
-            this.synced.get()
-            .then(synced => {
-                const initialData = synced.get();
+            this.supaLegend.get()
+            .then(supaLegend => {
+                const initialData = supaLegend.get();
                 if (initialData) subscriber.next(initialData);
-                unsubscribe = synced.onChange(params => {
+                unsubscribe = supaLegend.onChange(params => {
                     // todo handle changes
-                    const data = synced.get();
+                    const data = supaLegend.get();
                     subscriber.next(data);
                 });
             });
@@ -64,12 +62,12 @@ export abstract class TableService<T extends TableName> {
 
     public observe(filter?: (row: Row<T>) => boolean): Observable<Row<T>[]> {
         return new Observable<Row<T>[]>(subscriber => {
-            this.synced.get()
-            .then(synced => {
-                const rows = this.getRows(synced.get(), filter);
+            this.supaLegend.get()
+            .then(supaLegend => {
+                const rows = this.getRows(supaLegend.get(), filter);
                 subscriber.next(rows);
-                const unsubscribe = synced.onChange(() => {
-                    const rows = this.getRows(synced.get(), filter);
+                const unsubscribe = supaLegend.onChange(() => {
+                    const rows = this.getRows(supaLegend.get(), filter);
                     subscriber.next(rows);
                 });
                 return () => unsubscribe();
@@ -79,64 +77,45 @@ export abstract class TableService<T extends TableName> {
 
     public asSignal(filter?: (row: Row<T>) => boolean) {
         const sig = signal<Row<T>[]>([]);
-        this.synced.get()
-        .then(synced => {
-            const rows = this.getRows(synced.get(), filter);
+        this.supaLegend.get()
+        .then(supaLegend => {
+            const rows = this.getRows(supaLegend.get(), filter);
             sig.set(rows);
-            synced.onChange(() => {
-                const rows = this.getRows(synced.get(), filter);
+            supaLegend.onChange(() => {
+                const rows = this.getRows(supaLegend.get(), filter);
                 sig.set(rows);
             });
         });
         return sig;
     }
 
-    public async update(rows: Row<T>[]) {
-        const synced = await this.synced.get();
-        
+    public async updateRows(rows: (Row<T>)[]) {
+        const supaLegend = await this.supaLegend.get();
+        for (const row of rows) {
+            const obs = supaLegend.getRow(row[this.idField] as IdOf<T>).assign(row);
+        }
     }
 
     public async upsert(rows: Insert<T>[]) {
-        await this.table.upsert(<any[]>rows).throwOnError();
+        await this.direct.upsert(<any[]>rows).throwOnError();
     }
 
-    private getRows(synced: Record<number, Row<T>> | undefined, filter?: (row: Row<T>) => boolean): Row<T>[] {
-        let rows = Object.values(synced || {}) as Row<T>[];
+    private getRows(rowRecords: Record<number, Row<T>> | undefined, filter?: (row: Row<T>) => boolean): Row<T>[] {
+        let rows = Object.values(rowRecords || {}) as Row<T>[];
         if (filter) rows = rows.filter(filter);
-        const indexField = this.indexField;
-        if (!indexField) return rows;
-        return rows.sort((a, b) => {
-            const aIndex = a[indexField] as number;
-            const bIndex = b[indexField] as number;
-            return aIndex - bIndex;
-        });
+        const orderField = this.orderField;
+        if (!orderField) return rows;
+        return rows.sort((a, b) => <number>a[orderField] - <number>b[orderField]);
     }
 
     abstract toString(row: Row<T>): string;
     
     private setup(user: User | undefined) {
         if (!user) throw 'User not authenticated, syncing will not work';
-        const synced = syncedSupabase({
-            supabase: this.supabase.client,
-            collection: this.tableName,
-            debounceSet: 500,
-            realtime: true,
-            persist: { 
-                name: this.tableName, 
-                retrySync: true,
-                plugin: new ObservablePersistIndexedDB({
-                    databaseName: 'ward-tools-' + user.id,
-                    version: 1,
-                    tableNames: [this.tableName]
-                })
-            },
-            changesSince: 'last-sync',
-            retry: { infinite: true },
-            fieldId: <string>this.idField,
-            fieldDeleted: 'deleted',
-            fieldCreatedAt: 'created_at',
-            fieldUpdatedAt: 'updated_at',
-        })
-        this.synced.set(observable(synced));
+        this.supaLegend.set(new SupaLegend(this.supabase.client, this.tableName, {
+            databaseName: `${environment.appId}-${user.id}`,
+            version: 1,
+            tableNames: ['agenda', 'profile'],
+        }));
     }
 }

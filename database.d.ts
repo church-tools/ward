@@ -14,8 +14,8 @@ export type Database = {
           created_at: string
           deleted: boolean
           id: number
-          index: number
           name: string
+          position: number
           unit: number
           updated_at: string
           uuid: string
@@ -24,8 +24,8 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id: number
-          index?: number
           name: string
+          position?: number
           unit: number
           updated_at?: string
           uuid?: string
@@ -34,8 +34,8 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id?: number
-          index?: number
           name?: string
+          position?: number
           unit?: number
           updated_at?: string
           uuid?: string

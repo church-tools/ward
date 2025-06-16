@@ -7,7 +7,8 @@ export class AgendaService extends TableService<'agenda'> {
 
     readonly tableName = 'agenda';
     readonly idField = 'id';
-    readonly indexField = 'index';
+    readonly orderField = 'position';
+    readonly uuidField = null;
 
     override toString(row: Agenda.Row): string {
         return row.name;

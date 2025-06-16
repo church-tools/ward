@@ -29,7 +29,7 @@ export class MeetingsPageComponent extends PageComponent {
     protected addAgenda = async () => {
         const agendas = await this.agendaService.getAllById()
         const firstFreeId = firstFreeIndex(agendas);
-        const { data } = await this.agendaService.table
+        const { data } = await this.agendaService.direct
             .insert(<Agenda.Insert>{
                 id: firstFreeId,
                 name: "",

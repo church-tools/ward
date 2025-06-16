@@ -15,9 +15,9 @@ import { getTableService } from "./table.service";
                 [items]="items()"
                 [cardClasses]="cardClasses()"
                 [reorderable]="editable()"
-                [orderByKey]="tableService()?.indexField"
+                [orderByKey]="tableService()?.orderField"
                 [getFilterText]="tableService()?.toString"
-                (orderChange)="updateRows($event)">
+                (orderChange)="updateRowPositions($event)">
                 <ng-template let-row>
                     <ng-container [ngComponentOutlet]="component" 
                         [ngComponentOutletInputs]="{ row: row }"/>
@@ -60,12 +60,11 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         //         id: firstFreeId,
         //         name: "",
         //         unit: 18,
-        //     })
-        //     .throwOnError();
+        //     })        //     .throwOnError();
     }
 
-    protected async updateRows(rows: Row<T>[]) {
-        await this.tableService()!.update(rows);
+    protected async updateRowPositions(rows: Row<T>[]) {
+        await this.tableService()!.updateRows(rows);
     }
 
     ngOnDestroy(): void {

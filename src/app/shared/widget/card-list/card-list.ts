@@ -27,8 +27,7 @@ export class CardListComponent<T> {
 
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>(TemplateRef);
     private readonly cardViews: Signal<readonly ElementRef<HTMLDivElement>[]> = viewChildren('card', { read: ElementRef });
-    
-    private readonly selectedItem = signal<T | null>(null);
+
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
     
     // Events
@@ -64,17 +63,21 @@ export class CardListComponent<T> {
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
+        if (event.currentIndex === event.previousIndex) return;
         const itemCards = this.itemCards();
         moveItemInArray(itemCards, event.previousIndex, event.currentIndex);
-        this.itemCards.set(itemCards);
-        const orderByKey = this.orderByKey()!;
-        const changed = itemCards.filter((itemCard, i) => {
-            if (itemCard.item[orderByKey] === i) return false;
-            itemCard.item[orderByKey] = <any>i;
-            return true;
-        });
-        if (changed.length)
-            this.orderChange.emit(changed.map(itemCard => itemCard.item));
+        const orderByKey = this.orderByKey();
+        if (!orderByKey) return;
+        const itemCard = itemCards[event.currentIndex];
+        const leadingPosition = <number | null>itemCards[event.currentIndex - 1]?.item[orderByKey];
+        const followingPosition = <number | null>itemCards[event.currentIndex + 1]?.item[orderByKey];
+        const position = (leadingPosition != null && followingPosition != null)
+            ? (leadingPosition + followingPosition) / 2
+            : (leadingPosition != null
+                ? leadingPosition + 1
+                : followingPosition != null ? followingPosition - 1 : 0);
+        itemCard.item[orderByKey] = <any>position;
+        this.orderChange.emit([itemCard.item]);
     }
 
     private updateItemCards(items: T[]) {
