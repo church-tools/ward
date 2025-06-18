@@ -1,10 +1,10 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChildren, WritableSignal } from '@angular/core';
+import { Component, computed, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChildren, WritableSignal } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
 import { AsyncValue } from '../../utils/async-value';
-import { multiEffect } from '../../utils/signal-utils';
+import { multiComputed, multiEffect } from '../../utils/signal-utils';
 
 type ItemCard<T> = {
     item: T;
@@ -20,20 +20,26 @@ type ItemCard<T> = {
 export class CardListComponent<T> {
 
     readonly items = input.required<T[]>();
+    readonly editable = input(false);
+    readonly idKey = input<keyof T | null>(null); // KeyWithValue<T, number | string> | null
     readonly orderByKey = input<KeyWithValue<T, number> | null | undefined>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
-    protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>(TemplateRef);
+    protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
+    protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
     private readonly cardViews: Signal<readonly ElementRef<HTMLDivElement>[]> = viewChildren('card', { read: ElementRef });
 
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
-    
-    // Events
+    protected readonly getId = multiComputed([this.idKey], idKey => idKey
+        ? (item: T) => item[idKey]
+        : (item: T) => item as any);
+      // Events
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
+    readonly addClick = output<void>();
 
     private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
     private readonly initialized = new AsyncValue<boolean>();
@@ -48,8 +54,8 @@ export class CardListComponent<T> {
             cardViews.forEach((card, index) => {
                 const itemCard = itemCards[index];
                 if (!itemCard) return;
-                const newHeight = card.nativeElement.clientHeight;
-                if (newHeight) itemCard.height.set(newHeight);
+                // const newHeight = card.nativeElement.clientHeight;
+                // if (newHeight) itemCard.height.set(newHeight);
             });
         });
     }
@@ -57,9 +63,12 @@ export class CardListComponent<T> {
     async ngOnInit() {
         this.initialized.set(true);
     }
-    
-    protected onItemClick(listItem: ItemCard<T>): void {
+      protected onItemClick(listItem: ItemCard<T>): void {
         this.itemClick.emit(listItem.item);
+    }
+
+    protected onAddClick(): void {
+        this.addClick.emit();
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {

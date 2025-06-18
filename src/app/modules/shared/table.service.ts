@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { Database } from "../../../../database";
 import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
-import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
+import { IdOf, Insert, KeyWithValue, Row, TableName, Update } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
 import { SupaLegend } from "../../shared/utils/supa-legend";
 
@@ -27,24 +27,25 @@ export abstract class TableService<T extends TableName> {
     protected readonly supaLegend = new AsyncValue<SupaLegend<Database, T>>();
 
     abstract readonly tableName: T;
-    abstract readonly idField: KeyWithValue<Row<T>, string | number>;
-    abstract readonly orderField?: KeyWithValue<Row<T>, number> | null;
-    abstract readonly uuidField?: KeyWithValue<Row<T>, string> | null;
+    abstract readonly orderField: KeyWithValue<Row<T>, number> | null;
+    abstract readonly withUuid: boolean;
 
     public get direct() { return this.supabase.client.from(this.tableName); }
 
     constructor() {
         this.supabase.getSession()
-        .then(session => this.setup(session?.user));
+        .then(session => {
+            this.setup(session?.user);
+        });
     }
 
-    public async getAllById(): Promise<Record<number, Row<T>>> {
+    public async getAllById(): Promise<Record<IdOf<T>, Row<T>>> {
         const supaLegend = await this.supaLegend.get();
-        return supaLegend.get() || {};
+        return supaLegend.get() ?? new Map<IdOf<T>, Row<T>>();
     }
 
     public syncAll() {
-        return new Observable<Record<number, Row<T>>> (subscriber => {
+        return new Observable<Record<IdOf<T>, Row<T>>> (subscriber => {
             let unsubscribe: (() => void) | undefined;
             this.supaLegend.get()
             .then(supaLegend => {
@@ -89,10 +90,19 @@ export abstract class TableService<T extends TableName> {
         return sig;
     }
 
-    public async updateRows(rows: (Row<T>)[]) {
+    public async saveRows(rows: Row<T>[], ...updateFields: (keyof Row<T>)[]) {
         const supaLegend = await this.supaLegend.get();
-        for (const row of rows) {
-            const obs = supaLegend.getRow(row[this.idField] as IdOf<T>).assign(row);
+        for (const row of rows)
+            supaLegend.updateRow(row as any, updateFields);
+    }
+
+    public async create(row: Omit<Insert<T>, 'id'>) {
+        if (this.withUuid) {
+            const supaLegend = await this.supaLegend.get();
+            supaLegend.createRow(row);
+        } else {
+            const id = await this.firstFreeId();
+            await this.direct.insert({ ...row, id } as any).throwOnError();
         }
     }
 
@@ -100,8 +110,8 @@ export abstract class TableService<T extends TableName> {
         await this.direct.upsert(<any[]>rows).throwOnError();
     }
 
-    private getRows(rowRecords: Record<number, Row<T>> | undefined, filter?: (row: Row<T>) => boolean): Row<T>[] {
-        let rows = Object.values(rowRecords || {}) as Row<T>[];
+    private getRows(rowsById: Record<IdOf<T>, Row<T>>, filter?: (row: Row<T>) => boolean): Row<T>[] {
+        let rows = Array.from(Object.values(rowsById as { [key: string]: Row<T> }));
         if (filter) rows = rows.filter(filter);
         const orderField = this.orderField;
         if (!orderField) return rows;
@@ -117,5 +127,13 @@ export abstract class TableService<T extends TableName> {
             version: 1,
             tableNames: ['agenda', 'profile'],
         }));
+    }
+    
+
+    private async firstFreeId(first = 1) {
+        const existingRows = await this.getAllById();
+        let index = first;
+        while (index in existingRows) index++;
+        return index;
     }
 }

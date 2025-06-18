@@ -6,9 +6,8 @@ import type { Agenda } from "./agenda";
 export class AgendaService extends TableService<'agenda'> {
 
     readonly tableName = 'agenda';
-    readonly idField = 'id';
     readonly orderField = 'position';
-    readonly uuidField = null;
+    readonly withUuid = false;
 
     override toString(row: Agenda.Row): string {
         return row.name;

@@ -4,7 +4,6 @@ import { AgendaService } from '../modules/agenda/agenda.service';
 import { RowCardListComponent } from "../modules/shared/row-card-list";
 import AsyncButtonComponent from "../shared/form/button/async/async-button";
 import { PageComponent } from '../shared/page/page';
-import { firstFreeIndex } from '../shared/utils/dict-utils';
 
 @Component({
     selector: 'app-meetings-page',
@@ -27,15 +26,7 @@ export class MeetingsPageComponent extends PageComponent {
     protected readonly agendas = this.agendaService.asSignal();
     
     protected addAgenda = async () => {
-        const agendas = await this.agendaService.getAllById()
-        const firstFreeId = firstFreeIndex(agendas);
-        const { data } = await this.agendaService.direct
-            .insert(<Agenda.Insert>{
-                id: firstFreeId,
-                name: "",
-                unit: 18,
-            })
-            .throwOnError();
+        await this.agendaService.create({ name: "", unit: 18 });
     }
 
     protected async updateAgendas(agendas: Agenda.Row[]) {

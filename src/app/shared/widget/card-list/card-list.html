@@ -3,7 +3,7 @@
 </div>
 <div #container class="card-item-container column gap-2"
     cdkDropList (cdkDropListDropped)="onDrop($event)">
-    @for (itemCard of itemCards(); track itemCard.item) {
+    @for (itemCard of itemCards(); track getId()(itemCard.item)) {
         <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
             [class.hidden]="itemCard.height() === 0"
             [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
@@ -15,6 +15,19 @@
             }
             <ng-container *ngTemplateOutlet="itemTemplate();
                 context: { $implicit: itemCard.item }"/>
+        </div>
+    }
+    @if (editable()) {
+        <div class="card-item add-card-item"
+            (click)="onAddClick()">
+            @if (insertTemplate(); as template) {
+                <ng-container *ngTemplateOutlet="template"/>
+            } @else {
+                <div class="default-add-button">
+                    <app-icon icon="add"/>
+                    <span>Add Item</span>
+                </div>
+            }
         </div>
     }
 </div>

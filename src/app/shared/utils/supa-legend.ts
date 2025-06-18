@@ -1,8 +1,7 @@
-
 import { ListenerParams, Observable, observable, ObservableObject } from "@legendapp/state";
 import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/indexeddb";
 import { ObservablePersistIndexedDBPluginOptions } from "@legendapp/state/sync";
-import { configureSyncedSupabase, syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
+import { syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
 import { SupabaseClient } from "@supabase/supabase-js";
 
 function generateUUIDv7() {
@@ -16,18 +15,11 @@ function generateUUIDv7() {
     return `${unixTime}-${subSeconds}-7${randomHex.slice(0, 3)}-${randomHex.slice(3, 7)}-${randomHex.slice(7)}`;
 }
 
-configureSyncedSupabase({ generateId: generateUUIDv7 });
-
 type Database = { public: { Tables: { [key: string]: any } } };
 type IdOf<D extends Database, T extends string> = Row<D, T> extends { id: number } ? number : string;
-type Row<D extends Database, T extends string> = D["public"]["Tables"][T]["Row"];
+type Row<D extends Database, T extends string> = D["public"]["Tables"][T]["Row"] & { id: number };
+type Insert<D extends Database, T extends string> = D["public"]["Tables"][T]["Insert"];
 type RecordOf<D extends Database, T extends string> = Record<IdOf<D, T>, Row<D, T>>;
-
-/**
- * Type that represents an observable row from Legend State.
- * Provides access to all fields as ObservablePrimitive while maintaining the Observable structure.
- */
-export type SupaLegendRow<D extends Database, T extends string> = ObservableObject<Row<D, T>>;
 
 export type IDBInfo = ObservablePersistIndexedDBPluginOptions;
 
@@ -35,7 +27,7 @@ export class SupaLegend<D extends Database, T extends string> {
 
     private readonly supaLegend: Observable<RecordOf<D, T>> & ObservableObject<RecordOf<D, T>>;
 
-    constructor(supabase: SupabaseClient<D>, tableName: T, idbInfo: IDBInfo, idField: string = 'id') {
+    constructor(supabase: SupabaseClient<D>, tableName: T, idbInfo: IDBInfo) {
         this.supaLegend = <any>observable(syncedSupabase({
             supabase,
             collection: tableName,
@@ -48,24 +40,39 @@ export class SupaLegend<D extends Database, T extends string> {
             actions: ['create', 'read', 'update', 'delete'],
             debounceSet: 500,
             retry: { infinite: true },
-            fieldId: idField,
+            fieldId: 'id',
             changesSince: 'last-sync',
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'updated_at',
             fieldDeleted: 'deleted',
+            // as: 'object',
         }));
         this.supaLegend.get(); // Initialize the observable to ensure it starts fetching data
     }
-
+    
     public get(): RecordOf<D, T> {
-        return this.supaLegend.get();
+        return this.supaLegend.get() as RecordOf<D, T> ?? {};
     }
 
-    public onChange(callback: (params: ListenerParams<T>) => void): () => void {
+    public onChange(callback: (params: ListenerParams<RecordOf<D, T>>) => void): () => void {
         return this.supaLegend.onChange(callback);
     }
-    
-    public getRow(id: IdOf<D, T>): SupaLegendRow<D, T> {
-        return (this.supaLegend as any)[id];
+
+    public createRow(info: Insert<D, T>) {
+        const id = (info['id'] ?? generateUUIDv7()) as IdOf<D, T>;
+        const row = (this.supaLegend as any)[id] as Observable<Row<D, T>>;
+        const now = new Date().toISOString();
+        row.set({ id, created_at: now, updated_at: now, ...info });
+    }
+
+    public updateRow(update: Partial<Row<D, T>>, updateFields: (keyof Row<D, T>)[]): void {
+        const id = update['id'];
+        if (!id) throw new Error(`Update must contain the id`);
+        const row = this.supaLegend[id] as Observable<Row<D, T>>;
+        row.assign({
+            id,
+            updated_at: new Date().toISOString(),
+            ...Object.fromEntries(updateFields.map(field => [field, update[field]])),
+        });
     }
 }

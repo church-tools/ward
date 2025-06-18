@@ -18,7 +18,6 @@ export type Database = {
           position: number
           unit: number
           updated_at: string
-          uuid: string
         }
         Insert: {
           created_at?: string
@@ -28,7 +27,6 @@ export type Database = {
           position?: number
           unit: number
           updated_at?: string
-          uuid?: string
         }
         Update: {
           created_at?: string
@@ -38,7 +36,6 @@ export type Database = {
           position?: number
           unit?: number
           updated_at?: string
-          uuid?: string
         }
         Relationships: [
           {
@@ -52,7 +49,6 @@ export type Database = {
       }
       agenda_item: {
         Row: {
-          agenda: number
           content: string | null
           created_at: string
           created_by: number
@@ -60,9 +56,9 @@ export type Database = {
           modified_at: string
           title: string | null
           unit: number
+          uuid: string
         }
         Insert: {
-          agenda: number
           content?: string | null
           created_at?: string
           created_by: number
@@ -70,9 +66,9 @@ export type Database = {
           modified_at?: string
           title?: string | null
           unit: number
+          uuid: string
         }
         Update: {
-          agenda?: number
           content?: string | null
           created_at?: string
           created_by?: number
@@ -80,15 +76,9 @@ export type Database = {
           modified_at?: string
           title?: string | null
           unit?: number
+          uuid?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "agenda_item_unit_agenda_fkey"
-            columns: ["unit", "agenda"]
-            isOneToOne: false
-            referencedRelation: "agenda"
-            referencedColumns: ["unit", "id"]
-          },
           {
             foreignKeyName: "agenda_item_unit_created_by_fkey"
             columns: ["unit", "created_by"]
@@ -117,6 +107,7 @@ export type Database = {
           name: string
           organization: number | null
           unit: number
+          uuid: string
         }
         Insert: {
           caller?: Database["public"]["Enums"]["calling_caller"]
@@ -129,6 +120,7 @@ export type Database = {
           name: string
           organization?: number | null
           unit?: number
+          uuid: string
         }
         Update: {
           caller?: Database["public"]["Enums"]["calling_caller"]
@@ -141,6 +133,7 @@ export type Database = {
           name?: string
           organization?: number | null
           unit?: number
+          uuid?: string
         }
         Relationships: [
           {
@@ -216,6 +209,7 @@ export type Database = {
           name: string
           number: number
           unit: number
+          uuid: string
         }
         Insert: {
           created_at?: string
@@ -224,6 +218,7 @@ export type Database = {
           name: string
           number: number
           unit: number
+          uuid: string
         }
         Update: {
           created_at?: string
@@ -232,6 +227,7 @@ export type Database = {
           name?: string
           number?: number
           unit?: number
+          uuid?: string
         }
         Relationships: [
           {
@@ -334,31 +330,21 @@ export type Database = {
       }
       member_agenda_permission: {
         Row: {
-          agenda: number
           created_at: string
           member: number
           unit: number
         }
         Insert: {
-          agenda: number
           created_at?: string
           member: number
           unit: number
         }
         Update: {
-          agenda?: number
           created_at?: string
           member?: number
           unit?: number
         }
         Relationships: [
-          {
-            foreignKeyName: "member_agenda_permission_unit_agenda_fkey"
-            columns: ["unit", "agenda"]
-            isOneToOne: false
-            referencedRelation: "agenda"
-            referencedColumns: ["unit", "id"]
-          },
           {
             foreignKeyName: "member_agenda_permission_unit_fkey"
             columns: ["unit"]

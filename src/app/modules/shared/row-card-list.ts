@@ -4,26 +4,36 @@ import { Subscription } from "rxjs";
 import type { Row, TableName } from "../../shared/types";
 import { asyncComputed, multiEffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
+import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import { getTableService } from "./table.service";
 
 @Component({
     selector: 'app-row-card-list',
     template: `
-        @if (rowComponent(); as component) {
-            <app-card-list
-                [items]="items()"
-                [cardClasses]="cardClasses()"
-                [reorderable]="editable()"
-                [orderByKey]="tableService()?.orderField"
-                [getFilterText]="tableService()?.toString"
-                (orderChange)="updateRowPositions($event)">
-                <ng-template let-row>
-                    <ng-container [ngComponentOutlet]="component" 
-                        [ngComponentOutletInputs]="{ row: row }"/>
-                </ng-template>
-            </app-card-list>
-            <ng-container #insertComponentContainer/>
+        @if (tableService(); as service) {
+            @if (rowComponent(); as component) {
+                @if (insertComponent(); as insertComponent) {
+                    <app-card-list
+                        [items]="items()"
+                        [cardClasses]="cardClasses()"
+                        [reorderable]="editable()"
+                        [editable]="editable()"
+                        idKey="id"
+                        [orderByKey]="service.orderField"
+                        [getFilterText]="service.toString"
+                        (orderChange)="updateRowPositions($event)"
+                        (addClick)="addRow()">
+                        <ng-template #itemTemplate let-row>
+                            <ng-container [ngComponentOutlet]="component" 
+                                [ngComponentOutletInputs]="{ row: row }"/>
+                        </ng-template>
+                        <ng-template #insertTemplate>                
+                            <ng-container [ngComponentOutlet]="insertComponent"/>
+                        </ng-template>
+                    </app-card-list>
+                }
+            }
         }
     `,
     imports: [CommonModule, CardListComponent],
@@ -39,7 +49,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
 
     protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
     protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);
-    
+    protected readonly insertComponent = asyncComputed([this.tableName], getListInsertComponent);
+
     protected readonly items = signal<Row<T>[]>([]);
     private subscription: Subscription | undefined;
 
@@ -53,18 +64,10 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     }
 
     protected addRow = async () => {
-        // const agendas = await this.agendaService.getAllById()
-        // const firstFreeId = firstFreeIndex(agendas);
-        // const { data } = await this.tableService()!.table
-        //     .insert(<Insert<T>>{
-        //         id: firstFreeId,
-        //         name: "",
-        //         unit: 18,
-        //     })        //     .throwOnError();
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {
-        await this.tableService()!.updateRows(rows);
+        await this.tableService()!.saveRows(rows, this.tableService()!.orderField!);
     }
 
     ngOnDestroy(): void {

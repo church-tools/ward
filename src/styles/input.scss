@@ -11,6 +11,7 @@ $color: font.$color;
 $border-width: 1px;
 $border-radius: card.$border-radius-sm;
 $border-color: light-dark(#d1d1d1, #666666);
+$border-color-transparent: light-dark(rgba(#d1d1d1, 0.5), rgba(#666666, 0.1));
 
 $strong-border-color: light-dark(#616161, #adadad);
 

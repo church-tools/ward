@@ -72,7 +72,7 @@ button, .button {
         &:not(:disabled):not(.disabled) {
             border-style: solid;
             border-width: 1px;
-            border-color: input.$border-color light-dark(0.5, 0.1);
+            border-color: input.$border-color-transparent;
             color: font.$color;
             background-color: card.$background-transparent-color;
             @include shadow.box(1);
