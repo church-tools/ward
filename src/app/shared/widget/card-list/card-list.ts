@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, computed, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChildren, WritableSignal } from '@angular/core';
+import { Component, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
 import { AsyncValue } from '../../utils/async-value';
@@ -27,19 +27,21 @@ export class CardListComponent<T> {
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
-    protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
-    protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
-    private readonly cardViews: Signal<readonly ElementRef<HTMLDivElement>[]> = viewChildren('card', { read: ElementRef });
-
-    protected readonly itemCards = signal<ItemCard<T>[]>([]);
-    protected readonly getId = multiComputed([this.idKey], idKey => idKey
-        ? (item: T) => item[idKey]
-        : (item: T) => item as any);
-      // Events
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
     readonly addClick = output<void>();
+
+    protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
+    protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
+    private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLDivElement>[]>;
+    private readonly insertionView = viewChild('insertion', { read: ElementRef }) as Signal<ElementRef<HTMLLabelElement>>;
+    
+    protected readonly inserting = signal(false);
+    protected readonly itemCards = signal<ItemCard<T>[]>([]);
+    protected readonly getId = multiComputed([this.idKey], idKey => idKey
+        ? (item: T) => item[idKey]
+        : (item: T) => item as any);
 
     private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
     private readonly initialized = new AsyncValue<boolean>();
@@ -58,6 +60,10 @@ export class CardListComponent<T> {
                 // if (newHeight) itemCard.height.set(newHeight);
             });
         });
+        multiEffect([this.insertionView], insertionView => {
+            if (!insertionView) return;
+            insertionView?.nativeElement?.focus();
+        });
     }
 
     async ngOnInit() {
@@ -67,8 +73,12 @@ export class CardListComponent<T> {
         this.itemClick.emit(listItem.item);
     }
 
-    protected onAddClick(): void {
-        this.addClick.emit();
+    protected onInsertClick(): void {
+        if (this.insertTemplate()) {
+            this.inserting.set(true);
+        } else {
+            this.addClick.emit();
+        }
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
@@ -93,8 +103,14 @@ export class CardListComponent<T> {
         const newItemCards: ItemCard<T>[] = items
             .filter(item => !this.listItemsByItem.has(item))
             .map(item => ({ item, height: signal(null) }));
-        if (!newItemCards.length) return;
         const existingItemCards = this.itemCards();
+        if (!newItemCards.length) {
+            if (!this.correctOrder(existingItemCards)) {
+                this.sort(existingItemCards);
+                this.itemCards.set(existingItemCards);
+            }
+            return;
+        }
         for (const itemCard of newItemCards)
             this.listItemsByItem.set(itemCard.item, itemCard);
         const allItemCards = [...existingItemCards, ...newItemCards];
@@ -106,5 +122,14 @@ export class CardListComponent<T> {
         const orderbyKey = this.orderByKey();
         if (!orderbyKey) return;
         itemCards.sort((a, b) => (<number>a.item[orderbyKey]) - (<number>b.item[orderbyKey]));
+    }
+
+    private correctOrder(itemCards: ItemCard<T>[]) {
+        const orderByKey = this.orderByKey();
+        if (!orderByKey) return true;
+        for (let i = 0; i < itemCards.length; i++)
+            if (itemCards[i].item[orderByKey] > itemCards[i + 1]?.item[orderByKey])
+                return false;
+        return true;
     }
 }

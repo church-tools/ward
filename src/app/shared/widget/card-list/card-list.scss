@@ -13,6 +13,7 @@
     @include layout.row;
     width: 100%;
     align-items: center;
+    box-sizing: border-box;
     transition: all animation.$duration-sm ease, transform 0s;
     &.hidden {
         opacity: 0;
@@ -34,6 +35,10 @@
     animation: lower animation.$duration-sm ease;
     background-color: card.$canvas-background-color;
     @include card.shadow;
+}
+
+.insertion {
+    animation: fadeIn animation.$duration-xs ease;
 }
 
 // cdk-drag canvas-card card card-item selectable-card suppress-canvas-card-animation ng-star-inserted cdk-drag-preview cdk-drag-animating
