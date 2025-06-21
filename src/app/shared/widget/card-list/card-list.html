@@ -21,9 +21,9 @@
         <div class="{{cardClasses()}} card-item selectable-card center-content p-2"
             (click)="onInsertClick()">
             @if (inserting() && insertTemplate(); as template) {
-                <label #insertion class="insertion grow-1">
+                <div #insertion class="insertion grow-1">
                     <ng-container *ngTemplateOutlet="template"/>
-                </label>
+                </div>
             } @else {
                 <app-icon class="m-1" icon="add"/>
             }

@@ -4,6 +4,7 @@ import { Component, contentChild, ElementRef, input, output, Signal, signal, Tem
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
 import { AsyncValue } from '../../utils/async-value';
+import { getChildInputElement } from '../../utils/dom-utils';
 import { multiComputed, multiEffect } from '../../utils/signal-utils';
 
 type ItemCard<T> = {
@@ -35,7 +36,7 @@ export class CardListComponent<T> {
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
     private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLDivElement>[]>;
-    private readonly insertionView = viewChild('insertion', { read: ElementRef }) as Signal<ElementRef<HTMLLabelElement>>;
+    private readonly insertionView = viewChild('insertion', { read: ElementRef });
     
     protected readonly inserting = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
@@ -57,12 +58,11 @@ export class CardListComponent<T> {
                 const itemCard = itemCards[index];
                 if (!itemCard) return;
                 // const newHeight = card.nativeElement.clientHeight;
-                // if (newHeight) itemCard.height.set(newHeight);
+                // if (newHeight) itemCard.heighasdt.set(newHeight);
             });
         });
         multiEffect([this.insertionView], insertionView => {
-            if (!insertionView) return;
-            insertionView?.nativeElement?.focus();
+            getChildInputElement(insertionView?.nativeElement)?.focus();
         });
     }
 
