@@ -1,4 +1,5 @@
 import { Component, ElementRef, Signal, inject, input, output, signal, viewChild } from '@angular/core';
+import { wait } from '../utils/flow-control-utils';
 
 @Component({
     selector: 'app-collapse',
@@ -22,7 +23,7 @@ export default class CollapseComponent {
 
     private readonly element = inject(ElementRef);
 
-    protected readonly measuring: Signal<ElementRef<HTMLDivElement> | undefined> = viewChild('measuring', { read: ElementRef });
+    protected readonly measuring: Signal<ElementRef<HTMLDivElement>> = viewChild.required('measuring', { read: ElementRef });
 
     private readonly _collapsed = signal<boolean>(true);
     readonly collapsed = this._collapsed.asReadonly();
@@ -45,12 +46,12 @@ export default class CollapseComponent {
             div.style.height = this._show ? 'auto' : '0';
             div.style.opacity = this._show ? "1" : "0";
             div.style.overflow = this._show ? "visible" : "hidden";
-            await new Promise(resolve => setTimeout(resolve, 1));
+            await wait(1);
             div.classList.remove('instantly');
         } else {
             div.style.overflow = "hidden";
-            await new Promise(resolve => setTimeout(resolve, 1));
-            const height = this.measuring()?.nativeElement.clientHeight;
+            await wait(1);
+            const height = this.measuring().nativeElement.clientHeight;
             if (!this._show && div.style.height === 'auto') {
                 div.style.height = height + "px";
                 await new Promise(resolve => setTimeout(resolve, 50));

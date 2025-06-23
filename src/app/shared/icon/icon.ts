@@ -1,4 +1,5 @@
 import { Component, computed, input } from "@angular/core";
+import { xcomputed } from "../utils/signal-utils";
 import { iconCodes } from "./icon-codes";
 
 export type IconPath = keyof typeof IconPathMap;
@@ -45,8 +46,7 @@ export class IconComponent  {
         return `-webkit-mask: ${mask}; mask: ${mask}; background-color: currentColor;`;
     });
 
-    protected readonly content = computed(() => {
-        const icon = this.icon(), filled = this.filled();
+    protected readonly content = xcomputed([this.icon, this.filled], (icon, filled) => {
         if (icon in IconPathMap || !icon) return '';
         return getIconChar(<Icon>icon, filled);
     });

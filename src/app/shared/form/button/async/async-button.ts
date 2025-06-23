@@ -1,6 +1,6 @@
 import { Component, input, signal, viewChild } from "@angular/core";
 import { IconComponent } from "../../../icon/icon";
-import { multiComputed, multiEffect } from "../../../utils/signal-utils";
+import { xcomputed, xeffect } from "../../../utils/signal-utils";
 import ErrorMessageComponent from "../../../widget/error-message/error-message";
 import ButtonBaseComponent from "../shared/button-base";
 
@@ -40,7 +40,7 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
     protected readonly progress = signal<number>(0);
     private readonly inProgress = signal(false);
     protected readonly connectionLost = signal<boolean | null>(null);
-    protected readonly progressIcon = multiComputed([this.icon, this.inProgress, this.connectionLost, this.success, this.showSuccess],
+    protected readonly progressIcon = xcomputed([this.icon, this.inProgress, this.connectionLost, this.success, this.showSuccess],
         (icon, inProgress, connectionLost, success, showSuccess) => {
             if (connectionLost) return 'plug_disconnected';
             if (inProgress) return 'throbber';
@@ -50,7 +50,7 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
     
     constructor() {
         super();
-        multiEffect([this.needsInternet, this.windowService.isOnline], (needsInternet, isOnline) => {
+        xeffect([this.needsInternet, this.windowService.isOnline], (needsInternet, isOnline) => {
             if (needsInternet) this.connectionLost.set(!isOnline);
         });
     }

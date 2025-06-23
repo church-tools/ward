@@ -1,7 +1,8 @@
-import { computed, DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
+import { DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
 import { executeOnce } from "./utils/flow-control-utils";
+import { xcomputed } from "./utils/signal-utils";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -34,9 +35,9 @@ export default class WindowService {
     readonly focused = this._focused.asReadonly();
     private readonly _darkColorScheme = signal(this.document.defaultView!.matchMedia?.('(prefers-color-scheme: dark)').matches); 
     readonly darkColorScheme = this._darkColorScheme.asReadonly();
-    readonly isSmall = computed(() => this.size() === WindowSize.sm);
-    readonly isLarge = computed(() => this.size() > WindowSize.md);
-    readonly isExtraLarge = computed(() => this.size() > WindowSize.lg);
+    readonly isSmall = xcomputed([this.size], size => size === WindowSize.sm);
+    readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
+    readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
 
     constructor() {

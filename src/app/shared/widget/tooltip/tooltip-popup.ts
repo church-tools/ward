@@ -1,4 +1,5 @@
-import { Component, ElementRef, effect, inject, input, signal } from "@angular/core";
+import { Component, ElementRef, inject, input, signal } from "@angular/core";
+import { xeffect } from "../../utils/signal-utils";
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
@@ -59,8 +60,8 @@ export class TooltipPopupComponent  {
             case 'right': this.style.set({ left: '100%' }); break;
         }
         parent.addEventListener('mouseleave', () => this.show(false));
-        effect(() => {
-            if (this.openOnHover())
+        xeffect([this.openOnHover], openOnHover => {
+            if (openOnHover)
                 parent.addEventListener('mouseenter', () => this.show(true));
             else
                 parent.removeEventListener('mouseenter', () => this.show(true));

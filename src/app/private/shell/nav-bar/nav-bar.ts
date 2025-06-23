@@ -1,5 +1,6 @@
-import { Component, computed, effect, inject, input, signal } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
 import { groupBy } from '../../../shared/utils/array-utils';
+import { xcomputed, xeffect } from '../../../shared/utils/signal-utils';
 import WindowService from '../../../shared/window.service';
 import { InnerNavBarTab, NavbarTabComponent } from './tab/nav-bar-tab';
 
@@ -31,14 +32,14 @@ export class NavBarComponent {
     readonly tabs = input.required<NavBarTab[]>();
     readonly horizontal = input.required<boolean>();
 
-    protected readonly innerTabs = computed(() => this.toInnerTabs(this.tabs()));
+    protected readonly innerTabs = xcomputed([this.tabs], tabs => this.toInnerTabs(tabs));
     protected readonly activeTab = signal<InnerNavBarTab | null>(null);
     protected readonly prevTab = signal<InnerNavBarTab | null>(null);
 
     constructor() {
-        effect(() => {
-            const route = this.windowService.currentRoute().replace(/^\//, ''); // Remove leading slash
-            const activeTab = this.innerTabs().reduce((bestMatch, tab) => {
+        xeffect([this.windowService.currentRoute, this.innerTabs], (currentRoute, innerTabs) => {
+            const route = currentRoute.replace(/^\//, ''); // Remove leading slash
+            const activeTab = innerTabs!.reduce((bestMatch, tab) => {
                 return route.startsWith(tab.path) && tab.path.length > (bestMatch?.path.length || 0)
                     ? tab
                     : bestMatch;

@@ -1,11 +1,16 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { MaybeAsync } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
 import { AsyncValue } from '../../utils/async-value';
 import { getChildInputElement } from '../../utils/dom-utils';
-import { multiComputed, multiEffect } from '../../utils/signal-utils';
+import { wait } from '../../utils/flow-control-utils';
+import { xcomputed, xeffect } from '../../utils/signal-utils';
+import WindowService from '../../window.service';
+import { SwapContainerComponent } from '../swap-container/swap-container';
 
 type ItemCard<T> = {
     item: T;
@@ -14,11 +19,13 @@ type ItemCard<T> = {
 
 @Component({
     selector: 'app-card-list',
-    imports: [NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent],
+    imports: [NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent],
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
 export class CardListComponent<T> {
+
+    private readonly windowService = inject(WindowService);
 
     readonly items = input.required<T[]>();
     readonly editable = input(false);
@@ -27,6 +34,7 @@ export class CardListComponent<T> {
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
+    readonly itemInserted = input<(item: T) => MaybeAsync<void>>();
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -39,19 +47,21 @@ export class CardListComponent<T> {
     private readonly insertionView = viewChild('insertion', { read: ElementRef });
     
     protected readonly inserting = signal(false);
+    protected readonly insertedItem = signal<T | null>(null);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
-    protected readonly getId = multiComputed([this.idKey], idKey => idKey
+    protected readonly getId = xcomputed([this.idKey], idKey => idKey
         ? (item: T) => item[idKey]
         : (item: T) => item as any);
 
     private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
     private readonly initialized = new AsyncValue<boolean>();
+    private insertSubscriptions: Subscription[] = [];
 
     constructor() {
-        multiEffect([this.items], items => {
+        xeffect([this.items], items => {
             this.updateItemCards(items);
         });
-        multiEffect([this.cardViews], cardViews => {
+        xeffect([this.cardViews], cardViews => {
             if (!cardViews) return;
             const itemCards = this.itemCards();
             cardViews.forEach((card, index) => {
@@ -61,15 +71,29 @@ export class CardListComponent<T> {
                 // if (newHeight) itemCard.heighasdt.set(newHeight);
             });
         });
-        multiEffect([this.insertionView], insertionView => {
-            getChildInputElement(insertionView?.nativeElement)?.focus();
+        xeffect([this.insertionView, this.inserting], async (insertionView, inserting) => {
+            if (!inserting || !insertionView) {
+                this.insertSubscriptions.forEach(sub => sub.unsubscribe());
+                this.insertSubscriptions = [];
+                return;
+            }
+            await wait(100);
+            getChildInputElement(insertionView.nativeElement)?.focus();
+            this.insertSubscriptions.forEach(sub => sub.unsubscribe());
+            this.insertSubscriptions = [
+                this.windowService.onKeyPressed('Escape').subscribe(() => this.inserting.set(false)),
+                this.windowService.onKeyPressed('Enter').subscribe(async () => {
+                    this.itemInserted();
+                }),
+            ];
         });
     }
 
     async ngOnInit() {
         this.initialized.set(true);
     }
-      protected onItemClick(listItem: ItemCard<T>): void {
+
+    protected onItemClick(listItem: ItemCard<T>): void {
         this.itemClick.emit(listItem.item);
     }
 
@@ -79,6 +103,11 @@ export class CardListComponent<T> {
         } else {
             this.addClick.emit();
         }
+    }
+
+    protected insert(item: T): MaybeAsync<void> {
+        this.insertedItem.set(item);
+        
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {

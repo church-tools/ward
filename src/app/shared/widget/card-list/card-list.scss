@@ -37,10 +37,6 @@
     @include card.shadow;
 }
 
-.insertion {
-    animation: fadeIn animation.$duration-xs ease;
-}
-
 // cdk-drag canvas-card card card-item selectable-card suppress-canvas-card-animation ng-star-inserted cdk-drag-preview cdk-drag-animating
 
 @keyframes elevate {

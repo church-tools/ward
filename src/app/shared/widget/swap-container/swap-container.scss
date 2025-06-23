@@ -1,0 +1,55 @@
+@use "animation";
+
+:host {
+    display: block;
+    position: relative;
+    width: 100%;
+    max-width: 100%;
+    // margin: auto;
+    height: auto;
+    transition: height animation.$duration ease-out;
+    &.animation-xs {
+        transition: height animation.$duration-xs ease-out;
+        .container {
+            &.visible { animation-duration: animation.$duration-xs; }
+            &.fading { animation-duration: animation.$duration-xs; }
+        }
+    }
+    &.animation-sm {
+        transition: height animation.$duration-sm ease-out;
+        .container {
+            &.visible { animation-duration: animation.$duration-sm; }
+            &.fading { animation-duration: animation.$duration-sm; }
+        }
+    }
+    &.animation-lg {
+        transition: height animation.$duration-lg ease-out;
+        .container {
+            &.visible { animation-duration: animation.$duration-lg; }
+            &.fading { animation-duration: animation.$duration-lg; }
+        }
+    }
+}
+
+.container {
+    width: 100%;
+    box-sizing: border-box;
+    height: auto;
+
+    &.visible {
+        z-index: 1;
+        animation: fadeIn animation.$duration ease;
+    }
+    &:not(.visible) {
+        position: absolute;
+        top: 0;
+        z-index: 0;
+        opacity: 0;
+        &.fading {
+            animation: fadeOut animation.$duration ease;
+        }
+        &:not(.fading) {
+            display: none;
+        }
+    }
+}

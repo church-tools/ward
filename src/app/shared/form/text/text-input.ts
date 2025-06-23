@@ -1,4 +1,4 @@
-import { Component, input, signal } from '@angular/core';
+import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import ButtonComponent from "../button/button.component";
@@ -11,7 +11,7 @@ import InputLabelComponent from "../shared/input-label";
         <label class="column">
             <app-input-label/>
             <div class="form-input">
-                <input [required]="true" type="text"
+                <input #input [required]="true" type="text"
                     [(ngModel)]="value" [attr.disabled]="disabledState()"
                     [placeholder]="placeholder()" [pattern]="pattern()"
                     [autocomplete]="autocomplete()" (click)="onClick($event)"
@@ -37,13 +37,15 @@ export class TextInputComponent extends InputBaseComponent<string> {
 
     protected readonly copied = signal(false);
 
+    private readonly inputView = viewChild.required('input', { read: ElementRef });
+
     protected onClick(event: MouseEvent) {
         event.stopImmediatePropagation();
     }
 
     protected onKeyPress(event: KeyboardEvent) {
-        // if (event.key === 'Enter') {
-        //     this.onFocusOut.emit(this.value());
+        if (event.key === 'Enter')
+            this.inputView().nativeElement.blur();
         if (this.characterLimit() && (this.value()?.length ?? 0) >= this.characterLimit()) {
             event.preventDefault();
         }

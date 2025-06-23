@@ -18,15 +18,31 @@
         </div>
     }
     @if (editable()) {
-        <div class="{{cardClasses()}} card-item selectable-card center-content p-2"
+        <div class="{{cardClasses()}} card-item selectable-card"
             (click)="onInsertClick()">
-            @if (inserting() && insertTemplate(); as template) {
-                <div #insertion class="insertion grow-1">
-                    <ng-container *ngTemplateOutlet="template"/>
+            <app-swap-container [swap]="inserting()" animationDuration="xs">
+                <div main>
+                    @if (insertedItem(); as insert) {
+                        @if (reorderable()) {
+                            <div class="drag-handle">
+                                <app-icon icon="re_order_dots_vertical"/>
+                            </div>
+                        }
+                        <ng-container *ngTemplateOutlet="itemTemplate();
+                            context: { $implicit: insert }"/>
+                    } @else {
+                        <div class="items-center center-content">
+                            <app-icon class="m-3" icon="add"/>
+                        </div>
+                    }
                 </div>
-            } @else {
-                <app-icon class="m-1" icon="add"/>
-            }
+                <div swapped #insertion class="insertion grow-1 p-3">
+                    @if (insertTemplate(); as template) {
+                        <ng-container *ngTemplateOutlet="template;
+                            context: { $implicit: insert }"/>
+                    }
+                </div>
+            </app-swap-container>
         </div>
     }
 </div>

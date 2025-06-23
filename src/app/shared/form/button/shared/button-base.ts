@@ -1,9 +1,9 @@
-import { Component, OnDestroy, effect, inject, input, signal } from "@angular/core";
+import { Component, OnDestroy, inject, input, signal } from "@angular/core";
 import { Subscription } from "rxjs";
 import { Icon, IconPath, IconSize } from "../../../icon/icon";
 import { ColorName } from "../../../utils/color-utitls";
+import { xcomputed, xeffect } from "../../../utils/signal-utils";
 import WindowService from "../../../window.service";
-import { multiComputed } from "../../../utils/signal-utils";
 
 export type ButtonType = 'primary' | 'secondary' | 'subtle' | 'transparent' | 'form';
 export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';
@@ -26,7 +26,7 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     readonly shortcut = input<string | null>(null);
     
     protected readonly _type = signal<ButtonType | null>(null);
-    protected readonly classes = multiComputed([this._type, this.type, this.size, this.color, this.disabled, this.iconColored],
+    protected readonly classes = xcomputed([this._type, this.type, this.size, this.color, this.disabled, this.iconColored],
         (_type, type, size, color, disabled, iconColored) =>
             `${_type ?? type} ${size} ${color}-btn ${disabled ? 'disabled' : ''} ${iconColored ? 'icon-colored' : ''}`);
     
@@ -34,8 +34,7 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     private hotkeySubscription: Subscription | undefined;
 
     constructor() {
-        effect(() => {
-            const shortcut = this.shortcut();
+        xeffect([this.shortcut], shortcut => {
             if (!shortcut) {
                 this.hotkeySubscription?.unsubscribe();
                 return;

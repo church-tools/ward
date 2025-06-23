@@ -2,7 +2,7 @@ import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, signal } from "@angular/core";
 import { Subscription } from "rxjs";
 import type { Row, TableName } from "../../shared/types";
-import { asyncComputed, multiEffect } from "../../shared/utils/signal-utils";
+import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
@@ -26,10 +26,11 @@ import { getTableService } from "./table.service";
                         (addClick)="addRow()">
                         <ng-template #itemTemplate let-row>
                             <ng-container [ngComponentOutlet]="component" 
-                                [ngComponentOutletInputs]="{ row: row }"/>
+                                [ngComponentOutletInputs]="{ row }"/>
                         </ng-template>
-                        <ng-template #insertTemplate>                
-                            <ng-container [ngComponentOutlet]="insertComponent"/>
+                        <ng-template #insertTemplate let-insert>               
+                            <ng-container [ngComponentOutlet]="insertComponent"
+                                [ngComponentOutletInputs]="{ insert }"/>
                         </ng-template>
                     </app-card-list>
                 }
@@ -55,7 +56,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     private subscription: Subscription | undefined;
 
     constructor() {
-        multiEffect([this.tableService, this.filter], (tableService, filter) => {
+        xeffect([this.tableService, this.filter], (tableService, filter) => {
             this.subscription?.unsubscribe();
             this.subscription = tableService?.observe(filter).subscribe(rows => {
                 this.items.set(rows);

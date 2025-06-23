@@ -1,4 +1,4 @@
-import { Component, forwardRef, ForwardRefFn, input, model, signal } from "@angular/core";
+import { Component, forwardRef, ForwardRefFn, input, model, output, signal } from "@angular/core";
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from "@angular/forms";
 import { Icon } from "../../icon/icon";
 
@@ -14,7 +14,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
     host: {
         'class': 'input',
         '[class.disabled]': 'disabledState()',
-        '(focusout)': 'onTouched()'
+        '(focusout)': 'onTouched(); onBlur.emit()',
     },
 })
 export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
@@ -22,9 +22,11 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
     readonly label = model<string>('');
     readonly labelIcon = input<Icon | null>(null);
     readonly placeholder = input<string>('');
+    readonly onBlur = output<void>();
 
     protected readonly value = signal<T | null>(null);
     protected readonly disabledState = signal<boolean>(false);
+
 
     private justClickedSomething = false;
 
@@ -33,6 +35,10 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
 
     writeValue(value: any): void {
         this.value.set(value);
+    }
+
+    getValue(): T | null {
+        return this.value();
     }
 
     registerOnChange(fn: (value: any) => void): void {
