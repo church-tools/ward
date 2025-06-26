@@ -21,7 +21,7 @@
         <div class="{{cardClasses()}} card-item selectable-card"
             (click)="onInsertClick()">
             <app-swap-container [swap]="inserting()" animationDuration="xs">
-                <div main>
+                <div main class="row items-center">
                     @if (insertedItem(); as insert) {
                         @if (reorderable()) {
                             <div class="drag-handle">
@@ -31,7 +31,7 @@
                         <ng-container *ngTemplateOutlet="itemTemplate();
                             context: { $implicit: insert }"/>
                     } @else {
-                        <div class="items-center center-content">
+                        <div class="full-width items-center center-content">
                             <app-icon class="m-3" icon="add"/>
                         </div>
                     }
