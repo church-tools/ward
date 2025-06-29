@@ -15,6 +15,7 @@ import { SwapContainerComponent } from '../swap-container/swap-container';
 type ItemCard<T> = {
     item: T;
     height: WritableSignal<number | null>; // 0 means hidden, null means not yet initialized
+    rect?: DOMRect; // used for animations
 }
 
 @Component({
@@ -56,20 +57,18 @@ export class CardListComponent<T> {
     private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
     private readonly initialized = new AsyncValue<boolean>();
     private insertSubscriptions: Subscription[] = [];
+    private dropped = false;
 
     constructor() {
         xeffect([this.items], items => {
             this.updateItemCards(items);
         });
         xeffect([this.cardViews], cardViews => {
-            if (!cardViews) return;
-            const itemCards = this.itemCards();
-            cardViews.forEach((card, index) => {
-                const itemCard = itemCards[index];
-                if (!itemCard) return;
-                // const newHeight = card.nativeElement.clientHeight;
-                // if (newHeight) itemCard.heighasdt.set(newHeight);
-            });
+            if (this.dropped) {
+                this.dropped = false;
+                return;
+            }
+            this.animateCardViews(cardViews);
         });
         xeffect([this.insertionView, this.inserting], async (insertionView, inserting) => {
             if (!inserting || !insertionView) {
@@ -111,7 +110,8 @@ export class CardListComponent<T> {
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
-        if (event.currentIndex === event.previousIndex) return;
+        if (event.currentIndex === event.previousIndex)
+            return;
         const itemCards = this.itemCards();
         moveItemInArray(itemCards, event.previousIndex, event.currentIndex);
         const orderByKey = this.orderByKey();
@@ -126,47 +126,65 @@ export class CardListComponent<T> {
                 : followingPosition != null ? followingPosition - 1 : 0);
         itemCard.item[orderByKey] = <any>position;
         this.orderChange.emit([itemCard.item]);
+        this.dropped = true;
     }
 
-    private async updateItemCards(items: T[]) {
+    private updateItemCards(items: T[]) {
         const newItemCards: ItemCard<T>[] = items
             .filter(item => !this.listItemsByItem.has(item))
             .map(item => ({ item, height: signal(null) }));
         const existingItemCards = this.itemCards();
-        
-        if (!newItemCards.length) {
-            if (!this.orderIsCorrect(existingItemCards)) {
-                this.sort(existingItemCards);
-                this.itemCards.set(existingItemCards);
-            }
-            return;
+        if (newItemCards.length) {
+            for (const itemCard of newItemCards)
+                this.listItemsByItem.set(itemCard.item, itemCard);
+            this.setItemCards([...existingItemCards, ...newItemCards]);
+        } else {
+            this.setItemCards(existingItemCards);
         }
-        
-        for (const itemCard of newItemCards)
-            this.listItemsByItem.set(itemCard.item, itemCard);
-        const allItemCards = [...existingItemCards, ...newItemCards];
-        
-        if (!this.orderIsCorrect(allItemCards)) {
-            this.sort(allItemCards);
-        }
-        
-        this.itemCards.set(allItemCards);
     }
 
-    private async sort(itemCards: ItemCard<T>[]) {
+    private async setItemCards(newItemCards: ItemCard<T>[]) {
+        if (!this.orderIsCorrect(newItemCards))
+            this.sort(newItemCards);
+        this.itemCards.set(newItemCards);
+    }
+
+    private animateCardViews(cardViews: readonly ElementRef<HTMLDivElement>[]) {
+        const itemCards = this.itemCards();
+        cardViews.forEach((cardView, index) => {
+            const itemCard = itemCards[index];
+            if (!itemCard) return;
+            const oldRect = itemCard.rect;
+            const newRect = cardView.nativeElement.getBoundingClientRect();
+            
+            if (oldRect && (Math.abs(oldRect.top - newRect.top) > 1 || Math.abs(oldRect.left - newRect.left) > 1)) {
+                const deltaY = oldRect.top - newRect.top;
+                const deltaX = oldRect.left - newRect.left;
+                const element = cardView.nativeElement;
+                
+                // Apply the inverse transform immediately
+                element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+                element.style.transition = 'none';
+                
+                // Force a reflow
+                element.offsetHeight;
+                
+                // Animate to the final position
+                element.style.transition = 'transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)';
+                element.style.transform = 'translate(0px, 0px)';
+                setTimeout(() => {
+                    element.style.transition = '';
+                    element.style.transform = '';
+                }, 400);
+            }
+            itemCard.rect = newRect;
+        });
+    }
+
+    private sort(itemCards: ItemCard<T>[]) {
         const orderByKey = this.orderByKey();
-        if (!orderByKey || itemCards.length <= 1) return [];
-        const getId = this.getId();
-        const originalPositions = new Map(itemCards.map((card, i) => [getId(card.item), i]));
+        if (!orderByKey || itemCards.length <= 1) return;
         itemCards.sort((a, b) => (a.item[orderByKey] as number) - (b.item[orderByKey] as number));
-        return itemCards
-            .map((card, newIndex) => ({ card, newIndex, originalIndex: originalPositions.get(getId(card.item)) }))
-            .filter(({ originalIndex, newIndex }) => originalIndex !== undefined && originalIndex !== newIndex)
-            .map(({ card, originalIndex, newIndex }) => ({
-                itemCard: card,
-                previousIndex: originalIndex!,
-                newIndex
-            }));
     }
 
     private orderIsCorrect(itemCards: ItemCard<T>[]) {
