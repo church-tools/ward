@@ -16,25 +16,14 @@
     box-sizing: border-box;
     transition: all animation.$duration-sm ease, transform 0s;
     
-    // Ensure animations don't conflict with dragging
-    // &:not(.cdk-drag-animating):not(.cdk-drag-preview) {
-    //     // FLIP animations will handle position transforms
-    //     will-change: transform;
-        
-    //     // Don't transition transform here as it's handled by FLIP animation
-    //     &:not([style*="transform"]) {
-    //         transition: background-color animation.$duration-sm ease, 
-    //                     box-shadow animation.$duration-sm ease;
-    //     }
-    // }
-    
-    // // During drag operations, disable our custom animations
-    // &.cdk-drag-animating, &.cdk-drag-preview {
-    //     transition: all animation.$duration-sm ease !important;
-    // }
-    
     &.hidden {
         opacity: 0;
+    }
+    &.new {
+        animation: fadeIn animation.$duration ease-out;
+        .add-btn {
+            animation: slideDown animation.$duration ease-out;
+        }
     }
     .drag-handle {
         opacity: 0.25;
@@ -58,7 +47,15 @@
     @include card.shadow;
 }
 
-// cdk-drag canvas-card card card-item selectable-card suppress-canvas-card-animation ng-star-inserted cdk-drag-preview cdk-drag-animating
+
+@keyframes slideDown {
+    0% {
+        transform: translateY(-20px);
+    }
+    100% {
+        transform: translateY(0);
+    }
+}
 
 @keyframes elevate {
     0% {

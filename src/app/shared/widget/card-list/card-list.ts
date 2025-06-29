@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef, WritableSignal } from '@angular/core';
 import { MaybeAsync } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
@@ -46,9 +46,11 @@ export class CardListComponent<T> {
     protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
     private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLDivElement>[]>;
     private readonly insertionView = viewChild('insertion', { read: ElementRef });
+    private readonly insertionCardView = viewChild('insertionCard', { read: ElementRef });
     
     protected readonly inserting = signal(false);
     protected readonly insertedItem = signal<T | null>(null);
+    protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
     protected readonly getId = xcomputed([this.idKey], idKey => idKey
         ? (item: T) => item[idKey]
@@ -58,6 +60,7 @@ export class CardListComponent<T> {
     private readonly initialized = new AsyncValue<boolean>();
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
+    private insertBtnHeight = 0;
 
     constructor() {
         xeffect([this.items], items => {
@@ -97,6 +100,8 @@ export class CardListComponent<T> {
     }
 
     protected onInsertClick(): void {
+        const element = this.insertionCardView()!.nativeElement;
+        this.insertBtnHeight = element.getBoundingClientRect().height;
         if (this.insertTemplate()) {
             this.inserting.set(true);
         } else {
@@ -104,9 +109,22 @@ export class CardListComponent<T> {
         }
     }
 
-    protected insert = (item: T) => {
+    protected insert = async (item: T) => {
         this.insertedItem.set(item);
         this.inserting.set(false);
+        await wait(300);
+        this.insertedItem.set(null);
+        this.newEditCard.set(true);
+        this.updateItemCards([...this.items(), item]);
+        const element = this.insertionCardView()!.nativeElement;
+        element.style.height = '0px';
+        element.offsetHeight;
+        element.style.height = `${this.insertBtnHeight}px`;
+        element.style.transition = 'height 300ms ease';
+        await wait(300);
+        element.style.transition = '';
+        element.style.height = 'auto';
+        this.newEditCard.set(false);
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
@@ -155,29 +173,29 @@ export class CardListComponent<T> {
             const itemCard = itemCards[index];
             if (!itemCard) return;
             const oldRect = itemCard.rect;
-            const newRect = cardView.nativeElement.getBoundingClientRect();
+            const newRect = itemCard.rect = cardView.nativeElement.getBoundingClientRect();
+            if (!oldRect)
+                return;
+            if (Math.abs(oldRect.top - newRect.top) <= 1 || Math.abs(oldRect.left - newRect.left) <= 1)
+                return;
+            const deltaY = oldRect.top - newRect.top;
+            const deltaX = oldRect.left - newRect.left;
+            const element = cardView.nativeElement;
             
-            if (oldRect && (Math.abs(oldRect.top - newRect.top) > 1 || Math.abs(oldRect.left - newRect.left) > 1)) {
-                const deltaY = oldRect.top - newRect.top;
-                const deltaX = oldRect.left - newRect.left;
-                const element = cardView.nativeElement;
-                
-                // Apply the inverse transform immediately
-                element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-                element.style.transition = 'none';
-                
-                // Force a reflow
-                element.offsetHeight;
-                
-                // Animate to the final position
-                element.style.transition = 'transform 400ms cubic-bezier(0.25, 0.8, 0.25, 1)';
-                element.style.transform = 'translate(0px, 0px)';
-                setTimeout(() => {
-                    element.style.transition = '';
-                    element.style.transform = '';
-                }, 400);
-            }
-            itemCard.rect = newRect;
+            // Apply the inverse transform immediately
+            element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
+            element.style.transition = 'none';
+            
+            // Force a reflow
+            element.offsetHeight;
+            
+            // Animate to the final position
+            element.style.transition = 'transform 300ms ease';
+            element.style.transform = 'translate(0px, 0px)';
+            setTimeout(() => {
+                element.style.transition = '';
+                element.style.transform = '';
+            }, 300);
         });
     }
 
