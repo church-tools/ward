@@ -5,8 +5,11 @@
             [class.subtle-text]="!windowService.focused()">Gemeinde Tools</div>
     </div>
     <app-omni-search/>
-    <div class="handle">
+    <div class="handle row items-center end-content">
         <!-- user icon -->
+        @if (additionalItems().length) {
+            <app-menu-button type="subtle" class="icon-only" [items]="additionalItems()"/>
+        }
     </div>
 </div>
 <div class="nav-and-canvas">

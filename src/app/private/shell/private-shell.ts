@@ -1,24 +1,46 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { UnitService } from '../../modules/unit/unit.service';
+import MenuButtonComponent, { MenuButtonItem } from '../../shared/form/button/menu/menu-button';
 import { ShellComponent } from '../../shared/shell/shell';
 import { SupabaseService } from '../../shared/supabase.service';
 import { privateTabs } from '../private.routes';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
+import { ProfileService } from '../../modules/profile/profile.service';
+import { xcomputed } from '../../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [RouterOutlet, NavBarComponent, OmniSearchComponent],
+    imports: [RouterOutlet, NavBarComponent, OmniSearchComponent, MenuButtonComponent],
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
+    private readonly profileService = inject(ProfileService);
+
     protected readonly authenticated = signal<boolean>(false);
-    protected readonly tabs = signal<NavBarTab[]>([]);    private readonly supabaseService = inject(SupabaseService);
+    protected readonly tabs = signal<NavBarTab[]>([]);
+    private readonly supabaseService = inject(SupabaseService);
     private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
+
+    private readonly profile = this.profileService.getOwnAsSignal();
+    protected readonly additionalItems = xcomputed([this.profile], profile => {
+        const items: MenuButtonItem[] = [];
+        if (!profile) return items;
+        if (profile.is_unit_admin) {
+            items.push({
+                label: 'Bearbeiten',
+                icon: 'edit',
+                toggle: (enabled: boolean) => {
+                    
+                }
+            });
+        }
+        return items;
+    });
 
     constructor() {
         super();

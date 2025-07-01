@@ -58,7 +58,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     constructor() {
         xeffect([this.tableService, this.filter], (tableService, filter) => {
             this.subscription?.unsubscribe();
-            this.subscription = tableService?.observe(filter).subscribe(rows => {
+            this.subscription = tableService?.observeMany(filter).subscribe(rows => {
                 this.items.set(rows);
             });
         });

@@ -13,4 +13,8 @@ export class ProfileService extends TableService<'profile'> {
     override toString(row: Profile.Row): string {
         return '' + row.id;
     }
+
+    getOwnAsSignal() {
+        return this.asSignal((row, user) => row.uid === user.id);
+    }
 }

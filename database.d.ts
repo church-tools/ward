@@ -492,18 +492,21 @@ export type Database = {
         Row: {
           created_at: string
           id: number
+          is_unit_admin: boolean
           uid: string
           unit: number | null
         }
         Insert: {
           created_at?: string
           id?: number
+          is_unit_admin?: boolean
           uid: string
           unit?: number | null
         }
         Update: {
           created_at?: string
           id?: number
+          is_unit_admin?: boolean
           uid?: string
           unit?: number | null
         }

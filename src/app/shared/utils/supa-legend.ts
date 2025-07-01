@@ -2,7 +2,7 @@ import { ListenerParams, Observable, observable, ObservableObject } from "@legen
 import { ObservablePersistIndexedDB } from "@legendapp/state/persist-plugins/indexeddb";
 import { ObservablePersistIndexedDBPluginOptions } from "@legendapp/state/sync";
 import { syncedSupabase } from "@legendapp/state/sync-plugins/supabase";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { SupabaseClient, User } from "@supabase/supabase-js";
 
 function generateUUIDv7() {
     const now = Date.now(); // Current timestamp in milliseconds
@@ -26,8 +26,10 @@ export type IDBInfo = ObservablePersistIndexedDBPluginOptions;
 export class SupaLegend<D extends Database, T extends string> {
 
     private readonly supaLegend: Observable<RecordOf<D, T>> & ObservableObject<RecordOf<D, T>>;
+    readonly user: User;
 
-    constructor(supabase: SupabaseClient<D>, tableName: T, idbInfo: IDBInfo) {
+    constructor(supabase: SupabaseClient<D>, tableName: T, user: User, idbInfo: IDBInfo) {
+        this.user = user;
         this.supaLegend = <any>observable(syncedSupabase({
             supabase,
             collection: tableName,
@@ -45,7 +47,6 @@ export class SupaLegend<D extends Database, T extends string> {
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'updated_at',
             fieldDeleted: 'deleted',
-            // as: 'object',
         }));
         this.supaLegend.get(); // Initialize the observable to ensure it starts fetching data
     }

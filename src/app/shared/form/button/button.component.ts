@@ -7,7 +7,7 @@ import ButtonBaseComponent from "./shared/button-base";
     imports: [IconComponent],
     template: `
         <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" [class]="classes()">
-            @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" class="small-btn"/> }
+            @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
             <ng-content/>
         </button>
     `,

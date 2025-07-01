@@ -95,19 +95,19 @@ button, .button {
         &:not(:disabled):not(.disabled) {
             color: font.$color;
             &:focus, &:hover {
-                background-color: font.$color 0.1;
+                background-color: font.$color-alpha-10;
             }
             &:active {
-                background-color: font.$color 0.2;
+                background-color: font.$color-alpha-20;
             }
         }
         &.invert {
             color: font.$color-inverse !important;
             &:hover {
-                background-color: font.$color-inverse 0.1 !important;
+                background-color: font.$color-inverse-alpha-10 !important;
             }
             &:active {
-                background-color: font.$color-inverse 0.2 !important;
+                background-color: font.$color-inverse-alpha-20 !important;
             }
         }
     }
@@ -188,32 +188,34 @@ button, .button {
         }
     }
     
-    &.icon-only {
-        padding: 0.125rem 0.475rem;
-        &.large {
-            padding: 0.25rem 0.625rem;
-            &.medium-icon {
-                padding: 0.25rem 0.75rem;
-            }
-        }
-        &.small {
-            padding: 0.075rem 0.45rem;
-        }
-        &.tiny {
-            padding: 0.075rem 0.25rem;
-        }
-        &.narrow {
-            min-height: 1.9rem;
-            padding: 0.15rem 0.25rem;
-            app-icon {
-                font-size: 16px !important;
-                min-height: 16px !important;
-                min-width: 16px !important;
-            }
+}
+
+.icon-only > button, .icon-only > .button {
+
+    padding: 0.125rem 0.475rem;
+    &.large {
+        padding: 0.25rem 0.625rem;
+        &.medium-icon {
+            padding: 0.25rem 0.75rem;
         }
     }
-    
-    &.round {
-        border-radius: card.$border-radius-round;
+    &.small {
+        padding: 0.075rem 0.45rem;
     }
+    &.tiny {
+        padding: 0.075rem 0.25rem;
+    }
+    &.narrow {
+        min-height: 1.9rem;
+        padding: 0.15rem 0.25rem;
+        app-icon {
+            font-size: 16px !important;
+            min-height: 16px !important;
+            min-width: 16px !important;
+        }
+    }
+}
+
+.round > button, .round > .button {
+    border-radius: card.$border-radius-round;
 }

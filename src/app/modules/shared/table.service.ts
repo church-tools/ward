@@ -4,8 +4,9 @@ import { Observable } from "rxjs";
 import { Database } from "../../../../database";
 import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
-import { IdOf, Insert, KeyWithValue, Row, TableName, Update } from "../../shared/types";
+import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
+import { findRecord } from "../../shared/utils/record-utils";
 import { SupaLegend } from "../../shared/utils/supa-legend";
 
 export async function getTableService<T extends TableName>(injector: Injector, tableName: T) {
@@ -34,14 +35,20 @@ export abstract class TableService<T extends TableName> {
 
     constructor() {
         this.supabase.getSession()
-        .then(session => {
-            this.setup(session?.user);
-        });
+        .then(session => this.setup(session?.user));
     }
 
     public async getAllById(): Promise<Record<IdOf<T>, Row<T>>> {
         const supaLegend = await this.supaLegend.get();
         return supaLegend.get() ?? new Map<IdOf<T>, Row<T>>();
+    }
+
+    public async find(filter: (row: Row<T>) => boolean): Promise<Row<T> | undefined> {
+        const supaLegend = await this.supaLegend.get();
+        const rowsById = supaLegend.get();
+        if (!rowsById) return undefined;
+        const rows = Object.values(rowsById) as Row<T>[];
+        return rows.find(filter);
     }
 
     public syncAll() {
@@ -61,7 +68,7 @@ export abstract class TableService<T extends TableName> {
         });
     }
 
-    public observe(filter?: (row: Row<T>) => boolean): Observable<Row<T>[]> {
+    public observeMany(filter?: (row: Row<T>) => boolean): Observable<Row<T>[]> {
         return new Observable<Row<T>[]>(subscriber => {
             this.supaLegend.get()
             .then(supaLegend => {
@@ -76,15 +83,25 @@ export abstract class TableService<T extends TableName> {
         });
     }
 
-    public asSignal(filter?: (row: Row<T>) => boolean) {
+    public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
         const sig = signal<Row<T>[]>([]);
         this.supaLegend.get()
         .then(supaLegend => {
-            const rows = this.getRows(supaLegend.get(), filter);
-            sig.set(rows);
+            const f = filter ? (row: Row<T>) => filter(row, supaLegend.user) : undefined;
+            sig.set(this.getRows(supaLegend.get(), f));
+            supaLegend.onChange(() => sig.set(this.getRows(supaLegend.get(), f)));
+        });
+        return sig;
+    }
+
+    public asSignal(filter: (row: Row<T>, user: User) => boolean) {
+        const sig = signal<Row<T> | undefined>(undefined);
+        this.supaLegend.get()
+        .then(supaLegend => {
+            const f = (row: Row<T>) => filter(row, supaLegend.user);
+            sig.set(findRecord(supaLegend.get(), f));
             supaLegend.onChange(() => {
-                const rows = this.getRows(supaLegend.get(), filter);
-                sig.set(rows);
+                sig.set(findRecord(supaLegend.get(), f));
             });
         });
         return sig;
@@ -111,7 +128,7 @@ export abstract class TableService<T extends TableName> {
     }
 
     private getRows(rowsById: Record<IdOf<T>, Row<T>>, filter?: (row: Row<T>) => boolean): Row<T>[] {
-        let rows = Array.from(Object.values(rowsById as { [key: string]: Row<T> }));
+        let rows = Object.values(rowsById) as Row<T>[];
         if (filter) rows = rows.filter(filter);
         const orderField = this.orderField;
         if (!orderField) return rows;
@@ -122,7 +139,7 @@ export abstract class TableService<T extends TableName> {
     
     private setup(user: User | undefined) {
         if (!user) throw 'User not authenticated, syncing will not work';
-        this.supaLegend.set(new SupaLegend(this.supabase.client, this.tableName, {
+        this.supaLegend.set(new SupaLegend(this.supabase.client, this.tableName, user, {
             databaseName: `${environment.appId}-${user.id}`,
             version: 1,
             tableNames: ['agenda', 'profile'],

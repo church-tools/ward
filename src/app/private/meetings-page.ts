@@ -18,7 +18,7 @@ export class MeetingsPageComponent extends PageComponent {
 
     private readonly agendaService = inject(AgendaService);
 
-    protected readonly agendas = this.agendaService.asSignal();
+    protected readonly agendas = this.agendaService.manyAsSignal();
     
     protected addAgenda = async () => {
         await this.agendaService.create({ name: "", unit: 18 });
