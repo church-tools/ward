@@ -2,19 +2,19 @@ import { Component, inject } from '@angular/core';
 import { Agenda } from '../modules/agenda/agenda';
 import { AgendaService } from '../modules/agenda/agenda.service';
 import { RowCardListComponent } from "../modules/shared/row-card-list";
-import { PageComponent } from '../shared/page/page';
+import { PrivatePageComponent } from './shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
     template: `
-        <span class="display-text">Sitzungen</span>
-        <app-row-card-list tableName="agenda" [editable]="true"/>
+        <span class="h0">Sitzungen</span>
+        <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"/>
     `,
     styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
     imports: [RowCardListComponent],
 })
-export class MeetingsPageComponent extends PageComponent {
+export class MeetingsPageComponent extends PrivatePageComponent {
 
     private readonly agendaService = inject(AgendaService);
 

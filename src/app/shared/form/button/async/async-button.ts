@@ -56,10 +56,11 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
     }
 
     press(event?: UIEvent) {
-        if (this.errorMessage().getError())
-            this.errorMessage().setError(null);
         event?.preventDefault();
         event?.stopPropagation();
+        if (!this.isRealClick()) return;
+        if (this.errorMessage().getError())
+            this.errorMessage().setError(null);
         if (this.inProgress()) return;
         this.success.set(null);
         this.inProgress.set(true);

@@ -2,6 +2,7 @@
 @use 'shadow';
 
 $background-color: light-dark(#f6f6f6, #323232);
+$background-color-transparent: light-dark(rgba(#f6f6f6, 0.5), rgba(#323232, 0.25));
 $hover-background-color: light-dark(#ffffff, #373737);
 
 $background-transparent-color: light-dark(rgba(#ffffff, 0.6), rgba(#484848, 0.333));

@@ -1,6 +1,9 @@
-import { Component, forwardRef, ForwardRefFn, input, model, output, signal } from "@angular/core";
+import { Component, forwardRef, ForwardRefFn, input, model, output, signal, viewChild } from "@angular/core";
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from "@angular/forms";
 import { Icon } from "../../icon/icon";
+import InputLabelComponent from "./input-label";
+import ErrorMessageComponent from "../../widget/error-message/error-message";
+import { xeffect } from "../../utils/signal-utils";
 
 export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
@@ -19,9 +22,15 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
 })
 export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
 
-    readonly label = model<string>('');
-    readonly labelIcon = input<Icon | null>(null);
+    private readonly labelView = viewChild(InputLabelComponent);
+    protected readonly errorView = viewChild(ErrorMessageComponent);
+
+    readonly label = model<string | undefined>();
+    readonly labelIcon = input<Icon | undefined>();
+    readonly info = input<string | undefined>();
     readonly placeholder = input<string>('');
+    readonly required = input<boolean>(false);
+    readonly indicateRequired = input<boolean>(true);
     readonly onBlur = output<void>();
 
     protected readonly value = signal<T | null>(null);
@@ -32,6 +41,14 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
 
     private onChange = (value: any) => {};
     private onTouched = () => {};
+
+    constructor() {
+        xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label!));
+        xeffect([this.labelView, this.labelIcon], (labelView, icon) => labelView?.icon.set(icon));
+        xeffect([this.labelView, this.info], (labelView, info) => labelView?.info.set(info));
+        xeffect([this.labelView, this.required, this.indicateRequired, this.disabledState],
+            (labelView, required, indicateRequired, disabledState) => labelView?.required.set(!!required && !!indicateRequired && !disabledState));
+    }
 
     writeValue(value: any): void {
         this.value.set(value);

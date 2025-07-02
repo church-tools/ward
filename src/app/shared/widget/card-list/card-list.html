@@ -1,7 +1,7 @@
 <div class="card-list-header">
 
 </div>
-<div #container class="card-item-container column gap-2"
+<div #container class="card-item-container column gap-{{gap()}}"
     cdkDropList (cdkDropListDropped)="onDrop($event)">
     @for (itemCard of itemCards(); track getId()(itemCard.item)) {
         <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"

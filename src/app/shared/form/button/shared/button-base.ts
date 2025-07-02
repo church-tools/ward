@@ -13,7 +13,7 @@ export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';
 })
 export default abstract class ButtonBaseComponent implements OnDestroy {
 
-    readonly icon = input<Icon>() as InputSignal<Icon>;
+    readonly icon = input<Icon>();
     readonly iconSize = input<IconSize>('smaller');
     readonly iconFilled = input(false);
     readonly iconColored = input(false);
@@ -33,6 +33,7 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     
     protected readonly windowService = inject(WindowService);
     private hotkeySubscription: Subscription | undefined;
+    private justClickedSomething = false;
 
     constructor() {
         xeffect([this.shortcut, this.shortcutNeedsCtrl], (shortcut, shortcutNeedsCtrl) => {
@@ -50,4 +51,13 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     }
 
     abstract execute(): void;
+    
+    
+    protected isRealClick() {
+        if (this.justClickedSomething)
+            return false;
+        this.justClickedSomething = true;
+        setTimeout(() => this.justClickedSomething = false, 200);
+        return true;
+    }
 }

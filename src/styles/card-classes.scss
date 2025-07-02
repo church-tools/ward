@@ -65,7 +65,7 @@
 
         @each $color in color.$names {
             &.#{"" + $color} {
-                background-color: map.get(color.$backgrounds, $color) color.$alpha-66;
+                background-color: map.get(color.$backgrounds, $color) light-dark(0.6, 0.33);
                 color: map.get(color.$foregrounds, $color);
             }
         }
@@ -125,7 +125,7 @@
     border-radius: $border-radius;
     gap: 0.25rem;
     border: 1px solid color.$canvas-border;
-    background-color: $background-color color.$alpha-50;
+    background-color: $background-color-transparent;
 }
 
 .divider-border-top {

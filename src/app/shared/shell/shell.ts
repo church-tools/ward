@@ -20,17 +20,18 @@ export const pageAnimations = trigger('routeAnimations', [
         query(':enter', [
             style({
                 opacity: 0,
-                transform: 'translateY(50px)'
+                transform: 'translateY(100px)'
             })
         ], { optional: true }),
         group([
             query(':leave', [
-                animate('200ms ease', style({
+                animate('100ms cubic-bezier(0.55, 0.055, 0.675, 0.19)', style({
                     opacity: 0,
+                    // transform: 'scale(0.98)'
                 }))
             ], { optional: true }),
             query(':enter', [
-                animate('300ms ease', style({
+                animate('300ms 100ms cubic-bezier(0.075, 0.82, 0.165, 1)', style({
                     opacity: 1,
                     transform: 'translateY(0)'
                 }))

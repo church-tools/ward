@@ -1,13 +1,16 @@
 @use "input";
+@use "font";
+@use "color";
 @use "animation";
+@use 'sass:map';
 
 .switch {
     position: relative;
     display: inline-flex;
     vertical-align: middle;
     border-radius: 10000px;
-    color: light-dark(input.$strong-border-color, input.$strong-border-color-dark);
-    border: 1px solid light-dark(input.$strong-border-color, input.$strong-border-color-dark);
+    color: input.$strong-border-color;
+    border: 1px solid input.$strong-border-color;
     width: 40px;
     height: 20px;
     margin: 8px;
@@ -24,7 +27,7 @@
     &.checked {
         border-color: transparent;
         svg {
-            @extend .inverse-font-color;
+            color: font.$color-inverse;
             transform: translateX(20px);
         }
     }
@@ -50,7 +53,7 @@
 
     &.is-invalid, &.ng-invalid.ng-touched {
         .switch {
-            @extend .danger-border;
+            border-color: map-get(color.$foregrounds, danger);
         }
     }
 }

@@ -26,8 +26,8 @@ import { Icon, IconComponent } from '../../icon/icon';
 })
 export default class InputLabelComponent {
 
-    readonly icon = model<Icon | null>(null);
-    readonly label = model<string>('');
+    readonly icon = model<Icon | undefined>();
+    readonly label = model<string | undefined>();
     readonly required = model(false);
-    readonly info = signal('');
+    readonly info = signal<string | undefined>(undefined);
 }

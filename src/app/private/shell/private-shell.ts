@@ -1,14 +1,15 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { ProfileService } from '../../modules/profile/profile.service';
 import { UnitService } from '../../modules/unit/unit.service';
 import MenuButtonComponent, { MenuButtonItem } from '../../shared/form/button/menu/menu-button';
 import { ShellComponent } from '../../shared/shell/shell';
 import { SupabaseService } from '../../shared/supabase.service';
+import { xcomputed, xeffect } from '../../shared/utils/signal-utils';
 import { privateTabs } from '../private.routes';
+import { PrivatePageComponent } from '../shared/private-page';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
-import { ProfileService } from '../../modules/profile/profile.service';
-import { xcomputed } from '../../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-private-shell',
@@ -20,8 +21,11 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     private readonly profileService = inject(ProfileService);
 
+    private readonly routerOutlet = viewChild.required(RouterOutlet);
+
     protected readonly authenticated = signal<boolean>(false);
     protected readonly tabs = signal<NavBarTab[]>([]);
+    protected readonly editMode = signal(false);
     private readonly supabaseService = inject(SupabaseService);
     private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
@@ -34,9 +38,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
             items.push({
                 label: 'Bearbeiten',
                 icon: 'edit',
-                toggle: (enabled: boolean) => {
-                    
-                }
+                toggle: this.editMode,
             });
         }
         return items;
@@ -45,11 +47,19 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     constructor() {
         super();
         this.authenticate();
+        xeffect([this.routerOutlet, this.editMode], (outlet, editMode) => {
+            if (!outlet?.isActivated) return;
+            (outlet.component as PrivatePageComponent | undefined)?.editMode.set(editMode ?? false);
+        });
     }
     
     async ngOnInit() {
         this.tabs.set(privateTabs.map(({ path, label, icon }) =>
             <NavBarTab>{ path, label, icon }));
+    }
+
+    protected onOutletLoaded(pageComponent: PrivatePageComponent) {
+        pageComponent.editMode.set(this.editMode());
     }
 
     private async authenticate() {

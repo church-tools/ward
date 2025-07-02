@@ -1,16 +1,16 @@
 import { Component } from '@angular/core';
-import { PageComponent } from '../shared/page/page';
+import { PrivatePageComponent } from './shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
     template: `
-        <span class="display-text">Gottesdienst</span>
+        <span class="h0">Gottesdienst</span>
         <p>Service component content goes here.</p>
     `,
     styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
 })
-export class ChurchServicePageComponent extends PageComponent {
+export class ChurchServicePageComponent extends PrivatePageComponent {
 
     constructor() {
         super();

@@ -2,20 +2,21 @@
 <html>
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ward Tools</title>
   <script type="text/javascript">
-    var pathSegmentsToKeep = 1;
-    
-    var l = window.location;
-    var pathname = l.pathname;
+    const pathSegmentsToKeep = 1;
+
+    const l = window.location;
+    const pathname = l.pathname;
     if (pathname === '/ward/' || pathname === '/ward') {
       l.replace(l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + '/ward/');
     } else {
-      var redirectPath = pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
-      var redirectSearch = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
-      var redirectHash = l.hash;
-      
-      var newUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') + 
+      const redirectPath = pathname.slice(1).split('/').slice(pathSegmentsToKeep).join('/').replace(/&/g, '~and~');
+      const redirectSearch = l.search ? '&' + l.search.slice(1).replace(/&/g, '~and~') : '';
+      const redirectHash = l.hash;
+
+      const newUrl = l.protocol + '//' + l.hostname + (l.port ? ':' + l.port : '') +
                    '/ward/?/' + redirectPath + redirectSearch + redirectHash;
       
       l.replace(newUrl);

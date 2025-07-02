@@ -5,10 +5,14 @@
             [class.subtle-text]="!windowService.focused()">Gemeinde Tools</div>
     </div>
     <app-omni-search/>
-    <div class="handle row items-center end-content">
+    <div class="handle row items-center end-content gap-1">
         <!-- user icon -->
         @if (additionalItems().length) {
-            <app-menu-button type="subtle" class="icon-only" [items]="additionalItems()"/>
+            @if (editMode()) {
+                <span>Bearbeitungsmodus</span>
+            }
+            <app-menu-button type="subtle" class="icon-only"
+                [items]="additionalItems()" alignment="left"/>
         }
     </div>
 </div>
@@ -16,7 +20,7 @@
     <app-nav-bar [tabs]="tabs()" [horizontal]="windowService.isSmall()"/>
     <div class="canvas-container transparent-canvas-background">
         <div [@routeAnimations]="getRouteAnimationData()" class="canvas">
-            <router-outlet/>
+            <router-outlet (activate)="onOutletLoaded($event)"/>
         </div>
     </div>
 </div>

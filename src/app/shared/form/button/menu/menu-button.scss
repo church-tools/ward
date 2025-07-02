@@ -1,0 +1,22 @@
+@use 'input';
+@use 'animation';
+
+:host {
+    position: relative;
+}
+.menu-popup {
+    animation: appearDropdown 0.1s ease;
+    position: absolute;
+    z-index: 1;
+    padding: input.$padding-y input.$padding-x;
+    &.fading {
+        animation: disappearDropdown 0.1s ease;
+        opacity: 0;
+    }
+    .menu-item {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 0.5rem;
+    }
+}

@@ -17,8 +17,9 @@ export default class ButtonComponent extends ButtonBaseComponent implements OnDe
     protected readonly onClick = output<UIEvent | null>();
 
     protected click(event: UIEvent) {
-        this.onClick.emit(event);
         event.preventDefault();
+        if (!this.isRealClick()) return;
+        this.onClick.emit(event);
     }
 
     execute() {

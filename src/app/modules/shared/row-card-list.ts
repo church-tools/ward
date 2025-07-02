@@ -19,6 +19,7 @@ import { getTableService } from "./table.service";
                         [cardClasses]="cardClasses()"
                         [reorderable]="editable()"
                         [editable]="editable()"
+                        [gap]="gap()"
                         idKey="id"
                         [orderByKey]="service.orderField"
                         [getFilterText]="service.toString"
@@ -45,6 +46,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     
     readonly tableName = input.required<T>();
     readonly editable = input(false);
+    readonly gap = input(2);
     readonly filter = input<(row: Row<T>) => boolean>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 

@@ -4,6 +4,7 @@
     <meta charset="utf-8">
     <meta lang="de"/>
     <title>Gemeinde Tools</title>
+    <base href="/">
     <link rel="apple-touch-icon" href="assets/favicon/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <meta name="theme-color" content="#e8e8e8"/>
@@ -22,12 +23,8 @@
     <script type="text/javascript">
         (function(l) {
             if (l.search && l.search[1] === '/') {
-                var decoded = l.search.slice(1).split('&').map(function(s) { 
-                return s.replace(/~and~/g, '&')
-                }).join('?');
-                window.history.replaceState(null, null,
-                    l.pathname.slice(0, -1) + decoded + l.hash
-                );
+                const decoded = l.search.slice(1).split('&').map(s => s.replace(/~and~/g, '&')).join('?');
+                window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
             }
         }(window.location));
         if (window.matchMedia('(prefers-color-scheme: dark)').matches)
@@ -39,8 +36,8 @@
         function hideLoadingScreen() {
             if (fontLoaded && viewInitialized) {
                 const pageLoading = document.querySelector('.page-loading');
-                pageLoading.classList.add('hidden');
-                setTimeout(function() { pageLoading.remove() }, 1000);
+                pageLoading?.classList.add('hidden');
+                setTimeout(function() { pageLoading?.remove() }, 1000);
             }
         }
 

@@ -1,7 +1,7 @@
 import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { copyToClipboard } from '../../utils/clipboard-utils';
-import ButtonComponent from "../button/button.component";
+import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 

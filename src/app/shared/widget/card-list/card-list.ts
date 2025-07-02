@@ -30,6 +30,7 @@ export class CardListComponent<T> {
 
     readonly items = input.required<T[]>();
     readonly editable = input(false);
+    readonly gap = input(2);
     readonly idKey = input<keyof T | null>(null); // KeyWithValue<T, number | string> | null
     readonly orderByKey = input<KeyWithValue<T, number> | null | undefined>();
     readonly reorderable = input<boolean>(false);
