@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef, WritableSignal } from '@angular/core';
-import { MaybeAsync } from '@angular/router';
+import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { MaybeAsync, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
@@ -20,7 +20,7 @@ type ItemCard<T> = {
 
 @Component({
     selector: 'app-card-list',
-    imports: [NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent],
+    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent],
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
@@ -37,6 +37,7 @@ export class CardListComponent<T> {
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly itemInserted = input<(item: T) => MaybeAsync<void>>();
+    readonly getUrl = input<(item: T) => string>();
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -45,7 +46,7 @@ export class CardListComponent<T> {
 
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
-    private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLDivElement>[]>;
+    private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLElement>[]>;
     private readonly insertionView = viewChild('insertion', { read: ElementRef });
     private readonly insertionCardView = viewChild('insertionCard', { read: ElementRef });
     
@@ -168,7 +169,7 @@ export class CardListComponent<T> {
         this.itemCards.set(newItemCards);
     }
 
-    private animateCardViews(cardViews: readonly ElementRef<HTMLDivElement>[]) {
+    private animateCardViews(cardViews: readonly ElementRef<HTMLElement>[]) {
         const itemCards = this.itemCards();
         cardViews.forEach((cardView, index) => {
             const itemCard = itemCards[index];

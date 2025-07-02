@@ -23,6 +23,7 @@ import { getTableService } from "./table.service";
                         idKey="id"
                         [orderByKey]="service.orderField"
                         [getFilterText]="service.toString"
+                        [getUrl]="getUrl()"
                         (orderChange)="updateRowPositions($event)"
                         (addClick)="addRow()">
                         <ng-template #itemTemplate let-row>
@@ -47,6 +48,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly tableName = input.required<T>();
     readonly editable = input(false);
     readonly gap = input(2);
+    readonly getUrl = input<(row: Row<T>) => string>();
     readonly filter = input<(row: Row<T>) => boolean>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 

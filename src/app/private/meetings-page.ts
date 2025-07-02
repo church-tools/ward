@@ -8,7 +8,8 @@ import { PrivatePageComponent } from './shared/private-page';
     selector: 'app-meetings-page',
     template: `
         <span class="h0">Sitzungen</span>
-        <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"/>
+        <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"
+            [getUrl]="getUrl"/>
     `,
     styleUrls: ['../shared/page/page.scss'],
     host: { class: 'narrow' },
@@ -27,4 +28,6 @@ export class MeetingsPageComponent extends PrivatePageComponent {
     protected async updateAgendas(agendas: Agenda.Row[]) {
         await this.agendaService.upsert(agendas);
     }
+
+    protected getUrl = (agenda: Agenda.Row) => `/meetings/${agenda.id}`;
 }

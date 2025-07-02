@@ -16,7 +16,5 @@ import { PrivatePageComponent } from '../shared/private-page';
 export class AgendaPageComponent extends PrivatePageComponent {
 
     private readonly agendaService = inject(AgendaService);
-
-    protected readonly agendas = this.agendaService.manyAsSignal();
     
 }

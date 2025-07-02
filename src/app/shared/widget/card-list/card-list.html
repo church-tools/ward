@@ -3,19 +3,36 @@
 </div>
 <div #container class="card-item-container column gap-{{gap()}}"
     cdkDropList (cdkDropListDropped)="onDrop($event)">
-    @for (itemCard of itemCards(); track getId()(itemCard.item)) {
-        <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
-            [class.hidden]="itemCard.height() === 0"
-            [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
-            (click)="onItemClick(itemCard)">
-            @if (reorderable()) {
-                <div class="drag-handle">
-                    <app-icon icon="re_order_dots_vertical"/>
-                </div>
-            }
-            <ng-container *ngTemplateOutlet="itemTemplate();
-                context: { $implicit: itemCard.item }"/>
-        </div>
+    @if (getUrl()) {
+        @for (itemCard of itemCards(); track getId()(itemCard.item)) {
+            <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)" class="{{cardClasses()}} stealth card-item selectable-card"
+                [class.hidden]="itemCard.height() === 0"
+                [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
+                (click)="onItemClick(itemCard)">
+                @if (reorderable()) {
+                    <div class="drag-handle">
+                        <app-icon icon="re_order_dots_vertical"/>
+                    </div>
+                }
+                <ng-container *ngTemplateOutlet="itemTemplate();
+                    context: { $implicit: itemCard.item }"/>
+            </a>
+        }
+    } @else {
+        @for (itemCard of itemCards(); track getId()(itemCard.item)) {
+            <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
+                [class.hidden]="itemCard.height() === 0"
+                [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
+                (click)="onItemClick(itemCard)">
+                @if (reorderable()) {
+                    <div class="drag-handle">
+                        <app-icon icon="re_order_dots_vertical"/>
+                    </div>
+                }
+                <ng-container *ngTemplateOutlet="itemTemplate();
+                    context: { $implicit: itemCard.item }"/>
+            </div>
+        }
     }
     @if (editable()) {
         <div #insertionCard class="{{cardClasses()}} card-item selectable-card" [class.new]="newEditCard()"
