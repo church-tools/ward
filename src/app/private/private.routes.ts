@@ -1,5 +1,6 @@
 import { Type } from "@angular/core";
 import { Route, Routes } from "@angular/router";
+import { Icon } from "../shared/icon/icon";
 import { PrivatePageComponent } from "./shared/private-page";
 
 type PrivateRoute = {
@@ -9,12 +10,12 @@ type PrivateRoute = {
 
 export type PrivateTab = PrivateRoute & {
     label: string;
-    icon: string;
+    icon: Icon;
 };
 
 export const privateTabs: { [path: string]: PrivateTab } = {
     meetings: {
-        label: 'Sitzungen', icon: 'people_audience',
+        label: 'Sitzungen', icon: 'chat_multiple',
         loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPageComponent),
         ':agenda': {
             loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),

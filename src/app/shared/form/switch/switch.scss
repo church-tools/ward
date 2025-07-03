@@ -53,7 +53,7 @@
 
     &.is-invalid, &.ng-invalid.ng-touched {
         .switch {
-            border-color: map-get(color.$foregrounds, danger);
+            border-color: map.get(color.$foregrounds, danger);
         }
     }
 }
