@@ -1,14 +1,9 @@
-import { Type } from "@angular/core";
-import { Route, Routes } from "@angular/router";
+import { Routes } from "@angular/router";
 import { Icon } from "../shared/icon/icon";
+import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
 import { PrivatePageComponent } from "./shared/private-page";
 
-type PrivateRoute = {
-    loadComponent: () => Promise<Type<PrivatePageComponent>>;
-    childrenInside?: boolean; // If true, the component will be displayed when children are loaded
-} | { [childPath: string]: PrivateRoute };
-
-export type PrivateTab = PrivateRoute & {
+export type PrivateTab = RouteObject<PrivatePageComponent> & {
     label: string;
     icon: Icon;
 };
@@ -42,17 +37,5 @@ export const privateTabs: { [path: string]: PrivateTab } = {
 export const privateRoutes: Routes = [{ 
     path: '', 
     loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
-    children: mapRoutes(privateTabs),
+    children: mapRouteObject(privateTabs),
 }];
-
-function mapRoutes(routes?: { [path: string]: PrivateRoute }): Routes {
-    return Object.entries(routes ?? {})
-        .filter(([, { loadComponent }]) => !!loadComponent)
-        .map(([path, { loadComponent, childrenInside, ...children }]) => <Route>{
-            path,
-            loadComponent,
-            data: { animation: path },
-            pathMatch: childrenInside ? 'prefix' : 'full',
-            children: mapRoutes(children),
-        });
-}
