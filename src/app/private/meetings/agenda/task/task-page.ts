@@ -4,7 +4,7 @@ import { PrivatePageComponent } from '../../../shared/private-page';
 @Component({
     selector: 'app-task-page',
     template: `
-        <span class="h0">??</span>
+        <span class="h0">???</span>
         Test
         <!-- <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"/> -->
     `,

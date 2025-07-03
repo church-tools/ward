@@ -34,7 +34,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     },
 };
 
-export const privateRoutes: Routes = [{ 
+export const privateRoutes: Routes = [{
     path: '', 
     loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
     children: mapRouteObject(privateTabs),

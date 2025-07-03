@@ -38,6 +38,12 @@ export abstract class TableService<T extends TableName> {
         .then(session => this.setup(session?.user));
     }
 
+    public async get(id: IdOf<T>): Promise<Row<T> | undefined> {
+        const supaLegend = await this.supaLegend.get();
+        const rowsById = supaLegend.get();
+        return rowsById?.[id] as Row<T> | undefined;
+    }
+
     public async getAllById(): Promise<Record<IdOf<T>, Row<T>>> {
         const supaLegend = await this.supaLegend.get();
         return supaLegend.get() ?? new Map<IdOf<T>, Row<T>>();
