@@ -25,7 +25,7 @@ export const pageAnimations = trigger('routeAnimations', [
         ], { optional: true }),
         group([
             query(':leave', [
-                animate('100ms cubic-bezier(0.55, 0.055, 0.675, 0.19)', style({
+                animate('150ms cubic-bezier(0.55, 0.055, 0.675, 0.19)', style({
                     opacity: 0,
                     // transform: 'scale(0.98)'
                 }))

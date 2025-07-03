@@ -5,11 +5,11 @@
             [class.subtle-text]="!windowService.focused()">Gemeinde Tools</div>
     </div>
     <app-omni-search/>
-    <div class="handle row items-center end-content gap-1">
+    <div class="handle row no-wrap items-center end-content gap-1">
         <!-- user icon -->
         @if (additionalItems().length) {
             @if (editMode()) {
-                <span>Bearbeitungsmodus</span>
+                <span class="overflow-ellipsis">Bearbeitungsmodus</span>
             }
             <app-menu-button type="subtle" class="icon-only"
                 [items]="additionalItems()" alignment="left"/>

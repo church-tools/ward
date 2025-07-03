@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
-import { Agenda } from '../modules/agenda/agenda';
-import { AgendaService } from '../modules/agenda/agenda.service';
-import { RowCardListComponent } from "../modules/shared/row-card-list";
-import { PrivatePageComponent } from './shared/private-page';
+import { Agenda } from '../../modules/agenda/agenda';
+import { AgendaService } from '../../modules/agenda/agenda.service';
+import { RowCardListComponent } from '../../modules/shared/row-card-list';
+import { PrivatePageComponent } from '../shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
@@ -11,7 +11,7 @@ import { PrivatePageComponent } from './shared/private-page';
         <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"
             [getUrl]="getUrl"/>
     `,
-    styleUrls: ['../shared/page/page.scss'],
+    styleUrls: ['../../shared/page/page.scss'],
     host: { class: 'narrow' },
     imports: [RowCardListComponent],
 })

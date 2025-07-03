@@ -54,7 +54,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     }
     
     async ngOnInit() {
-        this.tabs.set(privateTabs.map(({ path, label, icon }) =>
+        this.tabs.set(Object.entries(privateTabs).map(([path, { label, icon }]) =>
             <NavBarTab>{ path, label, icon }));
     }
 

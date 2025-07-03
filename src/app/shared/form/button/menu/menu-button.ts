@@ -79,14 +79,15 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     }
 
     protected toggle() {
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = undefined;
+        }
         this.setVisibility(!this.visible());
-        const elem: HTMLElement = this.elementRef.nativeElement;
         if (this.visible()) {
-            elem.addEventListener('mouseenter', () => this.setVisibilityFromMouse(true));
-            elem.addEventListener('mouseleave', () => this.setVisibilityFromMouse(false));
-        } else {
-            elem.removeEventListener('mouseenter', () => this.setVisibilityFromMouse(true));
-            elem.removeEventListener('mouseleave', () => this.setVisibilityFromMouse(false));
+            const elem: HTMLElement = this.elementRef.nativeElement;
+            elem.addEventListener('mouseenter', this.setVisibilityFromMouse.bind(this, true));
+            elem.addEventListener('mouseleave', this.setVisibilityFromMouse.bind(this, false));
         }
     }
 
@@ -106,6 +107,11 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         if (this.visible() === visible) return;
         this.visible.set(visible);
         this.fading.set(!visible);
+        if (!visible) {
+            const elem: HTMLElement = this.elementRef.nativeElement;
+            elem.removeEventListener('mouseenter', this.setVisibilityFromMouse.bind(this, true));
+            elem.removeEventListener('mouseleave', this.setVisibilityFromMouse.bind(this, false));
+        }
         if (this.fading())
             setTimeout(() => this.fading.set(false), 100);
     }

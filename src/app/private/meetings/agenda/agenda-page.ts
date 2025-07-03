@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { AgendaService } from '../../modules/agenda/agenda.service';
-import { PrivatePageComponent } from '../shared/private-page';
+import { AgendaService } from '../../../modules/agenda/agenda.service';
+import { PrivatePageComponent } from '../../shared/private-page';
 
 @Component({
     selector: 'app-agenda-page',
@@ -9,7 +9,7 @@ import { PrivatePageComponent } from '../shared/private-page';
         Test
         <!-- <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"/> -->
     `,
-    styleUrls: ['../../shared/page/page.scss'],
+    styleUrls: ['../../../shared/page/page.scss'],
     host: { class: 'narrow' },
     imports: [],
 })
