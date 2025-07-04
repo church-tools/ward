@@ -1,12 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, signal } from "@angular/core";
 import { Subscription } from "rxjs";
-import type { Row, TableName } from "../../shared/types";
+import type { Insert, Row, TableName } from "../../shared/types";
 import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
-import { getTableService } from "./table.service";
+import { getTableService, RowRecords } from "./table.service";
 
 @Component({
     selector: 'app-row-card-list',
@@ -15,7 +15,7 @@ import { getTableService } from "./table.service";
             @if (rowComponent(); as component) {
                 @if (insertComponent(); as insertComponent) {
                     <app-card-list
-                        [items]="items()"
+                        [itemsById]="rowRecords()"
                         [cardClasses]="cardClasses()"
                         [reorderable]="editable()"
                         [editable]="editable()"
@@ -25,14 +25,18 @@ import { getTableService } from "./table.service";
                         [getFilterText]="service.toString"
                         [getUrl]="getUrl()"
                         (orderChange)="updateRowPositions($event)"
-                        (addClick)="addRow()">
+                        [insertRow]="insertRow">
                         <ng-template #itemTemplate let-row>
                             <ng-container [ngComponentOutlet]="component" 
                                 [ngComponentOutletInputs]="{ row }"/>
                         </ng-template>
-                        <ng-template #insertTemplate let-insert>               
+                        <ng-template #insertTemplate let-functions>               
                             <ng-container [ngComponentOutlet]="insertComponent"
-                                [ngComponentOutletInputs]="{ insert }"/>
+                                [ngComponentOutletInputs]="{
+                                    insert: functions.insert,
+                                    cancel: functions.cancel,
+                                    prepareInsert: this.prepareInsert()
+                                }"/>
                         </ng-template>
                     </app-card-list>
                 }
@@ -50,29 +54,31 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly gap = input(2);
     readonly getUrl = input<(row: Row<T>) => string>();
     readonly filter = input<(row: Row<T>) => boolean>();
+    readonly prepareInsert = input<(row: Insert<T>) => void>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
     protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
     protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);
     protected readonly insertComponent = asyncComputed([this.tableName], getListInsertComponent);
 
-    protected readonly items = signal<Row<T>[]>([]);
+    protected readonly rowRecords = signal<RowRecords<T>>({});
     private subscription: Subscription | undefined;
 
     constructor() {
         xeffect([this.tableService, this.filter], (tableService, filter) => {
             this.subscription?.unsubscribe();
-            this.subscription = tableService?.observeMany(filter).subscribe(rows => {
-                this.items.set(rows);
-            });
+            this.subscription = tableService?.observeMany(filter)
+                .subscribe(rowRecords => this.rowRecords.set(rowRecords));
         });
     }
 
-    protected addRow = async () => {
+    protected insertRow = async (row: Insert<T>) => {
+        const tableService = this.tableService()!;
+        return await tableService.insertRow(row);
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {
-        await this.tableService()!.saveRows(rows, this.tableService()!.orderField!);
+        await this.tableService()!.updateRows(rows, this.tableService()!.orderField!);
     }
 
     ngOnDestroy(): void {

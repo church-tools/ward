@@ -1,4 +1,4 @@
-import { Component, InputSignal, OnDestroy, inject, input, signal } from "@angular/core";
+import { Component, OnDestroy, inject, input, signal } from "@angular/core";
 import { Subscription } from "rxjs";
 import { Icon, IconSize } from "../../../icon/icon";
 import { ColorName } from "../../../utils/color-utitls";

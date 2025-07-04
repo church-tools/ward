@@ -140,6 +140,9 @@ h6, .h6 {
 .muted-text {
     color: $color-muted;
 }
+.translucent-text {
+    color: $color-alpha-30;
+}
 .subtle-text {
     color: $color-subtle;
 }

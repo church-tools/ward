@@ -2,3 +2,7 @@
 ::root {
     --colorNeutralBackground1: #f8f9fa;
 }
+
+:host {
+    max-height: min-content;
+}

@@ -1,6 +1,10 @@
 :host {
+    max-width: 800px;
+    width: 100%;
     &.narrow {
-        max-width: 800px;
-        width: 100%;
+        max-width: 600px;
+    }
+    &.wide {
+        max-width: 1200px;
     }
 }

@@ -47,54 +47,6 @@ export type Database = {
           },
         ]
       }
-      agenda_item: {
-        Row: {
-          content: string | null
-          created_at: string
-          created_by: number
-          id: number
-          modified_at: string
-          title: string | null
-          unit: number
-          uuid: string
-        }
-        Insert: {
-          content?: string | null
-          created_at?: string
-          created_by: number
-          id: number
-          modified_at?: string
-          title?: string | null
-          unit: number
-          uuid: string
-        }
-        Update: {
-          content?: string | null
-          created_at?: string
-          created_by?: number
-          id?: number
-          modified_at?: string
-          title?: string | null
-          unit?: number
-          uuid?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agenda_item_unit_created_by_fkey"
-            columns: ["unit", "created_by"]
-            isOneToOne: false
-            referencedRelation: "member"
-            referencedColumns: ["unit", "id"]
-          },
-          {
-            foreignKeyName: "agenda_item_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       calling: {
         Row: {
           caller: Database["public"]["Enums"]["calling_caller"]
@@ -491,24 +443,30 @@ export type Database = {
       profile: {
         Row: {
           created_at: string
+          deleted: boolean
           id: number
           is_unit_admin: boolean
           uid: string
           unit: number | null
+          updated_at: string
         }
         Insert: {
           created_at?: string
+          deleted?: boolean
           id?: number
           is_unit_admin?: boolean
           uid: string
           unit?: number | null
+          updated_at?: string
         }
         Update: {
           created_at?: string
+          deleted?: boolean
           id?: number
           is_unit_admin?: boolean
           uid?: string
           unit?: number | null
+          updated_at?: string
         }
         Relationships: [
           {
@@ -597,6 +555,67 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "sacrament_meeting"
             referencedColumns: ["date"]
+          },
+        ]
+      }
+      task: {
+        Row: {
+          agenda: number
+          content: string | null
+          created_at: string
+          created_by: number
+          deleted: boolean
+          id: number
+          position: number
+          title: string | null
+          unit: number
+          updated_at: string
+        }
+        Insert: {
+          agenda: number
+          content?: string | null
+          created_at?: string
+          created_by: number
+          deleted?: boolean
+          id: number
+          position?: number
+          title?: string | null
+          unit: number
+          updated_at?: string
+        }
+        Update: {
+          agenda?: number
+          content?: string | null
+          created_at?: string
+          created_by?: number
+          deleted?: boolean
+          id?: number
+          position?: number
+          title?: string | null
+          unit?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_item_unit_created_by_fkey"
+            columns: ["unit", "created_by"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["unit", "id"]
+          },
+          {
+            foreignKeyName: "agenda_item_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_agenda_unit_fkey"
+            columns: ["agenda", "unit"]
+            isOneToOne: false
+            referencedRelation: "agenda"
+            referencedColumns: ["id", "unit"]
           },
         ]
       }

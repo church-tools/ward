@@ -1,20 +1,21 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, input, model, output, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
 import { MaybeAsync, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
 import { KeyWithValue } from '../../types';
-import { AsyncValue } from '../../utils/async-value';
-import { getChildInputElement } from '../../utils/dom-utils';
-import { wait } from '../../utils/flow-control-utils';
-import { xcomputed, xeffect } from '../../utils/signal-utils';
+import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
+import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
+import { hasRecords } from '../../utils/record-utils';
+import { xeffect } from '../../utils/signal-utils';
 import WindowService from '../../window.service';
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
 type ItemCard<T> = {
+    id: number;
     item: T;
-    height: WritableSignal<number | null>; // 0 means hidden, null means not yet initialized
+    entranceAnimation?: boolean;
     rect?: DOMRect; // used for animations
 }
 
@@ -28,16 +29,17 @@ export class CardListComponent<T> {
 
     private readonly windowService = inject(WindowService);
 
-    readonly items = input.required<T[]>();
+    readonly itemsById = model.required<Record<number, T>>();
     readonly editable = input(false);
     readonly gap = input(2);
-    readonly idKey = input<keyof T | null>(null); // KeyWithValue<T, number | string> | null
+    readonly idKey = input.required<KeyWithValue<T, number>>();
     readonly orderByKey = input<KeyWithValue<T, number> | null | undefined>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly itemInserted = input<(item: T) => MaybeAsync<void>>();
     readonly getUrl = input<(item: T) => string>();
+    readonly insertRow = input<(item: T) => Promise<T>>();
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -54,19 +56,20 @@ export class CardListComponent<T> {
     protected readonly insertedItem = signal<T | null>(null);
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
-    protected readonly getId = xcomputed([this.idKey], idKey => idKey
-        ? (item: T) => item[idKey]
-        : (item: T) => item as any);
 
-    private readonly listItemsByItem: Map<T, ItemCard<T>> = new Map();
-    private readonly initialized = new AsyncValue<boolean>();
+    private readonly listItemsById: Record<number, ItemCard<T>> = {};
+    private readonly changeLock = new Lock();
+    private readonly dragDropMutex = new Mutex();
+    private initialized = false;
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
     private insertBtnHeight = 0;
 
     constructor() {
-        xeffect([this.items], items => {
-            this.updateItemCards(items);
+        xeffect([this.itemsById], async itemsById => {
+            await this.changeLock.lock();
+            await this.dragDropMutex.wait();
+            this.updateItemCards(itemsById);
         });
         xeffect([this.cardViews], cardViews => {
             if (this.dropped) {
@@ -94,7 +97,8 @@ export class CardListComponent<T> {
     }
 
     async ngOnInit() {
-        this.initialized.set(true);
+        await wait(1000);
+        this.initialized = true;
     }
 
     protected onItemClick(listItem: ItemCard<T>): void {
@@ -112,21 +116,40 @@ export class CardListComponent<T> {
     }
 
     protected insert = async (item: T) => {
-        this.insertedItem.set(item);
+        this.changeLock.lock(async () => {
+            this.insertedItem.set(item);
+            this.inserting.set(false);
+            const onInsert = this.insertRow();
+            if (!onInsert) throw new Error('onInsert function is not provided');
+            const [insertedItem] = await Promise.all([
+                onInsert(item),
+                wait(300)
+            ]);
+            if (!insertedItem) throw new Error('Insertion interruped');
+            this.insertedItem.set(null);
+            this.newEditCard.set(true);
+            const id = insertedItem[this.idKey()] as number;
+            this.itemsById.update(itemsById => {
+                itemsById[id] = insertedItem;
+                this.updateItemCards(itemsById, false);
+                return itemsById;
+            });
+            const element = this.insertionCardView()!.nativeElement;
+            await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, 'ease-out', true);
+            this.newEditCard.set(false);
+        });
+    }
+
+    protected cancelInsert = () => {
         this.inserting.set(false);
-        await wait(300);
-        this.insertedItem.set(null);
-        this.newEditCard.set(true);
-        this.updateItemCards([...this.items(), item]);
-        const element = this.insertionCardView()!.nativeElement;
-        element.style.height = '0px';
-        element.offsetHeight;
-        element.style.height = `${this.insertBtnHeight}px`;
-        element.style.transition = 'height 300ms ease';
-        await wait(300);
-        element.style.transition = '';
-        element.style.height = 'auto';
-        this.newEditCard.set(false);
+    }
+
+    protected onDragStart(itemCard: ItemCard<T>) {
+        this.dragDropMutex.acquire();
+    }
+
+    protected onDragEnd(itemCard: ItemCard<T>) {
+        this.dragDropMutex.release();
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
@@ -149,14 +172,15 @@ export class CardListComponent<T> {
         this.dropped = true;
     }
 
-    private updateItemCards(items: T[]) {
-        const newItemCards: ItemCard<T>[] = items
-            .filter(item => !this.listItemsByItem.has(item))
-            .map(item => ({ item, height: signal(null) }));
+    private updateItemCards(itemsById: Record<number, T>, entranceAnimation = true) {
+        const newItemCards = Object.entries(itemsById)
+            .filter(([id, _]) => !(id in this.listItemsById))
+            .map(([id, item]) => <ItemCard<T>>{ id: +id, item, entranceAnimation: entranceAnimation && this.initialized });
         const existingItemCards = this.itemCards();
         if (newItemCards.length) {
+            this.initialized = true;
             for (const itemCard of newItemCards)
-                this.listItemsByItem.set(itemCard.item, itemCard);
+                this.listItemsById[itemCard.id] = itemCard;
             this.setItemCards([...existingItemCards, ...newItemCards]);
         } else {
             this.setItemCards(existingItemCards);
@@ -174,30 +198,24 @@ export class CardListComponent<T> {
         cardViews.forEach((cardView, index) => {
             const itemCard = itemCards[index];
             if (!itemCard) return;
-            const oldRect = itemCard.rect;
-            const newRect = itemCard.rect = cardView.nativeElement.getBoundingClientRect();
-            if (!oldRect)
-                return;
-            if (Math.abs(oldRect.top - newRect.top) <= 1 || Math.abs(oldRect.left - newRect.left) <= 1)
-                return;
-            const deltaY = oldRect.top - newRect.top;
-            const deltaX = oldRect.left - newRect.left;
             const element = cardView.nativeElement;
-            
-            // Apply the inverse transform immediately
-            element.style.transform = `translate(${deltaX}px, ${deltaY}px)`;
-            element.style.transition = 'none';
-            
-            // Force a reflow
-            element.offsetHeight;
-            
-            // Animate to the final position
-            element.style.transition = 'transform 300ms ease';
-            element.style.transform = 'translate(0px, 0px)';
-            setTimeout(() => {
-                element.style.transition = '';
-                element.style.transform = '';
-            }, 300);
+            const newRect = itemCard.rect = element.getBoundingClientRect();
+            const fromStyle: Partial<CSSStyleDeclaration> = {};
+            const toStyle: Partial<CSSStyleDeclaration> = {};
+            if (itemCard.entranceAnimation) {
+                itemCard.entranceAnimation = false;
+                fromStyle.height = '0px';
+                fromStyle.opacity = '0';
+                toStyle.height = `${newRect.height}px`;
+                toStyle.opacity = '1';
+            }
+            const oldRect = itemCard.rect;
+            if (oldRect && (Math.abs(oldRect.top - newRect.top) > 1 || Math.abs(oldRect.left - newRect.left) > 1)) {
+                fromStyle.transform = `translate(${oldRect.left - newRect.left}px, ${oldRect.top - newRect.top}px)`;
+                toStyle.transform = 'translate(0px, 0px)';
+            }
+            if (hasRecords(fromStyle))
+                transitionStyle(element, fromStyle, toStyle, 300, 'ease-out', true);
         });
     }
 

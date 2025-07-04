@@ -15,7 +15,7 @@ import ButtonBaseComponent from "../shared/button-base";
                 [class.disabled]="disabled()"
                 title="{{title()}}"
                 class="button {{classes()}}">
-                @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
+                @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" [size]="iconSize()"/> }
                 <ng-content select="[outside]"/>
                 @if (newTabVisible()) {
                     <div class="new-tab" (click)="openInNewTab($event)">
@@ -30,7 +30,7 @@ import ButtonBaseComponent from "../shared/button-base";
                 [class.disabled]="disabled()"
                 title="{{title()}}"
                 class="button {{classes()}}">
-                @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
+                @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()" [size]="iconSize()"/> }
                 <ng-content/>
                 @if (newTabVisible()) {
                     <div class="new-tab" (click)="openInNewTab($event)">

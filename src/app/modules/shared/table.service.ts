@@ -6,13 +6,16 @@ import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
 import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
-import { findRecord } from "../../shared/utils/record-utils";
+import { filterRecords, findRecord } from "../../shared/utils/record-utils";
 import { SupaLegend } from "../../shared/utils/supa-legend";
+
+export type RowRecords<T extends TableName> = Record<number, Row<T>>;
 
 export async function getTableService<T extends TableName>(injector: Injector, tableName: T) {
     const service = await (async () => {
         switch (tableName) {
             case 'agenda': return (await import('../agenda/agenda.service')).AgendaService;
+            case 'task': return (await import('../task/task.service')).TaskService;
             case 'profile': return (await import('../profile/profile.service')).ProfileService;
             default: throw new Error(`No service found for table: ${tableName}`);
         }
@@ -40,8 +43,10 @@ export abstract class TableService<T extends TableName> {
 
     public async get(id: IdOf<T>): Promise<Row<T> | undefined> {
         const supaLegend = await this.supaLegend.get();
-        const rowsById = supaLegend.get();
-        return rowsById?.[id] as Row<T> | undefined;
+        const row = supaLegend.get()?.[id];
+        if (row) return row;
+        await supaLegend.loaded;
+        return supaLegend.get()?.[id];
     }
 
     public async getAllById(): Promise<Record<IdOf<T>, Row<T>>> {
@@ -74,15 +79,17 @@ export abstract class TableService<T extends TableName> {
         });
     }
 
-    public observeMany(filter?: (row: Row<T>) => boolean): Observable<Row<T>[]> {
-        return new Observable<Row<T>[]>(subscriber => {
+    public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowRecords<T>> {
+        return new Observable<RowRecords<T>>(subscriber => {
             this.supaLegend.get()
             .then(supaLegend => {
-                const rows = this.getRows(supaLegend.get(), filter);
-                subscriber.next(rows);
+                let records = supaLegend.get() as RowRecords<T>;
+                if (filter) records = filterRecords(records, filter);
+                subscriber.next(records);
                 const unsubscribe = supaLegend.onChange(() => {
-                    const rows = this.getRows(supaLegend.get(), filter);
-                    subscriber.next(rows);
+                    let records = supaLegend.get() as RowRecords<T>;
+                    if (filter) records = filterRecords(records, filter);
+                    subscriber.next(records);
                 });
                 return () => unsubscribe();
             });
@@ -90,12 +97,18 @@ export abstract class TableService<T extends TableName> {
     }
 
     public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
-        const sig = signal<Row<T>[]>([]);
+        const sig = signal<RowRecords<T>>([]);
         this.supaLegend.get()
         .then(supaLegend => {
+            let records = supaLegend.get() as RowRecords<T>;
             const f = filter ? (row: Row<T>) => filter(row, supaLegend.user) : undefined;
-            sig.set(this.getRows(supaLegend.get(), f));
-            supaLegend.onChange(() => sig.set(this.getRows(supaLegend.get(), f)));
+            if (f) records = filterRecords(records, f);
+            sig.set(records);
+            supaLegend.onChange(() => {
+                let records = supaLegend.get() as RowRecords<T>;
+                if (f) records = filterRecords(records, f);
+                sig.set(records);
+            });
         });
         return sig;
     }
@@ -113,7 +126,12 @@ export abstract class TableService<T extends TableName> {
         return sig;
     }
 
-    public async saveRows(rows: Row<T>[], ...updateFields: (keyof Row<T>)[]) {
+    public async insertRow(row: Insert<T>): Promise<Row<T>> {
+        const supaLegend = await this.supaLegend.get();
+        return supaLegend.insertRow(row);
+    }
+
+    public async updateRows(rows: Row<T>[], ...updateFields: (keyof Row<T>)[]) {
         const supaLegend = await this.supaLegend.get();
         for (const row of rows)
             supaLegend.updateRow(row as any, updateFields);
@@ -122,7 +140,7 @@ export abstract class TableService<T extends TableName> {
     public async create(row: Omit<Insert<T>, 'id'>) {
         if (this.withUuid) {
             const supaLegend = await this.supaLegend.get();
-            supaLegend.createRow(row);
+            supaLegend.insertRow(row);
         } else {
             const id = await this.firstFreeId();
             await this.direct.insert({ ...row, id } as any).throwOnError();
@@ -133,23 +151,17 @@ export abstract class TableService<T extends TableName> {
         await this.direct.upsert(<any[]>rows).throwOnError();
     }
 
-    private getRows(rowsById: Record<IdOf<T>, Row<T>>, filter?: (row: Row<T>) => boolean): Row<T>[] {
-        let rows = Object.values(rowsById) as Row<T>[];
-        if (filter) rows = rows.filter(filter);
-        const orderField = this.orderField;
-        if (!orderField) return rows;
-        return rows.sort((a, b) => <number>a[orderField] - <number>b[orderField]);
-    }
-
     abstract toString(row: Row<T>): string;
     
-    private setup(user: User | undefined) {
+    private async setup(user: User | undefined) {
         if (!user) throw 'User not authenticated, syncing will not work';
-        this.supaLegend.set(new SupaLegend(this.supabase.client, this.tableName, user, {
+        const supaLegend = new SupaLegend(this.supabase.client, this.tableName, user, {
             databaseName: `${environment.appId}-${user.id}`,
             version: 1,
-            tableNames: ['agenda', 'profile'],
-        }));
+            tableNames: ['agenda', 'task', 'profile'],
+        });
+        await supaLegend.persistLoaded;
+        this.supaLegend.set(supaLegend);
     }
     
 

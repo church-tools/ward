@@ -4,10 +4,10 @@
 <div #container class="card-item-container column gap-{{gap()}}"
     cdkDropList (cdkDropListDropped)="onDrop($event)">
     @if (getUrl()) {
-        @for (itemCard of itemCards(); track getId()(itemCard.item)) {
+        @for (itemCard of itemCards(); track itemCard.id) {
             <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)" class="{{cardClasses()}} stealth card-item selectable-card"
-                [class.hidden]="itemCard.height() === 0"
-                [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
+                (cdkDragStarted)="onDragStart(itemCard)"
+                (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
                 @if (reorderable()) {
                     <div class="drag-handle">
@@ -19,10 +19,10 @@
             </a>
         }
     } @else {
-        @for (itemCard of itemCards(); track getId()(itemCard.item)) {
+        @for (itemCard of itemCards(); track itemCard.id) {
             <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
-                [class.hidden]="itemCard.height() === 0"
-                [style.height]="itemCard.height() !== null ? itemCard.height() + 'px' : 'auto'"
+                (cdkDragStarted)="onDragStart(itemCard)"
+                (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
                 @if (reorderable()) {
                     <div class="drag-handle">
@@ -35,7 +35,8 @@
         }
     }
     @if (editable()) {
-        <div #insertionCard class="{{cardClasses()}} card-item selectable-card" [class.new]="newEditCard()"
+        <div #insertionCard class="{{cardClasses()}} card-item selectable-card"
+            [class.new]="newEditCard()"
             (click)="onInsertClick()">
             <app-swap-container [swap]="inserting()" animationDuration="xs">
                 <div main>
@@ -58,7 +59,7 @@
                 <div swapped #insertion class="insertion grow-1 p-3">
                     @if (!newEditCard() && insertTemplate(); as template) {
                         <ng-container *ngTemplateOutlet="template;
-                            context: { $implicit: insert }"/>
+                            context: { $implicit: { insert, cancel: cancelInsert } }"/>
                     }
                 </div>
             </app-swap-container>
