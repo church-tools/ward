@@ -4,9 +4,9 @@ import { Observable } from "rxjs";
 import { Database } from "../../../../database";
 import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
-import { IdOf, Insert, KeyWithValue, Row, TableName } from "../../shared/types";
+import { IdOf, Insert, KeyWithValue, PartialBy, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
-import { filterRecords, findRecord } from "../../shared/utils/record-utils";
+import { filterRecords, findInRecords, findRecord } from "../../shared/utils/record-utils";
 import { SupaLegend } from "../../shared/utils/supa-legend";
 
 export type RowRecords<T extends TableName> = Record<number, Row<T>>;
@@ -32,7 +32,7 @@ export abstract class TableService<T extends TableName> {
 
     abstract readonly tableName: T;
     abstract readonly orderField: KeyWithValue<Row<T>, number> | null;
-    abstract readonly withUuid: boolean;
+    abstract readonly createOffline: boolean;
 
     public get direct() { return this.supabase.client.from(this.tableName); }
 
@@ -41,7 +41,7 @@ export abstract class TableService<T extends TableName> {
         .then(session => this.setup(session?.user));
     }
 
-    public async get(id: IdOf<T>): Promise<Row<T> | undefined> {
+    public async get(id: number): Promise<Row<T> | undefined> {
         const supaLegend = await this.supaLegend.get();
         const row = supaLegend.get()?.[id];
         if (row) return row;
@@ -49,9 +49,9 @@ export abstract class TableService<T extends TableName> {
         return supaLegend.get()?.[id];
     }
 
-    public async getAllById(): Promise<Record<IdOf<T>, Row<T>>> {
+    public async getAllById(): Promise<Record<number, Row<T>>> {
         const supaLegend = await this.supaLegend.get();
-        return supaLegend.get() ?? new Map<IdOf<T>, Row<T>>();
+        return supaLegend.get() ?? new Map<number, Row<T>>();
     }
 
     public async find(filter: (row: Row<T>) => boolean): Promise<Row<T> | undefined> {
@@ -63,7 +63,7 @@ export abstract class TableService<T extends TableName> {
     }
 
     public syncAll() {
-        return new Observable<Record<IdOf<T>, Row<T>>> (subscriber => {
+        return new Observable<Record<number, Row<T>>> (subscriber => {
             let unsubscribe: (() => void) | undefined;
             this.supaLegend.get()
             .then(supaLegend => {
@@ -79,20 +79,40 @@ export abstract class TableService<T extends TableName> {
         });
     }
 
+    public observe(filter: (row: Row<T>) => boolean): Observable<Row<T> | undefined> {
+        return new Observable<Row<T> | undefined>(subscriber => {
+            let unsubscribe: (() => void) | undefined;
+            this.supaLegend.get()
+            .then(supaLegend => {
+                const rowRecords = supaLegend.get();
+                const row = findInRecords(rowRecords, filter);
+                subscriber.next(row);
+                unsubscribe = supaLegend.onChange(params => {
+                    if (!params.value) return;
+                    const row = findInRecords(params.value, filter);
+                    if (!row) return;
+                    subscriber.next(row);
+                });
+            });
+            return () => unsubscribe?.();
+        });
+    }
+
     public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowRecords<T>> {
         return new Observable<RowRecords<T>>(subscriber => {
+            let unsubscribe: (() => void) | undefined;
             this.supaLegend.get()
             .then(supaLegend => {
                 let records = supaLegend.get() as RowRecords<T>;
                 if (filter) records = filterRecords(records, filter);
                 subscriber.next(records);
-                const unsubscribe = supaLegend.onChange(() => {
+                unsubscribe = supaLegend.onChange(() => {
                     let records = supaLegend.get() as RowRecords<T>;
                     if (filter) records = filterRecords(records, filter);
                     subscriber.next(records);
                 });
-                return () => unsubscribe();
             });
+            return () => unsubscribe?.();
         });
     }
 
@@ -137,8 +157,8 @@ export abstract class TableService<T extends TableName> {
             supaLegend.updateRow(row as any, updateFields);
     }
 
-    public async create(row: Omit<Insert<T>, 'id'>) {
-        if (this.withUuid) {
+    public async create(row: Insert<T>) {
+        if (this.createOffline) {
             const supaLegend = await this.supaLegend.get();
             supaLegend.insertRow(row);
         } else {

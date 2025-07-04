@@ -9,10 +9,9 @@ function getId() {
 }
 
 type Database = { public: { Tables: { [key: string]: any } } };
-type IdOf<D extends Database, T extends string> = Row<D, T> extends { id: number } ? number : string;
-type Row<D extends Database, T extends string> = D["public"]["Tables"][T]["Row"] & { id: number };
-type Insert<D extends Database, T extends string> = D["public"]["Tables"][T]["Insert"] & { id?: number };
-type RecordOf<D extends Database, T extends string> = Record<IdOf<D, T>, Row<D, T>>;
+type Row<D extends Database, T extends string> = D["public"]["Tables"][T]["Row"];
+type Insert<D extends Database, T extends string> = D["public"]["Tables"][T]["Insert"];
+type RecordOf<D extends Database, T extends string> = Record<number, Row<D, T>>;
 
 export type IDBInfo = ObservablePersistIndexedDBPluginOptions;
 
@@ -25,7 +24,7 @@ export class SupaLegend<D extends Database, T extends string> {
 
     constructor(supabase: SupabaseClient<D>, tableName: T, user: User, idbInfo: IDBInfo) {
         this.user = user;
-        this.supaLegend = <any>observable(syncedSupabase({
+        this.supaLegend = observable(syncedSupabase({
             supabase,
             collection: tableName,
             persist: {
@@ -42,7 +41,7 @@ export class SupaLegend<D extends Database, T extends string> {
             fieldCreatedAt: 'created_at',
             fieldUpdatedAt: 'updated_at',
             fieldDeleted: 'deleted',
-        }));
+        })) as any;
         const state = syncState(this.supaLegend);
         this.persistLoaded = new Promise(resolve => {
             state.onChange(params => { if (params.value?.isPersistLoaded) resolve(); });
@@ -64,21 +63,22 @@ export class SupaLegend<D extends Database, T extends string> {
     }
 
     public insertRow(info: Insert<D, T>) {
-        const id: Row<D, T>[string] = info.id ??= getId();
-        const row = this.supaLegend[id] as ObservableObject<Row<D, T>>;
-        const now = new Date().toISOString();
-        const assigned = row.assign({ created_at: now, updated_at: now, ...info });
+        const id: Row<D, T>['id'] = (info as Insert<D, T>).id ??= getId();
+        info.created_at = info.updated_at = new Date().toISOString();
+        const assigned = this.supaLegend[id].assign(info);
         return assigned.get() as Row<D, T>;
     }
 
-    public updateRow(update: Partial<Row<D, T>>, updateFields: (keyof Row<D, T>)[]): void {
-        const id = update['id'];
+    public updateRow(update: Row<D, T>, updateFields: (keyof Row<D, T>)[]): void {
+        const id = update.id as Row<D, T>['id'];
         if (!id) throw new Error(`Update must contain the id`);
-        const row = this.supaLegend[id] as ObservableObject<Row<D, T>>;
-        row.assign({
+        this.supaLegend[id].assign({
             id,
             updated_at: new Date().toISOString(),
-            ...Object.fromEntries(updateFields.map(field => [field, update[field]])),
+            ...Object.fromEntries(updateFields.map(field => [
+                field,
+                update[field]
+            ])),
         });
     }
 }

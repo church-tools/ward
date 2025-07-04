@@ -21,8 +21,17 @@ export function filterRecords<T>(records: Record<string, T>, predicate: (record:
     return filtered;
 }
 
+export function findInRecords<T>(records: Record<string, T>, predicate: (record: T) => boolean): T | undefined {
+    for (const key in records) {
+        const record = records[key];
+        if (predicate(record))
+            return record;
+    }
+    return undefined;
+}
+
 export function hasRecords<T>(records: Record<string, T>): boolean {
-    for (const key in records)
+    for (const _ in records)
         return true;
     return false;
 }

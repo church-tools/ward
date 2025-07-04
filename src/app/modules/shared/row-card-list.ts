@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, signal } from "@angular/core";
+import { MaybeAsync } from "@angular/router";
 import { Subscription } from "rxjs";
 import type { Insert, Row, TableName } from "../../shared/types";
 import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
@@ -54,7 +55,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly gap = input(2);
     readonly getUrl = input<(row: Row<T>) => string>();
     readonly filter = input<(row: Row<T>) => boolean>();
-    readonly prepareInsert = input<(row: Insert<T>) => void>();
+    readonly prepareInsert = input<(row: Insert<T>) => MaybeAsync<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
 
     protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
@@ -72,9 +73,9 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         });
     }
 
-    protected insertRow = async (row: Insert<T>) => {
+    protected insertRow = async (row: Row<T>) => {
         const tableService = this.tableService()!;
-        return await tableService.insertRow(row);
+        return await tableService.insertRow(row as any);
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {

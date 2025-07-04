@@ -20,7 +20,7 @@ export abstract class ListInsertComponent<T extends TableName> {
     
     readonly insert = input.required<(item: Insert<T>) => MaybeAsync<void>>();
     readonly cancel = input.required<() => void>();
-    readonly prepareInsert = input<(row: Insert<T>) => void>();
+    readonly prepareInsert = input<(row: Insert<T>) => MaybeAsync<void>>();
 
     protected async submit() {
         const unit = await this.unitService.getUnit();
@@ -29,8 +29,7 @@ export abstract class ListInsertComponent<T extends TableName> {
             this.cancel()();
             return;
         }
-        this.prepareInsert()?.(rowInfo);
-
+        await this.prepareInsert()?.(rowInfo);
         await this.insert()(rowInfo);
     }
 

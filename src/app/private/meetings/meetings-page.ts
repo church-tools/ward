@@ -22,7 +22,7 @@ export class MeetingsPageComponent extends PrivatePageComponent {
     protected readonly agendas = this.agendaService.manyAsSignal();
     
     protected addAgenda = async () => {
-        await this.agendaService.create({ name: "", unit: 18 });
+        await this.agendaService.create({ name: "", unit: 18 } as Agenda.Insert);
     }
 
     protected async updateAgendas(agendas: Agenda.Row[]) {

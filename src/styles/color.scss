@@ -9,23 +9,12 @@ $navbar-tab: light-dark(rgba(#242424, 0.75), rgba(white, 0.666));
 $navbar-tab-hover-background: light-dark(rgba(#242424, 0.05), rgba(white, 0.05));
 $navbar-tab-active-background: light-dark(rgba(#242424, 0.1), rgba(white, 0.1));
 
-// see https://react.fluentui.dev/?path=/docs/theme-colors--page
-
 $names: (success, warning, danger, gray,
     red, pink, berry, purple, lavender, navy, blue, teal, seafoam, green, forest, yellowgreen, yellow, brass, mustard, peach, orange);
 
-// $accent: seafoam;
-// $accent-variation-1: teal;
-// $accent-variation-2: forest;
 $accent: teal;
 $accent-variation-1: seafoam;
 $accent-variation-2: blue;
-// $accent: peach;
-// $accent-variation-1: brass; // red;
-// $accent-variation-2: mustard; // purple;
-// $accent: mustard;
-// $accent-variation-1: forest;
-// $accent-variation-2: brass;
 
 // https://www.w3schools.com/colors/colors_names.asp
 $actives: (
@@ -99,7 +88,6 @@ $foregrounds: (
     peach: light-dark(hsl(33, 100%, 38%), hsl(33, 100%, 85%)),
     orange: light-dark(hsl(16, 98%, 34%), hsl(16, 77%, 81%)),
 );
-
 
 $gray: map.get($actives, 'gray');
 $gray-800: #343a40;

@@ -60,6 +60,7 @@ export class CardListComponent<T> {
     private readonly listItemsById: Record<number, ItemCard<T>> = {};
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
+    
     private initialized = false;
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
