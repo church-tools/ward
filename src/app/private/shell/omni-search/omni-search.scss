@@ -1,3 +1,5 @@
+@use 'input';
+@use 'card';
 
 ::root {
     --colorNeutralBackground1: #f8f9fa;
@@ -5,4 +7,11 @@
 
 :host {
     max-height: min-content;
+}
+
+::ng-deep {
+    .form-input {
+        background-color: card.$background-transparent-color;
+        border-color: input.$border-color-transparent;
+    }
 }

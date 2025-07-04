@@ -4,7 +4,7 @@ import { Observable } from "rxjs";
 import { Database } from "../../../../database";
 import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
-import { IdOf, Insert, KeyWithValue, PartialBy, Row, TableName } from "../../shared/types";
+import { Insert, KeyWithValue, Row, TableName } from "../../shared/types";
 import { AsyncValue } from "../../shared/utils/async-value";
 import { filterRecords, findInRecords, findRecord } from "../../shared/utils/record-utils";
 import { SupaLegend } from "../../shared/utils/supa-legend";
@@ -30,6 +30,7 @@ export abstract class TableService<T extends TableName> {
 
     protected readonly supaLegend = new AsyncValue<SupaLegend<Database, T>>();
 
+    readonly idKey = 'id' as KeyWithValue<Row<T>, number>;
     abstract readonly tableName: T;
     abstract readonly orderField: KeyWithValue<Row<T>, number> | null;
     abstract readonly createOffline: boolean;

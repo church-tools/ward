@@ -21,7 +21,7 @@ import { getTableService, RowRecords } from "./table.service";
                         [reorderable]="editable()"
                         [editable]="editable()"
                         [gap]="gap()"
-                        idKey="id"
+                        [idKey]="service.idKey"
                         [orderByKey]="service.orderField"
                         [getFilterText]="service.toString"
                         [getUrl]="getUrl()"

@@ -21,6 +21,7 @@
                 (focus)="onFocus()" (blur)="closeOptions()"
                 (input)="updateVisibleOptions()">
         }
+        <ng-content/>
     </div>
     <div class="bottom-anchor"><ng-container #bottomContainer/></div>
 </label>
