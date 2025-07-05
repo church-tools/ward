@@ -1,13 +1,52 @@
-import { Injectable } from '@angular/core';
+import { inject, Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../../database';
 import { environment } from '../../environments/environment';
+import { AsyncState } from './utils/async-state';
+import { xeffect } from './utils/signal-utils';
+import { SupaSync } from './utils/supa-sync/supa-sync';
 import { getSiteOrigin } from './utils/url-utils';
+import WindowService from './window.service';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
+    private readonly windowService = inject(WindowService);
+    private readonly isOnline = new AsyncState<boolean>()
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
+    readonly sync = new AsyncState<SupaSync<Database>>();
+
+    constructor() {
+        xeffect([this.windowService.isOnline], isOnline => isOnline
+            ? this.isOnline.set(isOnline)
+            : this.isOnline.unset());
+        this.client.auth.onAuthStateChange(async (event, session) => {
+            if (!session?.access_token) return;
+            switch (event) {
+                case 'SIGNED_IN':
+                case 'TOKEN_REFRESHED':
+                {
+                    const { unit } = this.getDataFromAccessToken(session.access_token);
+                    await this.client.realtime.setAuth(session.access_token);
+                    this.sync.set(new SupaSync<Database>(
+                        this.client,
+                        this.isOnline,
+                        {
+                            name: `${environment.appId}-${unit}`,
+                            version: 1,
+                            tableNames: ['agenda', 'task', 'profile'],
+                        }
+                    ));
+                    break;
+                }
+                case 'SIGNED_OUT': {
+                    this.sync.unsafeGet()?.cleanup();
+                    this.sync.unset();
+                    break;
+                }
+            }
+        });
+    }
 
     /**
      * Sign up a new user with email and password
@@ -51,10 +90,8 @@ export class SupabaseService {
         return data.session;
     }
 
-    /**
-     * Listen to auth state changes
-     */
-    onAuthStateChange(callback: (event: any, session: any) => void) {
-        return this.client.auth.onAuthStateChange(callback);
+    private getDataFromAccessToken(token: string) {
+        const payload = token.split('.')[1];
+        return JSON.parse(atob(payload));
     }
 }

@@ -234,8 +234,8 @@ export type Database = {
           nick_name: string | null
           notes: string | null
           permissions: Database["public"]["Enums"]["permission"][] | null
+          profile: number | null
           unit: number
-          user: number | null
         }
         Insert: {
           agenda_permissions?: number[] | null
@@ -247,8 +247,8 @@ export type Database = {
           nick_name?: string | null
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
+          profile?: number | null
           unit: number
-          user?: number | null
         }
         Update: {
           agenda_permissions?: number[] | null
@@ -260,22 +260,22 @@ export type Database = {
           nick_name?: string | null
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
+          profile?: number | null
           unit?: number
-          user?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "member_profile_unit_fkey"
+            columns: ["profile", "unit"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id", "unit"]
+          },
           {
             foreignKeyName: "member_unit_fkey"
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "member_user_fkey"
-            columns: ["user"]
-            isOneToOne: false
-            referencedRelation: "profile"
             referencedColumns: ["id"]
           },
         ]
@@ -447,7 +447,7 @@ export type Database = {
           id: number
           is_unit_admin: boolean
           uid: string
-          unit: number | null
+          unit: number
           updated_at: string
         }
         Insert: {
@@ -456,7 +456,7 @@ export type Database = {
           id?: number
           is_unit_admin?: boolean
           uid: string
-          unit?: number | null
+          unit: number
           updated_at?: string
         }
         Update: {
@@ -465,7 +465,7 @@ export type Database = {
           id?: number
           is_unit_admin?: boolean
           uid?: string
-          unit?: number | null
+          unit?: number
           updated_at?: string
         }
         Relationships: [
@@ -597,13 +597,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "agenda_item_unit_created_by_fkey"
-            columns: ["unit", "created_by"]
-            isOneToOne: false
-            referencedRelation: "member"
-            referencedColumns: ["unit", "id"]
-          },
-          {
             foreignKeyName: "agenda_item_unit_fkey"
             columns: ["unit"]
             isOneToOne: false
@@ -615,6 +608,13 @@ export type Database = {
             columns: ["agenda", "unit"]
             isOneToOne: false
             referencedRelation: "agenda"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "task_created_by_unit_fkey"
+            columns: ["created_by", "unit"]
+            isOneToOne: false
+            referencedRelation: "profile"
             referencedColumns: ["id", "unit"]
           },
         ]
@@ -676,6 +676,8 @@ export type Database = {
         | "brass"
         | "peach"
         | "orange"
+        | "yellowgreen"
+        | "mustard"
       gender: "male" | "female"
       meeting_type:
         | "fast_and_testimony"
@@ -824,6 +826,8 @@ export const Constants = {
         "brass",
         "peach",
         "orange",
+        "yellowgreen",
+        "mustard",
       ],
       gender: ["male", "female"],
       meeting_type: [

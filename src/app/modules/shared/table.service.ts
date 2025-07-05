@@ -5,7 +5,7 @@ import { Database } from "../../../../database";
 import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
 import { Insert, KeyWithValue, Row, TableName } from "../../shared/types";
-import { AsyncValue } from "../../shared/utils/async-value";
+import { AsyncState } from "../../shared/utils/async-state";
 import { filterRecords, findInRecords, findRecord } from "../../shared/utils/record-utils";
 import { SupaLegend } from "../../shared/utils/supa-legend";
 
@@ -28,7 +28,7 @@ export abstract class TableService<T extends TableName> {
 
     protected readonly supabase = inject(SupabaseService);
 
-    protected readonly supaLegend = new AsyncValue<SupaLegend<Database, T>>();
+    protected readonly supaLegend = new AsyncState<SupaLegend<Database, T>>();
 
     readonly idKey = 'id' as KeyWithValue<Row<T>, number>;
     abstract readonly tableName: T;
@@ -183,8 +183,11 @@ export abstract class TableService<T extends TableName> {
         });
         await supaLegend.persistLoaded;
         this.supaLegend.set(supaLegend);
+
+
+        const sync = await this.supabase.sync.get();
+        sync.getTable(this.tableName, this.createOffline, true);
     }
-    
 
     private async firstFreeId(first = 1) {
         const existingRows = await this.getAllById();

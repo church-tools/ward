@@ -28,7 +28,6 @@ export class SetupPageComponent extends PageComponent {
     }
 
     protected createUnit = async () => {
-        const user = await this.assureProfileExists();
         const session = await this.supabaseService.getSession();
         const functions = this.supabaseService.client.functions;
         functions.setAuth(session?.access_token || '');
@@ -38,6 +37,7 @@ export class SetupPageComponent extends PageComponent {
                 body: { name: this.unitName() },
             });
         if (error) throw error;
+        const user = await this.assureProfileExists(data);
 
         // const { data: unit } = await this.supabaseService.client
         //     .from('unit')
@@ -57,7 +57,7 @@ export class SetupPageComponent extends PageComponent {
 
     }
 
-    private async assureProfileExists(): Promise<Profile.Row> {
+    private async assureProfileExists(unit: { id: number }): Promise<Profile.Row> {
         const session = await this.supabaseService.getSession();
         const uid = session?.user.id;
         if (!uid) throw new Error('Login fehlgeschlagen');
@@ -69,7 +69,7 @@ export class SetupPageComponent extends PageComponent {
         if (existing) return existing;
         const { data: created } = await this.supabaseService.client
             .from('profile')
-            .insert({ uid })
+            .insert({ uid, unit: unit.id })
             .select('*')
             .single()
             .throwOnError();
