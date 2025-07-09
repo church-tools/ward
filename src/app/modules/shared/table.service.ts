@@ -1,13 +1,12 @@
 import { inject, Injectable, Injector, signal } from "@angular/core";
 import { User } from "@supabase/supabase-js";
-import { Observable } from "rxjs";
+import { Observable, Subscription } from "rxjs";
 import { Database } from "../../../../database";
-import { environment } from "../../../environments/environment";
 import { SupabaseService } from "../../shared/supabase.service";
-import { Insert, KeyWithValue, Row, TableName } from "../../shared/types";
+import { Insert, KeyWithValue, Row, TableName, Update } from "../../shared/types";
 import { AsyncState } from "../../shared/utils/async-state";
-import { filterRecords, findInRecords, findRecord } from "../../shared/utils/record-utils";
-import { SupaLegend } from "../../shared/utils/supa-legend";
+import { filterRecords, findRecord, hasRecords } from "../../shared/utils/record-utils";
+import { SupaSyncTable } from "../../shared/utils/supa-sync/table/supa-sync-table";
 
 export type RowRecords<T extends TableName> = Record<number, Row<T>>;
 
@@ -27,108 +26,67 @@ export async function getTableService<T extends TableName>(injector: Injector, t
 export abstract class TableService<T extends TableName> {
 
     protected readonly supabase = inject(SupabaseService);
+    protected readonly sync = new AsyncState<SupaSyncTable<Database, T>>();
 
-    protected readonly supaLegend = new AsyncState<SupaLegend<Database, T>>();
-
-    readonly idKey = 'id' as KeyWithValue<Row<T>, number>;
     abstract readonly tableName: T;
     abstract readonly orderField: KeyWithValue<Row<T>, number> | null;
     abstract readonly createOffline: boolean;
+    readonly idKey = 'id' as KeyWithValue<Row<T>, number>;
 
     public get direct() { return this.supabase.client.from(this.tableName); }
 
     constructor() {
-        this.supabase.getSession()
-        .then(session => this.setup(session?.user));
+        this.supabase.sync.get()
+        .then(supaSync => {
+            this.sync.set(supaSync.getTable(this.tableName, this.createOffline, true));
+        });
     }
 
     public async get(id: number): Promise<Row<T> | undefined> {
-        const supaLegend = await this.supaLegend.get();
-        const row = supaLegend.get()?.[id];
-        if (row) return row;
-        await supaLegend.loaded;
-        return supaLegend.get()?.[id];
-    }
-
-    public async getAllById(): Promise<Record<number, Row<T>>> {
-        const supaLegend = await this.supaLegend.get();
-        return supaLegend.get() ?? new Map<number, Row<T>>();
-    }
-
-    public async find(filter: (row: Row<T>) => boolean): Promise<Row<T> | undefined> {
-        const supaLegend = await this.supaLegend.get();
-        const rowsById = supaLegend.get();
-        if (!rowsById) return undefined;
-        const rows = Object.values(rowsById) as Row<T>[];
-        return rows.find(filter);
-    }
-
-    public syncAll() {
-        return new Observable<Record<number, Row<T>>> (subscriber => {
-            let unsubscribe: (() => void) | undefined;
-            this.supaLegend.get()
-            .then(supaLegend => {
-                const initialData = supaLegend.get();
-                if (initialData) subscriber.next(initialData);
-                unsubscribe = supaLegend.onChange(params => {
-                    // todo handle changes
-                    const data = supaLegend.get();
-                    subscriber.next(data);
-                });
-            });
-            return () => unsubscribe?.();
-        });
+        const sync = await this.sync.get();
+        return sync.read(id);
     }
 
     public observe(filter: (row: Row<T>) => boolean): Observable<Row<T> | undefined> {
         return new Observable<Row<T> | undefined>(subscriber => {
-            let unsubscribe: (() => void) | undefined;
-            this.supaLegend.get()
-            .then(supaLegend => {
-                const rowRecords = supaLegend.get();
-                const row = findInRecords(rowRecords, filter);
-                subscriber.next(row);
-                unsubscribe = supaLegend.onChange(params => {
-                    if (!params.value) return;
-                    const row = findInRecords(params.value, filter);
-                    if (!row) return;
-                    subscriber.next(row);
+            let subscription: Subscription | undefined;
+            this.sync.get()
+            .then(sync => {
+                subscription = sync.observeAll().subscribe(changes => {
+                    for (const row of Object.values(changes))
+                        if (row && filter(row))
+                            subscriber.next(row);
                 });
             });
-            return () => unsubscribe?.();
+            return () => subscription?.unsubscribe();
         });
     }
 
     public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowRecords<T>> {
         return new Observable<RowRecords<T>>(subscriber => {
-            let unsubscribe: (() => void) | undefined;
-            this.supaLegend.get()
-            .then(supaLegend => {
-                let records = supaLegend.get() as RowRecords<T>;
-                if (filter) records = filterRecords(records, filter);
-                subscriber.next(records);
-                unsubscribe = supaLegend.onChange(() => {
-                    let records = supaLegend.get() as RowRecords<T>;
-                    if (filter) records = filterRecords(records, filter);
-                    subscriber.next(records);
+            let subscription: Subscription | undefined;
+            this.sync.get()
+            .then(sync => {
+                subscription = sync.observeAll().subscribe(changes => {
+                    if (filter)
+                        changes = filterRecords(changes as RowRecords<T>, filter)
+                    if (hasRecords(changes))
+                        subscriber.next(changes as RowRecords<T>);
                 });
             });
-            return () => unsubscribe?.();
+            return () => subscription?.unsubscribe();
         });
     }
 
     public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
-        const sig = signal<RowRecords<T>>([]);
-        this.supaLegend.get()
-        .then(supaLegend => {
-            let records = supaLegend.get() as RowRecords<T>;
-            const f = filter ? (row: Row<T>) => filter(row, supaLegend.user) : undefined;
-            if (f) records = filterRecords(records, f);
-            sig.set(records);
-            supaLegend.onChange(() => {
-                let records = supaLegend.get() as RowRecords<T>;
-                if (f) records = filterRecords(records, f);
-                sig.set(records);
+        const sig = signal<RowRecords<T>>({});
+        this.sync.get()
+        .then(sync => {
+            let subscription = sync.observeAll().subscribe(changes => {
+                if (filter)
+                    changes = filterRecords(changes as RowRecords<T>, row => filter(row, sync.user));
+                if (hasRecords(changes))
+                    sig.update(current => Object.assign(current, changes));
             });
         });
         return sig;
@@ -136,36 +94,30 @@ export abstract class TableService<T extends TableName> {
 
     public asSignal(filter: (row: Row<T>, user: User) => boolean) {
         const sig = signal<Row<T> | undefined>(undefined);
-        this.supaLegend.get()
-        .then(supaLegend => {
-            const f = (row: Row<T>) => filter(row, supaLegend.user);
-            sig.set(findRecord(supaLegend.get(), f));
-            supaLegend.onChange(() => {
-                sig.set(findRecord(supaLegend.get(), f));
+        this.sync.get()
+        .then(sync => {
+            let subscription = sync.observeAll().subscribe(changes => {
+                const row = findRecord(changes as RowRecords<T>, row => filter(row, sync.user));
+                if (row)
+                    sig.set(row);
             });
         });
         return sig;
     }
 
-    public async insertRow(row: Insert<T>): Promise<Row<T>> {
-        const supaLegend = await this.supaLegend.get();
-        return supaLegend.insertRow(row);
+    public async insertRow(row: Insert<T>) {
+        const sync = await this.sync.get();
+        return await sync.create(row);
     }
 
-    public async updateRows(rows: Row<T>[], ...updateFields: (keyof Row<T>)[]) {
-        const supaLegend = await this.supaLegend.get();
-        for (const row of rows)
-            supaLegend.updateRow(row as any, updateFields);
+    public async updateRows(updates: Update<T>[]) {
+        const sync = await this.sync.get();
+        await sync.updateMany(updates);
     }
 
     public async create(row: Insert<T>) {
-        if (this.createOffline) {
-            const supaLegend = await this.supaLegend.get();
-            supaLegend.insertRow(row);
-        } else {
-            const id = await this.firstFreeId();
-            await this.direct.insert({ ...row, id } as any).throwOnError();
-        }
+        const sync = await this.sync.get();
+        return await sync.create(row);
     }
 
     public async upsert(rows: Insert<T>[]) {
@@ -174,25 +126,14 @@ export abstract class TableService<T extends TableName> {
 
     abstract toString(row: Row<T>): string;
     
-    private async setup(user: User | undefined) {
-        if (!user) throw 'User not authenticated, syncing will not work';
-        const supaLegend = new SupaLegend(this.supabase.client, this.tableName, user, {
-            databaseName: `${environment.appId}-${user.id}`,
-            version: 1,
-            tableNames: ['agenda', 'task', 'profile'],
-        });
-        await supaLegend.persistLoaded;
-        this.supaLegend.set(supaLegend);
+    private async setup() {
+        
 
-
-        const sync = await this.supabase.sync.get();
-        sync.getTable(this.tableName, this.createOffline, true);
     }
 
-    private async firstFreeId(first = 1) {
-        const existingRows = await this.getAllById();
-        let index = first;
-        while (index in existingRows) index++;
-        return index;
+    private async firstFreeId() {
+        const sync = await this.sync.get();
+        const largestExisting = await sync.findLargestId();
+        return (largestExisting ?? 0) + 1;
     }
 }

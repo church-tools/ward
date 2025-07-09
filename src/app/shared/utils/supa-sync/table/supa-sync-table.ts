@@ -1,8 +1,9 @@
+import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
-import { IDBStoreAdapter } from "./idb-store-adapter";
-import { Database, TableName } from "../supa-sync";
 import { AsyncState } from "../../async-state";
-import { SupabaseClient } from "@supabase/supabase-js";
+import { Aggregator } from "../../flow-control-utils";
+import { Database, TableName } from "../supa-sync";
+import { IDBStoreAdapter } from "./idb-store-adapter";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
@@ -11,13 +12,15 @@ function getRandomId() {
 export type Row<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Row"];
 type Update<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Update"];
 type Insert<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Insert"];
+export type Changes<D extends Database, T extends TableName<D>> = Record<number, Row<D, T> | null>;
 
 export class SupaSyncTable<D extends Database, T extends TableName<D>> {
 
-    private sendPendingInterval: NodeJS.Timeout | undefined;
+    private readonly pendingAggregator = new Aggregator<Update<D, T>>(500);
 
     constructor(
         private readonly supabase: SupabaseClient<D>,
+        public readonly user: User,
         private readonly isOnline: AsyncState<boolean>,
         private readonly storeAdapter: IDBStoreAdapter<Row<D, T>>,
         private readonly pendingStoreAdapter: IDBStoreAdapter<Update<D, T>>,
@@ -25,14 +28,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
         private readonly createOffline: boolean,
         private readonly updateOffline: boolean,
     ) {
-        this.isOnline.get()
-        .then(() => this.sendPending());
+        this.sendPending();
     }
 
     public async create(row: Insert<D, T>) {
+        await this.storeAdapter.initialized.get();
         if (this.createOffline) {
             row.id ??= getRandomId();
-            this.writePending([row]);
+            await this.writePending([row]);
         } else {
             const { data } = await this.supabase.from(this.tableName)
                 .insert(row)
@@ -42,25 +45,67 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
             row = data;
         }
         this.storeAdapter.write(row);
-        return row;
+        return row as Row<D, T>;
     }
 
-    public async read(ids: number[]) {
-        return new Observable<Row<D, T>[]>(observer => {
-            let unsubscribe: (() => void) | undefined;
-            this.storeAdapter.readMany(ids).then(rows => {
-                observer.next(rows);
-                observer.complete();
-            }).catch(err => {
-                observer.error(err);
+    public async read(id: number) {
+        const row = await this.storeAdapter.read(id);
+        if (row) return row;
+        await this.storeAdapter.initialized.get();
+        return this.storeAdapter.read(id);
+    }
+
+    public observe(id: number) {
+        return new Observable<Row<D, T>>(observer => {
+            this.storeAdapter.read(id)
+                .then(row => observer.next(row))
+                .catch(err => observer.error(err));
+            const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
+                if (row.id === id)
+                    observer.next(row);
             });
-            return () => unsubscribe?.();
+            return () => writeSubscription.unsubscribe();
         });
     }
 
+    public observeMany(ids: number[]) {
+        return new Observable<Changes<D, T>>(observer => {
+            this.storeAdapter.readMany(ids)
+                .then(rows => observer.next(Object.fromEntries(rows.filter(row => row?.id).map(row => [row!.id, row]))))
+                .catch(err => observer.error(err));
+            const idsSet = new Set(ids);
+            const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
+                if (idsSet.has(row.id))
+                    observer.next({ [row.id]: row });
+            });
+            return () => writeSubscription.unsubscribe();
+        });
+    }
+
+    public observeAll() {
+        return new Observable<Changes<D, T>>(observer => {
+            this.storeAdapter.readAll()
+                .then(rows => observer.next(Object.fromEntries(rows.map(row => [row!.id, row]))))
+                .catch(err => observer.error(err));
+            const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
+                observer.next({ [row.id]: row });
+            });
+            return () => writeSubscription.unsubscribe();
+        });
+    }
+
+    public async findLargestId() {
+        return this.storeAdapter.findLargestId();
+    }
+
     public async update(update: Update<D, T>) {
+        await this.storeAdapter.initialized.get();
         if (this.updateOffline) {
-            this.writePending([update]);
+            const [existingRow] = await Promise.all([
+                this.storeAdapter.read(update.id),
+                this.writePending([update]),
+            ]);
+            update = Object.assign(existingRow ?? {}, update);
         } else {
             const { data } = await this.supabase.from(this.tableName)
                 .update(update)
@@ -69,41 +114,81 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
                 .throwOnError();
             update = data[0];
         }
-        
-        this.storeAdapter.write(update);
-        return update;
+        await this.storeAdapter.write(update);
+    }
+
+    public async updateMany(updates: Update<D, T>[]) {
+        await this.storeAdapter.initialized.get();
+        if (this.updateOffline) {
+            await Promise.all([
+                this.storeAdapter.lock(async () => {
+                    const rows = await this.storeAdapter.readMany(updates.map(update => update.id));
+                    for (let i = 0; i < updates.length; i++) {
+                        const existingRow = rows[i];
+                        Object.assign(existingRow ?? {}, updates[i]);
+                    }
+                    await this.storeAdapter.writeMany(rows);
+                }),
+                this.writePending(updates),
+            ]);
+        } else {
+            const { data } = await this.supabase.from(this.tableName)
+                .upsert(updates)
+                .select("*")
+                .throwOnError();
+            for (const row of data) {
+                this.storeAdapter.write(row);
+            }
+        }
+        await this.storeAdapter.writeMany(updates);
     }
 
     private async writePending(rows: Update<D, T>[]) {
-        const keys = rows.map(row => row.id as number);
-        this.storeAdapter.lock(async () => {
-            const pending = await this.pendingStoreAdapter.readMany(keys);
-            for (let i = 0; i < rows.length; i++)
-                pending[i] = Object.assign(pending[i] ?? {}, rows[i]);
-            await this.pendingStoreAdapter.write(pending);
-        });
-
-        // start interval to send pending items
+        await this.pendingStoreAdapter.writeMany(rows);
+        this.sendPending();
     }
     
-    private async sendPending() {
-        if (this.sendPendingInterval) {
-            clearInterval(this.sendPendingInterval);
-            this.sendPendingInterval = undefined;
-        }
+    private async sendPending(iteration = 1) {
         await this.isOnline.get();
-        // this.sendPendingInterval = setInterval(async () => {
-        //     const storeName = getPendingStoreName(this.tableName);
-        //     const idb = await this.service.idb.get();
-        //     await idb.lock(storeName, async () => {
-        //         const pending = await idb.read(storeName);
-        //         if (!pending.length) return;
-        //         await this.service.supabase.from(this.tableName)
-        //             .insert(pending)
-        //             .select("*")
-        //             .throwOnError();
-        //         await idb.delete(storeName);
-        //     });
-        // }, 1000);
+        await this.pendingStoreAdapter.lock(async () => {
+            const pendingUpdates = await this.pendingStoreAdapter.readAll();
+            if (!pendingUpdates.length) return;
+            const indexes = pendingUpdates.map(update => update.__index);
+            const pendingById = new Map<number, Update<D, T>>();
+            for (const pendingUpdate of pendingUpdates) {
+                const existing = pendingById.get(pendingUpdate.id);
+                pendingById.set(pendingUpdate.id, existing ? Object.assign(existing, pendingUpdate) : pendingUpdate);
+            }
+            const sendUpdates = Array.from(pendingById.values());
+            for (const update of sendUpdates) delete update.__index;
+            const sent = await this.trySend(sendUpdates);
+            if (!sent) {
+                setTimeout(() => this.sendPending(iteration + 1), Math.min(iteration * 3000, 15000));
+                return;
+            }
+            await this.pendingStoreAdapter.deleteMany(indexes);
+        });
+    }
+
+    private async trySend(rows: Update<D, T>[]) {
+        if (!this.isOnline.unsafeGet()) return false;
+        try {
+            if (this.createOffline) {
+                await this.supabase.from(this.tableName).upsert(rows).throwOnError();
+            } else {
+                await Promise.all(rows.map(async row => {
+                    const id = row.id;
+                    delete row.id;
+                    await this.supabase.from(this.tableName)
+                        .update(row)
+                        .eq("id", id)
+                        .throwOnError();
+                }));
+            }
+            return true;
+        } catch (error) {
+            console.error("Error sending updates:", error);
+            return false;
+        }
     }
 }

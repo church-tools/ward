@@ -1,12 +1,19 @@
-import { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { RealtimeChannel, SupabaseClient, User } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
-import { IDBStoreAdapter } from "./table/idb-store-adapter";
+import { Lock } from "../flow-control-utils";
+import { IDBStoreAdapter, IDBStoreInfo } from "./table/idb-store-adapter";
 import { Row, SupaSyncTable } from "./table/supa-sync-table";
 
-const META_DATA_KEY = "__meta_data__";
+const LAST_SYNC_KEY = "last_sync";
 
 export type Database = { public: { Tables: { [key: string]: any } } };
 export type TableName<D extends Database> = keyof D["public"]["Tables"] & string;
+export type Payload<D extends Database> = {
+    commit_timestamp: string,
+    table: TableName<D>,
+    eventType: 'INSERT' | 'UPDATE' | 'DELETE',
+    new: Row<D, TableName<D>>
+};
 
 export type IDBInfo<D extends Database> = {
     name: string;
@@ -15,37 +22,41 @@ export type IDBInfo<D extends Database> = {
 }
 
 function getPendingStoreName(tableName: TableName<Database>) {
-    return 'pending_' + tableName;
+    return tableName + '_pending';
 }
 
 export class SupaSync<D extends Database> {
 
+    public static async setup<D extends Database>(supabase: SupabaseClient<D>, user: User, isOnline: AsyncState<boolean>, idbInfo: IDBInfo<D>) {
+        const storeInfos: IDBStoreInfo[] = idbInfo.tableNames.map(tableName => [
+            { name: tableName, keyPath: 'id', indexes: [{ key: 'id_index', unique: true }] },
+            { name: getPendingStoreName(tableName), keyPath: '__index', autoIncrement: true }
+        ]).flat();
+        const idb = await IDBStoreAdapter.setup(idbInfo.name, idbInfo.version, storeInfos);
+        const sync = new SupaSync<D>(supabase, user, isOnline);
+        for (const { name } of storeInfos)
+            sync.adaptersByStoreName[name] = new IDBStoreAdapter<Row<D, TableName<D>>>(idb, name);
+        sync.startSyncing(idbInfo.tableNames);
+        return sync;
+    }
+
     private channel: RealtimeChannel | undefined;
 
-    private readonly tablesByName: Record<TableName<D>, SupaSyncTable<D, TableName<D>>> = <any>{};
+    private readonly eventLock = new Lock();
     private readonly adaptersByStoreName: Record<string, IDBStoreAdapter<Row<D, TableName<D>>>> = <any>{};
 
     constructor(
         private readonly supabase: SupabaseClient<D>,
+        private readonly user: User,
         private readonly isOnline: AsyncState<boolean>,
-        idbInfo: IDBInfo<D>
     ) {
-        IDBStoreAdapter.setup(idbInfo.name, idbInfo.version, idbInfo.tableNames);
-        for (const tableName of idbInfo.tableNames) {
-            const pendingStoreName = getPendingStoreName(tableName);
-            this.adaptersByStoreName[tableName] = new IDBStoreAdapter<Row<D, TableName<D>>>(tableName);
-            this.adaptersByStoreName[pendingStoreName] = new IDBStoreAdapter<Row<D, TableName<D>>>(pendingStoreName);
-        }
-        isOnline.get()
-        .then(() => this.startSyncing(idbInfo.tableNames));
     }
 
     public getTable<T extends TableName<D>>(tableName: T, createOffline: boolean, updateOffline: boolean) {
         const tableAdapter = this.adaptersByStoreName[tableName];
         const pendingStoreAdapter = this.adaptersByStoreName[getPendingStoreName(tableName)];
-        const table = new SupaSyncTable<D, T>(this.supabase, this.isOnline, tableAdapter, pendingStoreAdapter, tableName, createOffline, updateOffline);
-        this.tablesByName[tableName] = table;
-        return table;
+        return new SupaSyncTable<D, T>(this.supabase, this.user, this.isOnline, tableAdapter,
+            pendingStoreAdapter, tableName, createOffline, updateOffline);
     }
 
     public cleanup() {
@@ -56,30 +67,40 @@ export class SupaSync<D extends Database> {
     }
 
     private async startSyncing(tableNames: TableName<D>[]) {
+        await this.isOnline.get();
+        const lastUpdatedAt = await this.getLastSync();
+        const now = new Date().toISOString();
         await Promise.all(tableNames.map(async tableName => {
-            const lastUpdatedAt = await this.getLastSync(tableName);
-            const now = Date.now();
             const { data } = await this.supabase.from(tableName)
                 .select('*')
                 .gt('updated_at', lastUpdatedAt)
                 .throwOnError();
             const adapter = this.adaptersByStoreName[tableName];
-            await adapter.writeMany(data);
-            await this.updateLastSync(tableName, now);
+            if (data.length) {
+                await adapter.writeMany(data);
+                adapter.onWrite.emit(data);
+            }
+            adapter.initialized.set(true);
         }));
+        this.setLastSync(now);
         this.channel = this.supabase.channel(`schema-db-changes`)
         .on('postgres_changes',
             { event: '*', schema: 'public' },
-            (payload: { table: TableName<D>, eventType: 'INSERT' | 'UPDATE' | 'DELETE', new: Row<D, TableName<D>> }) => {
-                const adapter = this.adaptersByStoreName[payload.table];
-                switch (payload.eventType) {
-                    case 'INSERT': case 'UPDATE':
-                        adapter.write(payload.new);
-                        break;
-                    case 'DELETE':
-                        // table.writeFromServer([payload.new]);
-                        break;
-                }
+            async (payload: Payload<D>) => {
+                await this.eventLock.lock(async () => {
+                    const adapter = this.adaptersByStoreName[payload.table];
+                    switch (payload.eventType) {
+                        case 'INSERT':
+                        case 'UPDATE':
+                            await adapter.write(payload.new);
+                            adapter.onWrite.emit(payload.new);
+                            break;
+                        case 'DELETE':
+                            await adapter.delete(payload.new.id);
+                            break;
+                    }
+                    this.setLastSync(payload.commit_timestamp);
+                });
             })
         .subscribe((status: string) => {
             switch (status) {
@@ -93,14 +114,12 @@ export class SupaSync<D extends Database> {
         });
     }
 
-    private async getLastSync(tableName: TableName<D>) {
-        const adapter = this.adaptersByStoreName[tableName];
-        const metaData = await adapter.read<{ lastSync: number }>(META_DATA_KEY);
-        return new Date(metaData?.lastSync ?? 0).toISOString();
+    private async getLastSync() {
+        const lastSync = localStorage.getItem(LAST_SYNC_KEY);
+        return lastSync ?? new Date(0).toISOString();
     }
 
-    private async updateLastSync(tableName: TableName<D>, lastSync: number) {
-        const adapter = this.adaptersByStoreName[tableName];
-        await adapter.write({ id: META_DATA_KEY, lastSync });
+    private async setLastSync(lastSync: string) {
+        localStorage.setItem(LAST_SYNC_KEY, lastSync);
     }
 }

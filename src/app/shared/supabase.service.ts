@@ -28,15 +28,17 @@ export class SupabaseService {
                 {
                     const { unit } = this.getDataFromAccessToken(session.access_token);
                     await this.client.realtime.setAuth(session.access_token);
-                    this.sync.set(new SupaSync<Database>(
+                    const sync = await SupaSync.setup<Database>(
                         this.client,
+                        session.user,
                         this.isOnline,
                         {
                             name: `${environment.appId}-${unit}`,
                             version: 1,
                             tableNames: ['agenda', 'task', 'profile'],
                         }
-                    ));
+                    );
+                    this.sync.set(sync);
                     break;
                 }
                 case 'SIGNED_OUT': {

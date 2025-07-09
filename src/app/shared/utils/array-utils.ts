@@ -52,3 +52,12 @@ export function getHighest<T>(array: T[], getValue: (item: T, i: number) => numb
     }
     return highest;
 }
+
+export function mapToSubObjects<T>(array: T[], ...keys: (keyof T)[]): Partial<T>[] {
+    return array.map(item => {
+        const subObject: Partial<T> = {};
+        for (const key of keys)
+            subObject[key] = item[key];
+        return subObject;
+    });
+}

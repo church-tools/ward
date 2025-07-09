@@ -9,9 +9,11 @@
     max-height: min-content;
 }
 
-::ng-deep {
-    .form-input {
-        background-color: card.$background-transparent-color;
-        border-color: input.$border-color-transparent;
+.omni-search-select {
+    ::ng-deep {
+        .form-input {
+            background-color: card.$background-transparent-color;
+            border-color: input.$border-color-transparent;
+        }
     }
 }

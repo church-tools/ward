@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, signal } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, signal, viewChild } from "@angular/core";
 import { MaybeAsync } from "@angular/router";
 import { Subscription } from "rxjs";
 import type { Insert, Row, TableName } from "../../shared/types";
@@ -8,6 +8,7 @@ import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import { getTableService, RowRecords } from "./table.service";
+import { mapToSubObjects } from "../../shared/utils/array-utils";
 
 @Component({
     selector: 'app-row-card-list',
@@ -16,7 +17,6 @@ import { getTableService, RowRecords } from "./table.service";
             @if (rowComponent(); as component) {
                 @if (insertComponent(); as insertComponent) {
                     <app-card-list
-                        [itemsById]="rowRecords()"
                         [cardClasses]="cardClasses()"
                         [reorderable]="editable()"
                         [editable]="editable()"
@@ -62,14 +62,15 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);
     protected readonly insertComponent = asyncComputed([this.tableName], getListInsertComponent);
 
-    protected readonly rowRecords = signal<RowRecords<T>>({});
+    protected readonly cardListView = viewChild(CardListComponent);
     private subscription: Subscription | undefined;
 
     constructor() {
-        xeffect([this.tableService, this.filter], (tableService, filter) => {
+        xeffect([this.cardListView, this.tableService, this.filter], (cardListView, tableService, filter) => {
+            if (!cardListView) return;
             this.subscription?.unsubscribe();
             this.subscription = tableService?.observeMany(filter)
-                .subscribe(rowRecords => this.rowRecords.set(rowRecords));
+                .subscribe(rowRecords => cardListView?.updateItems(rowRecords));
         });
     }
 
@@ -79,7 +80,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {
-        await this.tableService()!.updateRows(rows, this.tableService()!.orderField!);
+        await this.tableService()!.updateRows(mapToSubObjects(rows,
+            'id' as keyof Row<T>, 'position' as keyof Row<T>, 'unit' as keyof Row<T>));
     }
 
     ngOnDestroy(): void {

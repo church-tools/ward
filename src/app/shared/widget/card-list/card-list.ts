@@ -17,6 +17,7 @@ type ItemCard<T> = {
     item: T;
     entranceAnimation?: boolean;
     rect?: DOMRect; // used for animations
+    delete?: boolean;
 }
 
 @Component({
@@ -29,7 +30,6 @@ export class CardListComponent<T> {
 
     private readonly windowService = inject(WindowService);
 
-    readonly itemsById = model.required<Record<number, T>>();
     readonly editable = input(false);
     readonly gap = input(2);
     readonly idKey = input.required<KeyWithValue<T, number>>();
@@ -57,7 +57,6 @@ export class CardListComponent<T> {
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
 
-    private readonly listItemsById: Record<number, ItemCard<T>> = {};
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
     
@@ -67,11 +66,6 @@ export class CardListComponent<T> {
     private insertBtnHeight = 0;
 
     constructor() {
-        xeffect([this.itemsById], async itemsById => {
-            await this.changeLock.lock();
-            await this.dragDropMutex.wait();
-            this.updateItemCards(itemsById);
-        });
         xeffect([this.cardViews], cardViews => {
             if (this.dropped) {
                 this.dropped = false;
@@ -95,6 +89,12 @@ export class CardListComponent<T> {
                 }),
             ];
         });
+    }
+
+    async updateItems(itemsById: Record<number, T | null>) {
+        await this.changeLock.lock();
+        await this.dragDropMutex.wait();
+        this.updateItemCards(itemsById);
     }
 
     async ngOnInit() {
@@ -130,11 +130,7 @@ export class CardListComponent<T> {
             this.insertedItem.set(null);
             this.newEditCard.set(true);
             const id = insertedItem[this.idKey()] as number;
-            this.itemsById.update(itemsById => {
-                itemsById[id] = insertedItem;
-                this.updateItemCards(itemsById, false);
-                return itemsById;
-            });
+            this.updateItemCards({ [id]: insertedItem });
             const element = this.insertionCardView()!.nativeElement;
             await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, 'ease-out', true);
             this.newEditCard.set(false);
@@ -173,22 +169,27 @@ export class CardListComponent<T> {
         this.dropped = true;
     }
 
-    private updateItemCards(itemsById: Record<number, T>, entranceAnimation = true) {
-        const newItemCards = Object.entries(itemsById)
-            .filter(([id, _]) => !(id in this.listItemsById))
-            .map(([id, item]) => <ItemCard<T>>{ id: +id, item, entranceAnimation: entranceAnimation && this.initialized });
-        const existingItemCards = this.itemCards();
-        if (newItemCards.length) {
-            this.initialized = true;
-            for (const itemCard of newItemCards)
-                this.listItemsById[itemCard.id] = itemCard;
-            this.setItemCards([...existingItemCards, ...newItemCards]);
-        } else {
-            this.setItemCards(existingItemCards);
+    private updateItemCards(itemsById: Record<number, T | null>, entranceAnimation = true) {
+        const itemCards = [...this.itemCards()];
+        const itemCardsById = Object.fromEntries(itemCards.map(itemCard => [itemCard.id, itemCard]));
+        for (const id in itemsById) {
+            const item = itemsById[id];
+            if (item) {
+                if (id in itemCardsById)
+                    itemCardsById[id].item = item;
+                else {
+                    const newItemCard: ItemCard<T> = { id: +id, item, entranceAnimation: entranceAnimation && !this.initialized };
+                    itemCards.push(newItemCard);
+                }
+            } else if (id in itemCardsById) {
+                itemCardsById[id].delete = true;
+            }
         }
+        if (itemCards.length) this.initialized = true;
+        this.setItemCards(itemCards);
     }
 
-    private async setItemCards(newItemCards: ItemCard<T>[]) {
+    private setItemCards(newItemCards: ItemCard<T>[]) {
         if (!this.orderIsCorrect(newItemCards))
             this.sort(newItemCards);
         this.itemCards.set(newItemCards);
@@ -200,6 +201,7 @@ export class CardListComponent<T> {
             const itemCard = itemCards[index];
             if (!itemCard) return;
             const element = cardView.nativeElement;
+            const oldRect = itemCard.rect;
             const newRect = itemCard.rect = element.getBoundingClientRect();
             const fromStyle: Partial<CSSStyleDeclaration> = {};
             const toStyle: Partial<CSSStyleDeclaration> = {};
@@ -210,7 +212,6 @@ export class CardListComponent<T> {
                 toStyle.height = `${newRect.height}px`;
                 toStyle.opacity = '1';
             }
-            const oldRect = itemCard.rect;
             if (oldRect && (Math.abs(oldRect.top - newRect.top) > 1 || Math.abs(oldRect.left - newRect.left) > 1)) {
                 fromStyle.transform = `translate(${oldRect.left - newRect.left}px, ${oldRect.top - newRect.top}px)`;
                 toStyle.transform = 'translate(0px, 0px)';

@@ -1,4 +1,3 @@
-
 export function wait(ms = 100) {
     return new Promise<void>(res => setTimeout(res, ms));
 }
@@ -12,6 +11,32 @@ export function executeOnce<T>(callback: () => T, threshold = 250): T | null {
         return null; // Skip execution if within threshold
     executionTimes.set(callback, now);
     return callback();
+}
+
+// aggregates calls inside a time frame and returns the aggregated result
+export class Aggregator<T> {
+
+    private readonly pendingCalls: T[] = [];
+    private timeoutId: number | undefined;
+    private resolver: ((values: T[]) => void) | undefined;
+
+    constructor(private readonly timeFrame = 100) {}
+
+    aggregate(value: T): Promise<T[]> {
+        this.pendingCalls.push(value);
+        return new Promise<T[]>(resolve => {
+            this.resolver?.([]);
+            this.resolver = resolve;
+            if (this.timeoutId) clearTimeout(this.timeoutId);
+            this.timeoutId = window.setTimeout(() => {
+                const result = [...this.pendingCalls];
+                this.pendingCalls.length = 0;
+                this.timeoutId = undefined;
+                this.resolver?.(result);
+                this.resolver = undefined;
+            }, this.timeFrame);
+        });
+    }
 }
 
 export class Lock {

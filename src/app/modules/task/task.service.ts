@@ -7,7 +7,7 @@ export class TaskService extends TableService<'task'> {
 
     readonly tableName = 'task';
     readonly orderField = 'position';
-    readonly createOffline = false;
+    readonly createOffline = true;
 
     override toString(row: Task.Row): string {
         return row.title ?? row.content ?? '';
