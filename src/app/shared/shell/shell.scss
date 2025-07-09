@@ -32,10 +32,10 @@
     &.narrow .canvas {
         justify-content: flex-start;
         display: flex;
-        margin: 4 * layout.$gutter;
+        margin: layout.$canvas-margin-narrow;
     }
     &:not(.narrow) .canvas {
-        margin: 12 * layout.$gutter 16 * layout.$gutter;
+        margin: layout.$canvas-margin;
     }
 }
 

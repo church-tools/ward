@@ -7,8 +7,7 @@ import { PrivatePageComponent } from './shared/private-page';
         <span class="h0">Mitglieder</span>
         <p>Members component content goes here.</p>
     `,
-    styleUrls: ['../shared/page/page.scss'],
-    host: { class: 'narrow' },
+    host: { class: 'page narrow' },
 })
 export class MembersPageComponent extends PrivatePageComponent {
 

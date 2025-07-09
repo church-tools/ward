@@ -5,7 +5,7 @@ import { PageComponent } from '../../shared/page/page';
     selector: 'app-private-page',
     template: ``,
     host: {
-        class: "animated column gap-3",
+        class: "column gap-3",
         '[class.hidden]': "!show()",
     },
 })

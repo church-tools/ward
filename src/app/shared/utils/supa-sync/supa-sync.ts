@@ -18,8 +18,10 @@ export type Payload<D extends Database> = {
 export type IDBInfo<D extends Database> = {
     name: string;
     version: number;
-    tableNames: TableName<D>[]
+    tables: Partial<{ [K in TableName<D>]: IDBIndexes<D, K> }>;
 }
+
+export type IDBIndexes<D extends Database, T extends TableName<D>> = Partial<{ [K in keyof Row<D, T>]: { unique?: boolean } }>;
 
 function getPendingStoreName(tableName: TableName<Database>) {
     return tableName + '_pending';
@@ -28,15 +30,16 @@ function getPendingStoreName(tableName: TableName<Database>) {
 export class SupaSync<D extends Database> {
 
     public static async setup<D extends Database>(supabase: SupabaseClient<D>, user: User, isOnline: AsyncState<boolean>, idbInfo: IDBInfo<D>) {
-        const storeInfos: IDBStoreInfo[] = idbInfo.tableNames.map(tableName => [
-            { name: tableName, keyPath: 'id', indexes: [{ key: 'id_index', unique: true }] },
-            { name: getPendingStoreName(tableName), keyPath: '__index', autoIncrement: true }
+        const storeInfos: IDBStoreInfo[] = Object.entries(idbInfo.tables).map(([name, indexes]) => [
+            { name, keyPath: 'id', indexes: [{ key: 'id', unique: true },
+                ...Object.entries(indexes ?? {}).map(([key, value]) => ({ key, unique: value?.unique }))] },
+            { name: getPendingStoreName(name), keyPath: '__index', autoIncrement: true }
         ]).flat();
         const idb = await IDBStoreAdapter.setup(idbInfo.name, idbInfo.version, storeInfos);
         const sync = new SupaSync<D>(supabase, user, isOnline);
         for (const { name } of storeInfos)
             sync.adaptersByStoreName[name] = new IDBStoreAdapter<Row<D, TableName<D>>>(idb, name);
-        sync.startSyncing(idbInfo.tableNames);
+        sync.startSyncing(Object.keys(idbInfo.tables));
         return sync;
     }
 

@@ -4,7 +4,7 @@ import { AsyncState } from "../../async-state";
 export type IDBStoreInfo = {
     name: string;
     keyPath: string;
-    indexes?: { key: string; unique: boolean }[];
+    indexes?: { key: any; unique?: boolean }[];
     autoIncrement?: boolean;
 }
 
@@ -21,7 +21,7 @@ export class IDBStoreAdapter<T> {
                         : idb.createObjectStore(name, { keyPath, autoIncrement });
                     for (const { key, unique } of indexes ?? [])
                         if (!store.indexNames.contains(key))
-                            store.createIndex(key, key, { unique });
+                            store.createIndex(key, key, { unique: unique ?? false });
                 }
                 resolve(idb);
             };
@@ -109,7 +109,7 @@ export class IDBStoreAdapter<T> {
         return new Promise<number | undefined>((resolve, reject) => {
             const transaction = this.idb.transaction(this.storeName, "readonly");
             const store = transaction.objectStore(this.storeName);
-            const index = store.index('id_index');
+            const index = store.index('id');
             const req = index.openKeyCursor(null, 'prev');
             req.onsuccess = () => {
                 const cursor = req.result;

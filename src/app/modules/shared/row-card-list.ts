@@ -1,14 +1,14 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, signal, viewChild } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
 import { MaybeAsync } from "@angular/router";
 import { Subscription } from "rxjs";
 import type { Insert, Row, TableName } from "../../shared/types";
+import { mapToSubObjects } from "../../shared/utils/array-utils";
 import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
-import { getTableService, RowRecords } from "./table.service";
-import { mapToSubObjects } from "../../shared/utils/array-utils";
+import { getTableService } from "./table.service";
 
 @Component({
     selector: 'app-row-card-list',
@@ -70,13 +70,13 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
             if (!cardListView) return;
             this.subscription?.unsubscribe();
             this.subscription = tableService?.observeMany(filter)
-                .subscribe(rowRecords => cardListView?.updateItems(rowRecords));
+                .subscribe(rowRecords => cardListView.updateItems(rowRecords));
         });
     }
 
     protected insertRow = async (row: Row<T>) => {
         const tableService = this.tableService()!;
-        return await tableService.insertRow(row as any);
+        return await tableService.insertRow(row);
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {

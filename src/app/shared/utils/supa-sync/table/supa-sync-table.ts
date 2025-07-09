@@ -1,7 +1,6 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
 import { AsyncState } from "../../async-state";
-import { Aggregator } from "../../flow-control-utils";
 import { Database, TableName } from "../supa-sync";
 import { IDBStoreAdapter } from "./idb-store-adapter";
 
@@ -12,11 +11,9 @@ function getRandomId() {
 export type Row<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Row"];
 type Update<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Update"];
 type Insert<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]["Insert"];
-export type Changes<D extends Database, T extends TableName<D>> = Record<number, Row<D, T> | null>;
+export type Changes<D extends Database, T extends TableName<D>> = Map<number, Row<D, T> | null>;
 
 export class SupaSyncTable<D extends Database, T extends TableName<D>> {
-
-    private readonly pendingAggregator = new Aggregator<Update<D, T>>(500);
 
     constructor(
         private readonly supabase: SupabaseClient<D>,
@@ -35,16 +32,17 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
         await this.storeAdapter.initialized.get();
         if (this.createOffline) {
             row.id ??= getRandomId();
+            this.storeAdapter.write(row);
             await this.writePending([row]);
         } else {
             const { data } = await this.supabase.from(this.tableName)
                 .insert(row)
                 .select("*")
                 .single()
-                .throwOnError();
+                .throwOnError();    
+            this.storeAdapter.write(row);
             row = data;
         }
-        this.storeAdapter.write(row);
         return row as Row<D, T>;
     }
 
@@ -71,12 +69,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
     public observeMany(ids: number[]) {
         return new Observable<Changes<D, T>>(observer => {
             this.storeAdapter.readMany(ids)
-                .then(rows => observer.next(Object.fromEntries(rows.filter(row => row?.id).map(row => [row!.id, row]))))
+                .then(rows => observer.next(new Map(rows.filter(row => row?.id).map(row => [row!.id, row]))))
                 .catch(err => observer.error(err));
             const idsSet = new Set(ids);
             const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
                 if (idsSet.has(row.id))
-                    observer.next({ [row.id]: row });
+                    observer.next(new Map([[row.id, row]]));
             });
             return () => writeSubscription.unsubscribe();
         });
@@ -85,10 +83,10 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
     public observeAll() {
         return new Observable<Changes<D, T>>(observer => {
             this.storeAdapter.readAll()
-                .then(rows => observer.next(Object.fromEntries(rows.map(row => [row!.id, row]))))
+                .then(rows => observer.next(new Map(rows.map(row => [row!.id, row]))))
                 .catch(err => observer.error(err));
             const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
-                observer.next({ [row.id]: row });
+                observer.next(new Map([[row.id, row]]));
             });
             return () => writeSubscription.unsubscribe();
         });

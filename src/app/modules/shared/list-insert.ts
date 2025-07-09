@@ -1,7 +1,8 @@
 import { Component, inject, input } from "@angular/core";
 import { MaybeAsync } from "@angular/router";
 import type { Insert, TableName } from "../../shared/types";
-import { UnitService } from "../unit/unit.service";
+import { Profile } from "../profile/profile";
+import { ProfileService } from "../profile/profile.service";
 
 export async function getListInsertComponent<T extends TableName>(tableName: T) {
     switch (tableName) {
@@ -16,15 +17,15 @@ export async function getListInsertComponent<T extends TableName>(tableName: T) 
 })
 export abstract class ListInsertComponent<T extends TableName> {
     
-    private readonly unitService = inject(UnitService);
+    private readonly profileService = inject(ProfileService);
     
     readonly insert = input.required<(item: Insert<T>) => MaybeAsync<void>>();
     readonly cancel = input.required<() => void>();
     readonly prepareInsert = input<(row: Insert<T>) => MaybeAsync<void>>();
 
     protected async submit() {
-        const unit = await this.unitService.getUnit();
-        let rowInfo = this.getRowInfo(unit.id);
+        const profile = await this.profileService.own.get();
+        let rowInfo = this.getRowInfo(profile);
         if (!rowInfo) {
             this.cancel()();
             return;
@@ -33,5 +34,5 @@ export abstract class ListInsertComponent<T extends TableName> {
         await this.insert()(rowInfo);
     }
 
-    protected abstract getRowInfo(unit: number): Insert<T> | undefined;
+    protected abstract getRowInfo(profile: Profile.Row): Insert<T> | undefined;
 }

@@ -30,8 +30,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
 
-    private readonly profile = this.profileService.getOwnAsSignal();
-    protected readonly additionalItems = xcomputed([this.profile], profile => {
+    protected readonly additionalItems = xcomputed([this.profileService.ownSignal], profile => {
         const items: MenuButtonItem[] = [];
         if (!profile) return items;
         if (profile.is_unit_admin) {

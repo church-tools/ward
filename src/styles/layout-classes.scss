@@ -201,3 +201,10 @@ ul {
     @extend .row, .gap-3, .spread-content;
     margin-top: 1.25rem;
 }
+
+.page {
+    max-width: $page-width;
+    width: 100%;
+    &.narrow { max-width: $page-width-narrow; }
+    &.wide { max-width: $page-width-wide; }
+}

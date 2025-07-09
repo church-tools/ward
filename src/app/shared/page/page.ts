@@ -4,7 +4,7 @@ import { Component } from '@angular/core';
     selector: 'app-page',
     template: ``,
     host: {
-        class: "animated column gap-3",
+        class: "column gap-3",
     },
 })
 export abstract class PageComponent {

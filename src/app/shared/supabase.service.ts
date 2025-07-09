@@ -3,7 +3,6 @@ import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../../database';
 import { environment } from '../../environments/environment';
 import { AsyncState } from './utils/async-state';
-import { xeffect } from './utils/signal-utils';
 import { SupaSync } from './utils/supa-sync/supa-sync';
 import { getSiteOrigin } from './utils/url-utils';
 import WindowService from './window.service';
@@ -12,14 +11,10 @@ import WindowService from './window.service';
 export class SupabaseService {
 
     private readonly windowService = inject(WindowService);
-    private readonly isOnline = new AsyncState<boolean>()
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new AsyncState<SupaSync<Database>>();
 
     constructor() {
-        xeffect([this.windowService.isOnline], isOnline => isOnline
-            ? this.isOnline.set(isOnline)
-            : this.isOnline.unset());
         this.client.auth.onAuthStateChange(async (event, session) => {
             if (!session?.access_token) return;
             switch (event) {
@@ -31,11 +26,15 @@ export class SupabaseService {
                     const sync = await SupaSync.setup<Database>(
                         this.client,
                         session.user,
-                        this.isOnline,
+                        this.windowService.onlineState,
                         {
                             name: `${environment.appId}-${unit}`,
                             version: 1,
-                            tableNames: ['agenda', 'task', 'profile'],
+                            tables: {
+                                profile: {},
+                                agenda: {},
+                                task: { agenda: {} },
+                            }
                         }
                     );
                     this.sync.set(sync);

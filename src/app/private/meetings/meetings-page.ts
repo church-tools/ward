@@ -11,8 +11,7 @@ import { PrivatePageComponent } from '../shared/private-page';
         <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"
             [getUrl]="getUrl"/>
     `,
-    styleUrls: ['../../shared/page/page.scss'],
-    host: { class: 'narrow' },
+    host: { class: 'page narrow' },
     imports: [RowCardListComponent],
 })
 export class MeetingsPageComponent extends PrivatePageComponent {

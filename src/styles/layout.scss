@@ -10,6 +10,16 @@ $md: 1007px;
 $lg: 1366px;
 $xl: 1000000px;
 
+$canvas-margin-x: 16 * $gutter;
+$canvas-margin-y: 12 * $gutter;
+$canvas-margin: $canvas-margin-y $canvas-margin-x;
+$canvas-margin-narrow: 4 * $gutter;
+$canvas-height: calc(100vh - 3.5rem - 2 * $canvas-margin-y);
+
+$page-width: 800px;
+$page-width-narrow: 600px;
+$page-width-wide: 1200px;
+
 @mixin larger-than($breakpoint) {
     @media only screen and (min-width: $breakpoint) { @content; }
 }

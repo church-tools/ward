@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, input, model, output, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
 import { MaybeAsync, RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
@@ -16,7 +16,7 @@ type ItemCard<T> = {
     id: number;
     item: T;
     entranceAnimation?: boolean;
-    rect?: DOMRect; // used for animations
+    top?: number; // used for animations - relative to container
     delete?: boolean;
 }
 
@@ -29,6 +29,7 @@ type ItemCard<T> = {
 export class CardListComponent<T> {
 
     private readonly windowService = inject(WindowService);
+    private readonly element = inject(ElementRef);
 
     readonly editable = input(false);
     readonly gap = input(2);
@@ -91,7 +92,7 @@ export class CardListComponent<T> {
         });
     }
 
-    async updateItems(itemsById: Record<number, T | null>) {
+    async updateItems(itemsById: Map<number, T | null>) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
         this.updateItemCards(itemsById);
@@ -130,7 +131,7 @@ export class CardListComponent<T> {
             this.insertedItem.set(null);
             this.newEditCard.set(true);
             const id = insertedItem[this.idKey()] as number;
-            this.updateItemCards({ [id]: insertedItem });
+            this.updateItemCards(new Map([[id, insertedItem]]), false);
             const element = this.insertionCardView()!.nativeElement;
             await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, 'ease-out', true);
             this.newEditCard.set(false);
@@ -169,23 +170,21 @@ export class CardListComponent<T> {
         this.dropped = true;
     }
 
-    private updateItemCards(itemsById: Record<number, T | null>, entranceAnimation = true) {
+    private updateItemCards(itemsById: Map<number, T | null>, entranceAnimation = true) {
+        if (!itemsById.size) return;
         const itemCards = [...this.itemCards()];
-        const itemCardsById = Object.fromEntries(itemCards.map(itemCard => [itemCard.id, itemCard]));
-        for (const id in itemsById) {
-            const item = itemsById[id];
-            if (item) {
-                if (id in itemCardsById)
-                    itemCardsById[id].item = item;
-                else {
-                    const newItemCard: ItemCard<T> = { id: +id, item, entranceAnimation: entranceAnimation && !this.initialized };
-                    itemCards.push(newItemCard);
-                }
-            } else if (id in itemCardsById) {
-                itemCardsById[id].delete = true;
+        const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
+        entranceAnimation &&= this.initialized;
+        for (const [id, item] of itemsById.entries()) {
+            const itemCard = itemCardMap.get(id);
+            if (itemCard) {
+                if (item) itemCard.item = item;
+                else itemCard.delete = true;
+            } else if (item) {
+                itemCards.push({ id: +id, item, entranceAnimation });
             }
         }
-        if (itemCards.length) this.initialized = true;
+        this.initialized = true;
         this.setItemCards(itemCards);
     }
 
@@ -196,29 +195,35 @@ export class CardListComponent<T> {
     }
 
     private animateCardViews(cardViews: readonly ElementRef<HTMLElement>[]) {
+        if (!cardViews.length) return;
+        const containerRect = this.element.nativeElement.getBoundingClientRect();
         const itemCards = this.itemCards();
-        cardViews.forEach((cardView, index) => {
-            const itemCard = itemCards[index];
+        for (let i = 0; i < cardViews.length; i++) {
+            const itemCard = itemCards[i];
             if (!itemCard) return;
+            const cardView = cardViews[i];
             const element = cardView.nativeElement;
-            const oldRect = itemCard.rect;
-            const newRect = itemCard.rect = element.getBoundingClientRect();
+            const oldTop = itemCard.top;
+            const absoluteRect = element.getBoundingClientRect();
+            const newTop = itemCard.top = absoluteRect.top - containerRect.top;
             const fromStyle: Partial<CSSStyleDeclaration> = {};
             const toStyle: Partial<CSSStyleDeclaration> = {};
             if (itemCard.entranceAnimation) {
                 itemCard.entranceAnimation = false;
                 fromStyle.height = '0px';
                 fromStyle.opacity = '0';
-                toStyle.height = `${newRect.height}px`;
+                toStyle.height = `${absoluteRect.height}px`;
                 toStyle.opacity = '1';
             }
-            if (oldRect && (Math.abs(oldRect.top - newRect.top) > 1 || Math.abs(oldRect.left - newRect.left) > 1)) {
-                fromStyle.transform = `translate(${oldRect.left - newRect.left}px, ${oldRect.top - newRect.top}px)`;
-                toStyle.transform = 'translate(0px, 0px)';
+            if (oldTop !== undefined) {
+                if (Math.abs(oldTop - newTop) > 1) {
+                    fromStyle.transform = `translate(0px, ${oldTop - newTop}px)`;
+                    toStyle.transform = 'translate(0px, 0px)';
+                }
             }
             if (hasRecords(fromStyle))
                 transitionStyle(element, fromStyle, toStyle, 300, 'ease-out', true);
-        });
+        }
     }
 
     private sort(itemCards: ItemCard<T>[]) {

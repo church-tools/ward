@@ -9,8 +9,7 @@ import { RowPageComponent } from '../../../shared/row-page';
         Test
         
     `,
-    styleUrls: ['../../../../shared/page/page.scss'],
-    host: { class: 'narrow' },
+    host: { class: 'page narrow' },
     imports: [],
 })
 export class TaskPageComponent extends RowPageComponent<'task'> {

@@ -1,6 +1,7 @@
 import { DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
+import { AsyncState } from "./utils/async-state";
 import { executeOnce } from "./utils/flow-control-utils";
 import { xcomputed } from "./utils/signal-utils";
 
@@ -39,6 +40,7 @@ export default class WindowService {
     readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
     readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
+    readonly onlineState = new AsyncState<boolean>();
 
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
@@ -60,8 +62,10 @@ export default class WindowService {
                 this.onResize.emit(window.screen);
             }, this.timeout);
         });
-        this.document.defaultView!.addEventListener?.('online', () => this.isOnline.set(true));
-        this.document.defaultView!.addEventListener?.('offline', () => this.isOnline.set(false));
+        if (navigator.onLine)
+            this.onlineState.set(true);
+        this.document.defaultView!.addEventListener?.('online', () => { this.isOnline.set(true); this.onlineState.set(true); });
+        this.document.defaultView!.addEventListener?.('offline', () => { this.isOnline.set(false); this.onlineState.unset(); });
         this.router.events.subscribe(res => {
             if (res instanceof NavigationEnd) {
                 this.onRouteChange.emit(res.urlAfterRedirects);

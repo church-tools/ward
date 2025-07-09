@@ -9,7 +9,7 @@ import { xcomputed } from '../../shared/utils/signal-utils';
     selector: 'app-row-page',
     template: ``,
     host: {
-        class: "animated column gap-3",
+        class: "column gap-3",
         '[class.hidden]': "!show()",
     },
 })

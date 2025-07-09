@@ -11,8 +11,7 @@ import { SupabaseService } from '../../shared/supabase.service';
     selector: 'app-setup-page',
     imports: [FormsModule, AsyncButtonComponent, TextInputComponent, SelectComponent],
     templateUrl: './setup-page.html',
-    styleUrls: ['../../shared/page/page.scss'],
-    host: { class: 'narrow' },
+    host: { class: 'page narrow' },
 })
 export class SetupPageComponent extends PageComponent {
 

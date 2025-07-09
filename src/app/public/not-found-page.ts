@@ -12,7 +12,7 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
         </app-link-button>
     `,
     imports: [LinkButtonComponent],
-    styleUrls: ['../shared/page/page.scss'],
+    host: { class: 'page narrow' },
 })
 export class NotFoundPageComponent extends PageComponent {
 

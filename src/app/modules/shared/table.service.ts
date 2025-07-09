@@ -5,10 +5,10 @@ import { Database } from "../../../../database";
 import { SupabaseService } from "../../shared/supabase.service";
 import { Insert, KeyWithValue, Row, TableName, Update } from "../../shared/types";
 import { AsyncState } from "../../shared/utils/async-state";
-import { filterRecords, findRecord, hasRecords } from "../../shared/utils/record-utils";
-import { SupaSyncTable } from "../../shared/utils/supa-sync/table/supa-sync-table";
+import { filterMap } from "../../shared/utils/map-utils";
+import { Changes, SupaSyncTable } from "../../shared/utils/supa-sync/table/supa-sync-table";
 
-export type RowRecords<T extends TableName> = Record<number, Row<T>>;
+export type RowMap<T extends TableName> = Changes<Database, T>;
 
 export async function getTableService<T extends TableName>(injector: Injector, tableName: T) {
     const service = await (async () => {
@@ -62,16 +62,16 @@ export abstract class TableService<T extends TableName> {
         });
     }
 
-    public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowRecords<T>> {
-        return new Observable<RowRecords<T>>(subscriber => {
+    public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowMap<T>> {
+        return new Observable<RowMap<T>>(subscriber => {
             let subscription: Subscription | undefined;
             this.sync.get()
             .then(sync => {
                 subscription = sync.observeAll().subscribe(changes => {
                     if (filter)
-                        changes = filterRecords(changes as RowRecords<T>, filter)
-                    if (hasRecords(changes))
-                        subscriber.next(changes as RowRecords<T>);
+                        changes = filterMap(changes, row => row != null && filter(row));
+                    if (changes.size)
+                        subscriber.next(changes);
                 });
             });
             return () => subscription?.unsubscribe();
@@ -79,13 +79,13 @@ export abstract class TableService<T extends TableName> {
     }
 
     public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
-        const sig = signal<RowRecords<T>>({});
+        const sig = signal<RowMap<T>>(new Map());
         this.sync.get()
         .then(sync => {
             let subscription = sync.observeAll().subscribe(changes => {
                 if (filter)
-                    changes = filterRecords(changes as RowRecords<T>, row => filter(row, sync.user));
-                if (hasRecords(changes))
+                    changes = filterMap(changes, row => row != null && filter(row, sync.user));
+                if (changes.size)
                     sig.update(current => Object.assign(current, changes));
             });
         });
@@ -97,9 +97,8 @@ export abstract class TableService<T extends TableName> {
         this.sync.get()
         .then(sync => {
             let subscription = sync.observeAll().subscribe(changes => {
-                const row = findRecord(changes as RowRecords<T>, row => filter(row, sync.user));
-                if (row)
-                    sig.set(row);
+                const row = changes.values().find(row => row && filter(row, sync.user));
+                if (row) sig.set(row);
             });
         });
         return sig;
