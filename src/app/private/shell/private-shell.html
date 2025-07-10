@@ -19,7 +19,7 @@
 <div class="nav-and-canvas">
     <app-nav-bar [tabs]="tabs()" [horizontal]="windowService.isSmall()"/>
     <div class="canvas-container transparent-canvas-background">
-        <div [@routeAnimations]="getRouteAnimationData()" class="canvas">
+        <div class="canvas">
             <router-outlet (activate)="onOutletLoaded($event)"/>
         </div>
     </div>

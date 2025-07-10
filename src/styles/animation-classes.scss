@@ -43,6 +43,19 @@
 
 }
 
+.page-enter-animation, .page-leave-animation {
+    pointer-events: none;
+}
+.page-enter-animation {
+    opacity: 0;
+    animation: pageEnter $duration 100ms $ease-out;
+}
+.page-leave-animation {
+    animation: fadeOut $duration-smaller $ease-in;
+    position: absolute;
+}
+
+
 .content-loader {
     transition: background-color 0.5s ease;
     position: relative;

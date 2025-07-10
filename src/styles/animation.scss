@@ -1,5 +1,6 @@
 
 $duration-xs: 0.1s;
+$duration-smaller: 0.15s;
 $duration-sm: 0.2s;
 $duration: 0.3s;
 $duration-lg: 0.5s;
@@ -77,4 +78,9 @@ $ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
 @keyframes contentLoading {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
+}
+
+@keyframes pageEnter {
+    from { opacity: 0; transform: translateY(100px); }
+    to { opacity: 1; transform: translateY(0); }
 }
