@@ -21,6 +21,10 @@
     max-width: layout.$page-width-narrow;
     animation: slide-in-from-right animation.$duration animation.$ease-out;
 
+    &:active {
+        cursor: grabbing;
+    }
+
     .drawer-card {
         height: 100%;
         overflow-y: auto;
