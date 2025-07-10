@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { PrivatePageComponent } from './private-page';
 import { Row, TableName } from '../../shared/types';
 import { TableService } from '../../modules/shared/table.service';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { xcomputed } from '../../shared/utils/signal-utils';
 
 @Component({
@@ -16,6 +16,7 @@ import { xcomputed } from '../../shared/utils/signal-utils';
 export abstract class RowPageComponent<T extends TableName> extends PrivatePageComponent implements OnInit {
     
     private readonly route = inject(ActivatedRoute);
+    private readonly router = inject(Router);
     
     protected readonly row = signal<Row<T> | undefined>(undefined);
 
@@ -30,6 +31,10 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
         if (!rowId) throw new Error(`${this.tableService.tableName} ID is required in the route`);
         const row = await this.tableService.get(+rowId);
         this.row.set(row);
+    }
+
+    protected navigateToThis() {
+        this.router.navigate(['.'], { relativeTo: this.route });
     }
 
 }

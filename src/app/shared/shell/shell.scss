@@ -46,6 +46,7 @@
     flex-direction: row;
     overflow: auto;
     justify-content: center;
+    overflow-x: clip;
     .canvas {
         position: relative;
         height: min-content;

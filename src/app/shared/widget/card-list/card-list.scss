@@ -20,9 +20,9 @@
         opacity: 0;
     }
     &.new {
-        animation: fadeIn animation.$duration ease-out;
+        animation: fadeIn animation.$duration animation.$ease-out;
         .add-btn {
-            animation: slideDown animation.$duration ease-out;
+            animation: slideDown animation.$duration animation.$ease-out;
         }
     }
     .drag-handle {

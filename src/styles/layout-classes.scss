@@ -203,6 +203,8 @@ ul {
 }
 
 .page {
+    display: flex;
+    flex-direction: column;
     max-width: $page-width;
     width: 100%;
     &.narrow { max-width: $page-width-narrow; }

@@ -34,7 +34,7 @@ $min-height: 32px;
 
 $placeholder-color: light-dark(#707070, #999999);
 
-$transition: all 0.1s ease-out;
+$transition: all 0.1s animation.$ease-out;
 
 $option-hover-background-color: light-dark(rgba(#242424, 0.075), rgba(#f5f5f5, 0.075));
 

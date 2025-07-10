@@ -39,7 +39,7 @@ $wiggleTransformB: rotate(-15deg);
 button {
     overflow: hidden;
     .progress-bar {
-        transition: width animation.$duration-sm ease, opacity animation.$duration ease-out;
+        transition: width animation.$duration-sm ease, opacity animation.$duration animation.$ease-out;
         background-color: font.$color;
         position: absolute;
         height: 0.125rem;

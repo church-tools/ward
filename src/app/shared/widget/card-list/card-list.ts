@@ -9,6 +9,7 @@ import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
 import { xeffect } from '../../utils/signal-utils';
+import { easeOut } from '../../utils/style';
 import WindowService from '../../window.service';
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
@@ -133,7 +134,7 @@ export class CardListComponent<T> {
             const id = insertedItem[this.idKey()] as number;
             this.updateItemCards(new Map([[id, insertedItem]]), false);
             const element = this.insertionCardView()!.nativeElement;
-            await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, 'ease-out', true);
+            await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, easeOut, true);
             this.newEditCard.set(false);
         });
     }
@@ -222,7 +223,7 @@ export class CardListComponent<T> {
                 }
             }
             if (hasRecords(fromStyle))
-                transitionStyle(element, fromStyle, toStyle, 300, 'ease-out', true);
+                transitionStyle(element, fromStyle, toStyle, 300, easeOut, true);
         }
     }
 

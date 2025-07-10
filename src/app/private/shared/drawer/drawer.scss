@@ -1,38 +1,51 @@
 @use 'layout';
+@use 'animation';
 
 :host {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: row;
-    gap: layout.$canvas-margin-x;
-
-    &.open {
-        .drawer {
-            display: block;
-            opacity: 1;
-        }
-    }
 }
 
 .main {
     flex-grow: 1;
 }
-
 .drawer {
     position: sticky;
     box-sizing: border-box;
-    display: none;
-    opacity: 0;
-    top: layout.$canvas-margin-y;
     height: layout.$canvas-height;
-    overflow-y: auto;
-    max-width: layout.$page-width-narrow;
+    top: layout.$canvas-margin-y;
     flex-grow: 1;
-    .drawer-body {
-        margin: layout.$canvas-margin;
+    margin-left: layout.$canvas-margin-x;
+    max-width: layout.$page-width-narrow;
+    animation: slide-in-from-right animation.$duration animation.$ease-out;
+
+    .drawer-card {
+        height: 100%;
+        overflow-y: auto;
+        .drawer-body {
+            margin: layout.$canvas-margin;
+        }
+        .close-button {
+            position: absolute;
+            top: layout.$gutter * 2;
+            right: layout.$gutter * 2;
+            z-index: 1;
+        }
     }
 }
 
 @include layout.larger-than(layout.$lg) {
+}
+
+@keyframes slide-in-from-right {
+    from {
+        transform: translateX(min(50%, calc(layout.$page-width-narrow / 2)));
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
 }

@@ -28,10 +28,10 @@
     height: 22px;
     left: 4px;
     border-radius: card.$border-radius-sm;
-    transition: all animation.$duration-sm ease-out;
+    transition: all animation.$duration-sm animation.$ease-out;
     &.visible {
         &.bottom {
-            animation: fade-to-bottom animation.$duration-sm ease-in-out;
+            animation: fade-to-bottom animation.$duration-sm ease;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.tab-#{$tab} {
                     transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
@@ -39,7 +39,7 @@
             }
         }
         &:not(.bottom) {
-            animation: fade-to-top animation.$duration-sm ease-in-out;
+            animation: fade-to-top animation.$duration-sm ease;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.tab-#{$tab} {
                     transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));
@@ -48,10 +48,10 @@
         }
     }
     &:not(.visible) {
-        animation: fadeOut animation.$duration-sm ease-in-out;
+        animation: fadeOut animation.$duration-sm ease;
         opacity: 0;
         &.prev-bottom {
-            animation: fade-to-bottom animation.$duration-sm ease-in-out;
+            animation: fade-to-bottom animation.$duration-sm ease;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.prev-tab-#{$tab} {
                     transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
@@ -59,7 +59,7 @@
             }
         }
         &:not(.prev-bottom) {
-            animation: fade-to-top animation.$duration-sm ease-in-out;
+            animation: fade-to-top animation.$duration-sm ease;
             @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
                 &.prev-tab-#{$tab} {
                     transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));

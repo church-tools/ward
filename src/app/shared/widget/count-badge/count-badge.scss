@@ -1,7 +1,6 @@
-@use "shared" as *; // Import only shared variables and mixins, no CSS output
+@use "animation";
 
 $translation: 1.5rem;
-$duration: 0.3s;
 
 :host {
     @extend .inverse-font-color;
@@ -11,7 +10,7 @@ $duration: 0.3s;
     width: 2rem;
     border-radius: 50%;
     font-weight: $weight-md;
-    transition: opacity $duration ease;
+    transition: opacity animation.$duration ease;
     &.small {
         @extend .small-text;
         height: 1.5rem;
@@ -19,11 +18,11 @@ $duration: 0.3s;
     }
 
     &.changing {
-        .count { animation: fadeInUp $duration ease-out; }
-        .previous-count { animation: fadeOutUp $duration ease-out; }
+        .count { animation: fadeInUp animation.$duration animation.$ease-out; }
+        .previous-count { animation: fadeOutUp animation.$duration animation.$ease-out; }
         &.increasing {
-            .count { animation: fadeInDown $duration ease-out; }
-            .previous-count { animation: fadeOutDown $duration ease-out; }
+            .count { animation: fadeInDown animation.$duration animation.$ease-out; }
+            .previous-count { animation: fadeOutDown animation.$duration animation.$ease-out; }
         }
     }
 

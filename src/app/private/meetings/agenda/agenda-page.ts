@@ -12,7 +12,7 @@ import { DrawerComponent } from "../../shared/drawer/drawer";
 @Component({
     selector: 'app-agenda-page',
     template: `
-        <app-drawer [routerOutlet]="routerOutlet">
+        <app-drawer [routerOutlet]="routerOutlet" (onClose)="navigateToThis()">
             <div main class="page narrow">
                 <app-back-button class="me-auto"/>
                 <span class="h0">{{title()}}</span>
@@ -38,7 +38,6 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     constructor() {
         super(inject(AgendaService));
     }
-
 
     protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
     

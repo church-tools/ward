@@ -1,7 +1,8 @@
+import { animate, group, query, style, transition, trigger } from '@angular/animations';
 import { AfterViewInit, Component, inject } from '@angular/core';
-import WindowService from '../window.service';
 import { ChildrenOutletContexts } from '@angular/router';
-import { animate, query, style, transition, trigger, group } from '@angular/animations';
+import { easeIn, easeOut } from '../utils/style';
+import WindowService from '../window.service';
 
 export const pageAnimations = trigger('routeAnimations', [
     transition('* <=> *', [
@@ -25,13 +26,13 @@ export const pageAnimations = trigger('routeAnimations', [
         ], { optional: true }),
         group([
             query(':leave', [
-                animate('150ms cubic-bezier(0.55, 0.055, 0.675, 0.19)', style({
+                animate(`150ms ${easeIn}`, style({
                     opacity: 0,
                     // transform: 'scale(0.98)'
                 }))
             ], { optional: true }),
             query(':enter', [
-                animate('300ms 100ms cubic-bezier(0.075, 0.82, 0.165, 1)', style({
+                animate(`300ms 100ms ${easeOut}`, style({
                     opacity: 1,
                     transform: 'translateY(0)'
                 }))

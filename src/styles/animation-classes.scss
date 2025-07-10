@@ -1,7 +1,7 @@
 @use "animation" as *;
 
 .fade-in {
-    animation: fadeIn $duration ease-out;
+    animation: fadeIn $duration $ease-out;
     &.hidden {
         animation: fadeOut $duration ease;
         opacity: 0;

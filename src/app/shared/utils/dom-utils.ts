@@ -9,7 +9,11 @@ export function getChildInputElement(element: HTMLElement | null): HTMLInputElem
     return null;
 }
 
-export async function transitionStyle(element: HTMLElement, from: Partial<CSSStyleDeclaration>, to: Partial<CSSStyleDeclaration>, durationMs: number, transitionFn = 'ease', clear = false): Promise<void> {
+export async function transitionStyle(element: HTMLElement,
+    from: Partial<CSSStyleDeclaration>,
+    to: Partial<CSSStyleDeclaration>,
+    durationMs: number, transitionFn = 'ease', clear = false
+): Promise<void> {
     for (const prop in from)
         (element.style as any)[prop] = from[prop];
     const prevTransition = element.style.transition;
