@@ -43,15 +43,8 @@ export class DrawerComponent implements OnDestroy {
     private routerSubscriptions: Subscription[] = [];
     
     // Drag state
-    private isDragging = false;
-    private dragStartX = 0;
-    private dragStartTime = 0;
-    private readonly dragThreshold = 100; // pixels to drag before closing
-    private readonly velocityThreshold = 0.5; // pixels per millisecond
-    
-    // Bound event handlers for cleanup
-    private boundOnDragMove = this.onDragMove.bind(this);
-    private boundOnDragEnd = this.onDragEnd.bind(this);
+    private dragState: { startX: number; startTime: number } | null = null;
+    private abortController = new AbortController();
 
     constructor() {
         xeffect([this.routerOutlet], outlet => {
@@ -76,10 +69,11 @@ export class DrawerComponent implements OnDestroy {
         });
 
         // Add global event listeners for drag functionality
-        document.addEventListener('mousemove', this.boundOnDragMove);
-        document.addEventListener('mouseup', this.boundOnDragEnd);
-        document.addEventListener('touchmove', this.boundOnDragMove, { passive: false });
-        document.addEventListener('touchend', this.boundOnDragEnd);
+        const { signal } = this.abortController;
+        document.addEventListener('mousemove', this.handleDrag.bind(this), { signal });
+        document.addEventListener('mouseup', this.handleDragEnd.bind(this), { signal });
+        document.addEventListener('touchmove', this.handleDrag.bind(this), { passive: false, signal });
+        document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
     }
 
     private async open() {
@@ -99,83 +93,51 @@ export class DrawerComponent implements OnDestroy {
     }
 
     protected onDragStart(event: MouseEvent | TouchEvent) {
-        this.isDragging = true;
-        this.dragStartTime = Date.now();
-        
-        if (event instanceof MouseEvent) {
-            this.dragStartX = event.clientX;
-        } else {
-            this.dragStartX = event.touches[0].clientX;
-        }
-        
-        // Prevent text selection during drag
-        const element = this.drawerView()!.nativeElement;
-        element.style.userSelect = 'none';
-        
-        // Prevent default to avoid text selection or scrolling
+        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
+        this.dragState = { startX: clientX, startTime: Date.now() };
+        this.drawerView()!.nativeElement.style.userSelect = 'none';
         event.preventDefault();
     }
 
-    private onDragMove(event: MouseEvent | TouchEvent) {
-        if (!this.isDragging || !this.drawerView()) return;
+    private handleDrag(event: MouseEvent | TouchEvent) {
+        if (!this.dragState || !this.drawerView()) return;
 
         const currentX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const deltaX = currentX - this.dragStartX;
+        const deltaX = currentX - this.dragState.startX;
         
-        // Only allow dragging to the right (positive deltaX)
         if (deltaX > 0) {
             const element = this.drawerView()!.nativeElement;
             element.style.transform = `translateX(${deltaX}px)`;
-            element.style.opacity = `${Math.max(0.3, 1 - (deltaX / 200))}`;
+            element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
         }
         
-        // Prevent default to avoid scrolling on touch
-        if (event instanceof TouchEvent) {
-            event.preventDefault();
-        }
+        event instanceof TouchEvent && event.preventDefault();
     }
 
-    private onDragEnd(event: MouseEvent | TouchEvent) {
-        if (!this.isDragging || !this.drawerView()) return;
+    private handleDragEnd(event: MouseEvent | TouchEvent) {
+        if (!this.dragState || !this.drawerView()) return;
         
-        this.isDragging = false;
         const element = this.drawerView()!.nativeElement;
-        
-        const currentX = event instanceof MouseEvent 
-            ? event.clientX 
-            : event.changedTouches[0].clientX;
-        const deltaX = currentX - this.dragStartX;
-        const dragTime = Date.now() - this.dragStartTime;
-        const velocity = deltaX / dragTime;
+        const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
+        const deltaX = currentX - this.dragState.startX;
+        const velocity = deltaX / (Date.now() - this.dragState.startTime);
         
         // Close if dragged far enough or with sufficient velocity
-        const shouldClose = deltaX > this.dragThreshold || velocity > this.velocityThreshold;
-        
-        if (shouldClose) {
+        if (deltaX > 100 || velocity > 0.5) {
             this.close();
         } else {
             // Reset position with animation
             element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            element.style.transform = '';
-            element.style.opacity = '';
-            
-            // Remove transition after animation completes
-            setTimeout(() => {
-                element.style.transition = '';
-            }, 300);
+            element.style.transform = element.style.opacity = '';
+            setTimeout(() => element.style.transition = '', 300);
         }
         
-        // Re-enable text selection
         element.style.userSelect = '';
+        this.dragState = null;
     }
 
     ngOnDestroy() {
         this.routerSubscriptions.forEach(sub => sub.unsubscribe());
-        
-        // Clean up global event listeners
-        document.removeEventListener('mousemove', this.boundOnDragMove);
-        document.removeEventListener('mouseup', this.boundOnDragEnd);
-        document.removeEventListener('touchmove', this.boundOnDragMove);
-        document.removeEventListener('touchend', this.boundOnDragEnd);
+        this.abortController.abort(); // Clean up all event listeners at once
     }
 }
