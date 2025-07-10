@@ -42,7 +42,7 @@
         window.addEventListener('view-initialized', function() {
             viewInitialized = true;
             hideLoadingScreen();
-        });
+        }, { once: true });
 
         document.addEventListener("DOMContentLoaded", function() {
             const font = new FontFace('FluentSystemIcons-Resizable', 'url(assets/fonts/FluentSystemIcons-Resizable.woff2)');

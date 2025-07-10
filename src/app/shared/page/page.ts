@@ -8,6 +8,7 @@ export const LEAVE_ANIMATION = 'page-leave-animation';
     host: {
         class: "page column gap-3",
         '[class.page-enter-animation]': 'entering()',
+        '[class.page-entered]': 'entered()',
     }
 })
 export abstract class PageComponent {
@@ -17,8 +18,10 @@ export abstract class PageComponent {
     private readonly app = inject(ApplicationRef);
 
     protected readonly entering = signal(true);
+    protected readonly entered = signal(false);
 
     constructor() {
+        setTimeout(() => this.entered.set(true), 200);
         setTimeout(() => this.entering.set(false), 350);
         if (!this.renderer) return;
         const renderer = this.renderer.delegate || this.renderer;

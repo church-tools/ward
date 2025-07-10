@@ -62,7 +62,7 @@ export class DrawerComponent implements OnDestroy {
             const margin = (element.computedStyleMap().get('margin-left') as CSSUnitValue).value;
             await transitionStyle(element,
                 { maxWidth: '0px', marginLeft: '0px' },
-                { maxWidth: `${width}px`, marginLeft: `${margin}` },
+                { maxWidth: `${width}px`, marginLeft: `${margin}px` },
                 500, easeOut);
             element.style.maxWidth = '';
             element.style.marginLeft = `${margin}px`;

@@ -45,7 +45,7 @@ export default class WindowService {
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
             this._focused.set(this.document.hasFocus?.());
-        });
+        }, { once: true });
         this.document.defaultView!.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
             this._darkColorScheme.set(event.matches);
         });
