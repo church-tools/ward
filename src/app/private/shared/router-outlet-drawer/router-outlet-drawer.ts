@@ -1,44 +1,48 @@
-import { Component, ElementRef, input, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
+import { Component, ElementRef, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
 import { Subscription } from "rxjs";
 import ButtonComponent from "../../../shared/form/button/button";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
 import { xeffect } from "../../../shared/utils/signal-utils";
 import { easeOut } from "../../../shared/utils/style";
-
+import { PageComponent } from "../../../shared/page/page";
 
 @Component({
-    selector: 'app-drawer',
+    selector: 'app-router-outlet-drawer',
     template: `
         <div class="main row center-content">
-            <ng-content select="[main]"/>
+            <ng-content/>
         </div>
-        @if (isOpen()) {
-            <div #drawer class="drawer"
-                (mousedown)="onDragStart($event)"
-                (touchstart)="onDragStart($event)">
-                <div class="drawer-card card canvas-card">
-                    <div class="drawer-body">
-                        <ng-content select="[drawer]"/>
-                    </div>
-                    <app-button type="subtle" icon="dismiss" size="large"
-                        class="close-button icon-only"
-                        (click)="close()"/>
+        <div #drawer class="drawer"
+            (mousedown)="onDragStart($event)"
+            (touchstart)="onDragStart($event)">
+            <div class="drawer-card card canvas-card">
+                <div class="drawer-body">
+                    <router-outlet/>
                 </div>
+                <app-button type="subtle" icon="dismiss" size="large"
+                    class="close-button icon-only"
+                    (click)="close()"/>
             </div>
-        }
+        </div>
     `,
-    imports: [ButtonComponent],
-    styleUrl: './drawer.scss',
+    imports: [RouterOutlet, ButtonComponent],
+    styleUrl: './router-outlet-drawer.scss',
+    host: {
+        '[class.drawer-open]': 'isOpen()',
+        '[class.closing]': 'closing()',
+    },
 })
-export class DrawerComponent implements OnDestroy {
+export class RouterOutletDrawerComponent implements OnDestroy {
 
-    readonly routerOutlet = input.required<RouterOutlet>();
     readonly onClose = output<void>();
+    readonly activeChild = output<PageComponent>();
     
     protected readonly isOpen = signal(false);
+    protected readonly closing = signal(false);
 
-    private readonly drawerView = viewChild('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
+    private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
+    private readonly routerOutlet = viewChild.required(RouterOutlet);
 
     private routerSubscriptions: Subscription[] = [];
     
@@ -55,17 +59,15 @@ export class DrawerComponent implements OnDestroy {
                 outlet.deactivateEvents.subscribe(this.close.bind(this)),
             ];
         });
-        xeffect([this.drawerView], async drawer => {
-            if (!drawer) return;
-            const element = drawer.nativeElement;
+        xeffect([this.isOpen], async open => {
+            if (!open) return;
+            const element = this.drawerView().nativeElement;
             const width = element.offsetWidth;
-            const margin = (element.computedStyleMap().get('margin-left') as CSSUnitValue).value;
             await transitionStyle(element,
-                { maxWidth: '0px', marginLeft: '0px' },
-                { maxWidth: `${width}px`, marginLeft: `${margin}px` },
+                { maxWidth: '0px' },
+                { maxWidth: `${width}px` },
                 500, easeOut);
             element.style.maxWidth = '';
-            element.style.marginLeft = `${margin}px`;
         });
 
         // Add global event listeners for drag functionality
@@ -81,12 +83,12 @@ export class DrawerComponent implements OnDestroy {
     }
 
     protected async close() {
+        this.closing.set(true);
         const element = this.drawerView()!.nativeElement;
         const width = element.offsetWidth;
-        const margin = (element.computedStyleMap().get('margin-left') as CSSUnitValue).value;
         await transitionStyle(element,
-            { maxWidth: `${width}px`, marginLeft: `${margin}` },
-            { maxWidth: '0px', marginLeft: '0px' },
+            { maxWidth: `${width}px` },
+            { maxWidth: '0px' },
             500, easeOut, true);
         this.isOpen.set(false);
         this.onClose.emit();

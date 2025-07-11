@@ -1,19 +1,19 @@
 import { Component, inject } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
 import { AgendaService } from '../../../modules/agenda/agenda.service';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Task } from '../../../modules/task/task';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { BackButtonComponent } from '../../shared/back-button';
+import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
-import { DrawerComponent } from "../../shared/drawer/drawer";
 
 @Component({
     selector: 'app-agenda-page',
     template: `
-        <app-drawer [routerOutlet]="routerOutlet" (onClose)="navigateToThis()">
-            <div main class="page narrow">
+        <app-router-outlet-drawer
+            (onClose)="navigateToThis()">
+            <div class="page narrow">
                 <app-back-button class="me-auto"/>
                 <span class="h0">{{title()}}</span>
                 <app-row-card-list tableName="task" [editable]="true"
@@ -21,12 +21,9 @@ import { DrawerComponent } from "../../shared/drawer/drawer";
                     [getUrl]="getTaskUrl"
                     [prepareInsert]="prepareTaskInsert"/>
             </div>
-            <div drawer>
-                <router-outlet #routerOutlet="outlet" router/>
-            </div>
-        </app-drawer>
+        </app-router-outlet-drawer>
     `,
-    imports: [RouterOutlet, RowCardListComponent, BackButtonComponent, DrawerComponent],
+    imports: [RowCardListComponent, BackButtonComponent, RouterOutletDrawerComponent],
     host: { class: 'full-width'}
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
