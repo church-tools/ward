@@ -1,11 +1,9 @@
 import { Component, ElementRef, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
 import { RouterOutlet } from "@angular/router";
-import { Subscription } from "rxjs";
 import ButtonComponent from "../../../shared/form/button/button";
-import { transitionStyle } from "../../../shared/utils/dom-utils";
-import { xeffect } from "../../../shared/utils/signal-utils";
-import { easeOut } from "../../../shared/utils/style";
 import { PageComponent } from "../../../shared/page/page";
+import { transitionStyle } from "../../../shared/utils/dom-utils";
+import { easeOut } from "../../../shared/utils/style";
 
 @Component({
     selector: 'app-router-outlet-drawer',
@@ -57,13 +55,14 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     protected async onActivate(component: PageComponent) {
         this.activeChild.set(component);
+        // Wait for the drawer to be displayed, then get its natural width and animate
+        await new Promise(resolve => requestAnimationFrame(resolve));
         const element = this.drawerView().nativeElement;
-            const width = element.offsetWidth;
-            await transitionStyle(element,
-                { maxWidth: '0px' },
-                { maxWidth: `${width}px` },
-                500, easeOut);
-            element.style.maxWidth = '';
+        await transitionStyle(element,
+            { width: '0px' },
+            { width: `${element.scrollWidth}px` },
+            500, easeOut);
+        element.style.width = '';
     }
 
     protected onDeactivate(component: PageComponent) {
@@ -75,11 +74,12 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         const element = this.drawerView()!.nativeElement;
         const width = element.offsetWidth;
         await transitionStyle(element,
-            { maxWidth: `${width}px` },
-            { maxWidth: '0px' },
+            { width: `${width}px` },
+            { width: '0px' },
             500, easeOut, true);
         this.activeChild.set(null);
         this.onClose.emit();
+        this.closing.set(false);
     }
 
     protected onDragStart(event: MouseEvent | TouchEvent) {

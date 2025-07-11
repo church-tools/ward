@@ -21,17 +21,17 @@
 }
 
 .main {
-    flex-grow: 1;
+    width: 100%;
 }
 .drawer {
     display: none;
+    overflow: hidden;
     position: sticky;
     box-sizing: border-box;
     height: layout.$canvas-height;
     top: layout.$canvas-margin-y;
-    flex-grow: 1;
+    width: 100%;
     max-width: layout.$page-width-narrow;
-    animation: slide-in-from-right animation.$duration animation.$ease-out;
 
     &:active {
         cursor: grabbing;

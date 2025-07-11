@@ -8,7 +8,7 @@ import { PrivatePageComponent } from '../shared/private-page';
     selector: 'app-meetings-page',
     template: `
         <span class="h0">Sitzungen</span>
-        <app-row-card-list tableName="agenda" [editable]="editMode()" [gap]="4"
+        <app-row-card-list tableName="agenda" [editable]="adminService.editMode()" [gap]="4"
             [getUrl]="getUrl"/>
     `,
     host: { class: 'page narrow' },

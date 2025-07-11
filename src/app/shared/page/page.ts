@@ -1,4 +1,4 @@
-import { afterNextRender, ApplicationRef, Component, ElementRef, inject, signal, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, inject, signal } from '@angular/core';
 
 export const LEAVE_ANIMATION = 'page-leave-animation';
 

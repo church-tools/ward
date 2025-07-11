@@ -1,8 +1,8 @@
 import { Injectable } from "@angular/core";
 import { AsyncState } from "../../shared/utils/async-state";
+import { xeffect } from "../../shared/utils/signal-utils";
 import { TableService } from "../shared/table.service";
 import { Profile } from "./profile";
-import { xeffect } from "../../shared/utils/signal-utils";
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService extends TableService<'profile'> {

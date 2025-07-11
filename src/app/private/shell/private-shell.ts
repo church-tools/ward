@@ -1,4 +1,4 @@
-import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
 import { ProfileService } from '../../modules/profile/profile.service';
 import { UnitService } from '../../modules/unit/unit.service';
@@ -7,7 +7,7 @@ import { ShellComponent } from '../../shared/shell/shell';
 import { SupabaseService } from '../../shared/supabase.service';
 import { xcomputed, xeffect } from '../../shared/utils/signal-utils';
 import { privateTabs } from '../private.routes';
-import { PrivatePageComponent } from '../shared/private-page';
+import { AdminService } from '../shared/admin.service';
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
 
@@ -20,8 +20,7 @@ import { OmniSearchComponent } from './omni-search/omni-search';
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     private readonly profileService = inject(ProfileService);
-
-    private readonly routerOutlet = viewChild.required(RouterOutlet);
+    private readonly adminService = inject(AdminService);
 
     protected readonly authenticated = signal<boolean>(false);
     protected readonly tabs = signal<NavBarTab[]>([]);
@@ -46,19 +45,12 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     constructor() {
         super();
         this.authenticate();
-        xeffect([this.routerOutlet, this.editMode], (outlet, editMode) => {
-            if (!outlet?.isActivated) return;
-            (outlet.component as PrivatePageComponent | undefined)?.editMode.set(editMode ?? false);
-        });
+        xeffect([this.editMode], editMode => this.adminService.editMode.set(editMode));
     }
     
     async ngOnInit() {
         this.tabs.set(Object.entries(privateTabs).map(([path, { label, icon }]) =>
             <NavBarTab>{ path, label, icon }));
-    }
-
-    protected onOutletLoaded(pageComponent: PrivatePageComponent) {
-        pageComponent.editMode.set(this.editMode());
     }
 
     private async authenticate() {

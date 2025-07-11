@@ -1,5 +1,5 @@
 <div class="header row no-wrap items-center gap-3 m-2">
-    <div class="handle row items-center gap-5 ms-3">
+    <div class="handle row no-wrap items-center first-handle gap-5 ms-3">
         <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
         <div class="app-name display-when-not-small small-text"
             [class.subtle-text]="!windowService.focused()">Gemeinde Tools</div>
@@ -20,7 +20,7 @@
     <app-nav-bar [tabs]="tabs()" [horizontal]="windowService.isSmall()"/>
     <div class="canvas-container transparent-canvas-background">
         <div class="canvas">
-            <router-outlet (activate)="onOutletLoaded($event)"/>
+            <router-outlet/>
         </div>
     </div>
 </div>

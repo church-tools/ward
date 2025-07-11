@@ -9,6 +9,12 @@
         .app-name {
             transition: color animation.$duration-sm ease;
         }
+        @include layout.larger-than(layout.$sm) {
+            &.first-handle {
+                padding-right: 4rem;
+            }
+        }
+         
     }
     app-omni-search {
         width: 100%;
