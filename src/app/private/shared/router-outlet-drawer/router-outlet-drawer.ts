@@ -18,7 +18,7 @@ import { PageComponent } from "../../../shared/page/page";
             (touchstart)="onDragStart($event)">
             <div class="drawer-card card canvas-card">
                 <div class="drawer-body">
-                    <router-outlet/>
+                    <router-outlet (activate)="onActivate($event)" (deactivate)="onDeactivate($event)"/>
                 </div>
                 <app-button type="subtle" icon="dismiss" size="large"
                     class="close-button icon-only"
@@ -29,47 +29,24 @@ import { PageComponent } from "../../../shared/page/page";
     imports: [RouterOutlet, ButtonComponent],
     styleUrl: './router-outlet-drawer.scss',
     host: {
-        '[class.drawer-open]': 'isOpen()',
+        '[class.drawer-open]': 'activeChild()',
         '[class.closing]': 'closing()',
     },
 })
 export class RouterOutletDrawerComponent implements OnDestroy {
 
     readonly onClose = output<void>();
-    readonly activeChild = output<PageComponent>();
-    
-    protected readonly isOpen = signal(false);
+
+    protected readonly activeChild = signal<PageComponent | null>(null);
     protected readonly closing = signal(false);
 
     private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
-    private readonly routerOutlet = viewChild.required(RouterOutlet);
-
-    private routerSubscriptions: Subscription[] = [];
     
     // Drag state
     private dragState: { startX: number; startTime: number } | null = null;
     private abortController = new AbortController();
 
     constructor() {
-        xeffect([this.routerOutlet], outlet => {
-            this.isOpen.set(outlet.isActivated);
-            this.routerSubscriptions.forEach(sub => sub.unsubscribe());
-            this.routerSubscriptions = [
-                outlet.activateEvents.subscribe(this.open.bind(this)),
-                outlet.deactivateEvents.subscribe(this.close.bind(this)),
-            ];
-        });
-        xeffect([this.isOpen], async open => {
-            if (!open) return;
-            const element = this.drawerView().nativeElement;
-            const width = element.offsetWidth;
-            await transitionStyle(element,
-                { maxWidth: '0px' },
-                { maxWidth: `${width}px` },
-                500, easeOut);
-            element.style.maxWidth = '';
-        });
-
         // Add global event listeners for drag functionality
         const { signal } = this.abortController;
         document.addEventListener('mousemove', this.handleDrag.bind(this), { signal });
@@ -78,8 +55,19 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
     }
 
-    private async open() {
-        this.isOpen.set(true);
+    protected async onActivate(component: PageComponent) {
+        this.activeChild.set(component);
+        const element = this.drawerView().nativeElement;
+            const width = element.offsetWidth;
+            await transitionStyle(element,
+                { maxWidth: '0px' },
+                { maxWidth: `${width}px` },
+                500, easeOut);
+            element.style.maxWidth = '';
+    }
+
+    protected onDeactivate(component: PageComponent) {
+        this.activeChild.set(null);
     }
 
     protected async close() {
@@ -90,7 +78,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             { maxWidth: `${width}px` },
             { maxWidth: '0px' },
             500, easeOut, true);
-        this.isOpen.set(false);
+        this.activeChild.set(null);
         this.onClose.emit();
     }
 
@@ -139,7 +127,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.routerSubscriptions.forEach(sub => sub.unsubscribe());
-        this.abortController.abort(); // Clean up all event listeners at once
+        this.abortController.abort();
     }
 }

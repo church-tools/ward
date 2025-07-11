@@ -43,18 +43,18 @@
 
 }
 
-.page-enter-animation, .page-leave-animation {
-    pointer-events: none;
+.page {
+    transition: opacity $duration $ease-out, transform $duration $ease-out;
 }
-.page-enter-animation {
+
+.page-enter {
     opacity: 0;
-    animation: pageEnter $duration 100ms $ease-out;
+    transform: translateY(100px);
 }
+
 .page-entered {
     opacity: 1;
-}
-.page-leave-animation {
-    animation: fadeOut $duration-smaller $ease-in;
+    transform: translateY(0);
 }
 
 
