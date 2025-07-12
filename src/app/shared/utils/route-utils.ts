@@ -15,7 +15,6 @@ export function mapRouteObject(routes?: { [path: string]: RouteObject }, parentP
             const route = <Route>{
                 path: prependPath ? fullPath : path,
                 loadComponent,
-                data: { animation: fullPath },
                 pathMatch: childrenInside ? 'prefix' : 'full',
             };
             if (childrenInside) {

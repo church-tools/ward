@@ -18,7 +18,7 @@ export abstract class PageComponent {
     
     protected readonly entering = signal(true);
     protected readonly entered = signal(false);
-    protected readonly viewTransitionName = 'page-' + Math.random().toString(36).substr(2, 9);
+    protected readonly viewTransitionName = 'page-' + Math.random().toString(36).slice(2, 10);
 
     constructor() {
         setTimeout(() => this.entered.set(true), 100);

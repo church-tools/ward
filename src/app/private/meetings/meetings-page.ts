@@ -7,7 +7,7 @@ import { PrivatePageComponent } from '../shared/private-page';
 @Component({
     selector: 'app-meetings-page',
     template: `
-        <span class="h0">Sitzungen</span>
+        <span class="h0" i18n>Meetings</span>
         <app-row-card-list tableName="agenda" [editable]="adminService.editMode()" [gap]="4"
             [getUrl]="getUrl"/>
     `,

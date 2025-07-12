@@ -4,6 +4,12 @@
   "newProjectRoot": "projects",
   "projects": {
     "ward-tools": {
+      "i18n": {
+        "sourceLocale": "en-US",
+        "locales": {
+          "de": "src/locale/messages.de.json"
+        }
+      },
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -13,6 +19,7 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
+            "localize": ["de"],
             "outputPath": "dist/ward-tools",
             "index": "src/index.html",
             "browser": "src/main.ts",
@@ -39,6 +46,9 @@
               "src/styles/styles.scss"
             ],
             "scripts": [],
+            "polyfills": [
+              "@angular/localize/init"
+            ],
             "allowedCommonJsDependencies": [
               "ws"
             ]

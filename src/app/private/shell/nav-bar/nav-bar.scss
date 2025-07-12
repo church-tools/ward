@@ -28,7 +28,7 @@
     height: 22px;
     left: 4px;
     border-radius: card.$border-radius-sm;
-    transition: all animation.$duration-sm animation.$ease-out;
+    transition: all animation.$duration-sm ease;
     &.visible {
         &.bottom {
             animation: fade-to-bottom animation.$duration-sm ease;

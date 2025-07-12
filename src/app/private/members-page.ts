@@ -4,7 +4,7 @@ import { PrivatePageComponent } from './shared/private-page';
 @Component({
     selector: 'app-members-page',
     template: `
-        <span class="h0">Mitglieder</span>
+        <span class="h0" i18n>Members</span>
         <p>Members component content goes here.</p>
     `,
     host: { class: 'page narrow' },

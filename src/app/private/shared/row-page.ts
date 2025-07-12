@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { PrivatePageComponent } from './private-page';
-import { Row, TableName } from '../../shared/types';
-import { TableService } from '../../modules/shared/table.service';
 import { ActivatedRoute, Router } from '@angular/router';
+import { TableService } from '../../modules/shared/table.service';
+import { Row, TableName } from '../../shared/types';
 import { xcomputed } from '../../shared/utils/signal-utils';
+import { PrivatePageComponent } from './private-page';
 
 @Component({
     selector: 'app-row-page',
