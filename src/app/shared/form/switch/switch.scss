@@ -2,7 +2,7 @@
 @use "font";
 @use "color";
 @use "animation";
-@use 'sass:map';
+@use "sass:map";
 
 .switch {
     position: relative;
@@ -21,9 +21,11 @@
     svg {
         transition: all animation.$duration-sm ease;
     }
+    
     &:not(.checked) {
         background-color: transparent !important;
     }
+    
     &.checked {
         border-color: transparent;
         svg {
@@ -46,14 +48,13 @@
 }
 
 :host:not(.disabled) {
-    
     .switch {
         cursor: pointer;
     }
 
     &.is-invalid, &.ng-invalid.ng-touched {
         .switch {
-            border-color: map.get(color.$foregrounds, danger);
+            border-color: map.get(color.$actives, danger);
         }
     }
 }

@@ -1,8 +1,6 @@
 @use "font";
 @use "animation";
 @use "card";
-@use "card-classes";
-@use "shadow-classes";
 
 $background-color: light-dark(#fafafa, #292929);
 $background-transparent-color: light-dark(rgba(#fafafa, 0.75), rgba(#292929, 0.75));

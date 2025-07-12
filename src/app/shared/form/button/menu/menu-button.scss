@@ -4,15 +4,18 @@
 :host {
     position: relative;
 }
+
 .menu-popup {
-    animation: appearDropdown 0.1s ease;
+    animation: appearDropdown animation.$duration-xs ease;
     position: absolute;
     z-index: 1;
     padding: input.$padding-y input.$padding-x;
+    
     &.fading {
-        animation: disappearDropdown 0.1s ease;
+        animation: disappearDropdown animation.$duration-xs ease;
         opacity: 0;
     }
+    
     .menu-item {
         display: flex;
         flex-direction: row;

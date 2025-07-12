@@ -25,3 +25,7 @@ $levels: (1, 2, 4, 8, 16, 32, 64);
         filter: drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.28)) drop-shadow(0px #{math.div($level, 2)}px #{$level}px rgba(black, 0.14)) !important;
     }
 }
+
+@mixin dropdown-box {
+    @include box(8);
+}

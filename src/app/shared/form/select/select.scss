@@ -1,12 +1,10 @@
 @use "animation";
 @use "input";
-@use "color";
-@use "font";
 @use "shadow";
-@use "sass:math";
 
 .value-container {
     margin-left: -0.55rem;
+    
     .value-btn {
         padding: 0 input.$padding-x;
         padding-right: 0;
@@ -14,11 +12,13 @@
         width: auto;
         min-height: 2rem;
         animation: fadeIn animation.$duration-xs ease;
+        
         .delete-btn {
             padding: 0.25rem;
             min-height: 0rem;
             opacity: 0;
         }
+        
         &:hover, &:focus {
             .delete-btn {
                 opacity: 1;
@@ -50,27 +50,36 @@
     position: absolute;
     display: flex;
     flex-direction: column;
-    padding: math.div(input.$padding-y, 2) math.div(input.$padding-y, 2);
+    padding: calc(input.$padding-y / 2) calc(input.$padding-y / 2);
     gap: 0;
     transition: all animation.$duration-sm animation.$ease-out;
     opacity: 0;
+    
     .option {
         border-radius: input.$border-radius;
         padding: input.$padding-y input.$padding-x;
         transition: all animation.$duration-sm animation.$ease-out;
         cursor: pointer;
+        
         &:hover, &.focused {
             background-color: input.$option-hover-background-color;
         }
+        
         .highlighted {
             border-radius: input.$border-radius;
             @include shadow.box(1);
         }
     }
+    
     &.visible {
         opacity: 1;
         .option {
             transform: translateY(0) !important;
         }
     }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

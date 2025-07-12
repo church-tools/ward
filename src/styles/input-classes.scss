@@ -4,6 +4,7 @@
 @use "card";
 @use "layout";
 @use "animation";
+@use "shadow";
 @use 'sass:map';
 
 .input-color {
@@ -159,12 +160,12 @@ fieldset {
 }
 
 .input-acrylic-card {
-    @extend .dropdown-box-shadow;
-    @extend .acrylic;
     margin: 0;
     padding: 0.25rem;
     border-radius: $border-radius;
     gap: 0.25rem;
     border: 1px solid color.$canvas-border;
     background-color: $background-transparent-color;
+    @include shadow.dropdown-box;
+    @include card.acrylic-background;
 }

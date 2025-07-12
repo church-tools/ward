@@ -110,22 +110,15 @@
     }
 }
 
-.acrylic {
-    -webkit-backdrop-filter: $acrylic-blur;
-    backdrop-filter: $acrylic-blur;
-    background-image: $acrylic-noise;
-    background-blend-mode: $acrylic-blend-mode;
-}
-
 .acrylic-card {
-    @extend .dropdown-box-shadow;
-    @extend .acrylic;
     margin: 0;
     padding: 0.25rem;
     border-radius: $border-radius;
     gap: 0.25rem;
     border: 1px solid color.$canvas-border;
     background-color: $background-color-transparent;
+    @include acrylic-background;
+    @include shadow.dropdown-box;
 }
 
 .divider-border-top {

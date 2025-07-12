@@ -30,6 +30,15 @@ $acrylic-blend-mode: overlay;
     @include shadow.box(2);
 }
 
+@mixin acrylic-background {
+    & {
+        -webkit-backdrop-filter: $acrylic-blur;
+        backdrop-filter: $acrylic-blur;
+        background-image: $acrylic-noise;
+        background-blend-mode: $acrylic-blend-mode;
+    }
+}
+
 $canvas-background-transparency: light-dark(60%, 33.3%);
 $canvas-background-color: color-mix(
     in srgb,
