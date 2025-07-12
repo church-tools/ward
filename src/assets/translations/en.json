@@ -1,0 +1,17 @@
+{
+  "APP_NAME": "Ward Tools",
+  "LANGUAGE": "Language",
+  "SEARCH": "Search",
+  "ENABLE_EDIT_MODE": "Edit",
+  "EDIT_MODE": "Edit Mode",
+  "NAV_BAR_TAB": {
+    "MEETINGS": "Meetings",
+    "MEMBERS": "Members",
+    "CALLINGS": "Callings",
+    "CHURCH_SERVICE": "Service"
+  },
+  "MEMBERS_PAGE.TITLE": "Members",
+  "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
+  "MEETINGS_PAGE.TITLE": "Meetings",
+  "CALLINGS_PAGE.TITLE": "Callings"
+}

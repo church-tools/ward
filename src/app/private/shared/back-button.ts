@@ -1,9 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
-import { privateTabs } from '../private.routes';
 import { IconComponent } from '../../shared/icon/icon';
 import WindowService from '../../shared/window.service';
+import { privateTabs } from '../private.routes';
 
 @Component({
     selector: 'app-back-button',
@@ -13,12 +14,12 @@ import WindowService from '../../shared/window.service';
                 href="/{{url}}" [showNewTab]="false">
                 <span class="row items-center translucent-text">
                     <app-icon icon="chevron_left" iconSize="sm"/>
-                    {{ this.title }}
+                    {{ 'NAV_BAR_TAB.' + this.translateId | translate }}
                 </span>
             </app-link-button>
         }
         `,
-    imports: [LinkButtonComponent, IconComponent],
+    imports: [TranslateModule, LinkButtonComponent, IconComponent],
     styles: [`
         @use "font";
         :host {
@@ -37,11 +38,11 @@ export class BackButtonComponent {
     protected readonly windowService = inject(WindowService);
 
     protected readonly url: string;
-    protected readonly title: string;
+    protected readonly translateId: string;
 
     constructor() {
         this.url = this.route.snapshot.url[0].path;
-        this.title = privateTabs[this.url]?.label || 'Back';
+        this.translateId = privateTabs[this.url]?.translateId || 'Back';
     }
     
 }

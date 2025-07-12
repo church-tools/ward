@@ -2,17 +2,23 @@
     <div class="handle row no-wrap items-center first-handle gap-5 ms-3">
         <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
         <div class="app-name display-when-not-small small-text"
-            [class.subtle-text]="!windowService.focused()" i18n>Ward Tools</div>
+            [class.subtle-text]="!windowService.focused()">{{ 'APP_NAME' | translate }}</div>
     </div>
     <app-omni-search/>
     <div class="handle row no-wrap items-center end-content gap-1">
         <!-- user icon -->
         @if (additionalItems().length) {
             @if (editMode()) {
-                <span class="overflow-ellipsis" i18n>Edit mode</span>
+                <span class="overflow-ellipsis" i18n>{{ 'EDIT_MODE' | translate }}</span>
             }
             <app-menu-button type="subtle" class="icon-only"
-                [items]="additionalItems()" alignment="left"/>
+                [items]="additionalItems()" alignment="left">
+                <app-menu-button menu-content type="subtle"
+                    icon="translate"
+                    [items]="languageItems">
+                    <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
+                </app-menu-button>
+            </app-menu-button>
         }
     </div>
 </div>

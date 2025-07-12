@@ -1,12 +1,13 @@
 import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { Icon, IconComponent } from '../../../../shared/icon/icon';
 import { ColorName } from '../../../../shared/utils/color-utitls';
 
 export type InnerNavBarTab = {
     icon: Icon;
-    label: string;
+    translateId: string;
     path: string;
     index: number;
     counts?: { count: Observable<number>, color: ColorName }[];
@@ -16,12 +17,12 @@ export type InnerNavBarTab = {
 
 @Component({
     selector: 'app-nav-bar-tab',
-    imports: [RouterModule, IconComponent],
+    imports: [RouterModule, TranslateModule, IconComponent],
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <app-icon class="icon" [icon]="tab().icon"/>
             <app-icon class="active-icon accent" [icon]="tab().icon" [filled]="true"/>
-            <div class="tab-title">{{tab().label}}</div>
+            <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
         </a>
         @if (tab().counts) {
             <div class="counts column" [class.visible]="!active()">

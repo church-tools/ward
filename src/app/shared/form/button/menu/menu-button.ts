@@ -1,13 +1,14 @@
-import { Component, ElementRef, inject, input, InputSignal, OnDestroy, signal, WritableSignal } from "@angular/core";
-import { Icon, IconComponent } from "../../../icon/icon";
+import { Component, ElementRef, inject, input, OnDestroy, signal, WritableSignal } from "@angular/core";
+import { FormsModule } from "@angular/forms";
+import { TranslateModule } from "@ngx-translate/core";
+import { Icon, IconComponent, IconPath } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
 import SwitchComponent from "../../switch/switch";
 import ButtonBaseComponent from "../shared/button-base";
-import { FormsModule } from "@angular/forms";
 
 export type MenuPosition = 'top' | 'bottom';
 export type MenuAlignment = 'left' | 'right';
-export type MenuButtonItemBase = { label: string; icon?: Icon; }
+export type MenuButtonItemBase = { label?: string, labelTranslateId?: string; icon?: Icon | IconPath; img?: string }
 export type MenuButtonLinkItem = MenuButtonItemBase & { link: string; };
 export type MenuButtonActionItem = MenuButtonItemBase & { action: () => void; };
 export type MenuButtonToggleItem = MenuButtonItemBase & { toggle: WritableSignal<boolean>; };
@@ -15,33 +16,37 @@ export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuBut
 
 @Component({
     selector: 'app-menu-button',
-    imports: [FormsModule, IconComponent, SwitchComponent],
+    imports: [FormsModule, TranslateModule, IconComponent, SwitchComponent],
     template: `
         <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" [class]="classes()">
             @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
-            <ng-content/>
+            <ng-content select="[button-text]"/>
         </button>
         @if (visible() || fading()) {
             <div class="menu-popup acrylic-card" [class.fading]="fading()" [style]="style()">
                 @for (item of items(); track item) {
                     @if ('link' in item) {
                         <a class="menu-item" [href]="item.link">
+                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
                             @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            {{ item.label }}
+                            {{ item.label || (item.labelTranslateId! | translate) }}
                         </a>
                     } @else if ('action' in item) {
-                        <button class="menu-item" (click)="item.action()">
+                        <button class="menu-item subtle" (click)="item.action()">
+                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}" class="menu-img"/> }
                             @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            {{ item.label }}
+                            {{ item.label || (item.labelTranslateId! | translate) }}
                         </button>
                     } @else if ('toggle' in item) {
                         <div class="menu-item">
+                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
                             @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            <app-switch [(ngModel)]="item.toggle" class="menu-item" [label]="item.label" 
+                            <app-switch [(ngModel)]="item.toggle" class="menu-item" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
                                 [forceLabelOnSide]="true" labelSide="left"/>
                         </div>
                     }
                 }
+                <ng-content select="[menu-content]"/>
             </div>
         }
     `,

@@ -1,0 +1,17 @@
+{
+  "APP_NAME": "Gemeinde Tools",
+  "LANGUAGE": "Sprache",
+  "SEARCH": "Suchen",
+  "ENABLE_EDIT_MODE": "Bearbeiten",
+  "EDIT_MODE": "Bearbeitungsmodus",
+  "NAV_BAR_TAB": {
+    "MEETINGS": "Sitzungen",
+    "MEMBERS": "Mitglieder",
+    "CALLINGS": "Berufungen",
+    "CHURCH_SERVICE": "Gottesdienst"
+  },
+  "MEMBERS_PAGE.TITLE": "Mitglieder",
+  "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
+  "MEETINGS_PAGE.TITLE": "Sitzungen",
+  "CALLINGS_PAGE.TITLE": "Berufungen"
+}

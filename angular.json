@@ -4,12 +4,6 @@
   "newProjectRoot": "projects",
   "projects": {
     "ward-tools": {
-      "i18n": {
-        "sourceLocale": "en",
-        "locales": {
-          "de": "src/locale/messages.de.json"
-        }
-      },
       "projectType": "application",
       "schematics": {},
       "root": "",
@@ -87,9 +81,6 @@
             }
           },
           "defaultConfiguration": "development"
-        },
-        "extract-i18n": {
-          "builder": "@angular/build:extract-i18n"
         },
         "test": {
           "builder": "@angular/build:karma",
