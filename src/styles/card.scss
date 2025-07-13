@@ -3,11 +3,12 @@
 
 $background-color: light-dark(#f6f6f6, #323232);
 $background-color-transparent: light-dark(rgba(#f6f6f6, 0.5), rgba(#323232, 0.25));
-$hover-background-color: light-dark(#ffffff, #373737);
+$hover-background-color: light-dark(#fefefe, #373737);
+$active-background-color: light-dark(#ffffff, #3a3a3a);
 
 $background-transparent-color: light-dark(rgba(#ffffff, 0.6), rgba(#484848, 0.333));
 $hover-background-transparent-color: light-dark(rgba(#ffffff, 0.75), rgba(#565656, 0.333));
-$active-background-transparent-color: light-dark(rgba(#ffffff, 0.5), rgba(#484848, 0.25));
+$active-background-transparent-color: light-dark(rgba(#ffffff, 0.80), rgba(#484848, 0.4));
 
 $border-radius-round: 999pt;
 $border-radius: 0.5rem;

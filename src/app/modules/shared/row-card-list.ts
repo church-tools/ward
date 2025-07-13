@@ -20,6 +20,7 @@ import { getTableService } from "./table.service";
                         [cardClasses]="cardClasses()"
                         [reorderable]="editable()"
                         [editable]="editable()"
+                        [activeId]="activeId()"
                         [gap]="gap()"
                         [idKey]="service.idKey"
                         [orderByKey]="service.orderField"
@@ -57,6 +58,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly filter = input<(row: Row<T>) => boolean>();
     readonly prepareInsert = input<(row: Insert<T>) => MaybeAsync<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
+    readonly activeId = input<number | null>(null);
 
     protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
     protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);

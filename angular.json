@@ -13,7 +13,6 @@
         "build": {
           "builder": "@angular/build:application",
           "options": {
-            "localize": ["en", "de"],
             "outputPath": "dist/ward-tools",
             "index": "src/index.html",
             "browser": "src/main.ts",

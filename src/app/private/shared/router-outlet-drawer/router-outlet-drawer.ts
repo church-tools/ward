@@ -4,6 +4,8 @@ import ButtonComponent from "../../../shared/form/button/button";
 import { PageComponent } from "../../../shared/page/page";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
 import { easeOut } from "../../../shared/utils/style";
+import { RowPageComponent } from "../row-page";
+import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-router-outlet-drawer',
@@ -16,7 +18,8 @@ import { easeOut } from "../../../shared/utils/style";
             (touchstart)="onDragStart($event)">
             <div class="drawer-card card canvas-card">
                 <div class="drawer-body">
-                    <router-outlet (activate)="onActivate($event)" (deactivate)="onDeactivate($event)"/>
+                    <router-outlet (activate)="onActivate($event)"
+                        (deactivate)="onDeactivate($event)"/>
                 </div>
                 <app-button type="subtle" icon="dismiss" size="large"
                     class="close-button icon-only"
@@ -34,15 +37,18 @@ import { easeOut } from "../../../shared/utils/style";
 export class RouterOutletDrawerComponent implements OnDestroy {
 
     readonly onClose = output<void>();
+    readonly activated = output<string | null>();
 
     protected readonly activeChild = signal<PageComponent | null>(null);
     protected readonly closing = signal(false);
 
     private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
+    private readonly routerOutlet = viewChild.required(RouterOutlet);
     
     // Drag state
     private dragState: { startX: number; startTime: number } | null = null;
     private abortController = new AbortController();
+    private idChangeSubscription: Subscription | null = null;
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -53,8 +59,19 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
     }
 
-    protected async onActivate(component: PageComponent) {
-        this.activeChild.set(component);
+    protected async onActivate(page: PageComponent) {
+        if (page instanceof RowPageComponent) {
+            this.idChangeSubscription?.unsubscribe();
+            this.idChangeSubscription = page.onIdChange.subscribe(id => {
+                const activatedRoute = this.routerOutlet().activatedRoute;
+                const currentRoute = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
+                this.activated.emit(currentRoute);
+            });
+        }
+        const activatedRoute = this.routerOutlet().activatedRoute;
+        const currentRoute = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
+        this.activated.emit(currentRoute);
+        this.activeChild.set(page);
         // Wait for the drawer to be displayed, then get its natural width and animate
         await new Promise(resolve => requestAnimationFrame(resolve));
         const element = this.drawerView().nativeElement;
@@ -65,8 +82,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         element.style.width = '';
     }
 
-    protected onDeactivate(component: PageComponent) {
+    protected onDeactivate(page: PageComponent) {
+        this.activated.emit(null);
         this.activeChild.set(null);
+        this.idChangeSubscription?.unsubscribe();
     }
 
     protected async close() {
@@ -128,5 +147,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.abortController.abort();
+        this.idChangeSubscription?.unsubscribe();
     }
 }

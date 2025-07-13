@@ -12,6 +12,7 @@
 .card-item {
     @include layout.row;
     width: 100%;
+    position: relative;
     align-items: center;
     box-sizing: border-box;
     transition: all animation.$duration-sm ease, transform 0s;
@@ -26,8 +27,27 @@
         }
     }
     .drag-handle {
+        margin-left: 0.25rem;
+        margin-right: -0.5rem;
         opacity: 0.25;
     }
+    .indicator {
+        position: absolute;
+        pointer-events: none;
+        opacity: 0;
+        width: 4px;
+        height: 4px;
+        border-radius: 2px;
+        transition: opacity animation.$duration-xs ease,
+            height animation.$duration-sm animation.$ease-out;
+    }
+    &.active {
+        .indicator {
+            opacity: 1;
+            height: 40%;
+        }
+    }
+
 }
 
 .cdk-drag-preview {

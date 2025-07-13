@@ -5,10 +5,13 @@
     cdkDropList (cdkDropListDropped)="onDrop($event)">
     @if (getUrl()) {
         @for (itemCard of itemCards(); track itemCard.id) {
-            <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)" class="{{cardClasses()}} stealth card-item selectable-card"
+            <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)"
+                class="{{cardClasses()}} stealth card-item selectable-card"
+                [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
+                <div class="indicator accent-fg"></div>
                 @if (reorderable()) {
                     <div class="drag-handle">
                         <app-icon icon="re_order_dots_vertical"/>
@@ -20,10 +23,13 @@
         }
     } @else {
         @for (itemCard of itemCards(); track itemCard.id) {
-            <div #card cdkDrag class="{{cardClasses()}} card-item selectable-card"
+            <div #card cdkDrag
+                class="{{cardClasses()}} card-item selectable-card"
+                [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
+                <div class="indicator accent-fg"></div>
                 @if (reorderable()) {
                     <div class="drag-handle">
                         <app-icon icon="re_order_dots_vertical"/>

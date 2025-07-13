@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
 import { AgendaService } from '../../../modules/agenda/agenda.service';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
@@ -12,13 +12,15 @@ import { RowPageComponent } from '../../shared/row-page';
     selector: 'app-agenda-page',
     template: `
         <app-router-outlet-drawer
-            (onClose)="navigateToThis()">
+            (onClose)="navigateToThis()"
+            (activated)="onActivate($event)">
             <div class="page narrow">
                 <app-back-button class="me-auto"/>
                 <span class="h0">{{title()}}</span>
-                <app-row-card-list tableName="task" [editable]="true"
+                <app-row-card-list #taskList tableName="task" [editable]="true"
                     [filter]="taskFilter()"
                     [getUrl]="getTaskUrl"
+                    [activeId]="activeTaskId()"
                     [prepareInsert]="prepareTaskInsert"/>
             </div>
         </app-router-outlet-drawer>
@@ -31,9 +33,15 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     private readonly profileService = inject(ProfileService);
     protected readonly taskQuery = xcomputed([this.row], row => ({ agenda: row?.id }));
     protected readonly taskFilter = xcomputed([this.row], row => (task: Task.Row) => task.agenda === row?.id);
+    protected readonly taskList = viewChild.required<RowCardListComponent<'task'>>('taskList');
+    protected readonly activeTaskId = signal<number | null>(null);
 
     constructor() {
         super(inject(AgendaService));
+    }
+
+    protected onActivate(id: string | null) {
+        this.activeTaskId.set(id ? +id : null);
     }
 
     protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;

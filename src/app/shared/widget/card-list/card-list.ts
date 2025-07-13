@@ -42,6 +42,7 @@ export class CardListComponent<T> {
     readonly itemInserted = input<(item: T) => MaybeAsync<void>>();
     readonly getUrl = input<(item: T) => string>();
     readonly insertRow = input<(item: T) => Promise<T>>();
+    readonly activeId = input<number | null>(null);
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();

@@ -53,6 +53,10 @@
         transition: all animation.$duration ease;
         &:hover {
             background-color: $hover-background-color;
+            @include shadow.box(2);
+        }
+        &.active {
+            background-color: $active-background-color;
             @include shadow.box(4);
         }
     }
@@ -69,8 +73,15 @@
                 color: map.get(color.$foregrounds, $color);
             }
         }
-        &.selectable-card:hover {
-            background-color: $hover-background-transparent-color;
+        &.selectable-card {
+            &:hover {
+                background-color: $hover-background-transparent-color;
+                @include shadow.box(2);
+            }
+            &.active {
+                background-color: $active-background-transparent-color;
+                @include shadow.box(4);
+            }
         }
     }
 
