@@ -44,7 +44,7 @@
         }, { once: true });
 
         document.addEventListener("DOMContentLoaded", function() {
-            const font = new FontFace('FluentSystemIcons-Resizable', 'url(assets/fonts/FluentSystemIcons-Resizable.woff2)');
+            const font = new FontFace('FluentSystemIcons-Resizable', 'url(/assets/fonts/FluentSystemIcons-Resizable.woff2)');
             font.load()
             .then(function(loadedFont) { document.fonts.add(loadedFont); })
             .catch(function(error) { console.error('Font failed to load:', error); })
