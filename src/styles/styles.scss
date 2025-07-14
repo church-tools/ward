@@ -8,6 +8,13 @@
 @forward "form-classes";
 @forward "button-classes";
 
+// Icon Font Declaration
+@font-face {
+    font-family: IconFont;
+    // update from here: https://github.com/microsoft/fluentui-system-icons/blob/main/fonts/FluentSystemIcons-Resizable.woff2
+    src: url("/assets/fonts/FluentSystemIcons-Resizable.woff2") format("woff2");
+}
+
 body {
     position: relative;
     min-height: 100vh;
