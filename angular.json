@@ -18,7 +18,12 @@
             "browser": "src/main.ts",
             "tsConfig": "tsconfig.app.json",
             "assets": [
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "FluentSystemIcons-Resizable.woff2",
+                "input": "src/assets/fonts/",
+                "output": "/"
+              }
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
