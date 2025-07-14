@@ -14,19 +14,10 @@
     <link rel="shortcut icon" href="assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png" />
     <meta name="apple-mobile-web-app-title" content="Gemeinde Tools" />
-    <link rel="manifest" href="assets/site.webmanifest" />
-    
-    <!-- Preload icon font for better performance -->
-    <link rel="preload" href="/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
+    <!-- <link rel="manifest" href="assets/site.webmanifest" /> -->
+    <link rel="preload" href="/assets/fonts/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     
     <script type="text/javascript">
-        // // for Github Pages
-        // (function(l) {
-        //     if (l.search && l.search[1] === '/') {
-        //         const decoded = l.search.slice(1).split('&').map(s => s.replace(/~and~/g, '&')).join('?');
-        //         window.history.replaceState(null, null, l.pathname.slice(0, -1) + decoded + l.hash);
-        //     }
-        // }(window.location));
         if (window.matchMedia('(prefers-color-scheme: dark)').matches)
             document.querySelector('meta[name=theme-color]').setAttribute('content', '#272727');
         
@@ -47,9 +38,13 @@
         }, { once: true });
 
         document.addEventListener("DOMContentLoaded", function() {
-            // Simplified font loading since we have embedded fallback
-            fontLoaded = true;
-            hideLoadingScreen();
+            new FontFace('FluentSystemIcons-Resizable', 'url(/assets/fonts/FluentSystemIcons-Resizable.woff2)').load()
+            .then(function(loadedFont) { document.fonts.add(loadedFont); })
+            .catch(function(error) { console.error('Font failed to load:', error); })
+            .finally(function() {
+                fontLoaded = true;
+                hideLoadingScreen();
+            });
         }, { once: true });
     </script>
 
