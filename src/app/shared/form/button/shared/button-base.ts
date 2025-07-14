@@ -57,7 +57,7 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
         if (this.justClickedSomething)
             return false;
         this.justClickedSomething = true;
-        setTimeout(() => this.justClickedSomething = false, 200);
+        setTimeout(() => this.justClickedSomething = false, 50);
         return true;
     }
 }

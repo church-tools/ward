@@ -12,7 +12,14 @@ export function createTranslateLoader(http: HttpClient) {
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideRouter(routes, withViewTransitions({ skipInitialTransition: true })),
+        provideRouter(routes, withViewTransitions({
+            skipInitialTransition: true,
+            onViewTransitionCreated: ({ transition, from, to }) => {
+                const fromRoute = from?.url
+                // console.log('View transition created:', transition);
+                // transition.skipTransition();
+            }
+        })),
         provideHttpClient(withFetch()),
         importProvidersFrom(TranslateModule.forRoot({
             defaultLanguage: "en",
