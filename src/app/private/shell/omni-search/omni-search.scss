@@ -12,8 +12,20 @@
 .omni-search-select {
     ::ng-deep {
         .form-input {
+            border-radius: card.$border-radius-round;
             background-color: card.$background-transparent-color;
             border-color: input.$border-color-transparent;
+            &:hover {
+                background-color: card.$hover-background-transparent-color;
+                border-color: input.$hover-border-color;
+            }
+            &:active {
+                background-color: card.$active-background-transparent-color;
+                border-color: input.$active-border-color;
+            }
+            &::after {
+                display: none;
+            }
         }
     }
 }

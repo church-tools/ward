@@ -43,20 +43,18 @@
 
 }
 
-.page {
-    transition: opacity $duration $ease-out, transform $duration $ease-out;
+.router-page {
+    position: absolute;
+    &.enter {
+        animation: pageAppear $duration $ease-out;
+    }
+    &.leave {
+        // pointer-events: none;
+        // animation: fadeOut $duration-xs ease;
+        animation: fadeOut 100s ease;
+        opacity: 0;
+    }
 }
-
-.page-enter {
-    opacity: 0;
-    transform: translateY(100px);
-}
-
-.page-entered {
-    opacity: 1;
-    transform: translateY(0);
-}
-
 
 .content-loader {
     transition: background-color 0.5s ease;

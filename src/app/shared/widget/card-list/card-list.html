@@ -11,7 +11,10 @@
                 (cdkDragStarted)="onDragStart(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="indicator accent-fg"></div>
+                @if (itemCard.id === activeId() || itemCard.id === previousActiveId()) {
+                    <div class="indicator accent-fg"
+                        [class.disappear]="itemCard.id !== activeId()"></div>
+                }
                 @if (reorderable()) {
                     <div class="drag-handle">
                         <app-icon icon="re_order_dots_vertical"/>
@@ -29,7 +32,10 @@
                 (cdkDragStarted)="onDragStart(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="indicator accent-fg"></div>
+                @if (itemCard.id === activeId() || itemCard.id === previousActiveId()) {
+                    <div class="indicator accent-fg"
+                        [class.disappear]="itemCard.id !== activeId()"></div>
+                }
                 @if (reorderable()) {
                     <div class="drag-handle">
                         <app-icon icon="re_order_dots_vertical"/>

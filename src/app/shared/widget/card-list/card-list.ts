@@ -8,7 +8,7 @@ import { KeyWithValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
-import { xeffect } from '../../utils/signal-utils';
+import { asyncComputed, xcomputed, xeffect } from '../../utils/signal-utils';
 import { easeOut } from '../../utils/style';
 import WindowService from '../../window.service';
 import { SwapContainerComponent } from '../swap-container/swap-container';
@@ -43,6 +43,8 @@ export class CardListComponent<T> {
     readonly getUrl = input<(item: T) => string>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
+    readonly previousActiveId = asyncComputed([this.activeId],
+        activeId => new Promise(resolve => setTimeout(() => resolve(activeId), 100)));
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();

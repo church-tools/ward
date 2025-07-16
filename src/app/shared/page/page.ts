@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, signal } from '@angular/core';
+import { Component, ElementRef, inject } from '@angular/core';
 
 export const LEAVE_ANIMATION = 'page-leave-animation';
 
@@ -7,22 +7,9 @@ export const LEAVE_ANIMATION = 'page-leave-animation';
     template: ``,
     host: {
         class: "page column gap-3",
-        '[class.page-enter]': 'entering()',
-        '[class.page-entered]': 'entered()',
-        '[style.view-transition-name]': 'viewTransitionName',
     }
 })
 export abstract class PageComponent {
 
-    private readonly el = inject(ElementRef).nativeElement;
-    
-    protected readonly entering = signal(true);
-    protected readonly entered = signal(false);
-    protected readonly viewTransitionName = 'page-' + Math.random().toString(36).slice(2, 10);
-
-    constructor() {
-        setTimeout(() => this.entered.set(true), 100);
-        setTimeout(() => this.entering.set(false), 300);
-        this.el.style.viewTransitionName = this.viewTransitionName;
-    }
+    readonly el = inject(ElementRef).nativeElement as HTMLElement;
 }
