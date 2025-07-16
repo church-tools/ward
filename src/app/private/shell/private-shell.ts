@@ -1,9 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { Router, RouterOutlet } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { ProfileService } from '../../modules/profile/profile.service';
 import { UnitService } from '../../modules/unit/unit.service';
-import { AnimatedRouter } from '../../shared/decorator/animated-router';
+import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import MenuButtonComponent, { MenuButtonActionItem, MenuButtonItem } from '../../shared/form/button/menu/menu-button';
 import { ShellComponent } from '../../shared/shell/shell';
 import { SupabaseService } from '../../shared/supabase.service';
@@ -17,7 +17,7 @@ import { OmniSearchComponent } from './omni-search/omni-search';
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [RouterOutlet, AnimatedRouter, TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent],
+    imports: [TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent, PageRouterOutlet],
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
