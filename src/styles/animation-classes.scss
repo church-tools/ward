@@ -49,9 +49,8 @@
         animation: pageAppear $duration $ease-out;
     }
     &.leave {
-        // pointer-events: none;
-        // animation: fadeOut $duration-xs ease;
-        animation: fadeOut 100s ease;
+        pointer-events: none;
+        animation: fadeOut $duration-xs ease;
         opacity: 0;
     }
 }
