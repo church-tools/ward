@@ -1,4 +1,5 @@
 @use "animation" as *;
+@use "layout";
 
 .fade-in {
     animation: fadeIn $duration $ease-out;
@@ -40,18 +41,22 @@
             opacity: 0;
         }
     }
-
 }
 
 .router-page {
     position: absolute;
+    padding-bottom: layout.$canvas-margin-y;
     &.enter {
-        animation: pageAppear $duration $ease-out;
+        &.fade { animation: pageEnter $duration-lg $ease-out; }
+        &.left { animation: pageEnterLeft $duration-lg $ease-out; }
+        &.right { animation: pageEnterRight $duration-lg $ease-out; }
     }
     &.leave {
         pointer-events: none;
-        animation: fadeOut $duration-xs ease;
         opacity: 0;
+        &.fade { animation: fadeOut $duration-smaller ease; }
+        &.left { animation: pageLeaveLeft $duration-lg $ease-out; }
+        &.right { animation: pageLeaveRight $duration-lg $ease-out; }
     }
 }
 

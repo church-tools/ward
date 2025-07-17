@@ -11,6 +11,8 @@ $loading-gradient: light-dark(rgba(#ffffff, 0.5), rgba(#2b2b2b, 0.5));
 $ease-out: cubic-bezier(0.075, 0.82, 0.165, 1);
 $ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
 
+$page-side-slide-distance: 600px;
+
 @keyframes fadeIn {
     from { opacity: 0; }
     to { opacity: 1; }
@@ -31,9 +33,26 @@ $ease-in: cubic-bezier(0.55, 0.055, 0.675, 0.19);
     }
 }
 
-@keyframes pageAppear {
-    0% { opacity: 0; transform: translateY(100px); }
+@keyframes pageEnter {
+    0% { opacity: 0; transform: translateY($page-side-slide-distance); }
     100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes pageEnterLeft {
+    0% { opacity: 0; transform: translateX($page-side-slide-distance); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageEnterRight {
+    0% { opacity: 0; transform: translateX(-$page-side-slide-distance); }
+    100% { opacity: 1; transform: translateX(0); }
+}
+@keyframes pageLeaveLeft {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX(-$page-side-slide-distance); }
+}
+@keyframes pageLeaveRight {
+    0% { opacity: 1; transform: translateX(0); }
+    100% { opacity: 0; transform: translateX($page-side-slide-distance); }
 }
 
 @keyframes disappearSm {

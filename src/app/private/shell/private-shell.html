@@ -9,7 +9,7 @@
         <!-- user icon -->
         @if (additionalItems().length) {
             @if (editMode()) {
-                <span class="overflow-ellipsis" i18n>{{ 'EDIT_MODE' | translate }}</span>
+                <span class="overflow-ellipsis">{{ 'EDIT_MODE' | translate }}</span>
             }
             <app-menu-button type="subtle" class="icon-only"
                 [items]="additionalItems()" alignment="left">

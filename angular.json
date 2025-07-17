@@ -29,9 +29,6 @@
               "src/styles/styles.scss"
             ],
             "scripts": [],
-            "polyfills": [
-              "@angular/localize/init"
-            ],
             "allowedCommonJsDependencies": [
               "ws"
             ]
