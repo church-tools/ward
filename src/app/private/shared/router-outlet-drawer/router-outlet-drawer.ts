@@ -75,10 +75,15 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         // Wait for the drawer to be displayed, then get its natural width and animate
         await new Promise(resolve => requestAnimationFrame(resolve));
         const element = this.drawerView().nativeElement;
+        const card = element.querySelector('.drawer-card')! as HTMLElement;
+        const width = element.offsetWidth;
+        card.style.minWidth = `${width}px`;
+        card.style.left = '0px';
         await transitionStyle(element,
-            { width: '0px' },
-            { width: `${element.scrollWidth}px` },
-            500, easeOut);
+            { minWidth: '0px', width: '0px' },
+            { minWidth: `${width}px`, width: `${width}px` },
+            500, easeOut, true);
+        card.style.minWidth = '';
         element.style.width = '';
     }
 
@@ -90,12 +95,17 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     protected async close() {
         this.closing.set(true);
-        const element = this.drawerView()!.nativeElement;
+        const element = this.drawerView().nativeElement;
         const width = element.offsetWidth;
+        const card = element.querySelector('.drawer-card')! as HTMLElement;
+        card.style.minWidth = `${width}px`;
+        card.style.left = '0px';
+        card.classList.add('fade-out');
         await transitionStyle(element,
             { width: `${width}px` },
             { width: '0px' },
             500, easeOut, true);
+        card.classList.remove('fade-out');
         this.activeChild.set(null);
         this.onClose.emit();
         this.closing.set(false);
@@ -104,18 +114,18 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected onDragStart(event: MouseEvent | TouchEvent) {
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         this.dragState = { startX: clientX, startTime: Date.now() };
-        this.drawerView()!.nativeElement.style.userSelect = 'none';
+        this.drawerView().nativeElement.style.userSelect = 'none';
         event.preventDefault();
     }
 
     private handleDrag(event: MouseEvent | TouchEvent) {
-        if (!this.dragState || !this.drawerView()) return;
+        if (!this.dragState) return;
 
         const currentX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const deltaX = currentX - this.dragState.startX;
         
         if (deltaX > 0) {
-            const element = this.drawerView()!.nativeElement;
+            const element = this.drawerView().nativeElement;
             element.style.transform = `translateX(${deltaX}px)`;
             element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
         }
@@ -124,9 +134,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     private handleDragEnd(event: MouseEvent | TouchEvent) {
-        if (!this.dragState || !this.drawerView()) return;
+        if (!this.dragState) return;
         
-        const element = this.drawerView()!.nativeElement;
+        const element = this.drawerView().nativeElement;
         const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
         const deltaX = currentX - this.dragState.startX;
         const velocity = deltaX / (Date.now() - this.dragState.startTime);

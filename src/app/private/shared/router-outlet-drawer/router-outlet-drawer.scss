@@ -16,6 +16,7 @@
         }
     }
     &.closing {
+        gap: 0;
         animation: closeGap 0.3s animation.$ease-in;
     }
 }
@@ -25,7 +26,6 @@
 }
 .drawer {
     display: none;
-    overflow: hidden;
     position: sticky;
     box-sizing: border-box;
     height: layout.$canvas-height;
@@ -38,6 +38,7 @@
     }
 
     .drawer-card {
+        position: relative;
         height: 100%;
         overflow-y: auto;
         .drawer-body {
@@ -48,6 +49,10 @@
             top: layout.$gutter * 2;
             right: layout.$gutter * 2;
             z-index: 1;
+        }
+        &.fade-out {
+            animation: fadeOut animation.$duration-lg ease;
+            opacity: 0;
         }
     }
 }
