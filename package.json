@@ -4,7 +4,7 @@
     "scripts": {
         "ng": "ng",
         "start": "ng serve ward-tools",
-        "build": "ng build",
+        "build": "ng build --configuration production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
         "gen-types": "supabase gen types typescript --project-id bfozbjjsbwakbucgdpao > database.d.ts",

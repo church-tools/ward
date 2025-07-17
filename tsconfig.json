@@ -16,12 +16,17 @@
     "moduleResolution": "bundler",
     "importHelpers": true,
     "target": "ESNext",
-    "module": "ESNext"
+    "module": "ESNext",
+    "removeComments": true,
+    "declaration": false,
+    "declarationMap": false
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,
     "strictInjectionParameters": true,
     "strictInputAccessModifiers": true,
-    "strictTemplates": true
+    "strictTemplates": true,
+    "fullTemplateTypeCheck": true,
+    "strictAttributeTypes": true
   }
 }
