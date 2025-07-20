@@ -46,9 +46,19 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     private readonly routerOutlet = viewChild.required(RouterOutlet);
     
     // Drag state
-    private dragState: { startX: number; startTime: number } | null = null;
+    private dragState: { 
+        startX: number; 
+        startY: number;
+        startTime: number; 
+        isDragActive: boolean;
+        delayTimeout?: number;
+    } | null = null;
     private abortController = new AbortController();
     private idChangeSubscription: Subscription | null = null;
+    
+    // Drag configuration
+    private readonly DRAG_THRESHOLD = 10; // px - movement threshold for drag activation
+    private readonly SWIPE_TIME_LIMIT = 150; // ms - time limit for swipe detection
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -62,27 +72,33 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected async onActivate(page: PageComponent) {
         if (page instanceof RowPageComponent) {
             this.idChangeSubscription?.unsubscribe();
-            this.idChangeSubscription = page.onIdChange.subscribe(id => {
-                const activatedRoute = this.routerOutlet().activatedRoute;
-                const currentRoute = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
-                this.activated.emit(currentRoute);
-            });
+            this.idChangeSubscription = page.onIdChange.subscribe(() => this.emitCurrentRoute());
         }
+        this.emitCurrentRoute();
+        this.activeChild.set(page);
+        await this.animateDrawerOpen();
+    }
+
+    private emitCurrentRoute() {
         const activatedRoute = this.routerOutlet().activatedRoute;
         const currentRoute = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
         this.activated.emit(currentRoute);
-        this.activeChild.set(page);
-        // Wait for the drawer to be displayed, then get its natural width and animate
+    }
+
+    private async animateDrawerOpen() {
         await new Promise(resolve => requestAnimationFrame(resolve));
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
         const width = element.offsetWidth;
+        
         card.style.minWidth = `${width}px`;
         card.style.left = '0px';
+        
         await transitionStyle(element,
             { minWidth: '0px', width: '0px' },
             { minWidth: `${width}px`, width: `${width}px` },
             500, easeOut, true);
+            
         card.style.minWidth = '';
         element.style.width = '';
     }
@@ -96,59 +112,116 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected async close() {
         this.closing.set(true);
         const element = this.drawerView().nativeElement;
-        const width = element.offsetWidth;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
+        const width = element.offsetWidth;
         card.style.minWidth = `${width}px`;
         card.style.left = '0px';
         card.classList.add('fade-out');
-        await transitionStyle(element,
-            { width: `${width}px` },
-            { width: '0px' },
-            500, easeOut, true);
+        
+        await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, 500, easeOut, true);
         card.classList.remove('fade-out');
         this.activeChild.set(null);
         this.onClose.emit();
         this.closing.set(false);
+        element.style.transform = '';
+        element.style.opacity = '';
+        element.style.transition = '';
     }
 
     protected onDragStart(event: MouseEvent | TouchEvent) {
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        this.dragState = { startX: clientX, startTime: Date.now() };
-        this.drawerView().nativeElement.style.userSelect = 'none';
-        event.preventDefault();
+        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+        
+        this.clearDragTimeout();
+        this.dragState = { 
+            startX: clientX, 
+            startY: clientY,
+            startTime: Date.now(),
+            isDragActive: false
+        };
+        this.dragState!.delayTimeout = window.setTimeout(() => {
+            if (this.dragState && !this.dragState.isDragActive) {
+                this.dragState = null; // Cancel if no movement
+            }
+        }, this.SWIPE_TIME_LIMIT);
+    }
+
+    private clearDragTimeout() {
+        if (this.dragState?.delayTimeout)
+            clearTimeout(this.dragState.delayTimeout);
     }
 
     private handleDrag(event: MouseEvent | TouchEvent) {
         if (!this.dragState) return;
 
         const currentX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const deltaX = currentX - this.dragState.startX;
+        const currentY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
         
-        if (deltaX > 0) {
-            const element = this.drawerView().nativeElement;
-            element.style.transform = `translateX(${deltaX}px)`;
-            element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
+        if (!this.dragState.isDragActive) {
+            this.tryActivateDrag(currentX, currentY, event);
+        } else if (currentX > this.dragState.startX) {
+            this.performDrag(currentX - this.dragState.startX, event);
         }
+    }
+
+    private tryActivateDrag(currentX: number, currentY: number, event: MouseEvent | TouchEvent) {
+        const deltaX = currentX - this.dragState!.startX;
+        const deltaY = currentY - this.dragState!.startY;
+        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        const timeElapsed = Date.now() - this.dragState!.startTime;
         
-        event instanceof TouchEvent && event.preventDefault();
+        if (distance > this.DRAG_THRESHOLD) {
+            this.clearDragTimeout();
+            
+            if (timeElapsed <= this.SWIPE_TIME_LIMIT) {
+                this.activateDrag(event);
+            } else {
+                this.dragState = null; // Too late for swipe
+            }
+        }
+    }
+
+    private activateDrag(event: MouseEvent | TouchEvent) {
+        this.dragState!.isDragActive = true;
+        this.drawerView().nativeElement.style.userSelect = 'none';
+        event.preventDefault();
+    }
+
+    private performDrag(deltaX: number, event: MouseEvent | TouchEvent) {
+        const element = this.drawerView().nativeElement;
+        element.style.transform = `translateX(${deltaX}px)`;
+        element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
+        event.preventDefault();
     }
 
     private handleDragEnd(event: MouseEvent | TouchEvent) {
         if (!this.dragState) return;
         
+        this.clearDragTimeout();
         const element = this.drawerView().nativeElement;
-        const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
-        const deltaX = currentX - this.dragState.startX;
-        const velocity = deltaX / (Date.now() - this.dragState.startTime);
         
-        // Close if dragged far enough or with sufficient velocity
-        if (deltaX > 100 || velocity > 0.5) {
-            this.close();
-        } else {
-            // Reset position with animation
-            element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            element.style.transform = element.style.opacity = '';
-            setTimeout(() => element.style.transition = '', 300);
+        if (this.dragState.isDragActive) {
+            const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
+            const deltaX = currentX - this.dragState!.startX;
+            const velocity = deltaX / (Date.now() - this.dragState!.startTime);
+            
+            if (deltaX > 100 || velocity > 0.5) {
+                this.close();
+            } else {
+                // Set the current drag position without transition
+                element.style.transition = '';
+                element.style.transform = `translateX(${deltaX}px)`;
+                element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
+                
+                // Use requestAnimationFrame to ensure the position is applied before transition
+                requestAnimationFrame(() => {
+                    element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                    element.style.transform = '';
+                    element.style.opacity = '';
+                    
+                    setTimeout(() => element.style.transition = '', 300);
+                });
+            }
         }
         
         element.style.userSelect = '';
@@ -158,5 +231,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     ngOnDestroy() {
         this.abortController.abort();
         this.idChangeSubscription?.unsubscribe();
+        this.clearDragTimeout();
     }
 }
