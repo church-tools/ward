@@ -12,6 +12,7 @@ import InputLabelComponent from "../shared/input-label";
             <app-input-label/>
             <div class="form-input">
                 <input #input [required]="true" type="text"
+                    [class]="textClass()"
                     [(ngModel)]="value" [attr.disabled]="disabledState()"
                     [placeholder]="placeholder()" [pattern]="pattern()"
                     [autocomplete]="autocomplete()" (click)="onClick($event)"
@@ -34,6 +35,7 @@ export class TextInputComponent extends InputBaseComponent<string> {
     readonly pattern = input<string | RegExp>('');
     readonly patternErrorMsg = input<string>();
     readonly copyable = input(false);
+    readonly textClass = input<string | undefined>();
 
     protected readonly copied = signal(false);
 

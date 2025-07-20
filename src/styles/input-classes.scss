@@ -20,109 +20,118 @@
 .input-box-active { @include box-active; }
 .input-box-disabled { @include box-disabled; }
 
-.form-input {
-    display: inline-flex;
-    align-items: center;
-    position: relative;
-    box-sizing: border-box;
-    min-height: $min-height;
-    font-size: font.$size;
-    line-height: font.$line-height;
-    transition: background-color 0.15s ease, border-color 0.15s ease;
-    gap: layout.$tiny-horizontal-spacing;
-    padding: 0 $padding-x;
+.input {
     
-    @extend .input-box;
-
-    &::placeholder {
-        color: $placeholder-color;
-    }
-
-    &::after {
-        box-sizing: border-box;
-        content: "";
-        position: absolute;
-        left: -1px;
-        bottom: -1px;
-        right: -1px;
-        height: max(2px, card.$border-radius-sm);
-        border-bottom-left-radius: card.$border-radius-sm;
-        border-bottom-right-radius: card.$border-radius-sm;
-        border-bottom-width: 2px;
-        border-bottom-style: solid;
-        border-bottom-color: map.get(color.$foregrounds, color.$accent);
-        clip-path: inset(calc(100% - 2px) 0px 0px);
-        transform: scaleX(0);
-        transition-property: transform;
-        transition-duration: 0.1s;
-        transition-delay: cubic-bezier(0.7,0,1,0.5);
-    }
-
-    input, textarea {
-        color: font.$color;
-        box-sizing: border-box;
-        margin: 0;
-        flex-grow: 1;
-        border-style: none;
-        background-color: transparent;
-        outline-style: none;
-        font-family: inherit;
-        font-size: inherit;
-        font-weight: inherit;
-        line-height: inherit;
-    }
-
-    input {
-        padding: 0 layout.$tiny-horizontal-spacing;
-        width: 0;
-        min-width: 0px;
-        overflow: visible;
-        &:-webkit-autofill, &:-webkit-autofill:focus {
-            transition: background-color 0s 600000s, color 0s 600000s;
-        }
-    }
-
-    textarea {
-        padding: $padding-y layout.$tiny-horizontal-spacing;
-    }
-
-    .input-btn {
-        margin-right: -0.75rem;
-    }
-
-    .unit {
-        margin-left: 0.25rem;
-        color: font.$color-muted;
-    }
-
-    @each $size in (0, 1, 2, 3, 4) {
-        &.inner-padding-right-#{"" + $size} input {
-            padding-right: $size * 4rem;
-        }
-    }
-}
-
-.input:not(.disabled) {
-
     .form-input {
-        cursor: text;
-        &:hover { @include box-hovered; }
-        &:active { @include box-active; }
-        &:focus-within { @include box-focused; }
-    }
-
-    &.is-invalid, &.ng-invalid.ng-touched {
-        .form-input {
-            border-color: map.get(color.$actives, danger);
-            &::after {
-                border-bottom-color: map.get(color.$foregrounds, danger);
+        display: inline-flex;
+        align-items: center;
+        position: relative;
+        box-sizing: border-box;
+        min-height: $min-height;
+        transition: background-color animation.$duration ease,
+            border-color animation.$duration ease;
+        gap: layout.$tiny-horizontal-spacing;
+    
+        &::placeholder {
+            color: $placeholder-color;
+        }
+    
+        &::after {
+            @include underline;
+        }
+    
+        input, textarea {
+            color: font.$color;
+            box-sizing: border-box;
+            margin: 0;
+            flex-grow: 1;
+            border-style: none;
+            background-color: transparent;
+            outline-style: none;
+        }
+    
+        input {
+            padding: 0 layout.$tiny-horizontal-spacing;
+            width: 0;
+            min-width: 0px;
+            overflow: visible;
+            &:-webkit-autofill, &:-webkit-autofill:focus {
+                transition: background-color 0s 600000s, color 0s 600000s;
+            }
+        }
+    
+        textarea {
+            padding: $padding-y layout.$tiny-horizontal-spacing;
+        }
+    
+        .input-btn {
+            margin-right: -0.75rem;
+        }
+    
+        .unit {
+            margin-left: 0.25rem;
+            color: font.$color-muted;
+        }
+    
+        @each $size in (0, 1, 2, 3, 4) {
+            &.inner-padding-right-#{"" + $size} input {
+                padding-right: $size * 4rem;
             }
         }
     }
-}
+    
+    &:not(.subtle) {
+        .form-input {
+            @include box;
+            font-size: font.$size;
+            line-height: font.$line-height;
+            padding: 0 $padding-x;
+            input, textarea {
+                font-family: inherit;
+                font-size: inherit;
+                font-weight: inherit;
+                line-height: inherit;
+            }
+        }
+    }
+    &.subtle {
+        .form-input {
+            border: 1px solid transparent;
+            border-radius: $border-radius;
+            box-sizing: content-box;
+            &:hover { @include box; @include box-hovered; }
+            &:active { @include box; @include box-active; }
+            &:focus-within { @include box; @include box-focused; }
+            input {
+                padding: 0px;
+            }
+        }
 
-.disabled .form-input {
-    @include box-disabled;
+    }
+
+    &:not(.disabled) {
+    
+        .form-input {
+            cursor: text;
+            &:hover { @include box-hovered; }
+            &:active { @include box-active; }
+            &:focus-within { @include box-focused; }
+        }
+    
+        &.is-invalid, &.ng-invalid.ng-touched {
+            .form-input {
+                border-color: map.get(color.$actives, danger);
+                &::after {
+                    border-bottom-color: map.get(color.$foregrounds, danger);
+                }
+            }
+        }
+    }
+    
+    &.disabled .form-input {
+        @include box-disabled;
+    }
+
 }
 
 .required-indicator {

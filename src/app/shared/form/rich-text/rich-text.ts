@@ -4,22 +4,19 @@ import { copyToClipboard } from '../../utils/clipboard-utils';
 import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
-import { TiptapEditorDirective } from 'ngx-tiptap';
 import { Editor } from '@tiptap/core';
+import Document from '@tiptap/extension-document';
+import Paragraph from '@tiptap/extension-paragraph';
+import Text from '@tiptap/extension-text';
+import { xeffect } from '../../utils/signal-utils';
 
 @Component({
     selector: 'app-rich-text',
     template: `
         <label class="column">
             <app-input-label/>
-            <tiptap-editor [editor]="editor" [(ngModel)]="value"></tiptap-editor>
             <div class="form-input">
-                <input #input [required]="true" type="text"
-                    [(ngModel)]="value" [attr.disabled]="disabledState()"
-                    [placeholder]="placeholder()" [pattern]="pattern()"
-                    [autocomplete]="autocomplete()" (click)="onClick($event)"
-                    (input)="emitChange()"
-                    (keypress)="onKeyPress($event)">
+                <div #editor name="editor"></div>
                 @if (copyable()) {
                     <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
                         class="icon-only input-btn" (onClick)="copy()"/>
@@ -28,7 +25,7 @@ import { Editor } from '@tiptap/core';
         </label>
     `,
     providers: getProviders(() => RichTextComponent),
-    imports: [FormsModule, InputLabelComponent, ButtonComponent, TiptapEditorDirective]
+    imports: [InputLabelComponent, ButtonComponent]
 })
 export class RichTextComponent extends InputBaseComponent<string> {
     
@@ -39,12 +36,23 @@ export class RichTextComponent extends InputBaseComponent<string> {
     readonly copyable = input(false);
 
     protected readonly copied = signal(false);
+    private readonly editorView = viewChild.required('editor', { read: ElementRef });
     protected readonly editor = new Editor({
-        extensions: [],
+        element: null,
+        content: '<p>Test</p>',
+        extensions: [
+            Document,
+            Paragraph,
+            Text,
+        ],
     });
 
-
-    private readonly inputView = viewChild.required('input', { read: ElementRef });
+    constructor() {
+        super();
+        xeffect([this.editorView], editorView => {
+            this.editor.mount(editorView.nativeElement);
+        });
+    }
 
     protected onClick(event: MouseEvent) {
         event.stopImmediatePropagation();
@@ -52,7 +60,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
 
     protected onKeyPress(event: KeyboardEvent) {
         if (event.key === 'Enter')
-            this.inputView().nativeElement.blur();
+            this.editorView().nativeElement.blur();
         if (this.characterLimit() && (this.value()?.length ?? 0) >= this.characterLimit()) {
             event.preventDefault();
         }

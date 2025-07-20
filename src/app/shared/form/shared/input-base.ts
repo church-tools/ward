@@ -17,6 +17,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
     host: {
         'class': 'input',
         '[class.disabled]': 'disabledState()',
+        '[class.subtle]': 'subtle()',
         '(focusout)': 'onTouched(); onBlur.emit()',
     },
 })
@@ -31,6 +32,7 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
     readonly placeholder = input<string>('');
     readonly required = input<boolean>(false);
     readonly indicateRequired = input<boolean>(true);
+    readonly subtle = input<boolean>(false);
     readonly onBlur = output<void>();
 
     protected readonly value = signal<T | null>(null);

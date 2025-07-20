@@ -19,7 +19,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     
-    readonly row = signal<Row<T> | undefined>(undefined);
+    readonly row = signal<Row<T> | null>(null);
     readonly onIdChange = new EventEmitter<number | null>();
     
     protected readonly title = xcomputed([this.row], row => row ? this.tableService.toString(row) : '');
@@ -37,7 +37,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
             this.onIdChange.emit(rowId ? +rowId : null);
             if (!rowId) throw new Error(`${this.tableService.tableName} ID is required in the route`);
             const row = await this.tableService.get(+rowId);
-            this.row.set(row);
+            this.row.set(row ?? null);
         });
     }
 

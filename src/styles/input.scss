@@ -1,6 +1,8 @@
 @use "font";
 @use "animation";
 @use "card";
+@use "color";
+@use 'sass:map';
 
 $background-color: light-dark(#fafafa, #292929);
 $background-transparent-color: light-dark(rgba(#fafafa, 0.75), rgba(#292929, 0.75));
@@ -63,4 +65,23 @@ $option-hover-background-color: light-dark(rgba(#242424, 0.075), rgba(#f5f5f5, 0
 @mixin box-disabled {
     background-color: $disabled-background-color !important;
     border-color: $disabled-border-color !important;
+}
+@mixin underline {
+    box-sizing: border-box;
+    content: "";
+    position: absolute;
+    left: -1px;
+    bottom: -1px;
+    right: -1px;
+    height: max(2px, card.$border-radius-sm);
+    border-bottom-left-radius: card.$border-radius-sm;
+    border-bottom-right-radius: card.$border-radius-sm;
+    border-bottom-width: 2px;
+    border-bottom-style: solid;
+    border-bottom-color: map.get(color.$foregrounds, color.$accent);
+    clip-path: inset(calc(100% - 2px) 0px 0px);
+    transform: scaleX(0);
+    transition-property: transform;
+    transition-duration: 0.1s;
+    transition-delay: cubic-bezier(0.7, 0, 1, 0.5);
 }

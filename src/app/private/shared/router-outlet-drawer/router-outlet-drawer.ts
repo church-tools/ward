@@ -57,8 +57,8 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     private idChangeSubscription: Subscription | null = null;
     
     // Drag configuration
-    private readonly DRAG_THRESHOLD = 10; // px - movement threshold for drag activation
-    private readonly SWIPE_TIME_LIMIT = 150; // ms - time limit for swipe detection
+    private readonly DRAG_THRESHOLD = 10;
+    private readonly SWIPE_TIME_LIMIT = 100;
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -117,7 +117,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         card.style.minWidth = `${width}px`;
         card.style.left = '0px';
         card.classList.add('fade-out');
-        
         await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, 500, easeOut, true);
         card.classList.remove('fade-out');
         this.activeChild.set(null);
@@ -204,23 +203,24 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
             const deltaX = currentX - this.dragState!.startX;
             const velocity = deltaX / (Date.now() - this.dragState!.startTime);
-            
-            if (deltaX > 100 || velocity > 0.5) {
-                this.close();
-            } else {
-                // Set the current drag position without transition
-                element.style.transition = '';
-                element.style.transform = `translateX(${deltaX}px)`;
-                element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
-                
-                // Use requestAnimationFrame to ensure the position is applied before transition
-                requestAnimationFrame(() => {
-                    element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                    element.style.transform = '';
-                    element.style.opacity = '';
+            if (deltaX > 0) {
+                if (deltaX > 100 || velocity > 0.5) {
+                    this.close();
+                } else {
+                    // Set the current drag position without transition
+                    element.style.transition = '';
+                    element.style.transform = `translateX(${deltaX}px)`;
+                    element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
                     
-                    setTimeout(() => element.style.transition = '', 300);
-                });
+                    // Use requestAnimationFrame to ensure the position is applied before transition
+                    requestAnimationFrame(() => {
+                        element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                        element.style.transform = '';
+                        element.style.opacity = '';
+                        
+                        setTimeout(() => element.style.transition = '', 300);
+                    });
+                }
             }
         }
         
