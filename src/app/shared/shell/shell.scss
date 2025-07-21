@@ -28,14 +28,15 @@
     &.focused ::after {
         opacity: 0.95;
     }
-    
+    &.dense .canvas {
+        margin: layout.$canvas-margin-narrow;
+    }
+    &:not(.dense) .canvas {
+        margin: layout.$canvas-margin;
+    }
     &.narrow .canvas {
         justify-content: flex-start;
         display: flex;
-        margin: layout.$canvas-margin-narrow;
-    }
-    &:not(.narrow) .canvas {
-        margin: layout.$canvas-margin;
     }
 }
 

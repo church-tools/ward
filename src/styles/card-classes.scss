@@ -50,7 +50,7 @@
 
     &.selectable-card {
         cursor: pointer;
-        transition: all animation.$duration ease;
+        transition: all animation.$duration animation.$ease-out;
         &:hover {
             background-color: $hover-background-color;
             @include shadow.box(2);

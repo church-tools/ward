@@ -6,6 +6,7 @@ import WindowService from '../window.service';
     template: '',
     host: {
         '[class.focused]': 'windowService.focused()',
+        '[class.dense]': '!windowService.isLarge()',
         '[class.narrow]': 'windowService.isSmall()',
     }
 })

@@ -36,6 +36,10 @@ import { Subscription } from "rxjs";
 })
 export class RouterOutletDrawerComponent implements OnDestroy {
 
+    private static readonly DRAG_THRESHOLD = 10;
+    private static readonly SWIPE_TIME_LIMIT = 100;
+    private static readonly INTERACTIVE_ELEMENTS = new Set(['button', 'a', 'input', 'textarea', 'select', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
+
     readonly onClose = output<void>();
     readonly activated = output<string | null>();
 
@@ -52,13 +56,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         startTime: number; 
         isDragActive: boolean;
         delayTimeout?: number;
+        startedOnBackground?: boolean; // Track if drag started on background
     } | null = null;
     private abortController = new AbortController();
     private idChangeSubscription: Subscription | null = null;
-    
-    // Drag configuration
-    private readonly DRAG_THRESHOLD = 10;
-    private readonly SWIPE_TIME_LIMIT = 100;
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -130,19 +131,27 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected onDragStart(event: MouseEvent | TouchEvent) {
         const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
         const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
+        const target = event.target as HTMLElement;
         
         this.clearDragTimeout();
         this.dragState = { 
             startX: clientX, 
             startY: clientY,
             startTime: Date.now(),
-            isDragActive: false
+            isDragActive: false,
+            startedOnBackground: this.isCardBackground(target)
         };
-        this.dragState!.delayTimeout = window.setTimeout(() => {
-            if (this.dragState && !this.dragState.isDragActive) {
-                this.dragState = null; // Cancel if no movement
-            }
-        }, this.SWIPE_TIME_LIMIT);
+        if (!this.dragState.startedOnBackground) {
+            this.dragState.delayTimeout = window.setTimeout(() => {
+                if (this.dragState && !this.dragState.isDragActive)
+                    this.dragState = null;
+            }, RouterOutletDrawerComponent.SWIPE_TIME_LIMIT);
+        }
+    }
+
+    private isCardBackground(element: HTMLElement): boolean {
+        const tagName = element.tagName.toLowerCase();
+        return !RouterOutletDrawerComponent.INTERACTIVE_ELEMENTS.has(tagName);
     }
 
     private clearDragTimeout() {
@@ -164,18 +173,20 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     private tryActivateDrag(currentX: number, currentY: number, event: MouseEvent | TouchEvent) {
-        const deltaX = currentX - this.dragState!.startX;
-        const deltaY = currentY - this.dragState!.startY;
+        const { startX, startY, startTime, startedOnBackground } = this.dragState!;
+        const deltaX = currentX - startX;
+        const deltaY = currentY - startY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const timeElapsed = Date.now() - this.dragState!.startTime;
-        
-        if (distance > this.DRAG_THRESHOLD) {
+        const timeElapsed = Date.now() - startTime;
+
+        if (distance > RouterOutletDrawerComponent.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
             
-            if (timeElapsed <= this.SWIPE_TIME_LIMIT) {
+            // Allow drag if within time limit OR if started on card background
+            if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground) {
                 this.activateDrag(event);
             } else {
-                this.dragState = null; // Too late for swipe
+                this.dragState = null; // Too late for swipe on interactive elements
             }
         }
     }
