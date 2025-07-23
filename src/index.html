@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8">
-    <title>Gemeinde Tools</title>
+    <title>Ward Tools</title>
     <base href="/">
     <link rel="apple-touch-icon" href="assets/favicon/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
@@ -13,11 +13,24 @@
     <link rel="icon" type="image/svg+xml" href="assets/favicon/favicon.svg" />
     <link rel="shortcut icon" href="assets/favicon/favicon.ico" />
     <link rel="apple-touch-icon" sizes="180x180" href="assets/favicon/apple-touch-icon.png" />
-    <meta name="apple-mobile-web-app-title" content="Gemeinde Tools" />
+    <meta name="apple-mobile-web-app-title" content="Ward Tools" />
     <link rel="manifest" href="assets/site.webmanifest" />
     <link rel="preload" href="/assets/fonts/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     
     <script type="text/javascript">
+        // Register service worker for PWA functionality
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js')
+                    .then(registration => {
+                        console.log('SW registered: ', registration);
+                    })
+                    .catch(registrationError => {
+                        console.log('SW registration failed: ', registrationError);
+                    });
+            });
+        }
+        
         if (window.matchMedia('(prefers-color-scheme: dark)').matches)
             document.querySelector('meta[name=theme-color]').setAttribute('content', '#272727');
         
