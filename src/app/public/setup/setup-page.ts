@@ -5,7 +5,7 @@ import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../shared/form/select/select";
 import { TextInputComponent } from "../../shared/form/text/text-input";
 import { PageComponent } from '../../shared/page/page';
-import { SupabaseService } from '../../shared/supabase.service';
+import { SupabaseService } from '../../shared/service/supabase.service';
 
 @Component({
     selector: 'app-setup-page',

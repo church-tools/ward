@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
 import { IconComponent } from '../../shared/icon/icon';
-import WindowService from '../../shared/window.service';
+import { WindowService } from '../../shared/service/window.service';
 import { privateTabs } from '../private.routes';
 
 @Component({

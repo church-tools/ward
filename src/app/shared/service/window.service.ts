@@ -1,9 +1,9 @@
 import { DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
 import { NavigationEnd, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
-import { AsyncState } from "./utils/async-state";
-import { executeOnce } from "./utils/flow-control-utils";
-import { xcomputed } from "./utils/signal-utils";
+import { AsyncState } from "../utils/async-state";
+import { executeOnce } from "../utils/flow-control-utils";
+import { xcomputed } from "../utils/signal-utils";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -16,7 +16,7 @@ const BREAKPOINT_LG = 1366;
 @Injectable({
     providedIn: 'root',
 })
-export default class WindowService {
+export class WindowService {
 
     private readonly document = inject<Document>(DOCUMENT);
     private readonly router = inject(Router);

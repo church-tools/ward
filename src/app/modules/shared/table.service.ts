@@ -2,7 +2,7 @@ import { inject, Injectable, Injector, signal } from "@angular/core";
 import { User } from "@supabase/supabase-js";
 import { Observable, Subscription } from "rxjs";
 import { Database } from "../../../../database";
-import { SupabaseService } from "../../shared/supabase.service";
+import { SupabaseService } from "../../shared/service/supabase.service";
 import { Insert, KeyWithValue, Row, TableName, Update } from "../../shared/types";
 import { AsyncState } from "../../shared/utils/async-state";
 import { filterMap } from "../../shared/utils/map-utils";

@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, inject } from '@angular/core';
-import WindowService from '../window.service';
+import { WindowService } from '../service/window.service';
 
 @Component({
     selector: 'app-shell',

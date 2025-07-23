@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import ButtonComponent from "../shared/form/button/button";
-import { SupabaseService } from '../shared/supabase.service';
 import { PageComponent } from '../shared/page/page';
+import { SupabaseService } from '../shared/service/supabase.service';
 
 @Component({
     selector: 'app-login-page',

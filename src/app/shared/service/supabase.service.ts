@@ -1,11 +1,11 @@
 import { inject, Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '../../../database';
-import { environment } from '../../environments/environment';
-import { AsyncState } from './utils/async-state';
-import { SupaSync } from './utils/supa-sync/supa-sync';
-import { getSiteOrigin } from './utils/url-utils';
-import WindowService from './window.service';
+import type { Database } from '../../../../database';
+import { environment } from '../../../environments/environment';
+import { AsyncState } from '../utils/async-state';
+import { SupaSync } from '../utils/supa-sync/supa-sync';
+import { getSiteOrigin } from '../utils/url-utils';
+import { WindowService } from './window.service';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {

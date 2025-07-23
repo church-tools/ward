@@ -2,11 +2,11 @@ import { Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy
 import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
+import { WindowService } from '../../service/window.service';
 import { getHighest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utitls';
 import { xeffect } from '../../utils/signal-utils';
 import { getAvgSimilarity, highlightWords } from '../../utils/string-utils';
-import WindowService from '../../window.service';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 
