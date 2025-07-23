@@ -8,7 +8,7 @@ import { KeyWithValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
-import { asyncComputed, xcomputed, xeffect } from '../../utils/signal-utils';
+import { asyncComputed, xeffect } from '../../utils/signal-utils';
 import { easeOut } from '../../utils/style';
 import WindowService from '../../window.service';
 import { SwapContainerComponent } from '../swap-container/swap-container';

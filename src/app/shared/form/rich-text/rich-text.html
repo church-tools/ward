@@ -1,0 +1,39 @@
+<div class="column rich-text-editor">
+    <app-input-label/>
+    <div class="form-input column">
+        <div class="row no-wrap gap-1 items-center toolbar">
+            <app-rich-text-toolbar-group
+                [buttons]="formatButtons"
+                [isActiveCheck]="isFormatActive"
+                (click)="toggleFormat($event)"/>
+            <div class="divider"></div>
+            <app-rich-text-toolbar-group
+                [buttons]="headingButtons"
+                [isActiveCheck]="isHeadingActive"
+                (click)="formatHeading($event)"/>
+            <div class="divider"></div>
+            <app-rich-text-toolbar-group
+                [buttons]="listButtons"
+                [isActiveCheck]="isFormatActive"
+                (click)="execCommand($event)"/>
+            <div class="divider"></div>
+            <app-rich-text-toolbar-group
+                [buttons]="linkButtons"
+                [isActiveCheck]="isFormatActive"
+                (click)="insertLink()"/>
+        </div>
+        <div #editor 
+            class="rich-text-content" 
+            contenteditable="true"
+            [attr.data-placeholder]="placeholder()"
+            (input)="onInput($event)"
+            (keydown)="onKeyDown($event)"
+            (click)="onClick($event)"
+            (focus)="onFocus()"
+            (blur)="handleBlur()"></div>
+        @if (copyable()) {
+            <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
+                class="icon-only input-btn" (onClick)="copy()"/>
+        }
+    </div>
+</div>

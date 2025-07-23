@@ -31,6 +31,8 @@ button, .button {
     position: relative;
     cursor: pointer;
 
+    &.accent-btn { @extend .#{"" + color.$accent}-btn; }
+
     &:disabled, &.disabled {
         cursor: not-allowed;
         color: $color-disabled;
@@ -64,7 +66,6 @@ button, .button {
                     }
                 }
             }
-            &.accent-btn { @extend .#{"" + color.$accent}-btn; }
         }
     }
     
@@ -102,12 +103,12 @@ button, .button {
             }
         }
         &.invert {
-            color: font.$color-inverse !important;
+            color: font.$color-inverse;
             &:hover {
-                background-color: font.$color-inverse-alpha-10 !important;
+                background-color: font.$color-inverse-alpha-10;
             }
             &:active {
-                background-color: font.$color-inverse-alpha-20 !important;
+                background-color: font.$color-inverse-alpha-20;
             }
         }
     }
@@ -135,11 +136,9 @@ button, .button {
     &.icon-colored {
         @each $color in color.$names {
             &.#{"" + $color}-btn {
-                button, .button {
-                    &:not(:disabled):not(.disabled) {
-                        app-icon {
-                            color: map.get(color.$foregrounds, $color) !important;
-                        }
+                &:not(:disabled):not(.disabled) {
+                    app-icon {
+                        color: map.get(color.$foregrounds, $color) !important;
                     }
                 }
             }
@@ -193,7 +192,7 @@ button, .button {
 
 .icon-only > button, .icon-only > .button {
 
-    padding: 0.125rem 0.475rem;
+    padding: 0.125rem 0.4rem;
     &.large {
         padding: 0.25rem 0.75rem;
         &.medium-icon {

@@ -4,6 +4,7 @@ import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
 export const publicTabs: RouteObject = {
     login: { loadComponent: () => import('./login-page').then(m => m.LoginPageComponent) },
     setup: { loadComponent: () => import('./setup/setup-page').then(m => m.SetupPageComponent) },
+    test: { loadComponent: () => import('./test-page').then(m => m.TestComponent) },
     'not-found': { loadComponent: () => import('./not-found-page').then(m => m.NotFoundPageComponent) },
 };
 

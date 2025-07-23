@@ -11,7 +11,7 @@ import { RowPageComponent } from '../../../shared/row-page';
     template: `
         <app-text-input [(ngModel)]="taskTitle" name="title" textClass="h1"
             [subtle]="true"/>
-        <app-rich-text [ngModel]="row()?.content"/>
+        <app-rich-text [(ngModel)]="taskContent" name="content"/>
     `,
     host: { class: 'page narrow' },
     imports: [FormsModule, TextInputComponent, RichTextComponent],
@@ -19,6 +19,7 @@ import { RowPageComponent } from '../../../shared/row-page';
 export class TaskPageComponent extends RowPageComponent<'task'> {
 
     protected readonly taskTitle = property(this.row, 'title');
+    protected readonly taskContent = property(this.row, 'content');
 
     constructor() {
         super(inject(TaskService));
