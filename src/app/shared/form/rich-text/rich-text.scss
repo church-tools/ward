@@ -12,6 +12,7 @@
     border-bottom: 1px solid var(--color-border);
     background: var(--color-surface);
     border-radius: 8px 8px 0 0;
+    animation: slideDown 0.2s ease-out;
     
     .divider {
       width: 1px;
@@ -30,10 +31,21 @@
     }
   }
 
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
   .rich-text-content {
     min-height: 120px;
     border: none;
-    border-radius: 0 0 8px 8px;
+    border-radius: 8px;
     outline: none;
     overflow-y: auto;
     text-align: left;

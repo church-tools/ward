@@ -1,9 +1,10 @@
-import { Component, DestroyRef, ElementRef, inject, input, signal, viewChild } from '@angular/core';
+import { Component, ElementRef, inject, input, signal, viewChild, TemplateRef, ViewContainerRef, OnDestroy } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import { Overlay, OverlayRef } from '@angular/cdk/overlay';
+import { TemplatePortal } from '@angular/cdk/portal';
 import Quill from 'quill';
 import { copyToClipboard } from '../../utils/clipboard-utils';
-import { htmlToMarkdown, markdownToHtml } from '../../utils/markdown-utils';
 import { xeffect } from '../../utils/signal-utils';
 import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
@@ -11,9 +12,12 @@ import InputLabelComponent from "../shared/input-label";
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
 
 type Format = 'bold' | 'italic' | 'underline' | 'strikeThrough';
-type Heading = 1 | 2 | 3 | 0; // 0 for body text
-type List = 'bullet' | 'numbered' | 'check';
+type Heading = 1 | 2 | 3 | 0;
+type List = 'bullet' | 'numbered';
 
+/**
+ * Rich Text Editor with floating toolbar that appears on text selection
+ */
 @Component({
     selector: 'app-rich-text',
     styleUrl: './rich-text.scss',
@@ -21,7 +25,7 @@ type List = 'bullet' | 'numbered' | 'check';
     providers: getProviders(() => RichTextComponent),
     imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent, ButtonComponent],
 })
-export class RichTextComponent extends InputBaseComponent<string> {
+export class RichTextComponent extends InputBaseComponent<string> implements OnDestroy {
     
     readonly characterLimit = input<number>(0);
     readonly autocomplete = input<string>('off');
@@ -30,11 +34,17 @@ export class RichTextComponent extends InputBaseComponent<string> {
     readonly copyable = input(false);
 
     protected readonly copied = signal(false);
+    protected readonly hasSelection = signal(false);
+    protected readonly hasFocus = signal(false);
     private readonly editor = viewChild.required('editor', { read: ElementRef });
-    private readonly destroyRef = inject(DestroyRef);
+    private readonly toolbarTemplate = viewChild.required<TemplateRef<any>>('toolbarTemplate');
+    private readonly overlay = inject(Overlay);
+    private readonly viewContainerRef = inject(ViewContainerRef);
     
     private quill!: Quill;
     private ignoreNextUpdate = false;
+    private toolbarOverlayRef: OverlayRef | null = null;
+    private toolbarPortal: TemplatePortal | null = null;
 
     protected readonly formatButtons: RichTextToolbarButton<Format>[] = [
         { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },
@@ -53,7 +63,6 @@ export class RichTextComponent extends InputBaseComponent<string> {
     protected readonly listButtons: RichTextToolbarButton<List>[] = [
         { icon: 'text_bullet_list_ltr', action: 'bullet', title: 'Bullet List' },
         { icon: 'text_number_list_ltr', action: 'numbered', title: 'Numbered List' },
-        { icon: 'task_list_ltr', action: 'check', title: 'Check List' },
     ] as const;
 
     protected readonly linkButtons: RichTextToolbarButton<string>[] = [
@@ -65,38 +74,14 @@ export class RichTextComponent extends InputBaseComponent<string> {
         xeffect([this.editor], editor => {
             this.quill = new Quill(editor.nativeElement, {
                 theme: 'snow',
-                modules: {
-                    toolbar: false, // We'll use our custom toolbar
-                    keyboard: {
-                        bindings: {
-                            'ctrl+b': {
-                                key: 'b',
-                                ctrlKey: true,
-                                handler: () => this.toggleFormat('bold')
-                            },
-                            'ctrl+i': {
-                                key: 'i',
-                                ctrlKey: true,
-                                handler: () => this.toggleFormat('italic')
-                            },
-                            'ctrl+u': {
-                                key: 'u',
-                                ctrlKey: true,
-                                handler: () => this.toggleFormat('underline')
-                            }
-                        }
-                    }
-                },
+                modules: { toolbar: false },
                 placeholder: this.placeholder() || 'Enter text...',
-                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'code']
+                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link']
             });
-            const initialValue = this.value();
-            if (initialValue) {
-                const html = markdownToHtml(initialValue);
-                this.quill.root.innerHTML = html;
-            }
+            
+            if (this.value()) this.quill.root.innerHTML = this.value()!;
 
-            // Listen for content changes
+            // Event handlers with deferred signal updates
             this.quill.on('text-change', () => {
                 if (this.ignoreNextUpdate) {
                     this.ignoreNextUpdate = false;
@@ -105,10 +90,36 @@ export class RichTextComponent extends InputBaseComponent<string> {
                 this.updateValue();
             });
 
-            // Listen for selection changes to update toolbar states
-            this.quill.on('selection-change', () => {
-                // Trigger change detection for toolbar button states
+            this.quill.on('selection-change', (range) => {
+                setTimeout(() => this.hasSelection.set(range && range.length > 0), 0);
             });
+
+            this.quill.on('focus', () => {
+                setTimeout(() => {
+                    this.hasFocus.set(true);
+                    const selection = this.quill.getSelection();
+                    this.hasSelection.set(selection ? selection.length > 0 : false);
+                }, 0);
+            });
+
+            this.quill.on('blur', () => {
+                setTimeout(() => {
+                    if (!this.quill.hasFocus()) {
+                        setTimeout(() => this.hasFocus.set(false), 0);
+                        this.clearSelection();
+                    }
+                }, 100);
+            });
+        });
+
+        // Show/hide toolbar based on selection and focus
+        xeffect([this.hasSelection, this.hasFocus], (hasSelection, hasFocus) => {
+            const shouldShow = hasSelection && hasFocus;
+            if (shouldShow && !this.toolbarOverlayRef) {
+                this.createToolbarOverlay();
+            } else if (!shouldShow && this.toolbarOverlayRef) {
+                this.closeToolbarOverlay();
+            }
         });
     }
 
@@ -116,18 +127,19 @@ export class RichTextComponent extends InputBaseComponent<string> {
         super.writeValue(value);
         if (this.quill && value !== null) {
             this.ignoreNextUpdate = true;
-            const html = markdownToHtml(value);
-            this.quill.root.innerHTML = html;
+            this.quill.root.innerHTML = value || '';
         }
     }
 
     protected onClick(event: MouseEvent) {
         event.stopImmediatePropagation();
+        if (this.quill) setTimeout(() => this.hasFocus.set(true), 0);
     }
 
     protected onFocus() {
         if (this.quill) {
             this.quill.focus();
+            setTimeout(() => this.hasFocus.set(true), 0);
         }
     }
 
@@ -135,170 +147,169 @@ export class RichTextComponent extends InputBaseComponent<string> {
         this.onBlur.emit();
     }
 
-    protected async copy() {
-        const value = this.value();
-        if (!value) return;
-        copyToClipboard(value);
-        this.copied.set(true);
-        await new Promise(resolve => setTimeout(resolve, 3000));
-        this.copied.set(false);
+    private clearSelection() {
+        if (!this.quill) return;
+        this.quill.setSelection(null);
+        window.getSelection()?.removeAllRanges();
+        setTimeout(() => this.hasSelection.set(false), 0);
     }
 
-    // Check if a format is currently active
+    protected async copy() {
+        if (!this.quill) return;
+        const text = this.quill.getText();
+        if (!text.trim()) return;
+        
+        copyToClipboard(text);
+        this.copied.set(true);
+        setTimeout(() => this.copied.set(false), 3000);
+    }
+
     protected isFormatActive = (format: string): boolean => {
         if (!this.quill) return false;
-        
-        const formatMap: Record<string, string> = {
-            'bold': 'bold',
-            'italic': 'italic',
-            'underline': 'underline',
-            'strikeThrough': 'strike'
-        };
-        
-        const quillFormat = formatMap[format] || format;
         const selection = this.quill.getSelection();
         if (!selection) return false;
         
         const formats = this.quill.getFormat(selection);
-        return !!formats[quillFormat];
+        switch (format) {
+            case 'strikeThrough':
+                return !!formats['strike'];
+            case 'bullet':
+                return formats['list'] === 'bullet';
+            case 'numbered':
+                return formats['list'] === 'ordered';
+            default:
+                return !!formats[format];
+        }
     }
 
-    // Check if a heading level is active
     protected isHeadingActive = (level: number): boolean => {
         if (!this.quill) return false;
-        
         const selection = this.quill.getSelection();
         if (!selection) return false;
-        
-        const formats = this.quill.getFormat(selection);
-        const headerLevel = formats['header'];
-        
-        if (level === 0) {
-            return !headerLevel; // No header means it's body text
-        }
-        
-        return headerLevel === level;
+        const headerLevel = this.quill.getFormat(selection)['header'];
+        return level === 0 ? !headerLevel : headerLevel === level;
     }
 
-    // Format as heading
     formatHeading(level: number) {
         if (!this.quill) return;
-        
         const selection = this.quill.getSelection();
         if (!selection) return;
         
-        if (level === 0) {
-            // Convert to paragraph (remove header)
-            this.quill.format('header', false);
-        } else {
-            // Apply header level
-            this.quill.format('header', level);
-        }
-        
+        this.quill.format('header', level === 0 ? false : level);
         this.updateValue();
     }
 
-    // Insert link
     insertLink() {
         if (!this.quill) return;
-        
         const selection = this.quill.getSelection();
         if (!selection) return;
         
         const url = prompt('Enter URL:');
-        if (url) {
-            if (selection.length > 0) {
-                // Text is selected, create link with selected text
-                this.quill.format('link', url);
-            } else {
-                // No text selected, insert URL as both text and link
-                this.quill.insertText(selection.index, url, 'link', url);
-            }
+        if (!url) return;
+        
+        if (selection.length > 0) {
+            this.quill.format('link', url);
+        } else {
+            this.quill.insertText(selection.index, url, 'link', url);
         }
-        
         this.updateValue();
     }
 
-    // Toggle format
-    toggleFormat(command: string) {
+    toggleFormat(format: string) {
         if (!this.quill) return;
+        const selection = this.quill.getSelection();
+        if (!selection) return;
         
-        const formatMap: Record<string, string> = {
-            'bold': 'bold',
-            'italic': 'italic',
-            'underline': 'underline',
-            'strikeThrough': 'strike'
-        };
-        
-        const quillFormat = formatMap[command] || command;
-        const isActive = this.isFormatActive(command);
-        
-        this.quill.format(quillFormat, !isActive);
+        const currentFormats = this.quill.getFormat(selection);
+        const key = format === 'strikeThrough' ? 'strike' : format;
+        this.quill.format(key, !currentFormats[key]);
         this.updateValue();
     }
 
-    // Execute list commands
     execCommand(command: string) {
         if (!this.quill) return;
-        
         const selection = this.quill.getSelection();
         if (!selection) return;
         
         const formats = this.quill.getFormat(selection);
-        
-        switch (command) {
-            case 'bullet':
-                const isBulletList = formats['list'] === 'bullet';
-                this.quill.format('list', isBulletList ? false : 'bullet');
-                break;
-            case 'numbered':
-                const isOrderedList = formats['list'] === 'ordered';
-                this.quill.format('list', isOrderedList ? false : 'ordered');
-                break;
-            case 'check':
-                // Note: Quill doesn't have built-in checkbox list support
-                // You might need to add a custom module for this
-                const isCheckList = formats['list'] === 'check';
-                this.quill.format('list', isCheckList ? false : 'bullet');
-                break;
-        }
-        
+        const listType = command === 'bullet' ? 'bullet' : 'ordered';
+        const isActive = formats['list'] === listType;
+        this.quill.format('list', isActive ? false : listType);
         this.updateValue();
     }
 
     private updateValue() {
         if (!this.quill) return;
-        
         const html = this.quill.root.innerHTML;
-        const markdown = htmlToMarkdown(html);
         
-        // Check character limit
-        if (this.characterLimit() && markdown.length > this.characterLimit()) {
-            // Restore previous content if character limit exceeded
-            const previousMarkdown = this.value() || '';
-            this.ignoreNextUpdate = true;
-            this.quill.root.innerHTML = markdownToHtml(previousMarkdown);
-            return;
+        if (this.characterLimit()) {
+            const textLength = this.quill.getText().length;
+            if (textLength > this.characterLimit()) {
+                this.ignoreNextUpdate = true;
+                this.quill.root.innerHTML = this.value() || '';
+                return;
+            }
         }
         
-        this.value.set(markdown);
+        this.value.set(html);
         this.emitChange();
+    }
+
+    ngOnDestroy() {
+        this.closeToolbarOverlay();
+    }
+
+    private createToolbarOverlay() {
+        const selection = this.quill?.getSelection();
+        if (!selection || selection.length === 0) return;
+
+        const range = this.quill.getBounds(selection.index, selection.length);
+        if (!range) return;
+        
+        const editorRect = this.editor().nativeElement.getBoundingClientRect();
+        const left = editorRect.left + range.left + (range.width / 2);
+        const top = editorRect.top + range.top - 60;
+
+        const positionStrategy = this.overlay.position()
+            .global()
+            .left(`${Math.round(left)}px`)
+            .top(`${Math.round(top)}px`);
+
+        this.toolbarOverlayRef = this.overlay.create({
+            positionStrategy,
+            scrollStrategy: this.overlay.scrollStrategies.reposition(),
+            hasBackdrop: false,
+            panelClass: 'rich-text-toolbar-overlay'
+        });
+
+        this.toolbarPortal = new TemplatePortal(this.toolbarTemplate(), this.viewContainerRef);
+        this.toolbarOverlayRef.attach(this.toolbarPortal);
+    }
+
+    private closeToolbarOverlay() {
+        if (this.toolbarOverlayRef) {
+            this.toolbarOverlayRef.detach();
+            this.toolbarOverlayRef.dispose();
+            this.toolbarOverlayRef = null;
+            this.toolbarPortal = null;
+        }
     }
 
     override validate(control: AbstractControl): ValidationErrors | null {
         const errors = super.validate(control) || {};
-        const value = this.value();
         
-        // Validate against pattern if provided
         const pattern = this.pattern();
-        if (pattern && value) {
-            const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-            if (!regex.test(value)) {
-                errors['pattern'] = {
-                    requiredPattern: pattern.toString(),
-                    actualValue: value,
-                    message: this.patternErrorMsg() || 'Invalid format'
-                };
+        if (pattern && this.quill) {
+            const plainText = this.quill.getText();
+            if (plainText.trim()) {
+                const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
+                if (!regex.test(plainText)) {
+                    errors['pattern'] = {
+                        requiredPattern: pattern.toString(),
+                        actualValue: plainText,
+                        message: this.patternErrorMsg() || 'Invalid format'
+                    };
+                }
             }
         }
         

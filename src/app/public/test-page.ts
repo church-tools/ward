@@ -11,7 +11,7 @@ import { PageComponent } from '../shared/page/page';
         <app-rich-text [(ngModel)]="richTextContent" name="test"/>
         <p>Aktueller Inhalt:</p>
         {{ richTextContent() }}
-        <app-rich-text [ngModel]="richTextContent" name="test-out"/>
+        <app-rich-text [ngModel]="richTextContent()" name="test-out"/>
     `,
     imports: [FormsModule, RichTextComponent],
     host: { class: 'page narrow' },

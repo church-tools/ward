@@ -1,7 +1,20 @@
 <div class="column rich-text-editor">
     <app-input-label/>
     <div class="form-input column">
-        <div class="row no-wrap gap-1 items-center toolbar">
+        <div #editor title="{{label()}}"
+            class="rich-text-content"
+            (click)="onClick($event)"
+            (focus)="onFocus()"
+            (blur)="handleBlur()"></div>
+        @if (copyable()) {
+            <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
+                class="icon-only input-btn" (onClick)="copy()"/>
+        }
+    </div>
+    
+    <!-- Toolbar template for overlay -->
+    <ng-template #toolbarTemplate>
+        <div class="floating-toolbar">
             <app-rich-text-toolbar-group
                 [buttons]="formatButtons"
                 [isActiveCheck]="isFormatActive"
@@ -22,11 +35,5 @@
                 [isActiveCheck]="isFormatActive"
                 (click)="insertLink()"/>
         </div>
-        <textarea #editor title="{{label()}}"
-            class="rich-text-content"></textarea>
-        @if (copyable()) {
-            <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
-                class="icon-only input-btn" (onClick)="copy()"/>
-        }
-    </div>
+    </ng-template>
 </div>
