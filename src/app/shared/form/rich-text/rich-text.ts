@@ -1,8 +1,10 @@
-import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
+import { Component, DestroyRef, ElementRef, inject, input, signal, viewChild } from '@angular/core';
 import { AbstractControl, ValidationErrors } from '@angular/forms';
 import { TranslateModule } from '@ngx-translate/core';
+import Quill from 'quill';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { htmlToMarkdown, markdownToHtml } from '../../utils/markdown-utils';
+import { xeffect } from '../../utils/signal-utils';
 import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
@@ -28,10 +30,11 @@ export class RichTextComponent extends InputBaseComponent<string> {
     readonly copyable = input(false);
 
     protected readonly copied = signal(false);
-    private readonly editorView = viewChild.required('editor', { read: ElementRef });
+    private readonly editor = viewChild.required('editor', { read: ElementRef });
+    private readonly destroyRef = inject(DestroyRef);
     
-    // Track active formatting modes for toggle functionality
-    protected readonly activeFormats = signal<Set<string>>(new Set());
+    private quill!: Quill;
+    private ignoreNextUpdate = false;
 
     protected readonly formatButtons: RichTextToolbarButton<Format>[] = [
         { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },
@@ -57,18 +60,65 @@ export class RichTextComponent extends InputBaseComponent<string> {
         { icon: 'link', action: 'insertLink', title: 'Insert Link' },
     ] as const;
 
+    constructor() {
+        super();
+        xeffect([this.editor], editor => {
+            this.quill = new Quill(editor.nativeElement, {
+                theme: 'snow',
+                modules: {
+                    toolbar: false, // We'll use our custom toolbar
+                    keyboard: {
+                        bindings: {
+                            'ctrl+b': {
+                                key: 'b',
+                                ctrlKey: true,
+                                handler: () => this.toggleFormat('bold')
+                            },
+                            'ctrl+i': {
+                                key: 'i',
+                                ctrlKey: true,
+                                handler: () => this.toggleFormat('italic')
+                            },
+                            'ctrl+u': {
+                                key: 'u',
+                                ctrlKey: true,
+                                handler: () => this.toggleFormat('underline')
+                            }
+                        }
+                    }
+                },
+                placeholder: this.placeholder() || 'Enter text...',
+                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'code']
+            });
+            const initialValue = this.value();
+            if (initialValue) {
+                const html = markdownToHtml(initialValue);
+                this.quill.root.innerHTML = html;
+            }
+
+            // Listen for content changes
+            this.quill.on('text-change', () => {
+                if (this.ignoreNextUpdate) {
+                    this.ignoreNextUpdate = false;
+                    return;
+                }
+                this.updateValue();
+            });
+
+            // Listen for selection changes to update toolbar states
+            this.quill.on('selection-change', () => {
+                // Trigger change detection for toolbar button states
+            });
+        });
+    }
+
     override writeValue(value: string | null): void {
         super.writeValue(value);
-        // Update the editor content when value changes externally
-        setTimeout(() => {
-            const editor = this.editorView()?.nativeElement;
-            if (editor && value !== null) {
-                const html = markdownToHtml(value);
-                if (editor.innerHTML !== html) {
-                    editor.innerHTML = html;
-                }
-            }
-        });
+        if (this.quill && value !== null) {
+            this.ignoreNextUpdate = true;
+            const html = markdownToHtml(value);
+            this.quill.root.innerHTML = html;
+        }
     }
 
     protected onClick(event: MouseEvent) {
@@ -76,116 +126,13 @@ export class RichTextComponent extends InputBaseComponent<string> {
     }
 
     protected onFocus() {
-        // Apply active formats when focusing the editor
-        setTimeout(() => this.applyActiveFormats(), 0);
+        if (this.quill) {
+            this.quill.focus();
+        }
     }
 
     protected handleBlur() {
         this.onBlur.emit();
-    }
-
-    protected onInput(event: Event) {
-        const target = event.target as HTMLElement;
-        const html = target.innerHTML;
-        const markdown = htmlToMarkdown(html);
-        
-        if (this.characterLimit() && markdown.length > this.characterLimit()) {
-            // Restore previous content if character limit exceeded
-            const previousMarkdown = this.value() || '';
-            target.innerHTML = markdownToHtml(previousMarkdown);
-            return;
-        }
-        
-        this.value.set(markdown);
-        this.emitChange();
-    }
-
-    protected onKeyDown(event: KeyboardEvent) {
-        const isCtrl = event.ctrlKey || event.metaKey;
-        
-        // Handle Backspace key to remove list formatting
-        if (event.key === 'Backspace') {
-            const selection = window.getSelection();
-            if (selection && selection.anchorNode) {
-                const listItem = this.getParentListItem(selection.anchorNode);
-                if (listItem) {
-                    // Check if cursor is at the beginning of the list item
-                    const range = selection.getRangeAt(0);
-                    if (range.startOffset === 0 && range.collapsed) {
-                        // Check if this is at the very beginning of the list item content
-                        const isAtBeginning = this.isCursorAtListItemStart(selection, listItem);
-                        if (isAtBeginning) {
-                            event.preventDefault();
-                            this.removeListFormatting(listItem);
-                            return;
-                        }
-                    }
-                }
-            }
-        }
-        
-        // Handle Tab key for list indentation
-        if (event.key === 'Tab') {
-            const selection = window.getSelection();
-            if (selection && selection.anchorNode) {
-                const element = selection.anchorNode.nodeType === Node.TEXT_NODE 
-                    ? selection.anchorNode.parentElement 
-                    : selection.anchorNode as Element;
-                
-                // Check if we're in a list item
-                const listItem = element?.closest('li');
-                if (listItem) {
-                    event.preventDefault();
-                    if (event.shiftKey) {
-                        // Shift+Tab: outdent
-                        this.outdentList();
-                    } else {
-                        // Tab: indent
-                        this.indentList();
-                    }
-                    return;
-                }
-            }
-        }
-        
-        // Handle keyboard shortcuts
-        if (isCtrl) {
-            switch (event.key.toLowerCase()) {
-                case 'b':
-                    event.preventDefault();
-                    this.toggleFormat('bold');
-                    break;
-                case 'i':
-                    event.preventDefault();
-                    this.toggleFormat('italic');
-                    break;
-                case 'u':
-                    event.preventDefault();
-                    this.toggleFormat('underline');
-                    break;
-            }
-        }
-        
-        // Prevent default Enter behavior in headings to create new paragraph
-        if (event.key === 'Enter') {
-            const selection = window.getSelection();
-            if (selection && selection.anchorNode) {
-                const element = selection.anchorNode.nodeType === Node.TEXT_NODE 
-                    ? selection.anchorNode.parentElement 
-                    : selection.anchorNode as Element;
-                
-                if (element && ['H1', 'H2', 'H3', 'H4', 'H5', 'H6'].includes(element.tagName)) {
-                    event.preventDefault();
-                    this.execCommand('formatBlock', '<p>');
-                }
-            }
-        }
-        
-        // Apply active formats for regular typing
-        if (event.key.length === 1 && !isCtrl) {
-            // This is a regular character being typed
-            setTimeout(() => this.applyActiveFormats(), 0);
-        }
     }
 
     protected async copy() {
@@ -197,343 +144,143 @@ export class RichTextComponent extends InputBaseComponent<string> {
         this.copied.set(false);
     }
 
-    // Execute rich text commands
-    execCommand(command: string, value?: string) {
-        document.execCommand(command, false, value);
-        this.updateContent();
-    }
-
     // Check if a format is currently active
-    protected isFormatActive = (format: string) => {
-        return document.queryCommandState(format);
+    protected isFormatActive = (format: string): boolean => {
+        if (!this.quill) return false;
+        
+        const formatMap: Record<string, string> = {
+            'bold': 'bold',
+            'italic': 'italic',
+            'underline': 'underline',
+            'strikeThrough': 'strike'
+        };
+        
+        const quillFormat = formatMap[format] || format;
+        const selection = this.quill.getSelection();
+        if (!selection) return false;
+        
+        const formats = this.quill.getFormat(selection);
+        return !!formats[quillFormat];
     }
 
     // Check if a heading level is active
     protected isHeadingActive = (level: number): boolean => {
-        const selection = window.getSelection();
-        if (!selection || !selection.anchorNode) return false;
+        if (!this.quill) return false;
         
-        const element = selection.anchorNode.nodeType === Node.TEXT_NODE 
-            ? selection.anchorNode.parentElement 
-            : selection.anchorNode as Element;
-            
-        return element?.tagName === (level ? `H${level}` : "P");
-    }
-
-    // Check if code formatting is active
-    isCodeActive(): boolean {
-        const selection = window.getSelection();
-        if (!selection || !selection.anchorNode) return false;
+        const selection = this.quill.getSelection();
+        if (!selection) return false;
         
-        const element = selection.anchorNode.nodeType === Node.TEXT_NODE 
-            ? selection.anchorNode.parentElement 
-            : selection.anchorNode as Element;
-            
-        return element?.tagName === 'CODE';
+        const formats = this.quill.getFormat(selection);
+        const headerLevel = formats['header'];
+        
+        if (level === 0) {
+            return !headerLevel; // No header means it's body text
+        }
+        
+        return headerLevel === level;
     }
 
     // Format as heading
     formatHeading(level: number) {
-        const selection = window.getSelection();
-        if (!selection || !selection.anchorNode) return;
+        if (!this.quill) return;
         
-        const element = selection.anchorNode.nodeType === Node.TEXT_NODE 
-            ? selection.anchorNode.parentElement 
-            : selection.anchorNode as Element;
+        const selection = this.quill.getSelection();
+        if (!selection) return;
         
-        // Find the block element (paragraph, heading, etc.)
-        let blockElement = element;
-        while (blockElement && !['P', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6', 'DIV'].includes(blockElement.tagName)) {
-            blockElement = blockElement.parentElement;
-        }
-        
-        if (!blockElement || blockElement === this.editorView().nativeElement) return;
-        
-        if (this.isHeadingActive(level)) {
-            // Convert heading to paragraph
-            const newP = document.createElement('p');
-            newP.innerHTML = blockElement.innerHTML;
-            blockElement.parentElement?.replaceChild(newP, blockElement);
-            
-            // Restore cursor position
-            this.restoreCursorInElement(newP);
+        if (level === 0) {
+            // Convert to paragraph (remove header)
+            this.quill.format('header', false);
         } else {
-            // Convert to heading (from paragraph or other heading)
-            const newHeading = document.createElement(`h${level}`);
-            newHeading.innerHTML = blockElement.innerHTML;
-            blockElement.parentElement?.replaceChild(newHeading, blockElement);
-            
-            // Restore cursor position
-            this.restoreCursorInElement(newHeading);
+            // Apply header level
+            this.quill.format('header', level);
         }
         
-        this.updateContent();
-    }
-
-    // Toggle code formatting
-    toggleCode() {
-        const selection = window.getSelection();
-        if (!selection || selection.isCollapsed) return;
-        
-        if (this.isCodeActive()) {
-            // Remove code formatting
-            this.execCommand('removeFormat');
-        } else {
-            // Add code formatting
-            const range = selection.getRangeAt(0);
-            const selectedText = range.toString();
-            const codeElement = document.createElement('code');
-            codeElement.textContent = selectedText;
-            range.deleteContents();
-            range.insertNode(codeElement);
-            selection.removeAllRanges();
-        }
-        this.updateContent();
+        this.updateValue();
     }
 
     // Insert link
     insertLink() {
-        const url = prompt('Enter URL:');
-        if (url) {
-            this.execCommand('createLink', url);
-        }
-    }
-
-    // Toggle format with mode support
-    toggleFormat(command: string) {
-        const selection = window.getSelection();
-        const editor = this.editorView().nativeElement;
+        if (!this.quill) return;
         
-        if (selection && !selection.isCollapsed) {
-            // Text is selected - apply formatting to selection
-            this.execCommand(command);
-        } else {
-            // No text selected - toggle mode
-            const currentFormats = this.activeFormats();
-            const newFormats = new Set<string>(currentFormats);
-            
-            if (newFormats.has(command)) {
-                newFormats.delete(command);
-            } else {
-                newFormats.add(command);
-            }
-            
-            this.activeFormats.set(newFormats);
-            
-            // Keep focus on the editor
-            setTimeout(() => {
-                if (document.activeElement !== editor) {
-                    editor.focus();
-                }
-            }, 0);
-        }
-    }
-
-    // Handle list indentation
-    indentList() {
-        const selection = window.getSelection();
+        const selection = this.quill.getSelection();
         if (!selection) return;
         
-        const listItem = this.getParentListItem(selection.anchorNode);
-        if (!listItem) return;
-        
-        const parentList = listItem.parentElement;
-        if (!parentList) return;
-        
-        const previousItem = listItem.previousElementSibling as HTMLLIElement;
-        
-        if (previousItem) {
-            // Find or create a nested list in the previous item
-            let nestedList = previousItem.querySelector('ul, ol') as HTMLElement;
-            
-            if (!nestedList) {
-                // Create a new nested list of the same type as parent
-                const listType = parentList.tagName.toLowerCase();
-                nestedList = document.createElement(listType);
-                previousItem.appendChild(nestedList);
+        const url = prompt('Enter URL:');
+        if (url) {
+            if (selection.length > 0) {
+                // Text is selected, create link with selected text
+                this.quill.format('link', url);
+            } else {
+                // No text selected, insert URL as both text and link
+                this.quill.insertText(selection.index, url, 'link', url);
             }
-            
-            // Move the current item into the nested list
-            nestedList.appendChild(listItem);
-        } else {
-            // If there's no previous item, we can't indent, so do nothing
+        }
+        
+        this.updateValue();
+    }
+
+    // Toggle format
+    toggleFormat(command: string) {
+        if (!this.quill) return;
+        
+        const formatMap: Record<string, string> = {
+            'bold': 'bold',
+            'italic': 'italic',
+            'underline': 'underline',
+            'strikeThrough': 'strike'
+        };
+        
+        const quillFormat = formatMap[command] || command;
+        const isActive = this.isFormatActive(command);
+        
+        this.quill.format(quillFormat, !isActive);
+        this.updateValue();
+    }
+
+    // Execute list commands
+    execCommand(command: string) {
+        if (!this.quill) return;
+        
+        const selection = this.quill.getSelection();
+        if (!selection) return;
+        
+        const formats = this.quill.getFormat(selection);
+        
+        switch (command) {
+            case 'bullet':
+                const isBulletList = formats['list'] === 'bullet';
+                this.quill.format('list', isBulletList ? false : 'bullet');
+                break;
+            case 'numbered':
+                const isOrderedList = formats['list'] === 'ordered';
+                this.quill.format('list', isOrderedList ? false : 'ordered');
+                break;
+            case 'check':
+                // Note: Quill doesn't have built-in checkbox list support
+                // You might need to add a custom module for this
+                const isCheckList = formats['list'] === 'check';
+                this.quill.format('list', isCheckList ? false : 'bullet');
+                break;
+        }
+        
+        this.updateValue();
+    }
+
+    private updateValue() {
+        if (!this.quill) return;
+        
+        const html = this.quill.root.innerHTML;
+        const markdown = htmlToMarkdown(html);
+        
+        // Check character limit
+        if (this.characterLimit() && markdown.length > this.characterLimit()) {
+            // Restore previous content if character limit exceeded
+            const previousMarkdown = this.value() || '';
+            this.ignoreNextUpdate = true;
+            this.quill.root.innerHTML = markdownToHtml(previousMarkdown);
             return;
         }
         
-        this.updateContent();
-    }
-
-    // Handle list outdenting
-    outdentList() {
-        const selection = window.getSelection();
-        if (!selection) return;
-        
-        const listItem = this.getParentListItem(selection.anchorNode);
-        if (!listItem) return;
-        
-        const parentList = listItem.parentElement;
-        if (!parentList) return;
-        
-        // Find the parent list item that contains this nested list
-        const grandParentLi = parentList.parentElement?.closest('li') as HTMLLIElement;
-        
-        if (grandParentLi && grandParentLi.parentElement) {
-            // Move the list item to the same level as the grandparent
-            const grandParentList = grandParentLi.parentElement;
-            const nextSibling = grandParentLi.nextSibling;
-            
-            if (nextSibling) {
-                grandParentList.insertBefore(listItem, nextSibling);
-            } else {
-                grandParentList.appendChild(listItem);
-            }
-            
-            // Clean up empty nested lists
-            if (parentList && !parentList.children.length) {
-                parentList.remove();
-            }
-            
-            this.updateContent();
-        }
-    }
-
-    // Helper method to get parent list item
-    private getParentListItem(node: Node | null): HTMLLIElement | null {
-        if (!node) return null;
-        
-        let current = node.nodeType === Node.TEXT_NODE ? node.parentElement : node as Element;
-        
-        while (current && current !== this.editorView().nativeElement) {
-            if (current.tagName === 'LI') {
-                return current as HTMLLIElement;
-            }
-            current = current.parentElement;
-        }
-        
-        return null;
-    }
-
-    // Check if cursor is at the start of a list item
-    private isCursorAtListItemStart(selection: Selection, listItem: HTMLLIElement): boolean {
-        const range = selection.getRangeAt(0);
-        if (!range.collapsed) return false;
-        
-        // Get the first text node in the list item
-        const walker = document.createTreeWalker(
-            listItem,
-            NodeFilter.SHOW_TEXT,
-            null
-        );
-        
-        const firstTextNode = walker.nextNode();
-        if (!firstTextNode) return true; // Empty list item
-        
-        // Check if cursor is at the beginning of the first text node
-        return range.startContainer === firstTextNode && range.startOffset === 0;
-    }
-
-    // Remove list formatting and convert to paragraph
-    private removeListFormatting(listItem: HTMLLIElement) {
-        const parentList = listItem.parentElement;
-        if (!parentList) return;
-        
-        // Get the content of the list item
-        const content = listItem.innerHTML;
-        
-        // Create a new paragraph element
-        const paragraph = document.createElement('p');
-        paragraph.innerHTML = content;
-        
-        // If this is the only item in the list, replace the entire list
-        if (parentList.children.length === 1) {
-            parentList.parentElement?.replaceChild(paragraph, parentList);
-        } else {
-            // Insert the paragraph before the list and remove the list item
-            parentList.parentElement?.insertBefore(paragraph, parentList);
-            listItem.remove();
-        }
-        
-        // Place cursor at the beginning of the new paragraph
-        const selection = window.getSelection();
-        if (selection) {
-            const range = document.createRange();
-            range.setStart(paragraph, 0);
-            range.collapse(true);
-            selection.removeAllRanges();
-            selection.addRange(range);
-        }
-        
-        this.updateContent();
-    }
-
-    // Helper method to restore cursor position in an element
-    private restoreCursorInElement(element: Element) {
-        const selection = window.getSelection();
-        if (!selection) return;
-        
-        try {
-            const range = document.createRange();
-            
-            // Find the first text node in the element
-            const walker = document.createTreeWalker(
-                element,
-                NodeFilter.SHOW_TEXT,
-                null
-            );
-            
-            const firstTextNode = walker.nextNode();
-            if (firstTextNode) {
-                range.setStart(firstTextNode, 0);
-                range.collapse(true);
-            } else {
-                // If no text node, place cursor at the beginning of the element
-                range.setStart(element, 0);
-                range.collapse(true);
-            }
-            
-            selection.removeAllRanges();
-            selection.addRange(range);
-        } catch (e) {
-            // Ignore cursor restoration errors
-        }
-    }
-
-    // Apply active formats when typing
-    private applyActiveFormats() {
-        const formats = this.activeFormats();
-        if (formats.size === 0) return;
-        
-        const selection = window.getSelection();
-        if (!selection || !selection.rangeCount) return;
-        
-        // Save current selection
-        const range = selection.getRangeAt(0);
-        
-        // Apply each active format
-        formats.forEach(format => {
-            if (!this.isFormatActive(format)) {
-                try {
-                    document.execCommand(format, false);
-                } catch (e) {
-                    // Ignore errors to prevent focus issues
-                }
-            }
-        });
-        
-        // Restore selection if it was lost
-        if (selection.rangeCount === 0 && range) {
-            try {
-                selection.removeAllRanges();
-                selection.addRange(range);
-            } catch (e) {
-                // Ignore selection restoration errors
-            }
-        }
-    }
-
-    private updateContent() {
-        const html = this.editorView().nativeElement.innerHTML;
-        const markdown = htmlToMarkdown(html);
         this.value.set(markdown);
         this.emitChange();
     }
@@ -557,5 +304,4 @@ export class RichTextComponent extends InputBaseComponent<string> {
         
         return Object.keys(errors).length ? errors : null;
     }
-
 }

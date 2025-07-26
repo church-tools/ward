@@ -1,6 +1,9 @@
 @use "input";
 @use "layout";
 
+// Import Quill styles
+@import 'quill/dist/quill.snow.css';
+
 // Rich Text Editor Styles
 .rich-text-editor {
 
@@ -29,28 +32,34 @@
 
   .rich-text-content {
     min-height: 120px;
-    padding: 12px;
     border: none;
     border-radius: 0 0 8px 8px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    line-height: 1.5;
     outline: none;
     overflow-y: auto;
     text-align: left;
     
-    &:empty:before {
-      content: attr(data-placeholder);
-      color: var(--color-text-secondary);
-      font-style: italic;
-      pointer-events: none;
-    }
-    
-    // Rich text formatting styles
-    h1, h2, h3, h4, h5, h6 {
-      margin: 0 0 8px 0;
+    // Override Quill's default styles
+    .ql-editor {
+      padding: 12px;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      line-height: 1.5;
+      border: none;
+      outline: none;
+      min-height: 120px;
+      
+      &.ql-blank::before {
+        color: var(--color-text-secondary);
+        font-style: italic;
+        pointer-events: none;
+      }
+      
+      // Rich text formatting styles
+      h1, h2, h3, h4, h5, h6 {
+        margin: 0 0 8px 0;
       font-weight: 600;
       line-height: 1.2;
     }
+  }
     
     h1 { font-size: 1.8em; }
     h2 { font-size: 1.5em; }

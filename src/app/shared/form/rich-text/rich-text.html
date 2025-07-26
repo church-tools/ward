@@ -22,15 +22,8 @@
                 [isActiveCheck]="isFormatActive"
                 (click)="insertLink()"/>
         </div>
-        <div #editor 
-            class="rich-text-content" 
-            contenteditable="true"
-            [attr.data-placeholder]="placeholder()"
-            (input)="onInput($event)"
-            (keydown)="onKeyDown($event)"
-            (click)="onClick($event)"
-            (focus)="onFocus()"
-            (blur)="handleBlur()"></div>
+        <textarea #editor title="{{label()}}"
+            class="rich-text-content"></textarea>
         @if (copyable()) {
             <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
                 class="icon-only input-btn" (onClick)="copy()"/>
