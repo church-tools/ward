@@ -178,3 +178,7 @@ fieldset {
     @include shadow.dropdown-box;
     @include card.acrylic-background;
 }
+
+.no-outline {
+    @include no-outline;
+}

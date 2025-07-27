@@ -1,39 +1,33 @@
-<div class="column rich-text-editor">
-    <app-input-label/>
-    <div class="form-input column">
-        <div #editor title="{{label()}}"
-            class="rich-text-content"
-            (click)="onClick($event)"
-            (focus)="onFocus()"
-            (blur)="handleBlur()"></div>
-        @if (copyable()) {
-            <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
-                class="icon-only input-btn" (onClick)="copy()"/>
-        }
-    </div>
-    
-    <!-- Toolbar template for overlay -->
-    <ng-template #toolbarTemplate>
-        <div class="floating-toolbar">
-            <app-rich-text-toolbar-group
-                [buttons]="formatButtons"
-                [isActiveCheck]="isFormatActive"
-                (click)="toggleFormat($event)"/>
-            <div class="divider"></div>
-            <app-rich-text-toolbar-group
-                [buttons]="headingButtons"
-                [isActiveCheck]="isHeadingActive"
-                (click)="formatHeading($event)"/>
-            <div class="divider"></div>
-            <app-rich-text-toolbar-group
-                [buttons]="listButtons"
-                [isActiveCheck]="isFormatActive"
-                (click)="execCommand($event)"/>
-            <div class="divider"></div>
-            <app-rich-text-toolbar-group
-                [buttons]="linkButtons"
-                [isActiveCheck]="isFormatActive"
-                (click)="insertLink()"/>
-        </div>
-    </ng-template>
+<app-input-label/>
+<div class="form-input">
+    <div #editor title="{{label()}}"
+        class="full-width full-height"
+        (click)="onClick($event)"
+        (focus)="onFocus()"
+        (blur)="handleBlur()"></div>
 </div>
+
+<!-- Toolbar template for overlay -->
+<ng-template #toolbarTemplate>
+    <div class="floating-toolbar">
+        <app-rich-text-toolbar-group
+            [buttons]="formatButtons"
+            [isActiveCheck]="isFormatActive"
+            (click)="toggleFormat($event)"/>
+        <div class="divider"></div>
+        <app-rich-text-toolbar-group
+            [buttons]="headingButtons"
+            [isActiveCheck]="isHeadingActive"
+            (click)="formatHeading($event)"/>
+        <div class="divider"></div>
+        <app-rich-text-toolbar-group
+            [buttons]="listButtons"
+            [isActiveCheck]="isFormatActive"
+            (click)="execCommand($event)"/>
+        <div class="divider"></div>
+        <app-rich-text-toolbar-group
+            [buttons]="linkButtons"
+            [isActiveCheck]="isFormatActive"
+            (click)="insertLink()"/>
+    </div>
+</ng-template>

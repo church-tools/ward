@@ -85,3 +85,10 @@ $option-hover-background-color: light-dark(rgba(#242424, 0.075), rgba(#f5f5f5, 0
     transition-duration: 0.1s;
     transition-delay: cubic-bezier(0.7, 0, 1, 0.5);
 }
+
+@mixin no-outline {
+    outline: none;
+    &:focus {
+        outline: none;
+    }
+}

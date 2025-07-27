@@ -1,8 +1,7 @@
-import { Component, ElementRef, inject, input, signal, viewChild, TemplateRef, ViewContainerRef, OnDestroy } from '@angular/core';
-import { AbstractControl, ValidationErrors } from '@angular/forms';
-import { TranslateModule } from '@ngx-translate/core';
 import { Overlay, OverlayRef } from '@angular/cdk/overlay';
 import { TemplatePortal } from '@angular/cdk/portal';
+import { Component, ElementRef, inject, input, OnDestroy, signal, TemplateRef, viewChild, ViewContainerRef } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import Quill from 'quill';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { xeffect } from '../../utils/signal-utils';
@@ -24,13 +23,14 @@ type List = 'bullet' | 'numbered';
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichTextComponent),
     imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent, ButtonComponent],
+    host: {
+        class: 'column'
+    }
 })
 export class RichTextComponent extends InputBaseComponent<string> implements OnDestroy {
     
     readonly characterLimit = input<number>(0);
     readonly autocomplete = input<string>('off');
-    readonly pattern = input<string | RegExp>('');
-    readonly patternErrorMsg = input<string>();
     readonly copyable = input(false);
 
     protected readonly copied = signal(false);
@@ -74,7 +74,16 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
         xeffect([this.editor], editor => {
             this.quill = new Quill(editor.nativeElement, {
                 theme: 'snow',
-                modules: { toolbar: false },
+                modules: { 
+                    toolbar: false,
+                    keyboard: {
+                        bindings: {
+                            bold: { key: 'B', ctrlKey: true, handler: () => this.toggleFormat('bold') },
+                            italic: { key: 'I', ctrlKey: true, handler: () => this.toggleFormat('italic') },
+                            underline: { key: 'U', ctrlKey: true, handler: () => this.toggleFormat('underline') }
+                        }
+                    }
+                },
                 placeholder: this.placeholder() || 'Enter text...',
                 formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link']
             });
@@ -186,8 +195,16 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
         if (!this.quill) return false;
         const selection = this.quill.getSelection();
         if (!selection) return false;
-        const headerLevel = this.quill.getFormat(selection)['header'];
-        return level === 0 ? !headerLevel : headerLevel === level;
+        
+        const formats = this.quill.getFormat(selection);
+        const headerLevel = formats['header'];
+        
+        // Handle the case where level 0 means "no header" (body text)
+        if (level === 0) {
+            return !headerLevel || headerLevel === false;
+        }
+        
+        return headerLevel === level;
     }
 
     formatHeading(level: number) {
@@ -195,7 +212,17 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
         const selection = this.quill.getSelection();
         if (!selection) return;
         
-        this.quill.format('header', level === 0 ? false : level);
+        const formats = this.quill.getFormat(selection);
+        const currentHeader = formats['header'];
+        
+        // If clicking the same heading level, remove it (toggle to body text)
+        if (currentHeader === level && level > 0) {
+            this.quill.format('header', false);
+        } else {
+            // Apply the new heading level (or remove heading if level is 0)
+            this.quill.format('header', level === 0 ? false : level);
+        }
+        
         this.updateValue();
     }
 
@@ -293,26 +320,5 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
             this.toolbarOverlayRef = null;
             this.toolbarPortal = null;
         }
-    }
-
-    override validate(control: AbstractControl): ValidationErrors | null {
-        const errors = super.validate(control) || {};
-        
-        const pattern = this.pattern();
-        if (pattern && this.quill) {
-            const plainText = this.quill.getText();
-            if (plainText.trim()) {
-                const regex = typeof pattern === 'string' ? new RegExp(pattern) : pattern;
-                if (!regex.test(plainText)) {
-                    errors['pattern'] = {
-                        requiredPattern: pattern.toString(),
-                        actualValue: plainText,
-                        message: this.patternErrorMsg() || 'Invalid format'
-                    };
-                }
-            }
-        }
-        
-        return Object.keys(errors).length ? errors : null;
     }
 }
