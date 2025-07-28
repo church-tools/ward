@@ -5,10 +5,10 @@ import { TranslateModule } from '@ngx-translate/core';
 import Quill from 'quill';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { xeffect } from '../../utils/signal-utils';
-import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
+import { QuillWrapper } from './quill-wrapper';
 
 type Format = 'bold' | 'italic' | 'underline' | 'strikeThrough';
 type Heading = 1 | 2 | 3 | 0;
@@ -22,7 +22,7 @@ type List = 'bullet' | 'numbered';
     styleUrl: './rich-text.scss',
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichTextComponent),
-    imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent, ButtonComponent],
+    imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent],
     host: {
         class: 'column'
     }
@@ -31,9 +31,7 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     
     readonly characterLimit = input<number>(0);
     readonly autocomplete = input<string>('off');
-    readonly copyable = input(false);
 
-    protected readonly copied = signal(false);
     protected readonly hasSelection = signal(false);
     protected readonly hasFocus = signal(false);
     private readonly editor = viewChild.required('editor', { read: ElementRef });
@@ -41,7 +39,7 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     private readonly overlay = inject(Overlay);
     private readonly viewContainerRef = inject(ViewContainerRef);
     
-    private quill!: Quill;
+    private readonly quill = new QuillWrapper(this.editor);
     private ignoreNextUpdate = false;
     private toolbarOverlayRef: OverlayRef | null = null;
     private toolbarPortal: TemplatePortal | null = null;
@@ -71,55 +69,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
 
     constructor() {
         super();
-        xeffect([this.editor], editor => {
-            this.quill = new Quill(editor.nativeElement, {
-                theme: 'snow',
-                modules: { 
-                    toolbar: false,
-                    keyboard: {
-                        bindings: {
-                            bold: { key: 'B', ctrlKey: true, handler: () => this.toggleFormat('bold') },
-                            italic: { key: 'I', ctrlKey: true, handler: () => this.toggleFormat('italic') },
-                            underline: { key: 'U', ctrlKey: true, handler: () => this.toggleFormat('underline') }
-                        }
-                    }
-                },
-                placeholder: this.placeholder() || 'Enter text...',
-                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link']
-            });
-            
-            if (this.value()) this.quill.root.innerHTML = this.value()!;
-
-            // Event handlers with deferred signal updates
-            this.quill.on('text-change', () => {
-                if (this.ignoreNextUpdate) {
-                    this.ignoreNextUpdate = false;
-                    return;
-                }
-                this.updateValue();
-            });
-
-            this.quill.on('selection-change', (range) => {
-                setTimeout(() => this.hasSelection.set(range && range.length > 0), 0);
-            });
-
-            this.quill.on('focus', () => {
-                setTimeout(() => {
-                    this.hasFocus.set(true);
-                    const selection = this.quill.getSelection();
-                    this.hasSelection.set(selection ? selection.length > 0 : false);
-                }, 0);
-            });
-
-            this.quill.on('blur', () => {
-                setTimeout(() => {
-                    if (!this.quill.hasFocus()) {
-                        setTimeout(() => this.hasFocus.set(false), 0);
-                        this.clearSelection();
-                    }
-                }, 100);
-            });
-        });
 
         // Show/hide toolbar based on selection and focus
         xeffect([this.hasSelection, this.hasFocus], (hasSelection, hasFocus) => {
@@ -134,9 +83,9 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
 
     override writeValue(value: string | null): void {
         super.writeValue(value);
-        if (this.quill && value !== null) {
+        if (value !== null) {
             this.ignoreNextUpdate = true;
-            this.quill.root.innerHTML = value || '';
+            this.quill.setContent(value);
         }
     }
 
@@ -146,31 +95,12 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     protected onFocus() {
-        if (this.quill) {
-            this.quill.focus();
-            setTimeout(() => this.hasFocus.set(true), 0);
-        }
+        this.quill.focus();
+        setTimeout(() => this.hasFocus.set(true), 0);
     }
 
     protected handleBlur() {
         this.onBlur.emit();
-    }
-
-    private clearSelection() {
-        if (!this.quill) return;
-        this.quill.setSelection(null);
-        window.getSelection()?.removeAllRanges();
-        setTimeout(() => this.hasSelection.set(false), 0);
-    }
-
-    protected async copy() {
-        if (!this.quill) return;
-        const text = this.quill.getText();
-        if (!text.trim()) return;
-        
-        copyToClipboard(text);
-        this.copied.set(true);
-        setTimeout(() => this.copied.set(false), 3000);
     }
 
     protected isFormatActive = (format: string): boolean => {
@@ -208,7 +138,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     formatHeading(level: number) {
-        if (!this.quill) return;
         const selection = this.quill.getSelection();
         if (!selection) return;
         
@@ -227,7 +156,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     insertLink() {
-        if (!this.quill) return;
         const selection = this.quill.getSelection();
         if (!selection) return;
         
@@ -243,7 +171,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     toggleFormat(format: string) {
-        if (!this.quill) return;
         const selection = this.quill.getSelection();
         if (!selection) return;
         
@@ -254,7 +181,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     execCommand(command: string) {
-        if (!this.quill) return;
         const selection = this.quill.getSelection();
         if (!selection) return;
         
@@ -266,7 +192,6 @@ export class RichTextComponent extends InputBaseComponent<string> implements OnD
     }
 
     private updateValue() {
-        if (!this.quill) return;
         const html = this.quill.root.innerHTML;
         
         if (this.characterLimit()) {
