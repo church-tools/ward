@@ -106,3 +106,10 @@ body {
         }
     }
 }
+
+::selection {
+    background-color: map.get($backgrounds, $accent);
+}
+::-moz-selection {
+    background-color: map.get($backgrounds, $accent);
+}

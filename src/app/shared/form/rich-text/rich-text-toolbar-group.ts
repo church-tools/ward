@@ -27,7 +27,7 @@ export type RichTextToolbarButton<T> = {
         }
     `,
     host: {
-        class: 'row'
+        class: 'row no-wrap'
     },
     imports: [ButtonComponent],
 })

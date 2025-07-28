@@ -1,6 +1,6 @@
-import { ElementRef, EventEmitter, Signal } from "@angular/core";
-import Quill from "quill";
-import { xeffect } from "../../utils/signal-utils";
+import { ElementRef, EventEmitter, Signal, signal, WritableSignal } from "@angular/core";
+import Quill, { Range } from "quill";
+import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { AsyncState } from "../../utils/async-state";
 
 
@@ -8,9 +8,17 @@ export class QuillWrapper {
 
     public onChange = new EventEmitter<string>();
 
-    private readonly quill = new AsyncState<Quill>();
+    
+    private readonly selectionPosition = signal<[number, number] | null>(null);
+    private readonly hasFocus = signal(false);
+    readonly popoverPosition = xcomputed([this.selectionPosition, this.hasFocus],
+        (hasSelection, hasFocus) => hasFocus ? hasSelection : null);
 
-    constructor(elemSignal: Signal<ElementRef<any>>) {
+    private readonly quill = new AsyncState<Quill>();
+    private ignoreNextUpdate = false;
+
+    constructor(elemSignal: Signal<ElementRef<HTMLDivElement>>,
+        private readonly characterLimit: Signal<number>) {
         xeffect([elemSignal], elem => {
             const quill = new Quill(elem.nativeElement, {
                 modules: {
@@ -21,7 +29,7 @@ export class QuillWrapper {
                             italic: { key: 'I', ctrlKey: true, handler: () => this.toggleFormat('italic') },
                             underline: { key: 'U', ctrlKey: true, handler: () => this.toggleFormat('underline') }
                         }
-                    }
+                    },
                 },
                 formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link']
             });
@@ -34,30 +42,36 @@ export class QuillWrapper {
                 this.updateValue();
             });
 
-            quill.on('selection-change', (range) => {
-                setTimeout(() => this.hasSelection.set(range && range.length > 0), 0);
-            });
+            const handleSelectionChange = (selection: Range | null) => {
+                if (!selection || selection.length === 0) {
+                    this.selectionPosition.set(null);
+                    return;
+                }
+                const bounds = quill.getBounds(selection.index, selection.length);
+                if (!bounds) {
+                    this.selectionPosition.set(null);
+                    return;
+                }
+                const left = bounds.left + (bounds.width / 2);
+                const top = bounds.top - 60;
+                this.selectionPosition.set([Math.round(left), Math.round(top)]);
+            };
 
-            quill.on('focus', () => {
-                setTimeout(() => {
-                    this.hasFocus.set(true);
-                    const selection = quill.getSelection();
-                    this.hasSelection.set(selection ? selection.length > 0 : false);
-                }, 0);
+            quill.on('selection-change', handleSelectionChange);
+            quill.editor.scroll.domNode.addEventListener('focus', () => {
+                this.hasFocus.set(true);
             });
-            quill.on('blur', () => {
-                setTimeout(() => {
-                    if (!this.quill.hasFocus()) {
-                        setTimeout(() => this.hasFocus.set(false), 0);
-                        this.clearSelection();
-                    }
-                }, 100);
+            quill.editor.scroll.domNode.addEventListener('blur', async () => {
+                quill.setSelection(null);
+                this.selectionPosition.set(null);
+                this.hasFocus.set(false);
             });
         });
     }
 
     async setContent(content: string) {
         const quill = await this.quill.get();
+        this.ignoreNextUpdate = true;
         quill.root.innerHTML = content;
     }
 
@@ -71,19 +85,152 @@ export class QuillWrapper {
         quill.options.placeholder = placeholder;
     }
 
-    private async toggleFormat(format: string) {
+    async getSelection() {
+        const quill = await this.quill.get();
+        return quill.getSelection();
+    }
+
+    async getFormat(selection?: any) {
+        const quill = await this.quill.get();
+        return quill.getFormat(selection);
+    }
+
+    async getBounds(index: number, length: number) {
+        const quill = await this.quill.get();
+        return quill.getBounds(index, length);
+    }
+
+    async getText() {
+        const quill = await this.quill.get();
+        return quill.getText();
+    }
+
+    async getHTML() {
+        const quill = await this.quill.get();
+        return quill.root.innerHTML;
+    }
+
+    async format(name: string, value: any) {
+        const quill = await this.quill.get();
+        quill.format(name, value);
+        this.updateValue();
+    }
+
+    async insertText(index: number, text: string, format?: string, value?: any) {
+        const quill = await this.quill.get();
+        if (format && value) {
+            quill.insertText(index, text, format, value);
+        } else {
+            quill.insertText(index, text);
+        }
+        this.updateValue();
+    }
+
+    async toggleFormat(format: string) {
         const quill = await this.quill.get();
         const selection = quill.getSelection();
         if (!selection) return;
         const currentFormats = quill.getFormat(selection);
         const key = format === 'strikeThrough' ? 'strike' : format;
         quill.format(key, !currentFormats[key]);
-        this.onChange.emit(quill.root.innerHTML);
+        this.updateValue();
     }
-    
-    private clearSelection() {
-        this.quill.setSelection(null);
-        window.getSelection()?.removeAllRanges();
-        setTimeout(() => this.hasSelection.set(false), 0);
+
+    async formatHeading(level: number) {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        
+        const formats = quill.getFormat(selection);
+        const currentHeader = formats['header'];
+        
+        // If clicking the same heading level, remove it (toggle to body text)
+        if (currentHeader === level && level > 0) {
+            quill.format('header', false);
+        } else {
+            // Apply the new heading level (or remove heading if level is 0)
+            quill.format('header', level === 0 ? false : level);
+        }
+        
+        this.updateValue();
+    }
+
+    async insertLink() {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        
+        const url = prompt('Enter URL:');
+        if (!url) return;
+        
+        if (selection.length > 0) {
+            quill.format('link', url);
+        } else {
+            quill.insertText(selection.index, url, 'link', url);
+        }
+        this.updateValue();
+    }
+
+    execCommand = async (command: string) => {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        
+        const formats = quill.getFormat(selection);
+        const listType = command === 'bullet' ? 'bullet' : 'ordered';
+        const isActive = formats['list'] === listType;
+        quill.format('list', isActive ? false : listType);
+        this.updateValue();
+    }
+
+    isFormatActive = (format: string) => {
+        const quill = this.quill.unsafeGet();
+        if (!quill) return false;
+        const selection = quill.getSelection();
+        if (!selection) return false;
+        
+        const formats = quill.getFormat(selection);
+        switch (format) {
+            case 'strikeThrough':
+                return !!formats['strike'];
+            case 'bullet':
+                return formats['list'] === 'bullet';
+            case 'numbered':
+                return formats['list'] === 'ordered';
+            default:
+                return !!formats[format];
+        }
+    }
+
+    isHeadingActive = (level: number) => {
+        const quill = this.quill.unsafeGet();
+        if (!quill) return false;
+        const selection = quill.getSelection();
+        if (!selection) return false;
+        
+        const formats = quill.getFormat(selection);
+        const headerLevel = formats['header'];
+        
+        // Handle the case where level 0 means "no header" (body text)
+        if (level === 0) {
+            return !headerLevel || headerLevel === false;
+        }
+        
+        return headerLevel === level;
+    }
+
+    private async updateValue() {
+        const quill = await this.quill.get();
+        const html = quill.root.innerHTML;
+
+        if (this.characterLimit()) {
+            const textLength = quill.getText().length;
+            if (textLength > this.characterLimit()) {
+                this.ignoreNextUpdate = true;
+                return;
+            }
+        }
+        
+        this.onChange.emit(html);
     }
 }
