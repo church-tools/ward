@@ -52,8 +52,13 @@ export class QuillWrapper {
                     this.selectionPosition.set(null);
                     return;
                 }
-                const left = bounds.left + (bounds.width / 2);
-                const top = bounds.top - 60;
+                const parentBounds = elem.nativeElement.getBoundingClientRect();
+                let left = bounds.left + (bounds.width / 2);
+                // if (left < parentBounds.left)
+                //     left = parentBounds.left + 10;
+                let top = bounds.top - 60;
+                // if (top < parentBounds.top)
+                //     top = parentBounds.top + 10;
                 this.selectionPosition.set([Math.round(left), Math.round(top)]);
             };
 
@@ -131,8 +136,7 @@ export class QuillWrapper {
         const selection = quill.getSelection();
         if (!selection) return;
         const currentFormats = quill.getFormat(selection);
-        const key = format === 'strikeThrough' ? 'strike' : format;
-        quill.format(key, !currentFormats[key]);
+        quill.format(format, !currentFormats[format]);
         this.updateValue();
     }
 
@@ -191,8 +195,6 @@ export class QuillWrapper {
         
         const formats = quill.getFormat(selection);
         switch (format) {
-            case 'strikeThrough':
-                return !!formats['strike'];
             case 'bullet':
                 return formats['list'] === 'bullet';
             case 'numbered':

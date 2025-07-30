@@ -3,7 +3,7 @@ import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { Icon, IconComponent } from '../../../../shared/icon/icon';
-import { ColorName } from '../../../../shared/utils/color-utitls';
+import { ColorName } from '../../../../shared/utils/color-utils';
 
 export type InnerNavBarTab = {
     icon: Icon;

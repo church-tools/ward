@@ -34,8 +34,8 @@ $page-side-slide-distance: 600px;
 }
 
 @keyframes pageEnter {
-    0% { opacity: 0; transform: translateY($page-side-slide-distance); }
-    100% { opacity: 1; transform: translateY(0); }
+    from { opacity: 0; transform: translateY(100px); }
+    to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pageEnterLeft {
@@ -102,9 +102,4 @@ $page-side-slide-distance: 600px;
 @keyframes contentLoading {
     0% { transform: translateX(-100%); }
     100% { transform: translateX(100%); }
-}
-
-@keyframes pageEnter {
-    from { opacity: 0; transform: translateY(100px); }
-    to { opacity: 1; transform: translateY(0); }
 }

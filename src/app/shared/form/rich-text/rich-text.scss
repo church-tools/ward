@@ -9,10 +9,14 @@
     .ql-editor {
         @include input.no-outline;
     }
+    h1:not(:first-child) { margin-top: 1em; } 
+    h2:not(:first-child) { margin-top: 0.75em; }
+    h3:not(:first-child) { margin-top: 0.5em; }
 }
 
 .toolbar {
     position: absolute;
+    overflow: visible;
     animation: toolbarAppear animation.$duration-sm animation.$ease-out;
     transform: translateX(-50%);
     transition: opacity animation.$duration-xs animation.$ease-in;
@@ -30,7 +34,7 @@
 @keyframes toolbarAppear {
     from { 
         opacity: 0;
-        transform: translateX(-50%) translateY(-8px) scale(0.95);
+        transform: translateX(-50%) translateY(10px) scale(0.95);
     }
     to { 
         opacity: 1;

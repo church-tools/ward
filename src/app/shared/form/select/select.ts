@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
 import { getHighest } from '../../utils/array-utils';
-import { ColorName } from '../../utils/color-utitls';
+import { ColorName } from '../../utils/color-utils';
 import { xeffect } from '../../utils/signal-utils';
 import { getAvgSimilarity, highlightWords } from '../../utils/string-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';

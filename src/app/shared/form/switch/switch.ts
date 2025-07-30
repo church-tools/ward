@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { ColorName } from '../../utils/color-utitls';
+import { ColorName } from '../../utils/color-utils';
 import ErrorMessageComponent from '../../widget/error-message/error-message';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from '../shared/input-label';

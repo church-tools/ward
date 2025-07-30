@@ -1,7 +1,7 @@
 import { Component, OnInit, input, signal } from '@angular/core';
 import { Observable, Subscription } from 'rxjs';
 import { wait } from '../../utils/flow-control-utils';
-import { ColorName } from '../../utils/color-utitls';
+import { ColorName } from '../../utils/color-utils';
 
 @Component({
     selector: 'app-count-badge',

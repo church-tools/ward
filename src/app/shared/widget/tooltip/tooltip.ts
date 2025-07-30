@@ -1,6 +1,6 @@
 import { Component, input } from '@angular/core';
 import { Icon, IconComponent } from '../../icon/icon';
-import { ColorName } from '../../utils/color-utitls';
+import { ColorName } from '../../utils/color-utils';
 import { TooltipPopupComponent } from './tooltip-popup';
 
 @Component({

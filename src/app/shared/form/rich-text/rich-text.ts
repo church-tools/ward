@@ -1,13 +1,13 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { wait } from '../../utils/flow-control-utils';
-import { asyncComputed, xcomputed, xeffect } from '../../utils/signal-utils';
+import { asyncComputed } from '../../utils/signal-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
 
-type Format = 'bold' | 'italic' | 'underline' | 'strikeThrough';
+type Format = 'bold' | 'italic' | 'underline' | 'strike';
 type Heading = 1 | 2 | 3 | 0;
 type List = 'bullet' | 'numbered';
 
@@ -37,7 +37,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
         { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },
         { icon: 'text_italic', action: 'italic', title: 'Italic (Ctrl+I)', shortcut: 'I' },
         { icon: 'text_underline', action: 'underline', title: 'Underline (Ctrl+U)', shortcut: 'U' },
-        { icon: 'text_strikethrough', action: 'strikeThrough', title: 'Strikethrough' },
+        { icon: 'text_strikethrough', action: 'strike', title: 'Strikethrough' },
     ] as const;
 
     protected readonly headingButtons: RichTextToolbarButton<Heading>[] = [

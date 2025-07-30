@@ -2,7 +2,7 @@ import { Component, OnDestroy, inject, input, signal } from "@angular/core";
 import { Subscription } from "rxjs";
 import { Icon, IconSize } from "../../../icon/icon";
 import { WindowService } from "../../../service/window.service";
-import { ColorName } from "../../../utils/color-utitls";
+import { ColorName } from "../../../utils/color-utils";
 import { xcomputed, xeffect } from "../../../utils/signal-utils";
 
 export type ButtonType = 'primary' | 'secondary' | 'subtle' | 'transparent' | 'form';

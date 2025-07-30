@@ -12,21 +12,21 @@
         <app-rich-text-toolbar-group
             [buttons]="formatButtons"
             [isActiveCheck]="quill.isFormatActive"
-            (click)="quill.toggleFormat($event)"/>
+            (press)="quill.toggleFormat($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
             [buttons]="headingButtons"
             [isActiveCheck]="quill.isHeadingActive"
-            (click)="quill.formatHeading($event)"/>
+            (press)="quill.formatHeading($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
             [buttons]="listButtons"
             [isActiveCheck]="quill.isFormatActive"
-            (click)="quill.execCommand($event)"/>
+            (press)="quill.execCommand($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
             [buttons]="linkButtons"
             [isActiveCheck]="quill.isFormatActive"
-            (click)="quill.insertLink()"/>
+            (press)="quill.insertLink()"/>
     </div>
 }

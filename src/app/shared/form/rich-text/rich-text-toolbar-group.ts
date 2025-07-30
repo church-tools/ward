@@ -22,7 +22,7 @@ export type RichTextToolbarButton<T> = {
                 class="icon-only"
                 [title]="button.title"
                 [shortcut]="button.shortcut ?? null"
-                (click)="click.emit(button.action)"
+                (click)="press.emit(button.action)"
                 (mousedown)="$event.preventDefault()"/>
         }
     `,
@@ -35,6 +35,6 @@ export class RichTextToolbarGroupComponent<T> {
 
     readonly buttons = input.required<RichTextToolbarButton<T>[]>();
     readonly isActiveCheck = input<(type: T) => boolean>();
-    readonly click = output<T>();
+    readonly press = output<T>();
     
 }
