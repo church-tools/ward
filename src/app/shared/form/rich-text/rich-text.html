@@ -22,7 +22,7 @@
         <app-rich-text-toolbar-group
             [buttons]="listButtons"
             [isActiveCheck]="quill.isFormatActive"
-            (press)="quill.execCommand($event)"/>
+            (press)="quill.toggleList($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
             [buttons]="linkButtons"

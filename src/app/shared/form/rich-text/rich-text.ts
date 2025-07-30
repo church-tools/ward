@@ -4,12 +4,8 @@ import { wait } from '../../utils/flow-control-utils';
 import { asyncComputed } from '../../utils/signal-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
-import { QuillWrapper } from './quill-wrapper';
+import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
-
-type Format = 'bold' | 'italic' | 'underline' | 'strike';
-type Heading = 1 | 2 | 3 | 0;
-type List = 'bullet' | 'numbered';
 
 @Component({
     selector: 'app-rich-text',
@@ -44,7 +40,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
         { icon: 'text_header_1', action: 1, title: 'Heading 1' },
         { icon: 'text_header_2', action: 2, title: 'Heading 2' },
         { icon: 'text_header_3', action: 3, title: 'Heading 3' },
-        { icon: 'text_t', action: 0, title: 'Body Text' },
+        { icon: 'text_t', action: false, title: 'Body Text' },
     ] as const;
 
     protected readonly listButtons: RichTextToolbarButton<List>[] = [
