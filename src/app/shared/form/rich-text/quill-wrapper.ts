@@ -3,6 +3,8 @@ import Quill, { Range } from "quill";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { AsyncState } from "../../utils/async-state";
 
+const TOOLBAR_WIDTH = 450;
+const HALF_TOOLBAR_WIDTH = TOOLBAR_WIDTH / 2;
 
 export class QuillWrapper {
 
@@ -52,13 +54,9 @@ export class QuillWrapper {
                     this.selectionPosition.set(null);
                     return;
                 }
-                const parentBounds = elem.nativeElement.getBoundingClientRect();
-                let left = bounds.left + (bounds.width / 2);
-                // if (left < parentBounds.left)
-                //     left = parentBounds.left + 10;
-                let top = bounds.top - 60;
-                // if (top < parentBounds.top)
-                //     top = parentBounds.top + 10;
+                const boxBounds = elem.nativeElement.getBoundingClientRect();
+                const left = this.clamp(bounds.left + (bounds.width / 2), HALF_TOOLBAR_WIDTH, boxBounds.width - HALF_TOOLBAR_WIDTH);
+                const top = bounds.top - 60;
                 this.selectionPosition.set([Math.round(left), Math.round(top)]);
             };
 
@@ -80,19 +78,9 @@ export class QuillWrapper {
         quill.root.innerHTML = content;
     }
 
-    async focus() {
-        const quill = await this.quill.get();
-        quill.focus({ preventScroll: true });
-    }
-
     async setPlaceholder(placeholder: string) {
         const quill = await this.quill.get();
         quill.options.placeholder = placeholder;
-    }
-
-    async getSelection() {
-        const quill = await this.quill.get();
-        return quill.getSelection();
     }
 
     async getFormat(selection?: any) {
@@ -100,34 +88,9 @@ export class QuillWrapper {
         return quill.getFormat(selection);
     }
 
-    async getBounds(index: number, length: number) {
-        const quill = await this.quill.get();
-        return quill.getBounds(index, length);
-    }
-
-    async getText() {
-        const quill = await this.quill.get();
-        return quill.getText();
-    }
-
-    async getHTML() {
-        const quill = await this.quill.get();
-        return quill.root.innerHTML;
-    }
-
     async format(name: string, value: any) {
         const quill = await this.quill.get();
         quill.format(name, value);
-        this.updateValue();
-    }
-
-    async insertText(index: number, text: string, format?: string, value?: any) {
-        const quill = await this.quill.get();
-        if (format && value) {
-            quill.insertText(index, text, format, value);
-        } else {
-            quill.insertText(index, text);
-        }
         this.updateValue();
     }
 
@@ -214,9 +177,8 @@ export class QuillWrapper {
         const headerLevel = formats['header'];
         
         // Handle the case where level 0 means "no header" (body text)
-        if (level === 0) {
+        if (level === 0)
             return !headerLevel || headerLevel === false;
-        }
         
         return headerLevel === level;
     }
@@ -234,5 +196,9 @@ export class QuillWrapper {
         }
         
         this.onChange.emit(html);
+    }
+
+    private clamp(value: number, min: number, max: number): number {
+        return Math.min(Math.max(value, min), max);
     }
 }

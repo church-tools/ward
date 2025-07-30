@@ -59,19 +59,8 @@ export class RichTextComponent extends InputBaseComponent<string> {
     constructor() {
         super();
         this.quill.onChange.subscribe(html => {
-            if (this.characterLimit()) {
-                this.quill.getText().then(text => {
-                    if (text.length > this.characterLimit()) {
-                        this.quill.setContent(this.value() || '');
-                        return;
-                    }
-                    this.value.set(html);
-                    this.emitChange();
-                });
-            } else {
-                this.value.set(html);
-                this.emitChange();
-            }
+            this.value.set(html);
+            this.emitChange();
         });
     }
 
