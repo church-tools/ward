@@ -23,6 +23,9 @@
             [buttons]="listButtons"
             [isActiveCheck]="quill.isFormatActive"
             (press)="quill.toggleList($event)"/>
+        <app-rich-text-toolbar-group
+            [buttons]="indentButtons"
+            (press)="quill.indent($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
             [buttons]="linkButtons"

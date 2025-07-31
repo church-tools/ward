@@ -129,6 +129,15 @@ export class QuillWrapper {
         this.updateValue();
     }
 
+    indent = async (indent: '+1' | '-1') => {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        const formats = quill.getFormat(selection);
+        quill.format('indent', indent);
+        this.updateValue();
+    }
+
     isFormatActive = (format: string) => {
         const quill = this.quill.unsafeGet();
         if (!quill) return false;
