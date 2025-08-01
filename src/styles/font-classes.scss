@@ -170,6 +170,10 @@ h6, .h6 {
     white-space: nowrap;
 }
 
+.text-pre-wrap {
+    white-space: pre-wrap;
+}
+
 .overflow-ellipsis {
     @include overflow-ellipsis;
 }

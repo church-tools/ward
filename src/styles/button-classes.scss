@@ -60,8 +60,7 @@ button, .button {
                     &:hover { 
                         background-color: color-mix(in srgb, $value, white 20%);
                     }
-                    &:active { 
-                        
+                    &:active {
                         background-color: color-mix(in srgb, $value, white 40%);
                     }
                 }
@@ -190,7 +189,12 @@ button, .button {
     
 }
 
-.icon-only > button, .icon-only > .button {
+
+.active > button, .active > .button {
+    background-color: font.$color-alpha-5;
+}
+
+.icon-only > button, .icon-only > .button, button.icon-only, .button.icon-only {
 
     padding: 0.125rem 0.4rem;
     &.large {

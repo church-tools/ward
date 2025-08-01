@@ -14,10 +14,13 @@ export type RichTextToolbarButton<T> = {
 @Component({
     selector: 'app-rich-text-toolbar-group',
     template: `
-        @for (button of buttons(); track $index) {
+        @for (button of buttons(); track button) {
+            @let isActive = isActiveCheck()?.(button.action) ?? false;
             <app-button
                 [icon]="button.icon" color="accent"
-                [iconColored]="isActiveCheck()?.(button.action) ?? false"
+                [iconFilled]="isActive"
+                [iconColored]="isActive"
+                [class.active]="isActive"
                 type="subtle" 
                 class="icon-only"
                 [title]="button.title"
@@ -36,5 +39,4 @@ export class RichTextToolbarGroupComponent<T> {
     readonly buttons = input.required<RichTextToolbarButton<T>[]>();
     readonly isActiveCheck = input<(type: T) => boolean>();
     readonly press = output<T>();
-    
 }

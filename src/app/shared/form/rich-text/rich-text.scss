@@ -1,4 +1,5 @@
 @use "input";
+@use "font";
 @use "animation";
 
 :host {
@@ -7,33 +8,39 @@
 
 ::ng-deep {
     .ql-editor {
+        padding: input.$padding-y 0;
         @include input.no-outline;
     }
     h1:not(:first-child) { margin-top: 1em; } 
     h2:not(:first-child) { margin-top: 0.75em; }
     h3:not(:first-child) { margin-top: 0.5em; }
-    
-    li[data-list="bullet"] {
-        list-style: none;
-        position: relative;
-        &::before {
-            content: "•";
-            position: absolute;
-            left: -1.2em;
-            top:  0;
-        }
+    p {
+        margin: 0;
+        font-size: font.$size;
+        line-height: font.$line-height;
     }
 
+    ol {
+        margin: 0;
+        padding-inline-start: 1.5em;
+        li[data-list="bullet"] {
+            list-style: none;
+            position: relative;
+            &::before {
+                content: "•";
+                position: absolute;
+                left: -1.2em;
+                top:  0;
+            }
+        }
+    }
+    
     // Support for indented content
-    .ql-indent-1 { margin-left: 3em; }
-    .ql-indent-2 { margin-left: 6em; }
-    .ql-indent-3 { margin-left: 9em; }
-    .ql-indent-4 { margin-left: 12em; }
-    .ql-indent-5 { margin-left: 15em; }
-    .ql-indent-6 { margin-left: 18em; }
-    .ql-indent-7 { margin-left: 21em; }
-    .ql-indent-8 { margin-left: 24em; }
-
+    @for $i from 1 through 8 {
+        .ql-indent-#{$i} {
+            margin-left: $i * 1em;
+        }
+    }
 }
 
 .toolbar {

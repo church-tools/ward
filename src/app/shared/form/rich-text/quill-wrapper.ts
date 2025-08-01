@@ -14,7 +14,6 @@ export class QuillWrapper {
 
     public onChange = new EventEmitter<string>();
 
-    
     private readonly selectionPosition = signal<[number, number] | null>(null);
     private readonly hasFocus = signal(false);
     readonly popoverPosition = xcomputed([this.selectionPosition, this.hasFocus],
@@ -33,7 +32,7 @@ export class QuillWrapper {
                         bindings: {
                             bold: { key: 'B', ctrlKey: true, handler: () => this.toggleFormat('bold') },
                             italic: { key: 'I', ctrlKey: true, handler: () => this.toggleFormat('italic') },
-                            underline: { key: 'U', ctrlKey: true, handler: () => this.toggleFormat('underline') }
+                            underline: { key: 'U', ctrlKey: true, handler: () => this.toggleFormat('underline') },
                         }
                     },
                 },

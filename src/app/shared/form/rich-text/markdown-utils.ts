@@ -1,33 +1,24 @@
 
+type Mapping = { md: [string, string], html: [string, string] };
 
-export function markdownToHtml(markdown: string): string {
+const mappings: Mapping[] = [
+    { md: ['__', '__'], html: ['<strong>', '</strong>'] }, // Bold
+    { md: ['_', '_'], html: ['<em>', '</em>'] }, // Italic
+    { md: ['~~', '~~'], html: ['<s>', '</s>'] }, // Strikethrough
+    { md: ['<u>', '</u>'], html: ['<u>', '</u>'] }, // Underline
+    { md: ['[', ']'], html: ['<a>', '</a>'] } // Link
+] as const;
+
+
+export function markdownToQuillHtml(markdown: string): string {
     if (!markdown || typeof markdown !== 'string') return '';
+    let html = markdown;
+    for (let i = 1; i <= 3; i++)
+        html = html.replace(new RegExp(`^#{${i}} (.*$)`, 'gim'), `<h${i}>$1</h${i}>`);
+    for (const mapping of mappings)
+        html = html.replace(new RegExp(mapping.md[0] + '(.*?)' + mapping.md[1], 'gim'), mapping.html[0] + '$1' + mapping.html[1]);
+    html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
     
-    let html = markdown
-        // Headers (order matters - longer patterns first)
-        .replace(/^###### (.*$)/gim, '<h6>$1</h6>')
-        .replace(/^##### (.*$)/gim, '<h5>$1</h5>')
-        .replace(/^#### (.*$)/gim, '<h4>$1</h4>')
-        .replace(/^### (.*$)/gim, '<h3>$1</h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1</h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1</h1>')
-        // Clean up any accumulated header symbols
-        .replace(/<h([1-6])>#+\s*(.*?)<\/h\1>/gim, '<h$1>$2</h$1>')
-        // Bold (process before italic to avoid conflicts)
-        .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
-        // Italic
-        .replace(/\*(.*?)\*/gim, '<em>$1</em>')
-        .replace(/_(.*?)_/gim, '<em>$1</em>')
-        // Strikethrough
-        .replace(/~~(.*?)~~/gim, '<del>$1</del>')
-        // Underline (HTML)
-        .replace(/<u>(.*?)<\/u>/gim, '<u>$1</u>')
-        // Code
-        .replace(/`(.*?)`/gim, '<code>$1</code>')
-        // Links
-        .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
-        
-    // Process lists before converting newlines
     html = processLists(html);
     
     // Convert remaining newlines to <br>
@@ -42,7 +33,7 @@ export function markdownToHtml(markdown: string): string {
     return html;
 }
 
-export function htmlToMarkdown(html: string): string {
+export function quillHtmlToMarkdown(html: string): string {
     if (!html || typeof html !== 'string') return '';
     
     // Basic sanitization - remove script tags and other potentially dangerous elements
@@ -99,40 +90,32 @@ function processLists(text: string): string {
 
 function processNodeToMarkdown(node: Node): string {
     let result = '';
-    
-    try {
-        if (node.nodeType === Node.TEXT_NODE) {
-            return node.textContent || '';
-        } else if (node.nodeType === Node.ELEMENT_NODE) {
-            const element = node as Element;
-            const tagName = element.tagName.toLowerCase();
-            const textContent = Array.from(element.childNodes).map(child => processNodeToMarkdown(child)).join('');
-            
-            switch (tagName) {
-            case 'h1':
-            case 'h2':
-            case 'h3':
-            case 'h4':
-            case 'h5':
-            case 'h6':
+    if (node.nodeType === Node.TEXT_NODE) {
+        return node.textContent || '';
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+        const element = node as Element;
+        const tagName = element.tagName.toLowerCase();
+        const textContent = Array.from(element.childNodes).map(child => processNodeToMarkdown(child)).join('');
+        
+        switch (tagName) {
+            case 'h1': case 'h2': case 'h3':
                 // Clean any existing header symbols from the text content
                 const cleanText = textContent.replace(/^#+\s*/, '');
                 const level = parseInt(tagName.charAt(1));
                 const hashes = '#'.repeat(level);
                 result = `${hashes} ${cleanText}\n`;
                 break;
-            case 'strong':
-            case 'b':
+            case 'strong': case 'b':
                 result = `**${textContent}**`;
                 break;
-            case 'em':
-            case 'i':
+            case 'em': case 'i':
                 result = `_${textContent}_`;
                 break;
             case 'u':
                 result = `<u>${textContent}</u>`;
                 break;
             case 'del':
+            case 's':
                 result = `~~${textContent}~~`;
                 break;
             case 'code':
@@ -178,10 +161,6 @@ function processNodeToMarkdown(node: Node): string {
     }
     
     return result;
-    } catch (error) {
-        console.warn('Error processing HTML node to markdown:', error);
-        return '';
-    }
 }
 
 function indentMarkdownList(content: string, prefix: string, level: number = 0): string {

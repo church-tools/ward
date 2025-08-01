@@ -16,6 +16,7 @@ $weight-semibold: 600;
 $family: 'Segoe UI', 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
 $family-heading: "Segoe UI", 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
 
+$color-alpha-5: light-dark(rgba(#242424, 0.05), rgba(white, 0.05));
 $color-alpha-10: light-dark(rgba(#242424, 0.1), rgba(white, 0.1));
 $color-alpha-20: light-dark(rgba(#242424, 0.2), rgba(white, 0.2));
 $color-alpha-30: light-dark(rgba(#242424, 0.3), rgba(white, 0.3));
