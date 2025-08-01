@@ -48,9 +48,9 @@ export class RichTextComponent extends InputBaseComponent<string> {
         { icon: 'text_number_list_ltr', action: 'numbered', title: 'Numbered List' },
     ] as const;
 
-    protected readonly indentButtons: RichTextToolbarButton<'+1' | '-1'>[] = [
-        { icon: 'text_indent_increase', action: '+1', title: 'Increase Indent' },
-        { icon: 'text_indent_decrease', action: '-1', title: 'Decrease Indent' },
+    protected readonly indentButtons: RichTextToolbarButton<1 | -1>[] = [
+        { icon: 'text_indent_increase', action: 1, title: 'Increase Indent' },
+        { icon: 'text_indent_decrease', action: -1, title: 'Decrease Indent' },
     ] as const;
 
     protected readonly linkButtons: RichTextToolbarButton<string>[] = [

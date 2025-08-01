@@ -37,7 +37,7 @@ export class QuillWrapper {
                         }
                     },
                 },
-                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link']
+                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'indent']
             });
             this.quill.set(quill);
             quill.on('text-change', () => {
@@ -129,12 +129,14 @@ export class QuillWrapper {
         this.updateValue();
     }
 
-    indent = async (indent: '+1' | '-1') => {
+    indent = async (direction: 1 | -1) => {
         const quill = await this.quill.get();
         const selection = quill.getSelection();
         if (!selection) return;
         const formats = quill.getFormat(selection);
-        quill.format('indent', indent);
+        const currentIndent = typeof formats['indent'] === 'number' ? formats['indent'] : 0;
+        const newIndent =  this.clamp(currentIndent + direction, 0, 8);
+        quill.format('indent', newIndent > 0 ? newIndent : null);
         this.updateValue();
     }
 
