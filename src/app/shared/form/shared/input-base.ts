@@ -1,9 +1,10 @@
 import { Component, forwardRef, ForwardRefFn, input, model, output, signal, viewChild } from "@angular/core";
 import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from "@angular/forms";
 import { Icon } from "../../icon/icon";
-import InputLabelComponent from "./input-label";
-import ErrorMessageComponent from "../../widget/error-message/error-message";
+import { PromiseOrValue } from "../../types";
 import { xeffect } from "../../utils/signal-utils";
+import ErrorMessageComponent from "../../widget/error-message/error-message";
+import InputLabelComponent from "./input-label";
 
 export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
@@ -21,7 +22,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
         '(focusout)': 'onTouched(); onBlur.emit()',
     },
 })
-export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
+export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor, Validator {
 
     private readonly labelView = viewChild(InputLabelComponent);
     protected readonly errorView = viewChild(ErrorMessageComponent);
@@ -35,7 +36,7 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
     readonly subtle = input<boolean>(false);
     readonly onBlur = output<void>();
 
-    protected readonly value = signal<T | null>(null);
+    protected readonly value = signal<TIn | null>(null);
     protected readonly disabledState = signal<boolean>(false);
 
 
@@ -52,11 +53,12 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
             (labelView, required, indicateRequired, disabledState) => labelView?.required.set(!!required && !!indicateRequired && !disabledState));
     }
 
-    writeValue(value: any): void {
-        this.value.set(value);
+    async writeValue(value: any) {
+        const mapped = await this.mapIn(value)
+        this.value.set(mapped);
     }
 
-    getValue(): T | null {
+    getValue(): TIn | null {
         return this.value();
     }
 
@@ -83,8 +85,12 @@ export class InputBaseComponent<T> implements ControlValueAccessor, Validator {
         this.onChange?.(mapped);
     }
 
-    protected async mapOut(value: T | null) {
-        return value;
+    protected mapIn(value: TOut): PromiseOrValue<TIn> {
+        return value as any as TIn;
+    }
+
+    protected mapOut(value: TIn | null): PromiseOrValue<TOut> {
+        return value as any as TOut;
     }
 
     protected onFocusOut(event: FocusEvent): void {

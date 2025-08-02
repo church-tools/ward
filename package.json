@@ -33,7 +33,7 @@
         "@angular/compiler": "^20.1.4",
         "@angular/compiler-cli": "^20.1.4",
         "@angular/language-service": "^20.1.4",
-        "supabase": "^2.33.7",
+        "supabase": "^2.33.9",
         "typescript": "^5.8.3"
     }
 }

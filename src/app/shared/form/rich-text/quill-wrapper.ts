@@ -75,7 +75,11 @@ export class QuillWrapper {
     async setContent(content: string) {
         const quill = await this.quill.get();
         this.ignoreNextUpdate = true;
-        quill.root.innerHTML = content;
+        
+        // Use Quill's clipboard to properly parse and insert HTML
+        // This preserves the HTML structure better than direct innerHTML assignment
+        const delta = quill.clipboard.convert({ html: content });
+        quill.setContents(delta, 'silent');
     }
 
     async setPlaceholder(placeholder: string) {

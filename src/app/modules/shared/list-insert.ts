@@ -1,6 +1,5 @@
 import { Component, inject, input } from "@angular/core";
-import { MaybeAsync } from "@angular/router";
-import type { Insert, TableName } from "../../shared/types";
+import type { Insert, PromiseOrValue, TableName } from "../../shared/types";
 import { Profile } from "../profile/profile";
 import { ProfileService } from "../profile/profile.service";
 
@@ -19,9 +18,9 @@ export abstract class ListInsertComponent<T extends TableName> {
     
     private readonly profileService = inject(ProfileService);
     
-    readonly insert = input.required<(item: Insert<T>) => MaybeAsync<void>>();
+    readonly insert = input.required<(item: Insert<T>) => PromiseOrValue<void>>();
     readonly cancel = input.required<() => void>();
-    readonly prepareInsert = input<(row: Insert<T>) => MaybeAsync<void>>();
+    readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
 
     protected async submit() {
         const profile = await this.profileService.own.get();

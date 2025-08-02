@@ -6,6 +6,7 @@ import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
+import { markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 
 @Component({
     selector: 'app-rich-text',
@@ -65,10 +66,17 @@ export class RichTextComponent extends InputBaseComponent<string> {
         });
     }
 
-    override writeValue(value: string | null): void {
-        super.writeValue(value);
-        if (value !== null) {
+    override async writeValue(value: string | null) {
+        await super.writeValue(value);
+        if (value !== null)
             this.quill.setContent(value);
-        }
+    }
+
+    protected override mapIn(value: string) {
+        return markdownToQuillHtml(value);
+    }
+
+    protected override mapOut(value: string | null) {
+        return quillHtmlToMarkdown(value ?? '');
     }
 }
