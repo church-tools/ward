@@ -6,15 +6,15 @@ import { AgendaSectionService } from './agenda-section.service';
 import { TaskListComponent } from './task-list';
 
 @Component({
-    selector: 'app-agenda-section-suggestions',
+    selector: 'app-agenda-section-followup',
     template: `
-        <h1 class="mb-3">{{ taskView.suggestion.namePlural | async }}</h1>
+        <h1 class="mb-3">{{ taskView.namePlural | async }}</h1>
         <app-task-list [agendaId]="section().agenda"
             [stages]="['task', 'in_progress', 'acknowledged']"/>
     `,
     imports: [TaskListComponent, AsyncPipe],
 })
-export class AgendaSectionSuggestionsComponent {
+export class AgendaSectionFollowupComponent {
 
     protected readonly agendaSectionService = inject(AgendaSectionService)
     protected readonly taskView = inject(TaskViewService);
