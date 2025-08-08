@@ -120,6 +120,11 @@ export abstract class TableService<T extends TableName> {
         return await sync.create(row);
     }
 
+    public async update(row: Update<T>) {
+        const sync = await this.table.get();
+        return await sync.update(row);
+    }
+
     public async upsert(rows: Insert<T>[]) {
         await this.direct.upsert(<any[]>rows).throwOnError();
     }

@@ -109,8 +109,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
                 .update(update)
                 .eq("id", update.id)
                 .select("*")
+                .single()
                 .throwOnError();
-            update = data[0];
+            update = data;
         }
         await this.storeAdapter.write(update);
     }
