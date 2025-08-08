@@ -1,7 +1,7 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { wait } from '../../utils/flow-control-utils';
-import { asyncComputed } from '../../utils/signal-utils';
+import { asyncComputed, xeffect } from '../../utils/signal-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
@@ -66,14 +66,10 @@ export class RichTextComponent extends InputBaseComponent<string> {
         });
     }
 
-    override async writeValue(value: string) {
-        await super.writeValue(value);
-        if (value !== null)
-            this.quill.setContent(value);
-    }
-
     protected override mapIn(value: string) {
-        return markdownToQuillHtml(value);
+        const html = markdownToQuillHtml(value);
+        this.quill.setContent(html);
+        return html;
     }
 
     protected override mapOut(value: string | null) {

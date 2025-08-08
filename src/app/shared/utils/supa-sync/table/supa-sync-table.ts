@@ -53,6 +53,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
         return this.storeAdapter.read(id);
     }
 
+    public async readAll() {
+        await this.storeAdapter.initialized.get();
+        return await this.storeAdapter.readAll();
+    }
+
     public observe(id: number) {
         return new Observable<Row<D, T>>(observer => {
             this.storeAdapter.read(id)

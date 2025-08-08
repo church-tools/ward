@@ -11,7 +11,7 @@ import { AgendaSection } from "./agenda-section";
 export class AgendaSectionViewService extends ViewService<'agenda_section'> {
 
     private readonly callingView = inject(CallingViewService);
-    private readonly tasksView = inject(TaskViewService);
+    private readonly taskView = inject(TaskViewService);
     
     readonly icon = 'center_vertical';
     readonly name = this.translate.stream('VIEW.AGENDA_SECTION');
@@ -20,8 +20,9 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
     public readonly typeOptions: { type: AgendaSection.Type, label: Observable<Translation>, icon?: Icon}[] = [
         { type: 'text', icon: 'text_description', label: this.translate.stream('AGENDA_SECTION_TYPE.TEXT') },
         { type: 'callings', icon: this.callingView.icon, label: this.callingView.namePlural },
-        { type: 'tasks', icon: this.tasksView.topic.icon, label: this.tasksView.topic.namePlural },
-        { type: 'followups', icon: this.tasksView.icon, label: this.tasksView.namePlural },
+        { type: 'task_suggestions', icon: this.taskView.suggestion.icon, label: this.taskView.suggestion.namePlural },
+        { type: 'tasks', icon: this.taskView.topic.icon, label: this.taskView.topic.namePlural },
+        { type: 'followups', icon: this.taskView.icon, label: this.taskView.namePlural },
         { type: 'prayer', icon: 'handshake', label: this.translate.stream('AGENDA_SECTION_TYPE.PRAYER') },
         { type: 'spiritual_thought', icon: 'fire', label: this.translate.stream('AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT') },
     ] as const;

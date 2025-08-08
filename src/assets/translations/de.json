@@ -15,6 +15,8 @@
     "TASKS": "Aufgaben",
     "TASK_TOPIC": "Thema",
     "TASK_TOPICS": "Themen",
+    "TASK_SUGGESTION": "Themenvorschlag",
+    "TASK_SUGGESTIONS": "Themenvorschläge",
     "CALLING": "Berufung",
     "CALLINGS": "Berufungen",
     "MEETING": "Sitzung",
@@ -27,6 +29,8 @@
   "AGENDA_SECTION_TYPE": {
     "TEXT": "Text",
     "PRAYER": "Gebet",
+    "OPENING_PRAYER": "Anfangsgebet",
+    "CLOSING_PRAYER": "Schlussgebet",
     "SPIRITUAL_THOUGHT": "Geistiger Gedanke"
   },
   "MEMBERS_PAGE.TITLE": "Mitglieder",

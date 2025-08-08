@@ -1,7 +1,8 @@
 import { Component } from '@angular/core';
 import { ListRowComponent } from '../../shared/list-row';
+import { AgendaSectionPrayerComponent } from "./agenda-section-prayer";
+import { AgendaSectionTasksComponent } from "./agenda-section-tasks";
 import { AgendaSectionTextComponent } from "./agenda-section-text";
-import { TaskListComponent } from "./task-list";
 
 @Component({
     selector: 'app-agenda-item-list-row',
@@ -11,14 +12,20 @@ import { TaskListComponent } from "./task-list";
                 @case ('text') {
                     <app-agenda-section-text [section]="row()"/>
                 }
+                @case ('prayer') {
+                    <app-agenda-section-prayer [section]="row()"/>
+                }
                 @case ('tasks') {
-                    <app-task-list [agendaId]="row().agenda"/>
+                    <app-agenda-section-tasks [section]="row()"/>
+                }
+                @case ('followups') {
+                    
                 }
             }
         </div>
     `,
     host: { class: 'full-width' },
-    imports: [TaskListComponent, AgendaSectionTextComponent],
+    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTasksComponent],
 })
 export class AgendaItemListRowComponent extends ListRowComponent<'agenda_section'> {
 

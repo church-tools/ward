@@ -19,9 +19,12 @@ import { xcomputed } from '../../../shared/utils/signal-utils';
 export class TaskListComponent {
     
     readonly agendaId = input.required<number>();
+    readonly stages = input.required<Task.Stage[]>();
     private readonly profileService = inject(ProfileService);
-    protected readonly taskQuery = xcomputed([this.agendaId], agenda => ({ agenda }));
-    protected readonly taskFilter = xcomputed([this.agendaId], agenda => (task: Task.Row) => task.agenda === agenda);
+    protected readonly taskQuery = xcomputed([this.agendaId, this.stages],
+        (agenda, stages) => ({ agenda, stages }));
+    protected readonly taskFilter = xcomputed([this.agendaId, this.stages],
+        ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages!.includes(task.stage)));
     protected readonly taskList = viewChild.required<RowCardListComponent<'task'>>('taskList');
     protected readonly activeTaskId = signal<number | null>(null);
 
@@ -32,9 +35,8 @@ export class TaskListComponent {
     protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
     
     protected prepareTaskInsert = async (task: Task.Insert) => {
-        const agendaId = this.agendaId();
-        if (!agendaId) throw new Error("Agenda row is not set");
-        task.agenda = agendaId;
+        task.agenda = this.agendaId();
+        task.stage = this.stages()[0];
         task.created_by = (await this.profileService.own.get()).id;
     }
 }

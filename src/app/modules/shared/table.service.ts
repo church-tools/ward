@@ -44,16 +44,22 @@ export abstract class TableService<T extends TableName> {
     }
 
     public async get(id: number): Promise<Row<T> | undefined> {
-        const sync = await this.table.get();
-        return sync.read(id);
+        const table = await this.table.get();
+        return table.read(id);
+    }
+
+    public async find(filter: (row: Row<T>) => boolean) {
+        const table = await this.table.get();
+        const all = await table.readAll();
+        return all.filter(filter);
     }
 
     public observe(filter: (row: Row<T>) => boolean): Observable<Row<T> | undefined> {
         return new Observable<Row<T> | undefined>(subscriber => {
             let subscription: Subscription | undefined;
             this.table.get()
-            .then(sync => {
-                subscription = sync.observeAll().subscribe(changes => {
+            .then(table => {
+                subscription = table.observeAll().subscribe(changes => {
                     for (const row of Object.values(changes))
                         if (row && filter(row))
                             subscriber.next(row);
@@ -67,8 +73,8 @@ export abstract class TableService<T extends TableName> {
         return new Observable<RowMap<T>>(subscriber => {
             let subscription: Subscription | undefined;
             this.table.get()
-            .then(sync => {
-                subscription = sync.observeAll().subscribe(changes => {
+            .then(table => {
+                subscription = table.observeAll().subscribe(changes => {
                     if (filter)
                         changes = filterMap(changes, row => row != null && filter(row));
                     if (changes.size)
@@ -82,10 +88,10 @@ export abstract class TableService<T extends TableName> {
     public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
         const sig = signal<RowMap<T>>(new Map());
         this.table.get()
-        .then(sync => {
-            let subscription = sync.observeAll().subscribe(changes => {
+        .then(table => {
+            let subscription = table.observeAll().subscribe(changes => {
                 if (filter)
-                    changes = filterMap(changes, row => row != null && filter(row, sync.user));
+                    changes = filterMap(changes, row => row != null && filter(row, table.user));
                 if (changes.size)
                     sig.update(current => Object.assign(current, changes));
             });
@@ -106,23 +112,23 @@ export abstract class TableService<T extends TableName> {
     }
 
     public async insertRow(row: Insert<T>) {
-        const sync = await this.table.get();
-        return await sync.create(row);
+        const table = await this.table.get();
+        return await table.create(row);
     }
 
     public async updateRows(updates: Update<T>[]) {
-        const sync = await this.table.get();
-        await sync.updateMany(updates);
+        const table = await this.table.get();
+        await table.updateMany(updates);
     }
 
     public async create(row: Insert<T>) {
-        const sync = await this.table.get();
-        return await sync.create(row);
+        const table = await this.table.get();
+        return await table.create(row);
     }
 
     public async update(row: Update<T>) {
-        const sync = await this.table.get();
-        return await sync.update(row);
+        const table = await this.table.get();
+        return await table.update(row);
     }
 
     public async upsert(rows: Insert<T>[]) {
@@ -131,11 +137,6 @@ export abstract class TableService<T extends TableName> {
 
     abstract toString(row: Row<T>): string;
     
-    private async setup() {
-        
-
-    }
-
     private async firstFreeId() {
         const sync = await this.table.get();
         const largestExisting = await sync.findLargestId();

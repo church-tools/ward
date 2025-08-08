@@ -613,6 +613,7 @@ export type Database = {
           deleted: boolean
           id: number
           position: number
+          stage: Database["public"]["Enums"]["task_stage"]
           title: string | null
           unit: number
           updated_at: string
@@ -625,6 +626,7 @@ export type Database = {
           deleted?: boolean
           id: number
           position?: number
+          stage?: Database["public"]["Enums"]["task_stage"]
           title?: string | null
           unit: number
           updated_at?: string
@@ -637,6 +639,7 @@ export type Database = {
           deleted?: boolean
           id?: number
           position?: number
+          stage?: Database["public"]["Enums"]["task_stage"]
           title?: string | null
           unit?: number
           updated_at?: string
@@ -739,6 +742,7 @@ export type Database = {
         | "stake_conference"
         | "ward_conference"
       permission: "calling" | "sacrament_meeting" | "music"
+      task_stage: "suggestion" | "topic" | "task" | "in_progress" | "done" | "acknowledged"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -912,6 +916,7 @@ export const Constants = {
         "ward_conference",
       ],
       permission: ["calling", "sacrament_meeting", "music"],
+      task_stage: ["suggestion", "topic", "task", "in_progress", "done", "acknowledged"],
     },
   },
 } as const

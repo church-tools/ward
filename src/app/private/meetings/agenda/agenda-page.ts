@@ -18,6 +18,7 @@ import { RowPageComponent } from '../../shared/row-page';
                 <app-back-button class="me-auto display-when-medium"/>
                 <span class="h0">{{title()}}</span>
                 <app-row-card-list #sectionList tableName="agenda_section"
+                    [cardsVisible]="adminService.editMode()"
                     [editable]="adminService.editMode()"
                     [filter]="sectionFilter()"
                     [prepareInsert]="prepareSectionInsert"/>

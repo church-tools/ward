@@ -16,11 +16,11 @@ import { getTableService } from "./table.service";
             @if (rowComponent(); as component) {
                 @if (insertComponent(); as insertComponent) {
                     <app-card-list
-                        [cardClasses]="cardClasses()"
+                        [cardClasses]="cardsVisible() ? cardClasses() : ''"
                         [reorderable]="editable()"
                         [editable]="editable()"
                         [activeId]="activeId()"
-                        [gap]="gap()"
+                        [gap]="cardsVisible() ? gap() : 0"
                         [idKey]="service.idKey"
                         [orderByKey]="service.orderField"
                         [getFilterText]="service.toString"
@@ -53,6 +53,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly tableName = input.required<T>();
     readonly editable = input(false);
     readonly gap = input(2);
+    readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T>) => string>();
     readonly filter = input<(row: Row<T>) => boolean>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
