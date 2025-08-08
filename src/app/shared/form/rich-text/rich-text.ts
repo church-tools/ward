@@ -66,7 +66,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
         });
     }
 
-    override async writeValue(value: string | null) {
+    override async writeValue(value: string) {
         await super.writeValue(value);
         if (value !== null)
             this.quill.setContent(value);

@@ -54,7 +54,7 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
             (labelView, required, indicateRequired, disabledState) => labelView?.required.set(!!required && !!indicateRequired && !disabledState));
     }
 
-    async writeValue(value: any) {
+    async writeValue(value: TOut) {
         const mapped = await this.mapIn(value)
         this.value.set(mapped);
     }

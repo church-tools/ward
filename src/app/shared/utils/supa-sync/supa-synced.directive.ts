@@ -1,9 +1,9 @@
-import { Directive, inject, Injector, input, OnDestroy, OnInit } from "@angular/core";
+import { Directive, inject, input, OnDestroy, OnInit } from "@angular/core";
 import { Subscription } from "rxjs";
-import { getTableService } from "../../../modules/shared/table.service";
+import { TableService } from "../../../modules/shared/table.service";
 import { InputBaseComponent } from "../../form/shared/input-base";
-import { asyncComputed, xeffect } from "../signal-utils";
 import { Row, TableName } from "../../types";
+import { xeffect } from "../signal-utils";
 
 @Directive({
     selector: '[supaSynced]'
@@ -11,14 +11,12 @@ import { Row, TableName } from "../../types";
 export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> implements OnInit, OnDestroy {
 
     private readonly inputBase = inject(InputBaseComponent);
-    private readonly injector = inject(Injector);
     
-    readonly table = input.required<T>({ alias: 'supaSynced' });
+    readonly table = input.required<TableService<T>>({ alias: 'supaSynced' });
     readonly row = input.required<Row<T>>();
     readonly column = input.required<C>();
     readonly recordId = input<number | null>(null);
     
-    protected readonly tableService = asyncComputed([this.table], table => getTableService(this.injector, table));
     private subscription?: Subscription;
 
     async ngOnInit() {
@@ -43,9 +41,7 @@ export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> im
 
     private subscribeToRecord(recordId: number, column: C) {
         this.subscription?.unsubscribe();
-        const table = this.tableService();
-        if (!table) return;
-        this.subscription = table.observe(row => row[table.idKey] === recordId)
+        this.subscription = this.table().observe(row => row[this.table().idKey] === recordId)
             .subscribe(row => {
                 if (row && row[column] !== undefined) {
                     this.inputBase.writeValue(row[column]);
@@ -54,8 +50,7 @@ export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> im
     }
 
     private async updateRecord() {
-        const table = this.tableService();
-        if (!table || !this.recordId() || !this.column()) return;
+        if (!this.recordId()) return;
 
         const value = this.inputBase.getValue();
         const update = {
@@ -64,7 +59,7 @@ export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> im
         };
 
         try {
-            await table.updateRows([update]);
+            await this.table().updateRows([update]);
         } catch (error) {
             console.error('Failed to update record:', error);
         }
