@@ -33,6 +33,7 @@ export class SupabaseService {
                             tables: {
                                 profile: {},
                                 agenda: {},
+                                agenda_section: { agenda: {} },
                                 task: { agenda: {} },
                             }
                         }

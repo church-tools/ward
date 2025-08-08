@@ -14,6 +14,7 @@ export async function getTableService<T extends TableName>(injector: Injector, t
     const service = await (async () => {
         switch (tableName) {
             case 'agenda': return (await import('../agenda/agenda.service')).AgendaService;
+            case 'agenda_section': return (await import('../agenda/section/agenda-section.service')).AgendaSectionService;
             case 'task': return (await import('../task/task.service')).TaskService;
             case 'profile': return (await import('../profile/profile.service')).ProfileService;
             default: throw new Error(`No service found for table: ${tableName}`);
@@ -26,7 +27,7 @@ export async function getTableService<T extends TableName>(injector: Injector, t
 export abstract class TableService<T extends TableName> {
 
     protected readonly supabase = inject(SupabaseService);
-    protected readonly sync = new AsyncState<SupaSyncTable<Database, T>>();
+    protected readonly table = new AsyncState<SupaSyncTable<Database, T>>();
 
     abstract readonly tableName: T;
     abstract readonly orderField: KeyWithValue<Row<T>, number> | null;
@@ -38,19 +39,19 @@ export abstract class TableService<T extends TableName> {
     constructor() {
         this.supabase.sync.get()
         .then(supaSync => {
-            this.sync.set(supaSync.getTable(this.tableName, this.createOffline, true));
+            this.table.set(supaSync.getTable(this.tableName, this.createOffline, true));
         });
     }
 
     public async get(id: number): Promise<Row<T> | undefined> {
-        const sync = await this.sync.get();
+        const sync = await this.table.get();
         return sync.read(id);
     }
 
     public observe(filter: (row: Row<T>) => boolean): Observable<Row<T> | undefined> {
         return new Observable<Row<T> | undefined>(subscriber => {
             let subscription: Subscription | undefined;
-            this.sync.get()
+            this.table.get()
             .then(sync => {
                 subscription = sync.observeAll().subscribe(changes => {
                     for (const row of Object.values(changes))
@@ -65,7 +66,7 @@ export abstract class TableService<T extends TableName> {
     public observeMany(filter?: (row: Row<T>) => boolean): Observable<RowMap<T>> {
         return new Observable<RowMap<T>>(subscriber => {
             let subscription: Subscription | undefined;
-            this.sync.get()
+            this.table.get()
             .then(sync => {
                 subscription = sync.observeAll().subscribe(changes => {
                     if (filter)
@@ -80,7 +81,7 @@ export abstract class TableService<T extends TableName> {
 
     public manyAsSignal(filter?: (row: Row<T>, user: User) => boolean) {
         const sig = signal<RowMap<T>>(new Map());
-        this.sync.get()
+        this.table.get()
         .then(sync => {
             let subscription = sync.observeAll().subscribe(changes => {
                 if (filter)
@@ -94,7 +95,7 @@ export abstract class TableService<T extends TableName> {
 
     public asSignal(filter: (row: Row<T>, user: User) => boolean) {
         const sig = signal<Row<T> | undefined>(undefined);
-        this.sync.get()
+        this.table.get()
         .then(sync => {
             let subscription = sync.observeAll().subscribe(changes => {
                 const row = changes.values().find(row => row && filter(row, sync.user));
@@ -105,17 +106,17 @@ export abstract class TableService<T extends TableName> {
     }
 
     public async insertRow(row: Insert<T>) {
-        const sync = await this.sync.get();
+        const sync = await this.table.get();
         return await sync.create(row);
     }
 
     public async updateRows(updates: Update<T>[]) {
-        const sync = await this.sync.get();
+        const sync = await this.table.get();
         await sync.updateMany(updates);
     }
 
     public async create(row: Insert<T>) {
-        const sync = await this.sync.get();
+        const sync = await this.table.get();
         return await sync.create(row);
     }
 
@@ -131,7 +132,7 @@ export abstract class TableService<T extends TableName> {
     }
 
     private async firstFreeId() {
-        const sync = await this.sync.get();
+        const sync = await this.table.get();
         const largestExisting = await sync.findLargestId();
         return (largestExisting ?? 0) + 1;
     }

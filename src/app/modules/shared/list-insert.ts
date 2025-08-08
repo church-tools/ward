@@ -6,8 +6,9 @@ import { ProfileService } from "../profile/profile.service";
 export async function getListInsertComponent<T extends TableName>(tableName: T) {
     switch (tableName) {
         case 'agenda': return (await import('../agenda/agenda-list-insert')).AgendaListInsertComponent;
+        case 'agenda_section': return (await import('../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent;
         case 'task': return (await import('../task/task-list-insert')).TaskListInsertComponent;
-        default: throw new Error(`No list row component found for table: ${tableName}`);
+        default: throw new Error(`No list insert component found for table: ${tableName}`);
     }
 }
 @Component({

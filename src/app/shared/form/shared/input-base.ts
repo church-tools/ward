@@ -10,6 +10,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
         { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(forwardRefFn), multi: true },
         { provide: NG_VALIDATORS, useExisting: forwardRef(forwardRefFn), multi: true },
+        { provide: InputBaseComponent, useExisting: forwardRef(forwardRefFn) },
     ]
 }
 

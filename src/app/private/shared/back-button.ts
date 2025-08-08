@@ -3,21 +3,18 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
 import { IconComponent } from '../../shared/icon/icon';
-import { WindowService } from '../../shared/service/window.service';
 import { privateTabs } from '../private.routes';
 
 @Component({
     selector: 'app-back-button',
     template: `
-        @if (!windowService.isSmall()) {
-            <app-link-button type="subtle" size="small"
-                href="/{{url}}" [showNewTab]="false">
-                <span class="row items-center translucent-text">
-                    <app-icon icon="chevron_left" iconSize="sm"/>
-                    {{ 'NAV_BAR_TAB.' + this.translateId | translate }}
-                </span>
-            </app-link-button>
-        }
+        <app-link-button type="subtle" size="small"
+            href="/{{url}}" [showNewTab]="false">
+            <span class="row items-center translucent-text">
+                <app-icon icon="chevron_left" iconSize="sm"/>
+                {{ 'NAV_BAR_TAB.' + this.translateId | translate }}
+            </span>
+        </app-link-button>
         `,
     imports: [TranslateModule, LinkButtonComponent, IconComponent],
     styles: [`
@@ -35,7 +32,6 @@ import { privateTabs } from '../private.routes';
 export class BackButtonComponent {
 
     private readonly route = inject(ActivatedRoute);
-    protected readonly windowService = inject(WindowService);
 
     protected readonly url: string;
     protected readonly translateId: string;

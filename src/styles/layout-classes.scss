@@ -14,6 +14,10 @@
     @include larger-than($sm) { display: none !important; }
 }
 
+.display-when-medium {
+    @include smaller-than($md) { display: none !important; }
+}
+
 .display-when-large {
     @include smaller-than($lg) { display: none !important; }
 }

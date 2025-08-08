@@ -38,6 +38,7 @@
         }, { once: true });
 
         document.addEventListener("DOMContentLoaded", function() {
+            document.querySelector('img').classList.add('visible');
             new FontFace('FluentSystemIcons-Resizable', 'url(/assets/fonts/FluentSystemIcons-Resizable.woff2)').load()
             .then(function(loadedFont) { document.fonts.add(loadedFont); })
             .catch(function(error) { console.error('Font failed to load:', error); })
@@ -69,6 +70,24 @@
             background-color: var(--navbar-background);
             opacity: 1;
             transition: opacity 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            img {
+                position: fixed;
+                transition: all 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
+                margin: auto;
+                width: 192px;
+                height: 192px;
+                filter: drop-shadow(0 0.25rem 0.5rem rgba(0, 0, 0, 0.25));
+                
+                transform: scale(0.75);
+                opacity: 0;
+            }
+            img.visible {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
         .page-loading.hidden {
             opacity: 0;
@@ -84,16 +103,6 @@
                 color-mix(in srgb, var(--accent-variation-1-background) 20%, var(--navbar-background)) 40%,
                 color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
             opacity: 0.95;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            img {
-                animation: zoomIn 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
-                margin: auto;
-                width: 192px;
-                height: 192px;
-                filter: drop-shadow(0 0.25rem 0.5rem rgba(0, 0, 0, 0.25));
-            }
         }
         @media (prefers-color-scheme: dark) {
             html { color-scheme: dark; }
@@ -104,24 +113,13 @@
                     color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
             }
         }
-        @keyframes zoomIn {
-            0% {
-                transform: scale(0.75);
-                opacity: 0;
-            }
-            100% {
-                transform: scale(1);
-                opacity: 1;
-            }
-        }
     </style>
 </head>
 <body>
     <app-root></app-root>
     <div class="page-loading">
-        <div class="page-loading-color">
-            <img angularImage title="logo" src="assets/img/logo/logo.svg"/>
-        </div>
+        <div class="page-loading-color"></div>
+        <img angularImage title="logo" src="assets/img/logo/logo.svg"/>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
 </body>

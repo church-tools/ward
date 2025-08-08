@@ -49,6 +49,7 @@
     justify-content: center;
     overflow-x: clip;
     .canvas {
+        transition: margin 0.2s ease;
         position: relative;
         height: min-content;
         width: 100%;

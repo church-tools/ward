@@ -10,6 +10,25 @@
     "CALLINGS": "Berufungen",
     "CHURCH_SERVICE": "Gottesdienst"
   },
+  "VIEW": {
+    "TASK": "Aufgabe",
+    "TASKS": "Aufgaben",
+    "TASK_TOPIC": "Thema",
+    "TASK_TOPICS": "Themen",
+    "CALLING": "Berufung",
+    "CALLINGS": "Berufungen",
+    "MEETING": "Sitzung",
+    "MEETINGS": "Sitzungen",
+    "MEMBER": "Mitglied",
+    "MEMBERS": "Mitglieder",
+    "AGENDA_SECTION": "Sitzungsabschnitt",
+    "AGENDA_SECTIONS": "Sitzungsabschnitte"
+  },
+  "AGENDA_SECTION_TYPE": {
+    "TEXT": "Text",
+    "PRAYER": "Gebet",
+    "SPIRITUAL_THOUGHT": "Geistiger Gedanke"
+  },
   "MEMBERS_PAGE.TITLE": "Mitglieder",
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE.TITLE": "Sitzungen",

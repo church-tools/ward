@@ -2,7 +2,8 @@
 
 </div>
 <div #container class="card-item-container column gap-{{gap()}}"
-    cdkDropList (cdkDropListDropped)="onDrop($event)">
+    cdkDropList (cdkDropListDropped)="onDrop($event)"
+    [cdkDropListDisabled]="!reorderable() || !editable()">
     @if (getUrl()) {
         @for (itemCard of itemCards(); track itemCard.id) {
             <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)"

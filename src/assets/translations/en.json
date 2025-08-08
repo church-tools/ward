@@ -10,6 +10,25 @@
     "CALLINGS": "Callings",
     "CHURCH_SERVICE": "Service"
   },
+  "VIEW": {
+    "TASK": "Task",
+    "TASKS": "Tasks",
+    "TASK_TOPIC": "Topic",
+    "TASK_TOPICS": "Topics",
+    "CALLING": "Calling",
+    "CALLINGS": "Callings",
+    "MEETING": "Meeting",
+    "MEETINGS": "Meetings",
+    "MEMBER": "Member",
+    "MEMBERS": "Members",
+    "AGENDA_SECTION": "Agenda Section",
+    "AGENDA_SECTIONS": "Agenda Sections"
+  },
+  "AGENDA_SECTION_TYPE": {
+    "TEXT": "Text",
+    "PRAYER": "Prayer",
+    "SPIRITUAL_THOUGHT": "Spiritual Thought"
+  },
   "MEMBERS_PAGE.TITLE": "Members",
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",

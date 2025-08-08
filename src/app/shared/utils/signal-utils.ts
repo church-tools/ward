@@ -1,4 +1,4 @@
-import { computed, CreateEffectOptions, effect, model, signal, Signal } from "@angular/core";
+import { computed, CreateEffectOptions, effect, signal, Signal } from "@angular/core";
 
 
 export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(

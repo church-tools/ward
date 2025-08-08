@@ -1,6 +1,6 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { AgendaService } from '../../../modules/agenda/agenda.service';
-import { ProfileService } from '../../../modules/profile/profile.service';
+import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Task } from '../../../modules/task/task';
 import { xcomputed } from '../../../shared/utils/signal-utils';
@@ -15,13 +15,12 @@ import { RowPageComponent } from '../../shared/row-page';
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow">
-                <app-back-button class="me-auto"/>
+                <app-back-button class="me-auto display-when-medium"/>
                 <span class="h0">{{title()}}</span>
-                <app-row-card-list #taskList tableName="task" [editable]="true"
-                    [filter]="taskFilter()"
-                    [getUrl]="getTaskUrl"
-                    [activeId]="activeTaskId()"
-                    [prepareInsert]="prepareTaskInsert"/>
+                <app-row-card-list #sectionList tableName="agenda_section"
+                    [editable]="adminService.editMode()"
+                    [filter]="sectionFilter()"
+                    [prepareInsert]="prepareSectionInsert"/>
             </div>
         </app-router-outlet-drawer>
     `,
@@ -30,10 +29,8 @@ import { RowPageComponent } from '../../shared/row-page';
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     
-    private readonly profileService = inject(ProfileService);
-    protected readonly taskQuery = xcomputed([this.row], row => ({ agenda: row?.id }));
-    protected readonly taskFilter = xcomputed([this.row], row => (task: Task.Row) => task.agenda === row?.id);
-    protected readonly taskList = viewChild.required<RowCardListComponent<'task'>>('taskList');
+    protected readonly sectionFilter = xcomputed([this.row], row => (section: AgendaSection.Row) => section.agenda === row?.id);
+    protected readonly sectionList = viewChild.required<RowCardListComponent<'task'>>('sectionList');
     protected readonly activeTaskId = signal<number | null>(null);
 
     constructor() {
@@ -45,11 +42,10 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     }
 
     protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
-    
-    protected prepareTaskInsert = async (task: Task.Insert) => {
+
+    protected prepareSectionInsert = (section: AgendaSection.Insert) => {
         const agenda = this.row();
         if (!agenda) throw new Error("Agenda row is not set");
-        task.agenda = +agenda.id;
-        task.created_by = (await this.profileService.own.get()).id;
+        section.agenda = +agenda.id;
     }
 }

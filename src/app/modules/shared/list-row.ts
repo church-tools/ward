@@ -4,6 +4,7 @@ import type { Row, TableName } from "../../shared/types";
 export async function getListRowComponent<T extends TableName>(tableName: T) {
     switch (tableName) {
         case 'agenda': return (await import('../agenda/agenda-list-row')).AgendaListRowComponent;
+        case 'agenda_section': return (await import('../agenda/section/agenda-section-list-row')).AgendaItemListRowComponent;
         case 'task': return (await import('../task/task-list-row')).TaskListRowComponent;
         case 'profile': return (await import('../profile/profile-list-row')).ProfileListRowComponent;
         default: throw new Error(`No list row component found for table: ${tableName}`);
