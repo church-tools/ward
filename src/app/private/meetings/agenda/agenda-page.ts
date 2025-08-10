@@ -3,6 +3,7 @@ import { AgendaService } from '../../../modules/agenda/agenda.service';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Task } from '../../../modules/task/task';
+import { TableQuery } from '../../../shared/types';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { BackButtonComponent } from '../../shared/back-button';
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
@@ -20,7 +21,7 @@ import { RowPageComponent } from '../../shared/row-page';
                 <app-row-card-list #sectionList tableName="agenda_section"
                     [cardsVisible]="adminService.editMode()"
                     [editable]="adminService.editMode()"
-                    [filter]="sectionFilter()"
+                    [query]="sectionQuery()"
                     [prepareInsert]="prepareSectionInsert"/>
             </div>
         </app-router-outlet-drawer>
@@ -30,7 +31,8 @@ import { RowPageComponent } from '../../shared/row-page';
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     
-    protected readonly sectionFilter = xcomputed([this.row], row => (section: AgendaSection.Row) => section.agenda === row?.id);
+    protected readonly sectionQuery = xcomputed([this.row],
+        row => ({ agenda: row?.id }) as TableQuery<'agenda_section'>);
     protected readonly sectionList = viewChild.required<RowCardListComponent<'task'>>('sectionList');
     protected readonly activeTaskId = signal<number | null>(null);
 

@@ -8,6 +8,13 @@ const LAST_SYNC_KEY = "last_sync";
 
 export type Database = { public: { Tables: { [key: string]: any } } };
 export type TableName<D extends Database> = keyof D["public"]["Tables"] & string;
+export type SupaSyncQueryValue<D extends Database, T extends TableName<D>,
+    K extends keyof Row<D, T>> = Row<D, T>[K] |
+        { in: Row<D, T>[K][] } |
+        { not: Row<D, T> }
+export type SupaSyncQuery<D extends Database, T extends TableName<D>> =
+    { [K in keyof Row<D, T>]?: SupaSyncQueryValue<D, T, K> } &
+    { filter?: (row: Row<D, T>, user: User) => boolean };
 export type Payload<D extends Database> = {
     commit_timestamp: string,
     table: TableName<D>,
@@ -19,9 +26,10 @@ export type IDBInfo<D extends Database> = {
     name: string;
     version: number;
     tables: Partial<{ [K in TableName<D>]: IDBIndexes<D, K> }>;
-}
+};
 
-export type IDBIndexes<D extends Database, T extends TableName<D>> = Partial<{ [K in keyof Row<D, T>]: { unique?: boolean } }>;
+export type IDBIndexes<D extends Database, T extends TableName<D>> =
+    Partial<{ [K in keyof Row<D, T>]: { unique?: boolean } }>;
 
 function getPendingStoreName(tableName: TableName<Database>) {
     return tableName + '_pending';

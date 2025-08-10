@@ -1,7 +1,7 @@
 import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
 import { AsyncState } from "../../async-state";
-import { Database, TableName } from "../supa-sync";
+import { Database, SupaSyncQuery, TableName } from "../supa-sync";
 import { IDBStoreAdapter } from "./idb-store-adapter";
 
 function getRandomId() {
@@ -56,6 +56,18 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
     public async readAll() {
         await this.storeAdapter.initialized.get();
         return await this.storeAdapter.readAll();
+    }
+
+    // New: find by index (single equality value)
+    public async find(query: SupaSyncQuery<D, T>) {
+        await this.storeAdapter.initialized.get();
+        const { filter, ...attributes } = query;
+        const rows = await this.storeAdapter.readIndex(index as string, value);
+        return rows as Row<D, T>[];
+    }
+
+    public findAndObserve(query: SupaSyncQuery<D, T>) {
+
     }
 
     public observe(id: number) {

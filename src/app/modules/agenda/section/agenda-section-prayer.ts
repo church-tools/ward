@@ -27,7 +27,7 @@ export class AgendaSectionPrayerComponent {
     
     protected readonly allPrayers = asyncComputed([this.section],
         section => this.agendaSectionService.find(
-            s => s.type === 'prayer' && s.agenda === section.agenda));
+            { type: 'prayer', agenda: section.agenda }));
     protected readonly isFirst = xcomputed([this.section, this.allPrayers],
         (section, prayers) => prayers?.[0].id === section.id);
     protected readonly isLast = xcomputed([this.section, this.allPrayers],

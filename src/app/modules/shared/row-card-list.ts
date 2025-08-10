@@ -1,7 +1,7 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
 import { Subscription } from "rxjs";
-import type { Insert, PromiseOrValue, Row, TableName } from "../../shared/types";
+import type { Insert, PromiseOrValue, Row, TableName, TableQuery } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
 import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
@@ -55,7 +55,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly gap = input(2);
     readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T>) => string>();
-    readonly filter = input<(row: Row<T>) => boolean>();
+    readonly query = input<TableQuery<T>>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
@@ -68,10 +68,11 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     private subscription: Subscription | undefined;
 
     constructor() {
-        xeffect([this.cardListView, this.tableService, this.filter], (cardListView, tableService, filter) => {
-            if (!cardListView) return;
+        xeffect([this.cardListView, this.tableService, this.query],
+            (cardListView, tableService, query) => {
+            if (!cardListView || !tableService) return;
             this.subscription?.unsubscribe();
-            this.subscription = tableService?.observeMany(filter)
+            this.subscription = tableService.observeMany(query)
                 .subscribe(rowRecords => cardListView.updateItems(rowRecords));
         });
     }

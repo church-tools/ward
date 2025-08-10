@@ -1,5 +1,6 @@
 import { EventEmitter } from "@angular/core";
 import { AsyncState } from "../../async-state";
+import { IdbStoreIndex } from "./idb-store-index";
 
 export type IDBStoreInfo = {
     name: string;
@@ -101,6 +102,16 @@ export class IDBStoreAdapter<T> {
             const store = transaction.objectStore(this.storeName);
             const req = store.getAll();
             req.onsuccess = () => resolve(req.result);
+            req.onerror = err => reject(err);
+        });
+    }
+
+    public readIndex(indexName: string, value: any) {
+        return new Promise<T[]>((resolve, reject) => {
+            const index = new IdbStoreIndex(this.idb, this.storeName, indexName);
+            
+            const req = index.getAll(value);
+            req.onsuccess = () => resolve(req.result as T[]);
             req.onerror = err => reject(err);
         });
     }
