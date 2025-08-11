@@ -11,7 +11,7 @@ export type TableName<D extends Database> = keyof D["public"]["Tables"] & string
 export type SupaSyncQueryValue<D extends Database, T extends TableName<D>,
     K extends keyof Row<D, T>> = Row<D, T>[K] |
         { in: Row<D, T>[K][] } |
-        { not: Row<D, T> }
+        { not: Row<D, T>[K] }
 export type SupaSyncQuery<D extends Database, T extends TableName<D>> =
     { [K in keyof Row<D, T>]?: SupaSyncQueryValue<D, T, K> } &
     { filter?: (row: Row<D, T>, user: User) => boolean };

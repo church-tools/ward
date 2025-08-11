@@ -62,7 +62,13 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>> {
     public async find(query: SupaSyncQuery<D, T>) {
         await this.storeAdapter.initialized.get();
         const { filter, ...attributes } = query;
-        const rows = await this.storeAdapter.readIndex(index as string, value);
+        const indexNamesAndQuery = Object.entries(attributes);
+        const rows = indexNamesAndQuery.length
+            ? await Promise.all(indexNamesAndQuery.map(([indexName, queryValue]) => {
+                const index = this.storeAdapter.getIndex(indexName);
+                return index.query(queryValue);
+            })).then(rows => rows.flat())
+            : await this.storeAdapter.readAll();
         return rows as Row<D, T>[];
     }
 
