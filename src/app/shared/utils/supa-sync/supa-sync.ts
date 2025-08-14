@@ -1,7 +1,7 @@
 import { RealtimeChannel, SupabaseClient, User } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { Lock } from "../flow-control-utils";
-import { IDBStoreAdapter, IDBStoreInfo } from "./table/idb-store-adapter";
+import { IDBStoreAdapter, IDBStoreInfo } from "../supa-idb/idb-store-adapter";
 import { Row, SupaSyncTable } from "./table/supa-sync-table";
 
 const LAST_SYNC_KEY = "last_sync";
@@ -12,8 +12,10 @@ export type SupaSyncQueryValue<D extends Database, T extends TableName<D>,
     K extends keyof Row<D, T>> = Row<D, T>[K] |
         { in: Row<D, T>[K][] } |
         { not: Row<D, T>[K] }
+export type PureSupaSyncQuery<D extends Database, T extends TableName<D>> =
+    { [K in keyof Row<D, T>]?: SupaSyncQueryValue<D, T, K> };
 export type SupaSyncQuery<D extends Database, T extends TableName<D>> =
-    { [K in keyof Row<D, T>]?: SupaSyncQueryValue<D, T, K> } &
+    PureSupaSyncQuery<D, T> &
     { filter?: (row: Row<D, T>, user: User) => boolean };
 export type Payload<D extends Database> = {
     commit_timestamp: string,

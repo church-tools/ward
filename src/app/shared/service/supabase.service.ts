@@ -6,6 +6,7 @@ import { AsyncState } from '../utils/async-state';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
 import { getSiteOrigin } from '../utils/url-utils';
 import { WindowService } from './window.service';
+import { SupaIDB } from '../utils/supa-idb/supa-idb';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -13,6 +14,7 @@ export class SupabaseService {
     private readonly windowService = inject(WindowService);
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new AsyncState<SupaSync<Database>>();
+    readonly supaIdb = new SupaIDB(this.client);
 
     constructor() {
         this.client.auth.onAuthStateChange(async (event, session) => {

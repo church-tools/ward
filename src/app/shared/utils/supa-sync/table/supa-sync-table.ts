@@ -2,7 +2,7 @@ import { SupabaseClient, User } from "@supabase/supabase-js";
 import { Observable } from "rxjs";
 import { AsyncState } from "../../async-state";
 import { Database, SupaSyncQuery, TableName } from "../supa-sync";
-import { IDBStoreAdapter } from "./idb-store-adapter";
+import { IDBStoreAdapter } from "../../supa-idb/idb-store-adapter";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
