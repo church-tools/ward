@@ -1,32 +1,32 @@
 import { Directive, inject, input, OnDestroy } from "@angular/core";
 import { Subscription } from "rxjs";
-import { TableService } from "../../../modules/shared/table.service";
 import { InputBaseComponent } from "../../form/shared/input-base";
-import { Row, TableName } from "../../types";
 import { xeffect } from "../signal-utils";
+import { SupaSync } from "./supa-sync";
+import type { Column, Database, Row, TableName } from "./supa-sync.types";
 
 @Directive({
     selector: '[supaSynced]'
 })
-export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> implements OnDestroy {
+export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C extends Column<D, T>> implements OnDestroy {
 
     private readonly inputBase = inject(InputBaseComponent);
-    
-    readonly table = input.required<TableService<T>>({ alias: 'supaSynced' });
-    readonly row = input.required<Row<T>>();
+
+    readonly supaSync = input.required<SupaSync<Database>>({ alias: 'supaSynced' });
+    readonly table = input.required<T>();
+    readonly row = input.required<Row<D, T>>();
     readonly column = input.required<C>();
     
     private subscription?: Subscription;
-    private lastValue: Row<T>[C] | undefined;
+    private lastValue: Row<D, T>[C] | undefined;
 
     constructor() {
-        xeffect([this.column], column => {
-            if (!column) return;
+        xeffect([this.supaSync, this.table, this.row, this.column], (supaSync, table, row, column) => {
+            if (!column || !table) return;
             this.subscription?.unsubscribe();
-            const idKey = this.table().idKey;
-            const row = this.row()
-            this.inputBase.writeValue(row[column]);
-            this.subscription = this.table().observe(row => row[idKey] === row[idKey])
+            const idKey = supaSync.from(table).idKey;
+            this.inputBase.writeValue(row![column]);
+            this.subscription = supaSync.from(table).findOne().eq(idKey, row![idKey]).observe()
                 .subscribe(row => {
                     if (row?.[column] == null) return;
                     const value = row[column];
@@ -35,16 +35,14 @@ export class SupaSyncedDirective<T extends TableName, C extends keyof Row<T>> im
                     this.inputBase.writeValue(value);
                 });
         });
-        this.inputBase.registerOnChange((value: Row<T>[C]) => {
+        this.inputBase.registerOnChange((value: Row<D, T>[C]) => {
             if (this.lastValue === value) return;
             this.lastValue = value;
             const column = this.column();
             if (!column) return;
-            const idKey = this.table().idKey;
-            this.table().update({
-                [idKey]: this.row()[idKey] as number,
-                [column]: value
-            });
+            const supaSync = this.supaSync(), table = this.table(), row = this.row();
+            const idKey = supaSync.from(table).idKey;
+            supaSync.from(table).update({ [idKey]: row[idKey], [column]: value });
         });
     }
 

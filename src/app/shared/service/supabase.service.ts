@@ -1,20 +1,24 @@
-import { inject, Injectable } from '@angular/core';
+import { Injectable } from '@angular/core';
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from '../../../../database';
 import { environment } from '../../../environments/environment';
-import { AsyncState } from '../utils/async-state';
+import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
+import type { SupaSyncTableInfo } from '../utils/supa-sync/supa-sync.types';
 import { getSiteOrigin } from '../utils/url-utils';
-import { WindowService } from './window.service';
-import { SupaIDB } from '../utils/supa-idb/supa-idb';
+
+type TableInfo<T extends TableName> = SupaSyncTableInfo<Database, T> & TableInfoAdditions<T>;
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
-    private readonly windowService = inject(WindowService);
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
-    readonly sync = new AsyncState<SupaSync<Database>>();
-    readonly supaIdb = new SupaIDB(this.client);
+    readonly supaSync = new SupaSync<Database, TableInfoAdditions>(this.client, [
+        { name: 'profile' },
+        { name: 'agenda', createOffline: false, orderKey: 'position' },
+        { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda'] },
+        { name: 'task', orderKey: 'position', indexed: ['agenda'] },
+    ]);
 
     constructor() {
         this.client.auth.onAuthStateChange(async (event, session) => {
@@ -24,44 +28,21 @@ export class SupabaseService {
                 case 'TOKEN_REFRESHED':
                 {
                     const { unit } = this.getDataFromAccessToken(session.access_token);
-                    await this.client.realtime.setAuth(session.access_token);
-                    const sync = await SupaSync.setup<Database>(
-                        this.client,
-                        session.user,
-                        this.windowService.onlineState,
-                        {
-                            name: `${environment.appId}-${unit}`,
-                            version: 1,
-                            tables: {
-                                profile: {},
-                                agenda: {},
-                                agenda_section: { agenda: {} },
-                                task: { agenda: {} },
-                            }
-                        }
-                    );
-                    this.sync.set(sync);
+                    this.supaSync.init(session, `${environment.appId}-${unit}`);
                     break;
                 }
                 case 'SIGNED_OUT': {
-                    this.sync.unsafeGet()?.cleanup();
-                    this.sync.unset();
+                    this.supaSync.cleanup();
                     break;
                 }
             }
         });
     }
 
-    /**
-     * Sign up a new user with email and password
-     */
     async signUp(email: string, password: string) {
         return await this.client.auth.signUp({ email, password });
     }
 
-    /**
-     * Sign in an existing user with email and password
-     */
     async signIn(email: string, password: string) {
         return await this.client.auth.signInWithPassword({ email, password });
     }
@@ -78,16 +59,10 @@ export class SupabaseService {
         return data;
     }
 
-    /**
-     * Sign out the current user
-     */
     async signOut() {
         return await this.client.auth.signOut();
     }
 
-    /**
-     * Get current session data
-     */
     async getSession() {
         const { data, error } = await this.client.auth.getSession();
         if (error) throw error;

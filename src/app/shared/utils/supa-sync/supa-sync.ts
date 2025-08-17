@@ -1,94 +1,80 @@
-import { RealtimeChannel, SupabaseClient, User } from "@supabase/supabase-js";
+import { RealtimeChannel, Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { Lock } from "../flow-control-utils";
-import { IDBStoreAdapter, IDBStoreInfo } from "../supa-idb/idb-store-adapter";
-import { Row, SupaSyncTable } from "./table/supa-sync-table";
+import { getPendingStoreName, SupaSyncTable } from "./supa-sync-table";
+import type { Database, SupaSyncPayload, SupaSyncTableInfo, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 
-export type Database = { public: { Tables: { [key: string]: any } } };
-export type TableName<D extends Database> = keyof D["public"]["Tables"] & string;
-export type SupaSyncQueryValue<D extends Database, T extends TableName<D>,
-    K extends keyof Row<D, T>> = Row<D, T>[K] |
-        { in: Row<D, T>[K][] } |
-        { not: Row<D, T>[K] }
-export type PureSupaSyncQuery<D extends Database, T extends TableName<D>> =
-    { [K in keyof Row<D, T>]?: SupaSyncQueryValue<D, T, K> };
-export type SupaSyncQuery<D extends Database, T extends TableName<D>> =
-    PureSupaSyncQuery<D, T> &
-    { filter?: (row: Row<D, T>, user: User) => boolean };
-export type Payload<D extends Database> = {
-    commit_timestamp: string,
-    table: TableName<D>,
-    eventType: 'INSERT' | 'UPDATE' | 'DELETE',
-    new: Row<D, TableName<D>>
-};
-
-export type IDBInfo<D extends Database> = {
-    name: string;
-    version: number;
-    tables: Partial<{ [K in TableName<D>]: IDBIndexes<D, K> }>;
-};
-
-export type IDBIndexes<D extends Database, T extends TableName<D>> =
-    Partial<{ [K in keyof Row<D, T>]: { unique?: boolean } }>;
-
-function getPendingStoreName(tableName: TableName<Database>) {
-    return tableName + '_pending';
-}
-
-export class SupaSync<D extends Database> {
-
-    public static async setup<D extends Database>(supabase: SupabaseClient<D>, user: User, isOnline: AsyncState<boolean>, idbInfo: IDBInfo<D>) {
-        const storeInfos: IDBStoreInfo[] = Object.entries(idbInfo.tables).map(([name, indexes]) => [
-            { name, keyPath: 'id', indexes: [{ key: 'id', unique: true },
-                ...Object.entries(indexes ?? {}).map(([key, value]) => ({ key, unique: value?.unique }))] },
-            { name: getPendingStoreName(name), keyPath: '__index', autoIncrement: true }
-        ]).flat();
-        const idb = await IDBStoreAdapter.setup(idbInfo.name, idbInfo.version, storeInfos);
-        const sync = new SupaSync<D>(supabase, user, isOnline);
-        for (const { name } of storeInfos)
-            sync.adaptersByStoreName[name] = new IDBStoreAdapter<Row<D, TableName<D>>>(idb, name);
-        sync.startSyncing(Object.keys(idbInfo.tables));
-        return sync;
-    }
+export class SupaSync<D extends Database, TableInfoAdditions = {}> {
 
     private channel: RealtimeChannel | undefined;
-
+    private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
-    private readonly adaptersByStoreName: Record<string, IDBStoreAdapter<Row<D, TableName<D>>>> = <any>{};
+    private readonly client: SupabaseClient<D, 'public'>;
+    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, TableInfoAdditions> } = {} as any;
+    private idb: Promise<IDBDatabase> | undefined;
 
-    constructor(
-        private readonly supabase: SupabaseClient<D>,
-        private readonly user: User,
-        private readonly isOnline: AsyncState<boolean>,
-    ) {
-    }
-
-    public getTable<T extends TableName<D>>(tableName: T, createOffline: boolean, updateOffline: boolean) {
-        const tableAdapter = this.adaptersByStoreName[tableName];
-        const pendingStoreAdapter = this.adaptersByStoreName[getPendingStoreName(tableName)];
-        return new SupaSyncTable<D, T>(this.supabase, this.user, this.isOnline, tableAdapter,
-            pendingStoreAdapter, tableName, createOffline, updateOffline);
-    }
-
-    public cleanup() {
-        if (this.channel) {
-            this.supabase.removeChannel(this.channel);
-            this.channel = undefined;
+    constructor(supabaseClient: SupabaseClient<D, 'public'>, tableInfos: (SupaSyncTableInfo<D, TableName<D>> & TableInfoAdditions)[]) {
+        this.client = supabaseClient;
+        window.addEventListener('online', () => this.onlineState.set(true));
+        window.addEventListener('offline', () => this.onlineState.unset());
+        for (const info of tableInfos) {
+            this.tablesByName[info.name] = new SupaSyncTable(
+                info.name, this.client, this.onlineState, info);
         }
     }
 
-    private async startSyncing(tableNames: TableName<D>[]) {
-        await this.isOnline.get();
+    public async init(session: Session, dbName: string) {
+        await this.client.realtime.setAuth(session.access_token);
+        const tables = Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, TableInfoAdditions>[];
+        this.idb = new Promise<IDBDatabase>((resolve, reject) => {
+            const openRequest = indexedDB.open(dbName, 1);
+            openRequest.onupgradeneeded = (event) => {
+                const idb = (event.target as IDBOpenDBRequest).result;
+                for (const table of tables) {
+                    const { name, idPath: keyPath, indexed } = table.info;
+                    const store = idb.objectStoreNames.contains(name)
+                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
+                        : idb.createObjectStore(name, {
+                            keyPath: keyPath ?? 'id',
+                            autoIncrement: true
+                        });
+                    for (const indexName of indexed ?? [])
+                        if (!store.indexNames.contains(indexName))
+                            store.createIndex(indexName, indexName);
+                    const pendingName = getPendingStoreName(name);
+                    idb.objectStoreNames.contains(pendingName)
+                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(pendingName)
+                        : idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
+                }
+                resolve(idb);
+            };
+            openRequest.onsuccess = (event) => {
+                resolve((event.target as IDBOpenDBRequest).result);
+            };
+            openRequest.onerror = (event) => {
+                reject((event.target as IDBOpenDBRequest).error);
+            };
+            openRequest.onblocked = () => {
+                reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
+            };
+        });
+        for (const table of tables)
+            table.init(this.idb);
+        this.startSyncing(tables);
+    }
+
+    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, TableInfoAdditions>[]) {
+        await this.onlineState.get();
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
-        await Promise.all(tableNames.map(async tableName => {
-            const { data } = await this.supabase.from(tableName)
+        await Promise.all(tables.map(async table => {
+            const { data } = await this.client.from(table.info.name)
                 .select('*')
                 .gt('updated_at', lastUpdatedAt)
                 .throwOnError();
-            const adapter = this.adaptersByStoreName[tableName];
+            const adapter = table.storeAdapter;
             if (data.length) {
                 await adapter.writeMany(data);
                 adapter.onWrite.emit(data);
@@ -96,12 +82,12 @@ export class SupaSync<D extends Database> {
             adapter.initialized.set(true);
         }));
         this.setLastSync(now);
-        this.channel = this.supabase.channel(`schema-db-changes`)
+        this.channel = this.client.channel(`schema-db-changes`)
         .on('postgres_changes',
             { event: '*', schema: 'public' },
-            async (payload: Payload<D>) => {
+            async (payload: SupaSyncPayload<D>) => {
                 await this.eventLock.lock(async () => {
-                    const adapter = this.adaptersByStoreName[payload.table];
+                    const adapter = this.tablesByName[payload.table].storeAdapter;
                     switch (payload.eventType) {
                         case 'INSERT':
                         case 'UPDATE':
@@ -125,6 +111,18 @@ export class SupaSync<D extends Database> {
                     break;
             }
         });
+    }
+
+    public cleanup() {
+        if (this.channel) {
+            this.client.removeChannel(this.channel);
+            this.channel = undefined;
+        }
+        this.idb?.then(idb => idb.close());
+    }
+
+    public from<T extends TableName<D>>(table: T) {
+        return this.tablesByName[table];
     }
 
     private async getLastSync() {

@@ -14,8 +14,6 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
     private readonly taskView = inject(TaskViewService);
     
     readonly icon = 'center_vertical';
-    readonly name = this.translate.stream('VIEW.AGENDA_SECTION');
-    readonly namePlural = this.translate.stream('VIEW.AGENDA_SECTIONS');
 
     public readonly typeOptions: { type: AgendaSection.Type, label: Observable<Translation>, icon?: Icon}[] = [
         { type: 'text', icon: 'text_description', label: this.translate.stream('AGENDA_SECTION_TYPE.TEXT') },
@@ -26,4 +24,14 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
         { type: 'prayer', icon: 'handshake', label: this.translate.stream('AGENDA_SECTION_TYPE.PRAYER') },
         { type: 'spiritual_thought', icon: 'fire', label: this.translate.stream('AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT') },
     ] as const;
+
+    private readonly labelsByType = Object.fromEntries(this.typeOptions.map(option => [option.type, option.label]));
+
+    constructor() {
+        super('agenda_section');
+    }
+
+    override toString(row: AgendaSection.Row): string {
+        // return this.labelsByType[row.type];
+    }
 }

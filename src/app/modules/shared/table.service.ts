@@ -6,8 +6,8 @@ import { SupabaseService } from "../../shared/service/supabase.service";
 import { Insert, KeyWithValue, Row, TableName, TableQuery, Update } from "../../shared/types";
 import { AsyncState } from "../../shared/utils/async-state";
 import { filterMap } from "../../shared/utils/map-utils";
-import { Changes, SupaSyncTable } from "../../shared/utils/supa-sync/table/supa-sync-table";
-import { IDBQueryBuilder } from "../../shared/utils/supa-idb/idb-query-builder";
+import { Changes, SupaSyncTable } from "../../shared/utils/supa-sync/table/deprecated-supa-sync-table";
+import { IDBFilterBuilder } from "../../shared/utils/supa-sync/idb-filter-builder";
 
 export type RowMap<T extends TableName> = Changes<Database, T>;
 
@@ -36,8 +36,6 @@ export abstract class TableService<T extends TableName> {
     readonly idKey = 'id' as KeyWithValue<Row<T>, number>;
 
     public get direct() { return this.supabase.client.from(this.tableName); }
-
-    public get query() { return new IDBQueryBuilder(this.table); }
 
     constructor() {
         this.supabase.sync.get()
@@ -148,8 +146,6 @@ export abstract class TableService<T extends TableName> {
     public async upsert(rows: Insert<T>[]) {
         await this.direct.upsert(<any[]>rows).throwOnError();
     }
-
-    abstract toString(row: Row<T>): string;
     
     private async firstFreeId() {
         const sync = await this.table.get();

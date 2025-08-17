@@ -1,13 +1,14 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
 import { Subscription } from "rxjs";
-import type { Insert, PromiseOrValue, Row, TableName, TableQuery } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
 import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import { getTableService } from "./table.service";
+import type { Column, Insert, Row, TableName } from "./table.types";
+import { PromiseOrValue } from "../../shared/types";
 
 @Component({
     selector: 'app-row-card-list',
@@ -84,7 +85,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
 
     protected async updateRowPositions(rows: Row<T>[]) {
         await this.tableService()!.updateRows(mapToSubObjects(rows,
-            'id' as keyof Row<T>, 'position' as keyof Row<T>, 'unit' as keyof Row<T>));
+            'id' as Column<T>, 'position' as Column<T>, 'unit' as Column<T>));
     }
 
     ngOnDestroy(): void {

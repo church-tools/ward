@@ -1,49 +1,21 @@
 import { EventEmitter } from "@angular/core";
 import { AsyncState } from "../async-state";
 
-type IDBStoreInfo = {
-    name: string;
-    keyPath: any;
-    indexes: { key: string; unique?: boolean }[];
-    autoIncrement?: boolean;
-}
-
 export class IDBStoreAdapter<T> {
-
-    public static async setup(name: string, version: number, storeInfos: IDBStoreInfo[]) {
-        return new Promise<IDBDatabase>((resolve, reject) => {
-            const openRequest = indexedDB.open(name, version);
-            openRequest.onupgradeneeded = (event) => {
-                const idb = (event.target as IDBOpenDBRequest).result;
-                for (const { name, keyPath, indexes, autoIncrement } of storeInfos) {
-                    const store = idb.objectStoreNames.contains(name)
-                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
-                        : idb.createObjectStore(name, { keyPath, autoIncrement });
-                    for (const { key, unique } of indexes ?? [])
-                        if (!store.indexNames.contains(key))
-                            store.createIndex(key, key, { unique: unique ?? false });
-                }
-                resolve(idb);
-            };
-            openRequest.onsuccess = (event) => {
-                resolve((event.target as IDBOpenDBRequest).result);
-            };
-            openRequest.onerror = (event) => {
-                reject((event.target as IDBOpenDBRequest).error);
-            };
-            openRequest.onblocked = () => {
-                reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
-            };
-        });
-    }
 
     readonly onWrite = new EventEmitter<T>();
     readonly initialized = new AsyncState<boolean>();
 
+    private idbSet: (idb: IDBDatabase) => void = null!;
+    private readonly idb = new Promise<IDBDatabase>(resolve => this.idbSet = resolve);
+    
     constructor(
-        private readonly idb: Promise<IDBDatabase>,
         private readonly storeName: string,
     ) {}
+
+    public init(idb: Promise<IDBDatabase>) {
+        idb.then(this.idbSet);
+    }
     
     public async write(item: T) {
         const idb = await this.idb;
