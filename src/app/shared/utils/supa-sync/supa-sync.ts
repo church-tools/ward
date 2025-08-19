@@ -64,7 +64,6 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                         : idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
                 }
                 localStorage.setItem(VERSION_KEY, version.toString());
-                resolve(idb);
             };
             openRequest.onsuccess = (event) => {
                 resolve((event.target as IDBOpenDBRequest).result);

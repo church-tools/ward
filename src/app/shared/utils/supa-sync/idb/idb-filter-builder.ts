@@ -1,4 +1,4 @@
-import type { Change, Column, Database, Row, TableName } from "../supa-sync.types";
+import type { Column, Database, Row, TableName } from "../supa-sync.types";
 import { IDBQueryBase } from "./idb-query-base";
 import { IDBStoreAdapter } from "./idb-store-adapter";
 
@@ -41,12 +41,12 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
     private async getResults<R extends Row<D, T> | IDBValidKey>(keysOnly?: R extends IDBValidKey ? true : undefined): Promise<R[]> {
         if (this.conditions.length === 1) {
             const index = await this.store.getIndex(this.conditions[0].field);
-            return await this.queryCondition(this.conditions[0], keysOnly ? index.getAllKeys : index.getAll) as R[];
+            return await this.queryCondition(this.conditions[0], keysOnly ? index.getAllKeys.bind(index) : index.getAll.bind(index)) as R[];;
         } else {
             let keys: Set<IDBValidKey>;
             await Promise.all(this.conditions.map(async condition => {
                 const index = await this.store.getIndex(condition.field);
-                const result = await this.queryCondition(condition, index.getAllKeys) as IDBValidKey[];
+                const result = await this.queryCondition(condition, index.getAllKeys.bind(index)) as IDBValidKey[];
                 keys = keys?.intersection(new Set(result)) ?? new Set(result);
             }));
             const keyArray = Array.from(keys!);
@@ -74,10 +74,10 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                 case 'gt': return [fetchFn(IDBKeyRange.lowerBound(condition.value))];
             }
         })();
-        return await Promise.all(requests.map(req => new Promise((resolve, reject) => {
+        return (await Promise.all(requests.map(req => new Promise((resolve, reject) => {
             req.addEventListener('success', () => resolve(req.result));
             req.addEventListener('error', () => reject(req.error));
-        })));
+        })))).flat();
     }
 
 }

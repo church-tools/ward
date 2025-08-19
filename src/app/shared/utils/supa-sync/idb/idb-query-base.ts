@@ -39,7 +39,10 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
 
     public subscribe(callback: (result: QueryResult<R>) => void): Subscription {
         return new Observable<QueryResult<R>>(subscriber => {
-            this._getItems().then(items => subscriber.next({ result: this.resultMapping(items) }));
+            this._getItems().then(items => {
+                const result = this.resultMapping(items);
+                subscriber.next({ result });
+            });
             const sub = this.store.onChangeReceived.subscribe(changes => {
                 const items: Row<D, T>[] = [];
                 const deletions: number[] = [];
