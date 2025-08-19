@@ -1,9 +1,10 @@
-import { Component, EventEmitter, inject, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, EventEmitter, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TableService } from '../../modules/shared/table.service';
-import { Row, TableName } from '../../shared/types';
-import { xcomputed } from '../../shared/utils/signal-utils';
+import { Row, TableName } from '../../modules/shared/table.types';
+import { getViewService } from '../../modules/shared/view.service';
+import { SupabaseService } from '../../shared/service/supabase.service';
+import { asyncComputed, xcomputed } from '../../shared/utils/signal-utils';
 import { PrivatePageComponent } from './private-page';
 
 @Component({
@@ -18,30 +19,32 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    protected readonly injector = inject(Injector);
+    protected readonly supabase = inject(SupabaseService);
     
     readonly row = signal<Row<T> | null>(null);
     readonly onIdChange = new EventEmitter<number | null>();
     
-    protected readonly title = xcomputed([this.row], row => row ? this.tableService.toString(row) : '');
-    
-    private subscription?: Subscription;
+    protected abstract readonly tableName: T;
+    protected readonly viewService = asyncComputed([], () => getViewService(this.injector, this.tableName));
+    protected readonly title = xcomputed([this.row, this.viewService],
+        (row, viewService) => row ? viewService?.toString(row) ?? '' : '');
 
-    constructor(protected readonly tableService: TableService<T>) {
-        super();
-    }
+    private subscription?: Subscription;
 
     async ngOnInit() { 
         // Subscribe to route parameter changes instead of using snapshot
         this.subscription = this.route.paramMap.subscribe(async (params) => {
-            const rowId = params.get(this.tableService.tableName);
+            const rowId = params.get(this.tableName);
             this.onIdChange.emit(rowId ? +rowId : null);
-            if (!rowId) throw new Error(`${this.tableService.tableName} ID is required in the route`);
-            const row = await this.tableService.get(+rowId);
-            this.row.set(row ?? null);
+            if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
+            const row = await this.supabase.sync.from(this.tableName).read(+rowId).get();
+            this.row.set(row);
         });
     }
 
-    ngOnDestroy() {
+    override ngOnDestroy() {
+        super.ngOnDestroy();
         this.subscription?.unsubscribe();
     }
 

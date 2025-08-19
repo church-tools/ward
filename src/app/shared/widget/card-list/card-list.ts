@@ -5,7 +5,7 @@ import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
 import { WindowService } from '../../service/window.service';
-import { KeyWithValue, PromiseOrValue } from '../../types';
+import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
@@ -34,8 +34,8 @@ export class CardListComponent<T> {
 
     readonly editable = input(false);
     readonly gap = input(2);
-    readonly idKey = input.required<KeyWithValue<T, number>>();
-    readonly orderByKey = input<KeyWithValue<T, number> | null | undefined>();
+    readonly idKey = input.required<keyof T>();
+    readonly orderByKey = input<keyof T | null | undefined>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
@@ -96,10 +96,10 @@ export class CardListComponent<T> {
         });
     }
 
-    async updateItems(itemsById: Map<number, T | null>) {
+    async updateItems(update: { items?: T[], deletions?: number[] }) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
-        this.updateItemCards(itemsById);
+        this.updateItemCards(update);
     }
 
     async ngOnInit() {
@@ -134,8 +134,7 @@ export class CardListComponent<T> {
             if (!insertedItem) throw new Error('Insertion interruped');
             this.insertedItem.set(null);
             this.newEditCard.set(true);
-            const id = insertedItem[this.idKey()] as number;
-            this.updateItemCards(new Map([[id, insertedItem]]), false);
+            this.updateItemCards({ items: [insertedItem] }, false);
             const element = this.insertionCardView()!.nativeElement;
             await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, easeOut, true);
             this.newEditCard.set(false);
@@ -174,19 +173,25 @@ export class CardListComponent<T> {
         this.dropped = true;
     }
 
-    private updateItemCards(itemsById: Map<number, T | null>, entranceAnimation = true) {
-        if (!itemsById.size) return;
+    private updateItemCards(update: { items?: T[], deletions?: number[] }, entranceAnimation = true) {
+        const { items = [], deletions = [] } = update;
+        if (!items.length && !deletions.length) return;
         const itemCards = [...this.itemCards()];
         const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
         entranceAnimation &&= this.initialized;
-        for (const [id, item] of itemsById.entries()) {
+        const idKey = this.idKey();
+        for (const item of items) {
+            const id = item[idKey] as number;
             const itemCard = itemCardMap.get(id);
             if (itemCard) {
-                if (item) itemCard.item = item;
-                else itemCard.delete = true;
+                itemCard.item = item;
             } else if (item) {
-                itemCards.push({ id: +id, item, entranceAnimation });
+                itemCards.push({ id, item, entranceAnimation });
             }
+        }
+        for (const id of deletions) {
+            const itemCard = itemCardMap.get(id);
+            if (itemCard) itemCard.delete = true;
         }
         this.initialized = true;
         this.setItemCards(itemCards);

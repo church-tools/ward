@@ -4,14 +4,18 @@ import { Observable } from "rxjs";
 import { Icon } from "../../shared/icon/icon";
 import type { Row, TableName } from "./table.types";
 
-export async function getViewService<T extends TableName>(injector: Injector, tableName: T) {
+export async function getViewService<T extends TableName>(injector: Injector, tableName: T): Promise<ViewService<T>> {
     const service = await (async () => {
         switch (tableName) {
+            case 'profile': return (await import('../profile/profile-view.service')).ProfileViewService;
+            case 'agenda': return (await import('../agenda/agenda-view.service')).AgendaViewService;
+            case 'agenda_section': return (await import('../agenda/section/agenda-section-view.service')).AgendaSectionViewService;
+            case 'task': return (await import('../task/task-view.service')).TaskViewService;
             case 'calling': return (await import('../calling/calling-view.service')).CallingViewService;
             default: throw new Error(`No view service found for table: ${tableName}`);
         }
     })();
-    return <ViewService<T>>injector.get(<InstanceType<any>>service);
+    return injector.get(<InstanceType<any>>service);
 }
 
 @Injectable({ providedIn: 'root' })
@@ -22,7 +26,6 @@ export abstract class ViewService<T extends TableName> {
     readonly name: Observable<Translation>;
     readonly namePlural: Observable<Translation>;
     abstract readonly icon: Icon;
-    abstract readonly orderKey: keyof Row<T>;
 
     constructor(tableName: T) {
         this.name = this.translate.stream(`VIEW.${tableName.toUpperCase()}`);

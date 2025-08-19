@@ -3,13 +3,13 @@ import { ProfileService } from '../../profile/profile.service';
 import { RowCardListComponent } from '../../shared/row-card-list';
 import { Task } from '../../task/task';
 import { xcomputed } from '../../../shared/utils/signal-utils';
-import { TableQuery } from '../../../shared/types';
+import { Table } from '../../shared/table.types';
 
 @Component({
     selector: 'app-task-list',
     template: `
         <app-row-card-list #taskList tableName="task" [editable]="true"
-            [query]="taskQuery()"
+            [getQuery]="getTaskQuery()"
             [getUrl]="getTaskUrl"
             [activeId]="activeTaskId()"
             [prepareInsert]="prepareTaskInsert"/>
@@ -23,8 +23,11 @@ export class TaskListComponent {
     readonly stages = input.required<Task.Stage[]>();
     private readonly profileService = inject(ProfileService);
 
-    protected readonly taskQuery = xcomputed([this.agendaId, this.stages],
-        (agenda, stages) => ({ agenda, stages }) as TableQuery<'task'>);
+    protected readonly getTaskQuery = xcomputed([this.agendaId, this.stages],
+        (agenda, stages) => (table: Table<'task'>) =>
+            table.find()
+                .eq('agenda', agenda)
+                .in('stage', stages!));
     protected readonly taskFilter = xcomputed([this.agendaId, this.stages],
         ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages!.includes(task.stage)));
     protected readonly taskList = viewChild.required<RowCardListComponent<'task'>>('taskList');
@@ -39,6 +42,6 @@ export class TaskListComponent {
     protected prepareTaskInsert = async (task: Task.Insert) => {
         task.agenda = this.agendaId();
         task.stage = this.stages()[0];
-        task.created_by = (await this.profileService.own.get()).id;
+        task.created_by = (await this.profileService.own.asPromise()).id;
     }
 }

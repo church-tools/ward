@@ -1,24 +1,28 @@
 import { SupabaseClient } from "@supabase/supabase-js";
-import { Observable } from "rxjs";
 import { AsyncState } from "../async-state";
-import { IDBFilterBuilder } from "./idb-filter-builder";
-import { IDBStoreAdapter } from "./idb-store-adapter";
+import { IDBFilterBuilder } from "./idb/idb-filter-builder";
+import { IDBRead } from "./idb/idb-read";
+import { IDBStoreAdapter } from "./idb/idb-store-adapter";
 import type { Column, Database, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 
-export function getPendingStoreName(tableName: TableName<Database>) {
-    return tableName + '_pending';
+function serializeIndex(index: string[] | undefined) {
+    return (index ?? []).join(',');
 }
 
+const INDEX_PREFIX = "idx_";
+const PENDING_SUFFIX = "_pending";
+
 // zu Table umbenennen und Logik hier einfügen
-export class SupaSyncTable<D extends Database, T extends TableName<D>, InfoAdditions> {
+export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> {
 
     public readonly storeAdapter: IDBStoreAdapter<Row<D, T>>;
+    public readonly pendingAdapter: IDBStoreAdapter<Update<D, T>>;
     public readonly idKey: Column<D, T>;
-    private readonly pendingAdapter: IDBStoreAdapter<Update<D, T>>;
+    public readonly needsUpgrade: boolean;
     private readonly createOffline: boolean;
     private readonly updateOffline: boolean;
 
@@ -26,64 +30,58 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, InfoAddit
         private readonly tableName: T,
         private readonly supabaseClient: SupabaseClient<D>,
         private readonly onlineState: AsyncState<boolean>,
-        public readonly info: SupaSyncTableInfo<D, T> & InfoAdditions
+        public readonly info: SupaSyncTableInfo<D, T> & IA
     ) {
-        this.info = info;
         this.idKey = info.idPath ?? 'id';
         this.createOffline = info.createOffline ?? true;
         this.updateOffline = info.updateOffline ?? true;
         this.onlineState = onlineState;
         this.storeAdapter = new IDBStoreAdapter<Row<D, T>>(tableName);
-        this.pendingAdapter = new IDBStoreAdapter<any>(getPendingStoreName(tableName));
+        this.pendingAdapter = new IDBStoreAdapter<any>(tableName + PENDING_SUFFIX);
+        const currentIndex = localStorage.getItem(INDEX_PREFIX + tableName);
+        this.needsUpgrade = currentIndex !== serializeIndex(info.indexed);
         this.sendPending();
     }
 
     public init(idb: Promise<IDBDatabase>) {
         this.storeAdapter.init(idb);
         this.pendingAdapter.init(idb);
+        if (this.needsUpgrade) {
+            const serialized = serializeIndex(this.info.indexed);
+            localStorage.setItem(INDEX_PREFIX + this.tableName, serialized);
+        }
     }
     
-    public async read(id: number) {
-        const row = await this.storeAdapter.read(id);
-        if (row) return row;
+    public read(id: IDBValidKey) {
+        return new IDBRead(this.storeAdapter, [id], rows => rows.length ? rows[0] : null);
+    }
+
+    public readMany(ids: IDBValidKey[]) {
+        return new IDBRead(this.storeAdapter, ids, rows => rows);
+    }
+
+    public readAll() {
+        return new IDBRead(this.storeAdapter, undefined, rows => rows);
+    }
+
+    public find() {
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows);
+    }
+    
+    public findKeys() {
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows);
+    }
+
+    public findOne() {
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows.length ? rows[0] : null);
+    }
+
+    public async insert<I extends Insert<D, T> | Insert<D, T>[]>(row: I): Promise<I extends Insert<D, T>[] ? Row<D, T>[] : Row<D, T>> {
         await this.storeAdapter.initialized.get();
-        return this.storeAdapter.read(id);
-    }
-
-    public async readAll() {
-        await this.storeAdapter.initialized.get();
-        return await this.storeAdapter.readAll();
-    }
-
-    public observe(id: number) {
-        return new Observable<Row<D, T>>(observer => {
-            this.storeAdapter.read(id)
-                .then(row => observer.next(row))
-                .catch(err => observer.error(err));
-            const writeSubscription = this.storeAdapter.onWrite.subscribe(row => {
-                if (row.id === id)
-                    observer.next(row);
-            });
-            return () => writeSubscription.unsubscribe();
-        });
-    }
-
-    public find(): IDBFilterBuilder<D, T, Row<D, T>[]> {
-        return new IDBFilterBuilder<D, T, Row<D, T>[]>(this.storeAdapter,
-            rows => rows);
-    }
-
-    public findOne(): IDBFilterBuilder<D, T, Row<D, T> | null> {
-        return new IDBFilterBuilder<D, T, Row<D, T> | null>(this.storeAdapter,
-            rows => rows[0] ?? null);
-    }
-
-    public async insert(row: Insert<D, T> | Insert<D, T>[]): Promise<Row<D, T>[]> {
-        await this.storeAdapter.initialized.get();
-        const rows = Array.isArray(row) ? row : [row];
+        const rows: Insert<D, T>[] = Array.isArray(row) ? row : [row];
         if (this.createOffline) {
             for (const row of rows)
-                row.id ??= getRandomId();
+                row[this.idKey] ??= getRandomId();
             this.storeAdapter.writeMany(rows);
             await this.writePending(rows);
             return rows;
@@ -103,7 +101,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, InfoAddit
         if (this.updateOffline) {
             await Promise.all([
                 this.storeAdapter.lock(async () => {
-                    const rows = await this.storeAdapter.readMany(updates.map(update => update.id));
+                    const rows = await this.storeAdapter.readMany(updates.map(update => update[this.idKey]));
                     for (let i = 0; i < updates.length; i++) {
                         const existingRow = rows[i];
                         Object.assign(existingRow ?? {}, updates[i]);
@@ -171,11 +169,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, InfoAddit
                 await this.supabaseClient.from(this.tableName).upsert(rows).throwOnError();
             } else {
                 await Promise.all(rows.map(async row => {
-                    const id = row.id;
-                    delete row.id;
+                    const id = row[this.idKey];
+                    delete row[this.idKey];
                     await this.supabaseClient.from(this.tableName)
                         .update(row)
-                        .eq("id", id)
+                        .eq(this.idKey, id)
                         .throwOnError();
                 }));
             }

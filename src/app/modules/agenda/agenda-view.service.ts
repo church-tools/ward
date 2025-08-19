@@ -6,7 +6,6 @@ import { Agenda } from "./agenda";
 export class AgendaViewService extends ViewService<'agenda'> {
     
     readonly icon = 'calendar_agenda';
-    readonly orderKey = 'position';
 
     constructor() {
         super('agenda');

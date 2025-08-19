@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { asyncComputed, xcomputed } from '../../../shared/utils/signal-utils';
 import { AgendaSection } from './agenda-section';
-import { AgendaSectionService } from './agenda-section.service';
+import { SupabaseService } from '../../../shared/service/supabase.service';
 
 @Component({
     selector: 'app-agenda-section-prayer',
@@ -21,15 +21,17 @@ import { AgendaSectionService } from './agenda-section.service';
 })
 export class AgendaSectionPrayerComponent {
 
-    protected readonly agendaSectionService = inject(AgendaSectionService)
+    protected readonly supabase = inject(SupabaseService);
     
     readonly section = input.required<AgendaSection.Row>();
     
-    protected readonly allPrayers = asyncComputed([this.section],
-        section => this.agendaSectionService.find(
-            { type: 'prayer', agenda: section.agenda }));
-    protected readonly isFirst = xcomputed([this.section, this.allPrayers],
-        (section, prayers) => prayers?.[0].id === section.id);
-    protected readonly isLast = xcomputed([this.section, this.allPrayers],
-        (section, prayers) => prayers?.[prayers.length - 1].id === section.id);
+    protected readonly allPrayerIds = asyncComputed([this.section],
+        section => this.supabase.sync.from('agenda_section').find()
+            .eq('type', 'prayer')
+            .eq('agenda', section!.agenda)
+            .getKeys());
+    protected readonly isFirst = xcomputed([this.section, this.allPrayerIds],
+        (section, prayerIds) => prayerIds?.[0] === section.id);
+    protected readonly isLast = xcomputed([this.section, this.allPrayerIds],
+        (section, prayerIds) => prayerIds?.[prayerIds.length - 1] === section.id);
 }

@@ -2,7 +2,6 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { TaskViewService } from '../../task/task-view.service';
 import { AgendaSection } from './agenda-section';
-import { AgendaSectionService } from './agenda-section.service';
 import { TaskListComponent } from './task-list';
 
 @Component({
@@ -16,7 +15,6 @@ import { TaskListComponent } from './task-list';
 })
 export class AgendaSectionFollowupComponent {
 
-    protected readonly agendaSectionService = inject(AgendaSectionService)
     protected readonly taskView = inject(TaskViewService);
     
     readonly section = input.required<AgendaSection.Row>();

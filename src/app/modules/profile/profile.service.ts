@@ -1,30 +1,32 @@
-import { Injectable } from "@angular/core";
-import { AsyncState } from "../../shared/utils/async-state";
-import { xeffect } from "../../shared/utils/signal-utils";
-import { TableService } from "../shared/table.service";
+import { inject, Injectable, OnDestroy } from "@angular/core";
+import { Subscription } from "rxjs";
+import { SupabaseService } from "../../shared/service/supabase.service";
+import { xeffect, xsignal } from "../../shared/utils/signal-utils";
 import { Profile } from "./profile";
 
 @Injectable({ providedIn: 'root' })
-export class ProfileService extends TableService<'profile'> {
+export class ProfileService implements OnDestroy {
 
-    readonly tableName = 'profile';
-    readonly idField = 'id';
-    readonly orderField = null;
-    readonly createOffline = true;
+    private readonly supabase = inject(SupabaseService);
 
-    readonly own = new AsyncState<Profile.Row>();
-    readonly ownSignal = this.asSignal((row, user) => row.uid === user.id);
+    readonly own = xsignal<Profile.Row>();
 
-    override toString(row: Profile.Row): string {
-        return '' + row.id;
-    }
+    private ownSubscription?: Subscription;
 
     constructor() {
-        super();
-        xeffect([this.ownSignal], own => own ? this.own.set(own) : this.own.unset());
-        this.supabase.getSession()
-        .then(session => {
-            this.observe(row => row.uid === session?.user.id).subscribe(row => this.own.set(row!));
+        xeffect([this.supabase.user], user => {
+            this.ownSubscription?.unsubscribe();
+            if (!user) return;
+            this.ownSubscription = this.supabase.sync.from('profile')
+                .findOne()
+                .eq('uid', user.id)
+                .subscribe(({ result: own }) => {
+                    if (own) this.own.set(own);
+                });
         });
+    }
+
+    ngOnDestroy() {
+        this.ownSubscription?.unsubscribe();
     }
 }

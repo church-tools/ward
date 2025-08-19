@@ -3,7 +3,8 @@ export type TableName<D extends Database> = keyof D["public"]["Tables"] & string
 export type Table<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]
 
 export type Row<D extends Database, T extends TableName<D>> = Table<D, T>["Row"];
-export type Column<D extends Database, T extends TableName<D>, K extends keyof Row<D, T> = keyof Row<D, T>> = Row<D, T>[K] & string;
+// Column should be the string literal keys of the Row, not the value types.
+export type Column<D extends Database, T extends TableName<D>> = keyof Row<D, T> & string;
 
 export type Insert<D extends Database, T extends TableName<D>> = Table<D, T>["Insert"];
 export type Update<D extends Database, T extends TableName<D>> = Table<D, T>["Update"];
@@ -21,5 +22,10 @@ export type SupaSyncPayload<D extends Database> = {
     commit_timestamp: string,
     table: TableName<D>,
     eventType: 'INSERT' | 'UPDATE' | 'DELETE',
-    new: Row<D, TableName<D>>
+    new: Row<D, TableName<D>> | undefined,
+    old: Row<D, TableName<D>> | undefined
 };
+
+export type Change<T> = { old: T | undefined, new: T | undefined };
+
+export type QueryResult<R> = { result?: R, deletions?: number[] }

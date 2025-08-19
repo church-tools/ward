@@ -1,53 +1,69 @@
 import { RealtimeChannel, Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { Lock } from "../flow-control-utils";
-import { getPendingStoreName, SupaSyncTable } from "./supa-sync-table";
+import { SupaSyncTable } from "./supa-sync-table";
 import type { Database, SupaSyncPayload, SupaSyncTableInfo, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
+const VERSION_KEY = "version";
 
-export class SupaSync<D extends Database, TableInfoAdditions = {}> {
+export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any } = {}> {
 
     private channel: RealtimeChannel | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
     private readonly client: SupabaseClient<D, 'public'>;
-    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, TableInfoAdditions> } = {} as any;
+    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> } = {} as any;
     private idb: Promise<IDBDatabase> | undefined;
 
-    constructor(supabaseClient: SupabaseClient<D, 'public'>, tableInfos: (SupaSyncTableInfo<D, TableName<D>> & TableInfoAdditions)[]) {
+    constructor(
+        supabaseClient: SupabaseClient<D, 'public'>,
+        tableInfos: Array<{
+            [K in TableName<D>]: SupaSyncTableInfo<D, K> & IA[K]
+        }[TableName<D>]>
+    ) {
         this.client = supabaseClient;
         window.addEventListener('online', () => this.onlineState.set(true));
         window.addEventListener('offline', () => this.onlineState.unset());
         for (const info of tableInfos) {
-            this.tablesByName[info.name] = new SupaSyncTable(
-                info.name, this.client, this.onlineState, info);
+            const tbl = new SupaSyncTable(
+                info.name, this.client, this.onlineState, info as any);
+            (this.tablesByName as any)[info.name] = tbl;
         }
     }
 
     public async init(session: Session, dbName: string) {
         await this.client.realtime.setAuth(session.access_token);
-        const tables = Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, TableInfoAdditions>[];
+        const tables = Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[];
+        let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
+        if (tables.some(table => table.needsUpgrade))
+            version++;
         this.idb = new Promise<IDBDatabase>((resolve, reject) => {
-            const openRequest = indexedDB.open(dbName, 1);
+            const openRequest = indexedDB.open(dbName, version);
             openRequest.onupgradeneeded = (event) => {
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
-                    const { name, idPath: keyPath, indexed } = table.info;
+                    const { name, idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
                     const store = idb.objectStoreNames.contains(name)
                         ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
                         : idb.createObjectStore(name, {
-                            keyPath: keyPath ?? 'id',
+                            keyPath: idPath ?? 'id',
                             autoIncrement: true
                         });
+                    const existingIndexSet = new Set(store.indexNames);
                     for (const indexName of indexed ?? [])
-                        if (!store.indexNames.contains(indexName))
+                        if (!existingIndexSet.has(indexName))
                             store.createIndex(indexName, indexName);
-                    const pendingName = getPendingStoreName(name);
+                    const expectedIndexSet = new Set(indexed ?? []);
+                    for (const indexName of store.indexNames)
+                        if (!expectedIndexSet.has(indexName))
+                            store.deleteIndex(indexName);
+                    const pendingName = table.pendingAdapter.storeName;
                     idb.objectStoreNames.contains(pendingName)
                         ? (event.target as IDBOpenDBRequest).transaction!.objectStore(pendingName)
                         : idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
                 }
+                localStorage.setItem(VERSION_KEY, version.toString());
                 resolve(idb);
             };
             openRequest.onsuccess = (event) => {
@@ -65,8 +81,38 @@ export class SupaSync<D extends Database, TableInfoAdditions = {}> {
         this.startSyncing(tables);
     }
 
-    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, TableInfoAdditions>[]) {
+    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[]) {
         await this.onlineState.get();
+        this.channel = this.client.channel(`schema-db-changes`)
+            .on('postgres_changes',
+                { event: '*', schema: 'public' },
+                async (payload: SupaSyncPayload<D>) => {
+                    await this.eventLock.lock(async () => {
+                        const adapter = this.tablesByName[payload.table].storeAdapter;
+                        switch (payload.eventType) {
+                            case 'INSERT':
+                            case 'UPDATE':
+                                await adapter.write(payload.new);
+                                adapter.onChangeReceived.emit([payload]);
+                                break;
+                            case 'DELETE':
+                                await adapter.delete(payload.old!.id);
+                                adapter.onChangeReceived.emit([payload]);
+                                break;
+                        }
+                        this.setLastSync(payload.commit_timestamp);
+                    });
+                })
+            .subscribe((status: string) => {
+                switch (status) {
+                    case 'CHANNEL_ERROR':
+                        console.error('Failed to subscribe to realtime channel');
+                        break;
+                    case 'TIMED_OUT':
+                        console.error('Realtime subscription timed out');
+                        break;
+                }
+            });
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
@@ -76,41 +122,16 @@ export class SupaSync<D extends Database, TableInfoAdditions = {}> {
                 .throwOnError();
             const adapter = table.storeAdapter;
             if (data.length) {
-                await adapter.writeMany(data);
-                adapter.onWrite.emit(data);
+                if (adapter.onChangeReceived.hasSubscriptions) {
+                    const changes = await adapter.writeAndGet(data);
+                    adapter.onChangeReceived.emit(changes);
+                } else {
+                    await adapter.writeMany(data);
+                }
             }
             adapter.initialized.set(true);
         }));
         this.setLastSync(now);
-        this.channel = this.client.channel(`schema-db-changes`)
-        .on('postgres_changes',
-            { event: '*', schema: 'public' },
-            async (payload: SupaSyncPayload<D>) => {
-                await this.eventLock.lock(async () => {
-                    const adapter = this.tablesByName[payload.table].storeAdapter;
-                    switch (payload.eventType) {
-                        case 'INSERT':
-                        case 'UPDATE':
-                            await adapter.write(payload.new);
-                            adapter.onWrite.emit(payload.new);
-                            break;
-                        case 'DELETE':
-                            await adapter.delete(payload.new.id);
-                            break;
-                    }
-                    this.setLastSync(payload.commit_timestamp);
-                });
-            })
-        .subscribe((status: string) => {
-            switch (status) {
-                case 'CHANNEL_ERROR':
-                    console.error('Failed to subscribe to realtime channel');
-                    break;
-                case 'TIMED_OUT':
-                    console.error('Realtime subscription timed out');
-                    break;
-            }
-        });
     }
 
     public cleanup() {

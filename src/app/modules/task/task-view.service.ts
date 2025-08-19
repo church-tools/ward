@@ -1,13 +1,12 @@
 import { Injectable } from "@angular/core";
 import { ViewService } from "../shared/view.service";
 import { Icon } from "../../shared/icon/icon";
+import { Task } from "./task";
 
 @Injectable({ providedIn: 'root' })
 export class TaskViewService extends ViewService<'task'> {
 
     readonly icon = 'checkmark_circle';
-    readonly name = this.translate.stream('VIEW.TASK');
-    readonly namePlural = this.translate.stream('VIEW.TASKS');
 
     readonly suggestion = {
         icon: 'lightbulb' as Icon,
@@ -21,4 +20,11 @@ export class TaskViewService extends ViewService<'task'> {
         namePlural: this.translate.stream('VIEW.TASK_TOPICS'),
     } as const;
 
+    constructor() {
+        super('task');
+    }
+
+    override toString(row: Task.Row): string {
+        return row.title ?? row.content ?? '';
+    }
 }

@@ -1,24 +1,26 @@
-import { Injectable } from '@angular/core';
-import { createClient } from '@supabase/supabase-js';
+import { Injectable, signal } from '@angular/core';
+import { createClient, User } from '@supabase/supabase-js';
 import type { Database } from '../../../../database';
 import { environment } from '../../../environments/environment';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
-import type { SupaSyncTableInfo } from '../utils/supa-sync/supa-sync.types';
 import { getSiteOrigin } from '../utils/url-utils';
 
-type TableInfo<T extends TableName> = SupaSyncTableInfo<Database, T> & TableInfoAdditions<T>;
+type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
-    readonly supaSync = new SupaSync<Database, TableInfoAdditions>(this.client, [
-        { name: 'profile' },
+    readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
+        { name: 'profile', createOffline: false },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda'] },
         { name: 'task', orderKey: 'position', indexed: ['agenda'] },
+        { name: 'calling', orderKey: 'position', indexed: [] }
     ]);
+    private readonly _user = signal<User | null>(null);
+    public readonly user = this._user.asReadonly();
 
     constructor() {
         this.client.auth.onAuthStateChange(async (event, session) => {
@@ -27,12 +29,13 @@ export class SupabaseService {
                 case 'SIGNED_IN':
                 case 'TOKEN_REFRESHED':
                 {
+                    this._user.set(session.user);
                     const { unit } = this.getDataFromAccessToken(session.access_token);
-                    this.supaSync.init(session, `${environment.appId}-${unit}`);
+                    this.sync.init(session, `${environment.appId}-${unit}`);
                     break;
                 }
                 case 'SIGNED_OUT': {
-                    this.supaSync.cleanup();
+                    this.sync.cleanup();
                     break;
                 }
             }

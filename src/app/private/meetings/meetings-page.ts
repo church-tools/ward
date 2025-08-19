@@ -1,15 +1,20 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Agenda } from '../../modules/agenda/agenda';
-import { AgendaService } from '../../modules/agenda/agenda.service';
 import { RowCardListComponent } from '../../modules/shared/row-card-list';
+import { Table } from '../../modules/shared/table.types';
+import { SupabaseService } from '../../shared/service/supabase.service';
 import { PrivatePageComponent } from '../shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
     template: `
         <span class="h0">{{ 'MEETINGS_PAGE.TITLE' | translate }}</span>
-        <app-row-card-list tableName="agenda" [editable]="adminService.editMode()" [gap]="4"
+        <app-row-card-list
+            tableName="agenda"
+            [getQuery]="getQuery"
+            [editable]="adminService.editMode()"
+            [gap]="4"
             [getUrl]="getUrl"/>
     `,
     host: { class: 'page narrow' },
@@ -17,16 +22,16 @@ import { PrivatePageComponent } from '../shared/private-page';
 })
 export class MeetingsPageComponent extends PrivatePageComponent {
 
-    private readonly agendaService = inject(AgendaService);
+    private readonly supabase = inject(SupabaseService);
 
-    protected readonly agendas = this.agendaService.manyAsSignal();
-    
+    protected getQuery = (table: Table<'agenda'>) => table.readAll();
+
     protected addAgenda = async () => {
-        await this.agendaService.create({ name: "", unit: 18 } as Agenda.Insert);
+        await this.supabase.sync.from('agenda').insert({ name: "", unit: 18 } as Agenda.Insert);
     }
 
     protected async updateAgendas(agendas: Agenda.Row[]) {
-        await this.agendaService.upsert(agendas);
+        await this.supabase.sync.from('agenda').update(agendas);
     }
 
     protected getUrl = (agenda: Agenda.Row) => `/meetings/${agenda.id}`;

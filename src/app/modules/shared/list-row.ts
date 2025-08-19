@@ -1,5 +1,5 @@
 import { Component, input } from "@angular/core";
-import type { Row, TableName } from "../../shared/types";
+import { Row, TableName } from "./table.types";
 
 export async function getListRowComponent<T extends TableName>(tableName: T) {
     switch (tableName) {

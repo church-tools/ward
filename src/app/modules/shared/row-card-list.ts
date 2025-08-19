@@ -1,19 +1,20 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
 import { Subscription } from "rxjs";
+import { SupabaseService } from "../../shared/service/supabase.service";
+import { PromiseOrValue } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
-import { asyncComputed, xeffect } from "../../shared/utils/signal-utils";
+import { asyncComputed, xcomputed, xeffect } from "../../shared/utils/signal-utils";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
-import { getTableService } from "./table.service";
-import type { Column, Insert, Row, TableName } from "./table.types";
-import { PromiseOrValue } from "../../shared/types";
+import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
+import { getViewService } from "./view.service";
 
 @Component({
     selector: 'app-row-card-list',
     template: `
-        @if (tableService(); as service) {
+        @if (table(); as table) {
             @if (rowComponent(); as component) {
                 @if (insertComponent(); as insertComponent) {
                     <app-card-list
@@ -22,9 +23,9 @@ import { PromiseOrValue } from "../../shared/types";
                         [editable]="editable()"
                         [activeId]="activeId()"
                         [gap]="cardsVisible() ? gap() : 0"
-                        [idKey]="service.idKey"
-                        [orderByKey]="service.orderField"
-                        [getFilterText]="service.toString"
+                        [idKey]="table.idKey"
+                        [orderByKey]="table.info.orderKey"
+                        [getFilterText]="viewService()?.toString"
                         [getUrl]="getUrl()"
                         (orderChange)="updateRowPositions($event)"
                         [insertRow]="insertRow">
@@ -50,42 +51,48 @@ import { PromiseOrValue } from "../../shared/types";
 export class RowCardListComponent<T extends TableName> implements OnDestroy {
 
     readonly injector = inject(Injector);
-    
+    private readonly supabase = inject(SupabaseService);
+
     readonly tableName = input.required<T>();
+    readonly getQuery = input.required<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>();
     readonly editable = input(false);
     readonly gap = input(2);
     readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T>) => string>();
-    readonly query = input<TableQuery<T>>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
 
-    protected readonly tableService = asyncComputed([this.tableName], tableName => getTableService(this.injector, tableName));
-    protected readonly rowComponent = asyncComputed([this.tableName], getListRowComponent);
-    protected readonly insertComponent = asyncComputed([this.tableName], getListInsertComponent);
+    protected readonly table = xcomputed([this.tableName], tableName => this.supabase.sync.from(tableName));
+    protected readonly viewService = asyncComputed([this.tableName], tableName => getViewService(this.injector, tableName!));
+    protected readonly rowComponent = asyncComputed([this.tableName], tableName => getListRowComponent(tableName!));
+    protected readonly insertComponent = asyncComputed([this.tableName], tableName => getListInsertComponent(tableName!));
 
     protected readonly cardListView = viewChild(CardListComponent);
     private subscription: Subscription | undefined;
 
     constructor() {
-        xeffect([this.cardListView, this.tableService, this.query],
-            (cardListView, tableService, query) => {
-            if (!cardListView || !tableService) return;
+        xeffect([this.tableName, this.cardListView, this.getQuery],
+            (tableName, cardListView, getQuery) => {
+            if (!cardListView || !getQuery) return;
             this.subscription?.unsubscribe();
-            this.subscription = tableService.observeMany(query)
-                .subscribe(rowRecords => cardListView.updateItems(rowRecords));
+            const table = this.supabase.sync.from(tableName);
+            this.subscription = getQuery(table).subscribe(update => {
+                cardListView.updateItems({ items: update.result, deletions: update.deletions });
+            });
         });
     }
 
     protected insertRow = async (row: Row<T>) => {
-        const tableService = this.tableService()!;
-        return await tableService.insertRow(row);
+        const table = this.table();
+        return await table.insert(row);
     }
 
     protected async updateRowPositions(rows: Row<T>[]) {
-        await this.tableService()!.updateRows(mapToSubObjects(rows,
-            'id' as Column<T>, 'position' as Column<T>, 'unit' as Column<T>));
+        const table = this.table();
+        const idKey = table.info.idPath, orderKey = table.info.orderKey;
+        const updates = mapToSubObjects(rows, idKey as Column<T>, orderKey as Column<T>, 'unit' as Column<T>);
+        await this.table().update(updates);
     }
 
     ngOnDestroy(): void {

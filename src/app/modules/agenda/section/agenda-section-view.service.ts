@@ -33,5 +33,6 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
 
     override toString(row: AgendaSection.Row): string {
         // return this.labelsByType[row.type];
+        return "";
     }
 }

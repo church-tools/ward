@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { PageComponent } from '../../shared/page/page';
 import { AdminService } from './admin.service';
 
@@ -10,9 +10,15 @@ import { AdminService } from './admin.service';
         '[class.hidden]': "!show()",
     },
 })
-export abstract class PrivatePageComponent extends PageComponent {
+export abstract class PrivatePageComponent extends PageComponent implements OnDestroy {
     
     protected readonly adminService = inject(AdminService);
+    protected readonly abortController = new AbortController();
     
     protected readonly show = signal<boolean>(true);
+
+    ngOnDestroy() {
+        this.abortController.abort();
+    }
+
 }
