@@ -101,8 +101,14 @@
             box-sizing: content-box;
             &:hover { @include box; @include box-hovered; }
             &:active { @include box; @include box-active; }
-            &:focus-within { @include box; @include box-focused; }
-            input {
+            &:focus-within {
+                @include box; @include box-focused;
+                input, .input {
+                    padding: 0 $padding-x;
+                }
+            }
+            input, .input {
+                transition: padding animation.$duration-xs animation.$ease-out;
                 padding: 0px;
             }
         }

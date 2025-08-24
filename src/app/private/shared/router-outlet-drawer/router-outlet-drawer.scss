@@ -6,21 +6,27 @@
     height: 100%;
     display: flex;
     flex-direction: row;
-    animation: showGap 0.3s animation.$ease-out;
-    gap: 0;
+    transition: gap 0.3s animation.$ease-out;
+    gap: layout.$gutter * 12;
+    @include layout.smaller-than(layout.$md) {
+        gap: layout.$gutter * 4;
+    }
+    @starting-style {
+        gap: 0;
+    }
 
     &.drawer-open {
         gap: layout.$gutter * 12;
+        transition-timing-function: animation.$ease-in;
         @include layout.smaller-than(layout.$md) {
             gap: layout.$gutter * 4;
         }
         .drawer {
             display: block;
         }
-    }
-    &.closing {
-        gap: 0;
-        animation: closeGap 0.3s animation.$ease-in;
+        &.closing {
+            gap: 0;
+        }
     }
 }
 
@@ -58,26 +64,4 @@
             opacity: 0;
         }
     }
-}
-
-@include layout.larger-than(layout.$lg) {
-}
-
-@keyframes slide-in-from-right {
-    from {
-        transform: translateX(min(50%, calc(layout.$page-width-narrow / 2)));
-        opacity: 0;
-    }
-    to {
-        transform: translateX(0);
-        opacity: 1;
-    }
-}
-@keyframes showGap {
-    from { gap: 0; }
-    to { gap: layout.$gutter * 12; }
-}
-@keyframes closeGap {
-    from { gap: layout.$gutter * 12; }
-    to { gap: 0; }
 }

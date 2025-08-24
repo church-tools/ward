@@ -1,5 +1,6 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject, input } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
+import { Task } from '../../task/task';
 import { TaskViewService } from '../../task/task-view.service';
 import { AgendaSection } from './agenda-section';
 import { TaskListComponent } from './task-list';
@@ -8,7 +9,8 @@ import { TaskListComponent } from './task-list';
     selector: 'app-agenda-section-tasks',
     template: `
         <h1 class="mb-3">{{ taskView.topic.namePlural | async }}</h1>
-        <app-task-list [agendaId]="section().agenda" [stages]="['task']"/>
+        <app-task-list [agendaId]="section().agenda" [stages]="['task']"
+            (onDrag)="draggedTask.emit($event)"/>
     `,
     imports: [TaskListComponent, AsyncPipe],
 })
@@ -18,4 +20,5 @@ export class AgendaSectionTasksComponent {
     
     readonly section = input.required<AgendaSection.Row>();
 
+    protected readonly draggedTask = output<Task.Row | null>();
 }

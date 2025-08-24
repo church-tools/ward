@@ -1,5 +1,7 @@
 import { Component } from '@angular/core';
+import { AgendaPageComponent } from '../../../private/meetings/agenda/agenda-page';
 import { ListRowComponent } from '../../shared/list-row';
+import { Task } from '../../task/task';
 import { AgendaSectionFollowupComponent } from "./agenda-section-followup";
 import { AgendaSectionPrayerComponent } from "./agenda-section-prayer";
 import { AgendaSectionSuggestionsComponent } from "./agenda-section-suggestions";
@@ -18,10 +20,12 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
                     <app-agenda-section-prayer [section]="row()"/>
                 }
                 @case ('task_suggestions') {
-                    <app-agenda-section-suggestions [section]="row()"/>
+                    <app-agenda-section-suggestions [section]="row()"
+                        (draggedTask)="taskDragged($event)"/>
                 }
                 @case ('tasks') {
-                    <app-agenda-section-tasks [section]="row()"/>
+                    <app-agenda-section-tasks [section]="row()"
+                        (draggedTask)="taskDragged($event)"/>
                 }
                 @case ('followups') {
                     <app-agenda-section-followup [section]="row()"/>
@@ -34,4 +38,10 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
 })
 export class AgendaItemListRowComponent extends ListRowComponent<'agenda_section'> {
 
+    protected taskDragged(task: Task.Row | null) {
+        const page = this.page();
+        const agendaPage = page instanceof AgendaPageComponent ? page : null;
+        if (!agendaPage) return;
+        agendaPage.draggedTask.set(task);
+    }
 }

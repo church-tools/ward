@@ -7,6 +7,7 @@ import { BackButtonComponent } from '../../shared/back-button';
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
 import { Table } from '../../../modules/shared/table.types';
+import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
 
 @Component({
     selector: 'app-agenda-page',
@@ -21,12 +22,17 @@ import { Table } from '../../../modules/shared/table.types';
                     [cardsVisible]="adminService.editMode()"
                     [editable]="adminService.editMode()"
                     [getQuery]="sectionQuery()"
-                    [prepareInsert]="prepareSectionInsert"/>
+                    [prepareInsert]="prepareSectionInsert"
+                    [page]="this"/>
             </div>
         </app-router-outlet-drawer>
+        <!-- @if (draggedTask(); as draggedTask) { -->
+            <app-agenda-drop-zone [currentAgendaId]="1"/>
+            <!-- <app-agenda-drop-zone [currentAgendaId]="draggedTask.agenda"/> -->
+        <!-- } -->
     `,
-    imports: [RowCardListComponent, BackButtonComponent, RouterOutletDrawerComponent],
-    host: { class: 'full-width'}
+    imports: [RowCardListComponent, BackButtonComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent],
+    host: { class: 'full-width' }
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     
@@ -35,6 +41,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     protected readonly sectionList = viewChild.required<RowCardListComponent<'task'>>('sectionList');
     protected readonly activeTaskId = signal<number | null>(null);
     protected readonly tableName = 'agenda';
+    readonly draggedTask = signal<Task.Row | null>(null);
 
     protected onActivate(id: string | null) {
         this.activeTaskId.set(id ? +id : null);

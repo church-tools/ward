@@ -1,4 +1,4 @@
-import { Component, inject, input, signal, viewChild } from '@angular/core';
+import { Component, inject, input, output, signal, viewChild } from '@angular/core';
 import { ProfileService } from '../../profile/profile.service';
 import { RowCardListComponent } from '../../shared/row-card-list';
 import { Task } from '../../task/task';
@@ -12,16 +12,20 @@ import { Table } from '../../shared/table.types';
             [getQuery]="getTaskQuery()"
             [getUrl]="getTaskUrl"
             [activeId]="activeTaskId()"
-            [prepareInsert]="prepareTaskInsert"/>
+            [prepareInsert]="prepareTaskInsert"
+            (onDrag)="onDrag.emit($event)"/>
     `,
     imports: [RowCardListComponent],
     host: { class: 'full-width' },
 })
 export class TaskListComponent {
     
+    private readonly profileService = inject(ProfileService);
+    
     readonly agendaId = input.required<number>();
     readonly stages = input.required<Task.Stage[]>();
-    private readonly profileService = inject(ProfileService);
+    readonly onDrag = output<Task.Row | null>();
+
 
     protected readonly getTaskQuery = xcomputed([this.agendaId, this.stages],
         (agenda, stages) => (table: Table<'task'>) =>

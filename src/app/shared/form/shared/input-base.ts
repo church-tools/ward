@@ -37,7 +37,7 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
     readonly subtle = input<boolean>(false);
     readonly onBlur = output<void>();
 
-    protected readonly value = signal<TIn | null>(null);
+    readonly value = signal<TIn | null>(null);
     protected readonly disabledState = signal<boolean>(false);
 
 

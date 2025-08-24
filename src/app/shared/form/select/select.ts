@@ -37,9 +37,10 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     private readonly optionsTemplate = viewChild.required('optionsTemplate', { read: TemplateRef<any> });
     private readonly optionRefs: Signal<ReadonlyArray<ElementRef<HTMLDivElement>>> = viewChildren('option', { read: ElementRef });
 
-    readonly options = input.required<SelectOption<T>[]>();
-    
-    readonly visibleOptions = signal<VisibleOption<T>[]>([]);
+    readonly options = input.required<SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
+
+    protected readonly optionsLoading = signal<boolean>(false);
+    protected readonly visibleOptions = signal<VisibleOption<T>[]>([]);
     protected readonly search = model<string>("");
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
     private keySubscriptions: Subscription[] = [];
@@ -48,10 +49,6 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     constructor() {
         super();
-        xeffect([this.options], options => {
-            for (const option of options)
-                option.lcText = option.view.toLocaleLowerCase();
-        });
     }
 
     protected onFocus() {
@@ -62,11 +59,14 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.selectedOption.set(null);
         this.search.set("");
         this.input()?.nativeElement.focus();
+        this.value.set(null);
+        this.emitChange();
     }
 
-    protected updateVisibleOptions() {
+    protected async updateVisibleOptions() {
         const search = this.search().toLocaleLowerCase();
-        this.visibleOptions.set(this.getFilteredOptions(search));
+        const filteredOptions = await this.getFilteredOptions(search);
+        this.visibleOptions.set(filteredOptions);
     }
 
     protected selectOption(option: SelectOption<T>, event?: UIEvent) {
@@ -137,11 +137,16 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.selectedOption.set(null);
     }
 
-    private getFilteredOptions(search: string): VisibleOption<T>[] {
-        const allOptions = this.options();
+    private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
+        const options = this.options();
+        this.optionsLoading.set(true);
+        const allOptions = Array.isArray(options) ? options : await options(search);
+        this.optionsLoading.set(false);
         if (!search) return allOptions.map(o => this.addHighlights(o, []));
         search = search.toLocaleLowerCase();
         const searchWords = search.split(/\s+/);
+        for (const option of allOptions)
+            option.lcText = option.view.toLocaleLowerCase();
         let filteredOptions = allOptions
             .filter(option => option.lcText!.startsWith(search))
             .map(o => this.addHighlights(o, searchWords))

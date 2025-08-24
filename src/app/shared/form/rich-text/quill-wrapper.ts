@@ -1,7 +1,7 @@
-import { ElementRef, EventEmitter, Signal, signal, WritableSignal } from "@angular/core";
+import { ElementRef, EventEmitter, Signal, signal } from "@angular/core";
 import Quill, { Range } from "quill";
-import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { AsyncState } from "../../utils/async-state";
+import { xcomputed, xeffect } from "../../utils/signal-utils";
 
 export type Format = 'bold' | 'italic' | 'underline' | 'strike';
 export type Heading = 1 | 2 | 3 | false;
@@ -49,25 +49,27 @@ export class QuillWrapper {
 
             quill.on('selection-change', (selection: Range | null) => {
                 if (!selection?.length) {
-                    this.selectionPosition.set(null);
+                    queueMicrotask(() => this.selectionPosition.set(null));
                     return;
                 }
                 const bounds = quill.getBounds(selection.index, selection.length);
                 if (!bounds) {
-                    this.selectionPosition.set(null);
+                    queueMicrotask(() => this.selectionPosition.set(null));
                     return;
                 }
                 const boxBounds = elem.nativeElement.getBoundingClientRect();
                 const left = this.clamp(bounds.left + (bounds.width / 2),
                     HALF_TOOLBAR_WIDTH, boxBounds.width - HALF_TOOLBAR_WIDTH);
                 const top = bounds.top - 60;
-                this.selectionPosition.set([Math.round(left), Math.round(top)]);
+                queueMicrotask(() => this.selectionPosition.set([Math.round(left), Math.round(top)]));
             });
-            quill.editor.scroll.domNode.addEventListener('focus', () => this.hasFocus.set(true));
+            quill.editor.scroll.domNode.addEventListener('focus', () => queueMicrotask(() => this.hasFocus.set(true)));
             quill.editor.scroll.domNode.addEventListener('blur', () => {
                 quill.setSelection(null);
-                this.selectionPosition.set(null);
-                this.hasFocus.set(false);
+                queueMicrotask(() => {
+                    this.selectionPosition.set(null);
+                    this.hasFocus.set(false);
+                });
             });
         });
     }

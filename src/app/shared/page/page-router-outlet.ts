@@ -22,8 +22,9 @@ export class PageRouterOutlet extends RouterOutlet {
         const animation = this.getAnimationClass(previousPath, this.path);
         componentRef.instance.el.classList.add('router-page', 'enter', animation);
         if (currentComponent) {
-            currentComponent.instance.el.classList.remove('enter', 'fade', 'left', 'right');
-            currentComponent.instance.el.classList.add('leave', animation);
+            const classes = currentComponent.instance.el.classList;
+            classes.remove('enter', 'fade', 'left', 'right');
+            classes.add('leave', animation);
             setTimeout(() => {
                 location.detach(location.indexOf(currentComponent.hostView));
                 currentComponent.destroy();
@@ -54,18 +55,11 @@ class OutletInjector implements Injector {
     ) {}
 
     get(token: any, notFoundValue?: any): any {
-        if (token === ActivatedRoute) {
-            return this.route;
+        switch (token) {
+            case ActivatedRoute: return this.route;
+            case ChildrenOutletContexts: return this.childContexts;
+            case ROUTER_OUTLET_DATA: return this.outletData;
+            default: return this.parent.get(token, notFoundValue);
         }
-
-        if (token === ChildrenOutletContexts) {
-            return this.childContexts;
-        }
-
-        if (token === ROUTER_OUTLET_DATA) {
-            return this.outletData;
-        }
-
-        return this.parent.get(token, notFoundValue);
     }
 }

@@ -6,17 +6,18 @@ import { ColorName } from '../../utils/color-utils';
 @Component({
     selector: 'app-count-badge',
     template: `
-        <div class="count">
+        <div class="count" [class.changing]="changing()">
             {{_count()}}
         </div>
-        <div class="previous-count">
-            {{previousCount()}}
-        </div>
+        @if (changing()) {
+            <div class="previous-count">
+                {{previousCount()}}
+            </div>
+        }
     `,
     styleUrl: './count-badge.scss',
     host: {
         '[class]': 'color()',
-        '[class.changing]': "changing()",
         '[class.increasing]': "count() > previousCount()",
         '[class.hidden]': "count() <= 0",
     },

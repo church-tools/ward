@@ -11,9 +11,14 @@
         gap: 0.25rem;
         width: auto;
         min-height: 2rem;
-        animation: fadeIn animation.$duration-xs ease;
+        transition: opacity animation.$duration-xs animation.$ease-out;
+        opacity: 1;
+        @starting-style {
+            opacity: 0;
+        }
         
         .delete-btn {
+            transition: opacity animation.$duration-xs animation.$ease-out;
             padding: 0.25rem;
             min-height: 0rem;
             opacity: 0;
@@ -29,12 +34,20 @@
 
 .top-anchor .options-card {
     bottom: 0;
-    .option { transform: translateY(1rem); }
+    .option {
+        @starting-style {
+            transform: translateY(1rem);
+        }
+    }
 }
 
 .bottom-anchor .options-card {
     top: 0;
-    .option { transform: translateY(-1rem); }
+    .option {
+        @starting-style {
+            transform: translateY(-1rem);
+        }
+    }
 }
 
 .top-anchor, .bottom-anchor {
@@ -53,12 +66,17 @@
     padding: calc(input.$padding-y / 2) calc(input.$padding-y / 2);
     gap: 0;
     transition: all animation.$duration-sm animation.$ease-out;
-    opacity: 0;
+    opacity: 1;
+
+    @starting-style {
+        opacity: 0;
+    }
     
     .option {
         border-radius: input.$border-radius;
         padding: input.$padding-y input.$padding-x;
         transition: all animation.$duration-sm animation.$ease-out;
+        transform: translateY(0);
         cursor: pointer;
         
         &:hover, &.focused {
@@ -70,16 +88,4 @@
             @include shadow.box(1);
         }
     }
-    
-    &.visible {
-        opacity: 1;
-        .option {
-            transform: translateY(0) !important;
-        }
-    }
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
 }

@@ -196,7 +196,8 @@ export class IDBStoreAdapter<T> {
         const transaction = idb.transaction(this.storeName, "readonly");
         const store = transaction.objectStore(this.storeName);
         if (!store.indexNames.contains(indexName))
-            throw new Error(`"${this.storeName}" store doesn't have an index for "${indexName}"`);
+            throw new Error(`"${this.storeName}" store doesn't have an index for "${indexName}".\n
+                Add "${indexName}" to the indexed array of the tableInfo that is passed to the SupaSync constructor.`);
         return store.index(indexName) as IDBIndex;
     }
 }

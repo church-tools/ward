@@ -9,7 +9,7 @@ import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
-import { asyncComputed, xeffect } from '../../utils/signal-utils';
+import { xeffect } from '../../utils/signal-utils';
 import { easeOut } from '../../utils/style';
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
@@ -43,13 +43,12 @@ export class CardListComponent<T> {
     readonly getUrl = input<(item: T) => string>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
-    readonly previousActiveId = asyncComputed([this.activeId],
-        activeId => new Promise(resolve => setTimeout(() => resolve(activeId), 100)));
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
     readonly addClick = output<void>();
+    readonly onDrag = output<T | null>();
 
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
@@ -147,10 +146,16 @@ export class CardListComponent<T> {
 
     protected onDragStart(itemCard: ItemCard<T>) {
         this.dragDropMutex.acquire();
+        this.onDrag.emit(itemCard.item);
+    }
+
+    protected onDragReleased(itemCard: ItemCard<T>) {
+        this.onDrag.emit(null);
     }
 
     protected onDragEnd(itemCard: ItemCard<T>) {
         this.dragDropMutex.release();
+        this.onDrag.emit(null);
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {

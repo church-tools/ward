@@ -12,12 +12,12 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
     private channel: RealtimeChannel | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
-    private readonly client: SupabaseClient<D, 'public'>;
+    private readonly client: SupabaseClient<D>;
     private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> } = {} as any;
     private idb: Promise<IDBDatabase> | undefined;
 
     constructor(
-        supabaseClient: SupabaseClient<D, 'public'>,
+        supabaseClient: SupabaseClient<D>,
         tableInfos: Array<{
             [K in TableName<D>]: SupaSyncTableInfo<D, K> & IA[K]
         }[TableName<D>]>
@@ -44,17 +44,16 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
                     const { name, idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
+                    const keyPath = idPath ?? 'id';
                     const store = idb.objectStoreNames.contains(name)
                         ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
-                        : idb.createObjectStore(name, {
-                            keyPath: idPath ?? 'id',
-                            autoIncrement: true
-                        });
+                        : idb.createObjectStore(name, { keyPath, autoIncrement: true });
                     const existingIndexSet = new Set(store.indexNames);
-                    for (const indexName of indexed ?? [])
+                    for (const indexName of [keyPath, ...(indexed ?? [])])
                         if (!existingIndexSet.has(indexName))
                             store.createIndex(indexName, indexName);
                     const expectedIndexSet = new Set(indexed ?? []);
+                    expectedIndexSet.add(keyPath);
                     for (const indexName of store.indexNames)
                         if (!expectedIndexSet.has(indexName))
                             store.deleteIndex(indexName);

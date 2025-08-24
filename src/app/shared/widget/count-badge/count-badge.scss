@@ -16,42 +16,36 @@ $translation: 1.5rem;
         height: 1.5rem;
         width: 1.5rem;
     }
-
-    &.changing {
-        .count { animation: fadeInUp animation.$duration animation.$ease-out; }
-        .previous-count { animation: fadeOutUp animation.$duration animation.$ease-out; }
-        &.increasing {
-            .count { animation: fadeInDown animation.$duration animation.$ease-out; }
-            .previous-count { animation: fadeOutDown animation.$duration animation.$ease-out; }
+    .count {
+        transition: transform animation.$duration animation.$ease-out;
+        &.changing {
+            transition: none;
         }
     }
-
     .previous-count {
         position: absolute;
-        opacity: 0;
+        opacity: 1;
+    }
+    &.increasing {
+        .count.changing { transform: translateY(-$translation); }
+        .previous-count {
+            @starting-style {
+                transform: translateY($translation);
+                opacity: 0;
+            }
+        }
+    }
+    &:not(.increasing) {
+        .count.changing { transform: translateY($translation); }
+        .previous-count {
+            @starting-style {
+                transform: translateY(-$translation);
+                opacity: 0;
+            }
+        }
     }
 
     &.hidden {
         opacity: 0;
     }
-}
-
-@keyframes fadeInUp {
-    from { opacity: 0; transform: translateY($translation); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeInDown {
-    from { opacity: 0; transform: translateY(-$translation); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeOutUp {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY(-$translation); }
-}
-
-@keyframes fadeOutDown {
-    from { opacity: 1; transform: translateY(0); }
-    to { opacity: 0; transform: translateY($translation); }
 }

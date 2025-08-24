@@ -123,9 +123,7 @@
 
 .acrylic-card {
     margin: 0;
-    padding: 0.25rem;
     border-radius: $border-radius;
-    gap: 0.25rem;
     border: 1px solid color.$canvas-border;
     background-color: $background-color-transparent;
     @include acrylic-background;

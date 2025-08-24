@@ -1,6 +1,7 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, output, viewChild } from "@angular/core";
 import { Subscription } from "rxjs";
+import { PageComponent } from "../../shared/page/page";
 import { SupabaseService } from "../../shared/service/supabase.service";
 import { PromiseOrValue } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
@@ -14,36 +15,36 @@ import { getViewService } from "./view.service";
 @Component({
     selector: 'app-row-card-list',
     template: `
-        @if (table(); as table) {
-            @if (rowComponent(); as component) {
-                @if (insertComponent(); as insertComponent) {
-                    <app-card-list
-                        [cardClasses]="cardsVisible() ? cardClasses() : ''"
-                        [reorderable]="editable()"
-                        [editable]="editable()"
-                        [activeId]="activeId()"
-                        [gap]="cardsVisible() ? gap() : 0"
-                        [idKey]="table.idKey"
-                        [orderByKey]="table.info.orderKey"
-                        [getFilterText]="viewService()?.toString"
-                        [getUrl]="getUrl()"
-                        (orderChange)="updateRowPositions($event)"
-                        [insertRow]="insertRow">
-                        <ng-template #itemTemplate let-row>
-                            <ng-container [ngComponentOutlet]="component" 
-                                [ngComponentOutletInputs]="{ row }"/>
-                        </ng-template>
-                        <ng-template #insertTemplate let-functions>               
-                            <ng-container [ngComponentOutlet]="insertComponent"
-                                [ngComponentOutletInputs]="{
-                                    insert: functions.insert,
-                                    cancel: functions.cancel,
-                                    prepareInsert: this.prepareInsert()
-                                }"/>
-                        </ng-template>
-                    </app-card-list>
-                }
-            }
+        @let table = this.table();
+        @let rowComponent = this.rowComponent();
+        @let insertComponent = this.insertComponent();
+        @if (table && rowComponent && insertComponent) {
+            <app-card-list
+                [cardClasses]="cardsVisible() ? cardClasses() : ''"
+                [reorderable]="editable()"
+                [editable]="editable()"
+                [activeId]="activeId()"
+                [gap]="cardsVisible() ? gap() : 0"
+                [idKey]="table.idKey"
+                [orderByKey]="table.info.orderKey"
+                [getFilterText]="viewService()?.toString"
+                [getUrl]="getUrl()"
+                (orderChange)="updateRowPositions($event)"
+                (onDrag)="onDrag.emit($event)"
+                [insertRow]="insertRow">
+                <ng-template #itemTemplate let-row>
+                    <ng-container [ngComponentOutlet]="rowComponent" 
+                        [ngComponentOutletInputs]="{ row, page: this.page() }"/>
+                </ng-template>
+                <ng-template #insertTemplate let-functions>               
+                    <ng-container [ngComponentOutlet]="insertComponent"
+                        [ngComponentOutletInputs]="{
+                            insert: functions.insert,
+                            cancel: functions.cancel,
+                            prepareInsert: this.prepareInsert(),
+                        }"/>
+                </ng-template>
+            </app-card-list>
         }
     `,
     imports: [CommonModule, CardListComponent],
@@ -54,7 +55,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     private readonly supabase = inject(SupabaseService);
 
     readonly tableName = input.required<T>();
-    readonly getQuery = input.required<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>();
+    readonly getQuery = input<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>(null);
     readonly editable = input(false);
     readonly gap = input(2);
     readonly cardsVisible = input(true);
@@ -62,6 +63,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
+    readonly page = input<PageComponent>();
+    readonly onDrag = output<Row<T> | null>();
 
     protected readonly table = xcomputed([this.tableName], tableName => this.supabase.sync.from(tableName));
     protected readonly viewService = asyncComputed([this.tableName], tableName => getViewService(this.injector, tableName!));
@@ -90,7 +93,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
 
     protected async updateRowPositions(rows: Row<T>[]) {
         const table = this.table();
-        const idKey = table.info.idPath, orderKey = table.info.orderKey;
+        const idKey = table.idKey, orderKey = table.info.orderKey;
+        if (!orderKey) throw new Error('Table is not ordered');
         const updates = mapToSubObjects(rows, idKey as Column<T>, orderKey as Column<T>, 'unit' as Column<T>);
         await this.table().update(updates);
     }

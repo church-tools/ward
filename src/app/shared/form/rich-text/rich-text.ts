@@ -1,12 +1,10 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { wait } from '../../utils/flow-control-utils';
-import { asyncComputed, xeffect } from '../../utils/signal-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
+import { markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
-import { markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 
 @Component({
     selector: 'app-rich-text',
@@ -26,9 +24,6 @@ export class RichTextComponent extends InputBaseComponent<string> {
     private readonly editor = viewChild.required('editor', { read: ElementRef });
 
     protected readonly quill = new QuillWrapper(this.editor, this.characterLimit);
-
-    protected readonly toolbarDelayedPosition = asyncComputed([this.quill.popoverPosition],
-        p => wait(100).then(() => p));
 
     protected readonly formatButtons: RichTextToolbarButton<Format>[] = [
         { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },

@@ -1,14 +1,14 @@
 <app-input-label/>
 <div class="form-input">
     <div #editor title="{{label()}}"
-        class="full-width full-height"></div>
+        class="input full-width full-height"></div>
 </div>
 
-@if (quill.popoverPosition() || toolbarDelayedPosition()) {
+@if (quill.popoverPosition()) {
     <div class="toolbar acrylic-card row no-wrap"
-        [style.left.px]="(quill.popoverPosition() ?? toolbarDelayedPosition())![0]"
-        [style.top.px]="(quill.popoverPosition() ?? toolbarDelayedPosition())![1] + 16"
-        [class.hidden]="!quill.popoverPosition()">
+        animate.leave="toolbar-disappear"
+        [style.left.px]="(quill.popoverPosition())![0]"
+        [style.top.px]="(quill.popoverPosition())![1] + 16">
         <app-rich-text-toolbar-group
             [buttons]="formatButtons"
             [isActiveCheck]="quill.isFormatActive"

@@ -4,17 +4,18 @@
 <div #container class="card-item-container column gap-{{gap()}}"
     cdkDropList (cdkDropListDropped)="onDrop($event)"
     [cdkDropListDisabled]="!reorderable() || !editable()">
-    @if (getUrl()) {
+    @if (getUrl(); as getUrl) {
         @for (itemCard of itemCards(); track itemCard.id) {
-            <a #card cdkDrag [routerLink]="getUrl()?.(itemCard.item)"
+            <a #card cdkDrag [routerLink]="getUrl(itemCard.item)"
                 class="{{cardClasses()}} stealth card-item selectable-card"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart(itemCard)"
+                (cdkDragReleased)="onDragReleased(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                @if (itemCard.id === activeId() || itemCard.id === previousActiveId()) {
+                @if (itemCard.id === activeId()) {
                     <div class="indicator accent-fg"
-                        [class.disappear]="itemCard.id !== activeId()"></div>
+                        animate.leave="disappear"></div>
                 }
                 @if (reorderable()) {
                     <div class="drag-handle">
@@ -33,9 +34,9 @@
                 (cdkDragStarted)="onDragStart(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                @if (itemCard.id === activeId() || itemCard.id === previousActiveId()) {
+                @if (itemCard.id === activeId()) {
                     <div class="indicator accent-fg"
-                        [class.disappear]="itemCard.id !== activeId()"></div>
+                        animate.leave="disappear"></div>
                 }
                 @if (reorderable()) {
                     <div class="drag-handle">

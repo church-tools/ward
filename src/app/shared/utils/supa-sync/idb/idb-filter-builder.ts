@@ -6,8 +6,10 @@ type ConditionValue<T, C extends keyof T> = T[C] & IDBValidKey;
 type FieldCondition<T> = { field: keyof T & string };
 type EqCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "eq"; value: ConditionValue<T, C> };
 type GtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "gt"; value: ConditionValue<T, C> };
+type LtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "lt"; value: ConditionValue<T, C> };
+type NotCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "not"; value: ConditionValue<T, C>[] };
 type InCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "in"; value: ConditionValue<T, C>[] };
-type Condition<T, C extends keyof T> = EqCondition<T, C> | InCondition<T, C> | GtCondition<T, C>;
+type Condition<T, C extends keyof T> = EqCondition<T, C> | NotCondition<T, C> | InCondition<T, C> | GtCondition<T, C> | LtCondition<T, C>;
 
 export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> extends IDBQueryBase<D, T, R> {
     
@@ -22,6 +24,11 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
 
     public eq<K extends Column<D, T>>(field: K, value: Row<D, T>[K]): this {
         this.conditions.push({ field, operator: "eq", value });
+        return this;
+    }
+    
+    public not<K extends Column<D, T>>(field: K, value: Row<D, T>[K]): this {
+        this.conditions.push({ field, operator: "not", value });
         return this;
     }
 
@@ -62,6 +69,8 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                 case 'eq': return value === condition.value;
                 case 'in': return condition.value.includes(value);
                 case 'gt': return value > condition.value;
+                case 'lt': return value < condition.value;
+                case 'not': return !condition.value == value;
             }
         });
     }
@@ -72,6 +81,8 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                 case 'eq': return [fetchFn(condition.value)];
                 case 'in': return condition.value.map(val => fetchFn(val));
                 case 'gt': return [fetchFn(IDBKeyRange.lowerBound(condition.value))];
+                case 'lt': return [fetchFn(IDBKeyRange.upperBound(condition.value))];
+                case 'not': return [fetchFn(IDBKeyRange.lowerBound(condition.value, true)), fetchFn(IDBKeyRange.upperBound(condition.value, true))];
             }
         })();
         return (await Promise.all(requests.map(req => new Promise((resolve, reject) => {

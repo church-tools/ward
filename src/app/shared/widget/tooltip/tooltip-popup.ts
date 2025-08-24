@@ -5,10 +5,6 @@ import { xeffect } from "../../utils/signal-utils";
 
 export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
 
-/**
- * Tooltip that appears above selected text using CDK Overlay
- */
-
 @Component({
     selector: 'app-tooltip-popup',
     template: `
@@ -19,68 +15,7 @@ export type TooltipPosition = 'top' | 'bottom' | 'left' | 'right';
             </div>
         </ng-template>
     `,
-    styles: [`
-        :host {
-            display: contents;
-        }
-        
-        .tooltip {
-            background: var(--color-surface);
-            border: 1px solid var(--color-border);
-            color: var(--color-text);
-            padding: 8px 12px;
-            width: max-content;
-            max-width: 300px;
-            font-size: 0.875rem;
-            border-radius: 6px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(10px);
-            z-index: 1000;
-            position: relative;
-            
-            /* Small arrow pointing down to the selected text */
-            &::after {
-                content: '';
-                position: absolute;
-                top: 100%;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 6px solid transparent;
-                border-top-color: var(--color-surface);
-                filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.1));
-            }
-            
-            &.fading {
-                animation: disappearDropdown 0.15s ease-out forwards;
-            }
-            
-            &:not(.fading) {
-                animation: appearDropdown 0.15s ease-out;
-            }
-        }
-        
-        @keyframes appearDropdown {
-            from { 
-                opacity: 0;
-                transform: translateY(-8px) scale(0.95);
-            }
-            to { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-        }
-        
-        @keyframes disappearDropdown {
-            from { 
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
-            to { 
-                opacity: 0;
-                transform: translateY(-8px) scale(0.95);
-            }
-        }
-    `],
+    styleUrl: './tooltip-popup.scss',
     host: {
         '(mouseenter)': 'show(true)',
         '(mouseleave)': 'show(false)',

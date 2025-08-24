@@ -27,6 +27,11 @@
 </label>
 <ng-template #optionsTemplate>
     <div class="options-card input-acrylic-card">
+        @if (optionsLoading()) {
+            <div>
+                <app-icon icon="throbber" size="xs" class="loading-icon"/>
+            </div>
+        }
         @for (option of visibleOptions(); track option.value) {
             <div #option class="option {{option.color}}-text" (click)="selectOption(option, $event)">
                 @for (label of option.highlights; track $index) {

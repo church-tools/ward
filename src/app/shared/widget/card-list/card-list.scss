@@ -23,7 +23,11 @@
     &.new {
         animation: fadeIn animation.$duration animation.$ease-out;
         .add-btn {
-            animation: slideDown animation.$duration animation.$ease-out;
+            transition: transform animation.$duration animation.$ease-out;
+            transform: translateY(0);
+            @starting-style {
+                transform: translateY(-20px);
+            }
         }
     }
     .drag-handle {
@@ -37,18 +41,29 @@
         width: 4px;
         height: 40%;
         border-radius: 2px;
-        animation: indicatorAppear animation.$duration-sm animation.$ease-out;
-        &.disappear {
-            animation: indicatorDisappear animation.$duration-xs animation.$ease-in;
+        opacity: 1;
+        transition: opacity animation.$duration-sm animation.$ease-out, height animation.$duration-sm animation.$ease-out;
+        @starting-style {
             opacity: 0;
+            height: 4px;
+        }
+        &.disappear {
+            opacity: 0;
+            height: 4px;
         }
     }
 }
 
 .cdk-drag-preview {
-    animation: elevate animation.$duration ease;
-    background-color: card.$hover-background-color;
+    // transition: box-shadow animation.$duration-sm animation.$ease-out;
+    // background-color: card.$hover-background-color;
+    background-color: card.$hover-background-transparent-color;
+    @starting-style {
+        // background-color: card.$hover-background-color;
+        @include card.shadow;
+    }
     @include shadow.box(8);
+    @include card.acrylic-background;
 }
 
 .cdk-drag-placeholder {
@@ -56,61 +71,13 @@
 }
 
 .cdk-drag-animating {
-    transition: transform animation.$duration-sm ease;
+    transition: all animation.$duration-sm ease;
     animation: lower animation.$duration-sm ease;
     background-color: card.$canvas-background-color;
+    @starting-style {
+        background-color: card.$hover-background-transparent-color;
+        @include card.acrylic-background;
+        @include shadow.box(8);
+    }
     @include card.shadow;
-}
-
-@keyframes indicatorAppear {
-    0% {
-        opacity: 0;
-        height: 4px;
-    }
-    100% {
-        opacity: 1;
-        height: 40%;
-    }
-}
-
-
-@keyframes indicatorDisappear {
-    0% {
-        opacity: 1;
-        height: 40%;
-    }
-    100% {
-        opacity: 0;
-        height: 4px;
-    }
-}
-
-@keyframes slideDown {
-    0% {
-        transform: translateY(-20px);
-    }
-    100% {
-        transform: translateY(0);
-    }
-}
-
-@keyframes elevate {
-    0% {
-        @include shadow.box(0);
-    }
-    100% {
-        @include shadow.box(8);
-        background-color: card.$hover-background-color;
-    }
-}
-
-@keyframes lower {
-    0% {
-        @include shadow.box(8);
-        background-color: card.$hover-background-color;
-    }
-    100% {
-        @include card.shadow;
-        background-color: card.$canvas-background-color;
-    }
 }

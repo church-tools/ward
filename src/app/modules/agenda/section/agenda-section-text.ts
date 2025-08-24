@@ -7,7 +7,8 @@ import { AgendaSection } from './agenda-section';
 @Component({
     selector: 'app-agenda-section-text',
     template: `
-        <app-rich-text [supaSynced]="fromTable" [row]="section()" column="text_content">
+        <app-rich-text #richtextInput [supaSynced]="fromTable" [row]="section()" column="content"
+            [class.subtle]="richtextInput.value()"/>
     `,
     imports: [RichTextComponent, SupaSyncedDirective],
 })

@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -55,27 +55,27 @@ export type Database = {
       agenda_section: {
         Row: {
           agenda: number
+          content: string | null
           id: number
           position: number
-          text_content: string | null
           type: Database["public"]["Enums"]["agenda_section_type"]
           unit: number
           updated_at: string
         }
         Insert: {
           agenda: number
+          content?: string | null
           id?: number
           position?: number
-          text_content?: string | null
           type?: Database["public"]["Enums"]["agenda_section_type"]
           unit: number
           updated_at?: string
         }
         Update: {
           agenda?: number
+          content?: string | null
           id?: number
           position?: number
-          text_content?: string | null
           type?: Database["public"]["Enums"]["agenda_section_type"]
           unit?: number
           updated_at?: string
@@ -98,11 +98,11 @@ export type Database = {
           id: number
           is_temporary: boolean
           is_unique: boolean
-          modified_at: string
           name: string
           organization: number | null
           position: number
           unit: number
+          updated_at: string
           uuid: string
         }
         Insert: {
@@ -112,11 +112,11 @@ export type Database = {
           id: number
           is_temporary?: boolean
           is_unique?: boolean
-          modified_at?: string
           name: string
           organization?: number | null
           position?: number
           unit?: number
+          updated_at?: string
           uuid: string
         }
         Update: {
@@ -126,11 +126,11 @@ export type Database = {
           id?: number
           is_temporary?: boolean
           is_unique?: boolean
-          modified_at?: string
           name?: string
           organization?: number | null
           position?: number
           unit?: number
+          updated_at?: string
           uuid?: string
         }
         Relationships: [
@@ -742,7 +742,13 @@ export type Database = {
         | "stake_conference"
         | "ward_conference"
       permission: "calling" | "sacrament_meeting" | "music"
-      task_stage: "suggestion" | "topic" | "task" | "in_progress" | "done" | "acknowledged"
+      task_stage:
+        | "suggestion"
+        | "topic"
+        | "task"
+        | "in_progress"
+        | "done"
+        | "acknowledged"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -916,7 +922,14 @@ export const Constants = {
         "ward_conference",
       ],
       permission: ["calling", "sacrament_meeting", "music"],
-      task_stage: ["suggestion", "topic", "task", "in_progress", "done", "acknowledged"],
+      task_stage: [
+        "suggestion",
+        "topic",
+        "task",
+        "in_progress",
+        "done",
+        "acknowledged",
+      ],
     },
   },
 } as const

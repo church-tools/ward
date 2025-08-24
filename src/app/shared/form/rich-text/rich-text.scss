@@ -46,27 +46,22 @@
 .toolbar {
     position: absolute;
     overflow: visible;
-    animation: toolbarAppear animation.$duration-sm animation.$ease-out;
-    transform: translateX(-50%);
-    transition: opacity animation.$duration-xs animation.$ease-in;
+    transform: translateX(-50%) translateY(0) scale(1);
+    opacity: 1;
+    transition: transform animation.$duration-sm animation.$ease-out, opacity animation.$duration-sm animation.$ease-out;
+    @starting-style {
+        transform: translateX(-50%) translateY(10px) scale(0.95);
+        opacity: 0;
+    }
+    &.toolbar-disappear {
+        transition: transform animation.$duration-sm animation.$ease-out, opacity animation.$duration-sm animation.$ease-out;
+        opacity: 0;
+        transform: translateX(-50%) translateY(0) scale(1);
+    }
     .divider {
         width: 1px;
         height: 24px;
         background: input.$border-color;
         margin: 0 4px;
-    }
-    &.hidden {
-        opacity: 0;
-    }
-}
-
-@keyframes toolbarAppear {
-    from { 
-        opacity: 0;
-        transform: translateX(-50%) translateY(10px) scale(0.95);
-    }
-    to { 
-        opacity: 1;
-        transform: translateX(-50%) translateY(0) scale(1);
     }
 }

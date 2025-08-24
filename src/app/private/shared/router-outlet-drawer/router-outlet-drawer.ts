@@ -30,6 +30,7 @@ import { Subscription } from "rxjs";
     imports: [RouterOutlet, ButtonComponent],
     styleUrl: './router-outlet-drawer.scss',
     host: {
+        'animate.enter': 'show-gap',
         '[class.drawer-open]': 'activeChild()',
         '[class.closing]': 'closing()',
     },

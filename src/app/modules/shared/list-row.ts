@@ -1,4 +1,5 @@
 import { Component, input } from "@angular/core";
+import { PageComponent } from "../../shared/page/page";
 import { Row, TableName } from "./table.types";
 
 export async function getListRowComponent<T extends TableName>(tableName: T) {
@@ -18,4 +19,5 @@ export async function getListRowComponent<T extends TableName>(tableName: T) {
 export abstract class ListRowComponent<T extends TableName> {
     
     readonly row = input.required<Row<T>>();
+    readonly page = input<PageComponent>();
 }

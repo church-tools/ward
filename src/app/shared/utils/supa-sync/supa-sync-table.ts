@@ -80,8 +80,10 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         await this.storeAdapter.initialized.get();
         const rows: Insert<D, T>[] = Array.isArray(row) ? row : [row];
         if (this.createOffline) {
-            for (const row of rows)
+            for (const row of rows) {
                 row[this.idKey] ??= getRandomId();
+                row.__new = true;
+            }
             this.storeAdapter.writeMany(rows);
             await this.writePending(rows);
             return rows;
@@ -126,7 +128,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         const id = typeof row === 'object' ? row[this.idKey] : row as any;
         if (this.updateOffline) {
             await this.supabaseClient.from(this.tableName).delete()
-                .eq(this.idKey, id).throwOnError();
+                .eq(this.idKey, id)
+                .throwOnError();
         }
         return this.storeAdapter.delete(id);
     }
@@ -165,18 +168,20 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     private async trySend(rows: Update<D, T>[]) {
         if (!this.onlineState.unsafeGet()) return false;
         try {
-            if (this.createOffline) {
-                await this.supabaseClient.from(this.tableName).upsert(rows).throwOnError();
-            } else {
-                await Promise.all(rows.map(async row => {
-                    const id = row[this.idKey];
-                    delete row[this.idKey];
+            await Promise.all(rows.map(async row => {
+                const id = row[this.idKey];
+                if (row.__new) {
+                    delete row.__new;
+                    await this.supabaseClient.from(this.tableName)
+                        .insert(row)
+                        .throwOnError();
+                } else {
                     await this.supabaseClient.from(this.tableName)
                         .update(row)
                         .eq(this.idKey, id)
                         .throwOnError();
-                }));
-            }
+                }
+            }));
             return true;
         } catch (error) {
             console.error("Error sending updates:", error);
