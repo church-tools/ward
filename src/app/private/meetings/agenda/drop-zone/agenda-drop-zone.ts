@@ -6,8 +6,7 @@ import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-r
 @Component({
     selector: 'app-agenda-drop-zone',
     template: `
-        <div class="agenda-container acrylic-card column gap-4 p-4 shadow-8"
-            animate.leave="slide-out">
+        <div class="agenda-container acrylic-card column gap-4 p-4">
             @for (agenda of otherAgendas(); track agenda) {
                 <div class="card canvas-card">
                     <app-agenda-list-row [row]="agenda"/>
@@ -17,6 +16,9 @@ import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-r
     `,
     styleUrl: './agenda-drop-zone.scss',
     imports: [AgendaListRowComponent],
+    host: {
+        'animate.leave': 'slide-out'
+    }
 })
 export class AgendaDropZoneComponent {
 

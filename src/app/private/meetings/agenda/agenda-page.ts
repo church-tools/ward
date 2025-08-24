@@ -26,10 +26,9 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [page]="this"/>
             </div>
         </app-router-outlet-drawer>
-        <!-- @if (draggedTask(); as draggedTask) { -->
-            <app-agenda-drop-zone [currentAgendaId]="1"/>
-            <!-- <app-agenda-drop-zone [currentAgendaId]="draggedTask.agenda"/> -->
-        <!-- } -->
+        @if (draggedTask(); as draggedTask) {
+            <app-agenda-drop-zone [currentAgendaId]="draggedTask.agenda"/>
+        }
     `,
     imports: [RowCardListComponent, BackButtonComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent],
     host: { class: 'full-width' }
