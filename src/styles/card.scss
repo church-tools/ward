@@ -62,7 +62,7 @@ $canvas-background-color: color-mix(
         right: -3px;
         bottom: -3px;
         border: 4px solid transparent; /* Needed for border-image to show */
-        border-radius: inherit;
+        border-radius: calc($border-radius + 3px);
         background: linear-gradient(10deg,
                 map.get(color.$actives, color.$accent-variation-1),
                 map.get(color.$actives, color.$accent),

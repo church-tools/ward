@@ -38,7 +38,6 @@
         }, { once: true });
 
         document.addEventListener("DOMContentLoaded", function() {
-            document.querySelector('img').classList.add('visible');
             new FontFace('FluentSystemIcons-Resizable', 'url(/assets/fonts/FluentSystemIcons-Resizable.woff2)').load()
             .then(function(loadedFont) { document.fonts.add(loadedFont); })
             .catch(function(error) { console.error('Font failed to load:', error); })
@@ -80,13 +79,12 @@
                 width: 192px;
                 height: 192px;
                 filter: drop-shadow(0 0.25rem 0.5rem rgba(0, 0, 0, 0.25));
-                
-                transform: scale(0.75);
-                opacity: 0;
-            }
-            img.visible {
                 transform: scale(1);
                 opacity: 1;
+                @starting-style {
+                    transform: scale(0.75);
+                    opacity: 0;
+                }
             }
         }
         .page-loading.hidden {

@@ -1,0 +1,38 @@
+@use "card";
+@use "input";
+@use "animation";
+
+:host {
+    position: relative;
+    display: inline-block;
+    align-self: center;
+}
+app-icon {
+    font-size: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+}
+
+.tooltip {
+    position: absolute;
+    width: max-content;
+    padding: input.$padding-y input.$padding-x;
+    max-width: 300px;
+    z-index: 1000;
+    transform: translateY(0);
+    opacity: 1;
+    transition: opacity animation.$duration-xs ease,
+        transform animation.$duration-xs ease;
+
+    @starting-style {
+        transition: opacity animation.$duration-xs ease,
+            transform animation.$duration-xs ease;
+        transform: translateY(10px);
+        opacity: 0;
+    }
+
+    &.leave {
+        transform: translateY(10px);
+        opacity: 0;
+    }
+}
