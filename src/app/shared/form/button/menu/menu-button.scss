@@ -6,13 +6,18 @@
 }
 
 .menu-popup {
-    animation: appearDropdown animation.$duration-xs ease;
     position: absolute;
     z-index: 1;
     padding: input.$padding-y input.$padding-x;
+    transition: opacity animation.$duration-xs ease, transform animation.$duration-xs ease;
+
+    @starting-style {
+        transform: translateY(-10px);
+        opacity: 0;
+    }
     
-    &.fading {
-        animation: disappearDropdown animation.$duration-xs ease;
+    &.leave {
+        transform: translateY(-10px);
         opacity: 0;
     }
     

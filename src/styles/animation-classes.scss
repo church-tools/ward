@@ -2,44 +2,10 @@
 @use "layout";
 
 .fade-in {
-    animation: fadeIn $duration $ease-out;
-    &.hidden {
-        animation: fadeOut $duration ease;
+    opacity: 1;
+    transition: opacity $duration $ease-out;
+    @starting-style {
         opacity: 0;
-    }
-}
-
-:not(.suppress-animation) {
-    &.animated {
-        animation: appear $duration ease;
-        &.hidden {
-            animation: disappear $duration ease;
-            opacity: 0;
-        }
-    }
-    
-    &.animated-sm {
-        animation: appearSm $duration-sm ease;
-        &.hidden {
-            animation: disappearSm $duration-sm ease;
-            opacity: 0;
-        }
-    }
-    
-    &.animated-send {
-        animation: appear $duration ease;
-        &.send {
-            animation: sendDisappear $duration ease;
-            opacity: 0;
-        }
-    }
-    
-    &.animated-dropdown {
-        animation: appearDropdown $duration-sm ease;
-        &.hidden {
-            animation: disappearDropdown $duration-sm ease;
-            opacity: 0;
-        }
     }
 }
 
@@ -47,40 +13,37 @@
     position: absolute;
     padding-bottom: layout.$canvas-margin-y;
     &.enter {
-        &.fade { animation: pageEnter $duration-lg $ease-out; }
-        &.left { animation: pageEnterLeft $duration-lg $ease-out; }
-        &.right { animation: pageEnterRight $duration-lg $ease-out; }
+        &.fade {
+            transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
+            opacity: 1;
+            @starting-style { opacity: 0; transform: translateY(100px); }
+        }
+        &.right, &.left {
+            transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
+            opacity: 1;
+            transform: translateX(0);
+        }
+        &.left {
+            @starting-style { opacity: 0; transform: translateX($page-side-slide-distance) }
+        }
+        &.right {
+            @starting-style { opacity: 0; transform: translateX(-$page-side-slide-distance) }
+        }
     }
     &.leave {
         pointer-events: none;
         opacity: 0;
-        &.fade { animation: fadeOut $duration-smaller ease; }
-        &.left { animation: pageLeaveLeft $duration-lg $ease-out; }
-        &.right { animation: pageLeaveRight $duration-lg $ease-out; }
-    }
-}
-
-.content-loader {
-    transition: background-color 0.5s ease;
-    position: relative;
-    overflow: hidden;
-}
-
-/* height: 100%; */
-.content-loading {
-    background-color: $loading-color;
-
-    cursor: progress;
-    
-    &::after {
-        content: "";
-        display: block;
-        height: 100%;
-        position: absolute;
-        left: 0;
-        right: 0;
-        top: 0;
-        animation: contentLoading 1.3s linear infinite;
-        background: linear-gradient(90deg, transparent, $loading-gradient, transparent);
+        &.fade {
+            transition: opacity $duration-smaller ease;
+        }
+        &.right, &.left {
+            transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
+        }
+        &.left {
+            transform: translateX(-$page-side-slide-distance);
+        }
+        &.right {
+            transform: translateX($page-side-slide-distance);
+        }
     }
 }

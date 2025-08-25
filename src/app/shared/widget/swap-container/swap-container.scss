@@ -35,10 +35,14 @@
     width: 100%;
     box-sizing: border-box;
     height: auto;
+    transition: opacity animation.$duration ease;
 
     &.visible {
         z-index: 1;
-        animation: fadeIn animation.$duration ease;
+        opacity: 1;
+        @starting-style {
+            opacity: 0;
+        }
     }
     &:not(.visible) {
         position: absolute;
@@ -46,7 +50,7 @@
         z-index: 0;
         opacity: 0;
         &.fading {
-            animation: fadeOut animation.$duration ease;
+            opacity: 0;
         }
         &:not(.fading) {
             display: none;

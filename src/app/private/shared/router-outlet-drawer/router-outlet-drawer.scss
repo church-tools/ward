@@ -60,7 +60,7 @@
             z-index: 1;
         }
         &.fade-out {
-            animation: fadeOut animation.$duration-lg ease;
+            transition: opacity animation.$duration-lg ease;
             opacity: 0;
         }
     }

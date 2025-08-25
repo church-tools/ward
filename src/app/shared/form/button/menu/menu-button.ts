@@ -22,8 +22,8 @@ export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuBut
             @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
             <ng-content select="[button-text]"/>
         </button>
-        @if (visible() || fading()) {
-            <div class="menu-popup acrylic-card" [class.fading]="fading()" [style]="style()">
+        @if (visible()) {
+            <div class="menu-popup acrylic-card" animate.leave="leave" [style]="style()">
                 @for (item of items(); track item) {
                     @if ('link' in item) {
                         <a class="menu-item" [href]="item.link">
@@ -62,7 +62,6 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     readonly alignment = input<MenuAlignment>('right');
     
     protected readonly visible = signal(false);
-    protected readonly fading = signal(false);
     protected readonly style = xcomputed([this.position, this.alignment], (position, alignment) => {
         let style: Partial<CSSStyleDeclaration> = {};
         switch (position) {
@@ -111,13 +110,10 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     private setVisibility(visible: boolean) {
         if (this.visible() === visible) return;
         this.visible.set(visible);
-        this.fading.set(!visible);
         if (!visible) {
             const elem: HTMLElement = this.elementRef.nativeElement;
             elem.removeEventListener('mouseenter', this.setVisibilityFromMouse.bind(this, true));
             elem.removeEventListener('mouseleave', this.setVisibilityFromMouse.bind(this, false));
         }
-        if (this.fading())
-            setTimeout(() => this.fading.set(false), 100);
     }
 }

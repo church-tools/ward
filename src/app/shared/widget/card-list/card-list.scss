@@ -21,7 +21,11 @@
         opacity: 0;
     }
     &.new {
-        animation: fadeIn animation.$duration animation.$ease-out;
+        opacity: 1;
+        transition: opacity animation.$duration animation.$ease-out;
+        @starting-style {
+            opacity: 0;
+        }
         .add-btn {
             transition: transform animation.$duration animation.$ease-out;
             transform: translateY(0);
