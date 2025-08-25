@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, output, viewChild } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
 import { Subscription } from "rxjs";
 import { PageComponent } from "../../shared/page/page";
 import { SupabaseService } from "../../shared/service/supabase.service";
@@ -24,13 +24,12 @@ import { getViewService } from "./view.service";
                 [reorderable]="editable()"
                 [editable]="editable()"
                 [activeId]="activeId()"
-                [gap]="cardsVisible() ? gap() : 0"
+                [gap]="gap()"
                 [idKey]="table.idKey"
                 [orderByKey]="table.info.orderKey"
                 [getFilterText]="viewService()?.toString"
                 [getUrl]="getUrl()"
                 (orderChange)="updateRowPositions($event)"
-                (onDrag)="onDrag.emit($event)"
                 [insertRow]="insertRow">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
@@ -64,7 +63,6 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
     readonly page = input<PageComponent>();
-    readonly onDrag = output<Row<T> | null>();
 
     protected readonly table = xcomputed([this.tableName], tableName => this.supabase.sync.from(tableName));
     protected readonly viewService = asyncComputed([this.tableName], tableName => getViewService(this.injector, tableName!));

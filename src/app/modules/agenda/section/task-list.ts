@@ -1,9 +1,9 @@
-import { Component, inject, input, output, signal, viewChild } from '@angular/core';
+import { Component, inject, input, signal } from '@angular/core';
+import { xcomputed } from '../../../shared/utils/signal-utils';
 import { ProfileService } from '../../profile/profile.service';
 import { RowCardListComponent } from '../../shared/row-card-list';
-import { Task } from '../../task/task';
-import { xcomputed } from '../../../shared/utils/signal-utils';
 import { Table } from '../../shared/table.types';
+import { Task } from '../../task/task';
 
 @Component({
     selector: 'app-task-list',
@@ -12,8 +12,7 @@ import { Table } from '../../shared/table.types';
             [getQuery]="getTaskQuery()"
             [getUrl]="getTaskUrl"
             [activeId]="activeTaskId()"
-            [prepareInsert]="prepareTaskInsert"
-            (onDrag)="onDrag.emit($event)"/>
+            [prepareInsert]="prepareTaskInsert"/>
     `,
     imports: [RowCardListComponent],
     host: { class: 'full-width' },
@@ -24,8 +23,6 @@ export class TaskListComponent {
     
     readonly agendaId = input.required<number>();
     readonly stages = input.required<Task.Stage[]>();
-    readonly onDrag = output<Task.Row | null>();
-
 
     protected readonly getTaskQuery = xcomputed([this.agendaId, this.stages],
         (agenda, stages) => (table: Table<'task'>) =>
@@ -34,7 +31,6 @@ export class TaskListComponent {
                 .in('stage', stages!));
     protected readonly taskFilter = xcomputed([this.agendaId, this.stages],
         ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages!.includes(task.stage)));
-    protected readonly taskList = viewChild.required<RowCardListComponent<'task'>>('taskList');
     protected readonly activeTaskId = signal<number | null>(null);
 
     protected onActivate(id: string | null) {

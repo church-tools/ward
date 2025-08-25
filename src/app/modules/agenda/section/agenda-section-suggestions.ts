@@ -7,8 +7,7 @@ import { TaskListComponent } from './task-list';
     selector: 'app-agenda-section-suggestions',
     template: `
         <h1 class="mb-3">{{ taskView.suggestion.namePlural | async }}</h1>
-        <app-task-list [agendaId]="section().agenda" [stages]="['suggestion']"
-            (onDrag)="draggedTask.emit($event)"/>
+        <app-task-list [agendaId]="section().agenda" [stages]="['suggestion']"/>
     `,
     imports: [TaskListComponent, AsyncPipe],
 })

@@ -1,9 +1,10 @@
-import { CdkDrag, CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDrag, CdkDragDrop, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
+import { DragDropService } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
@@ -30,6 +31,7 @@ type ItemCard<T> = {
 export class CardListComponent<T> {
 
     private readonly windowService = inject(WindowService);
+    private readonly dragDrop = inject(DragDropService);
     private readonly element = inject(ElementRef);
 
     readonly editable = input(false);
@@ -48,8 +50,8 @@ export class CardListComponent<T> {
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
     readonly addClick = output<void>();
-    readonly onDrag = output<T | null>();
 
+    protected readonly dropList = viewChild.required(CdkDropList);
     protected readonly itemTemplate = contentChild.required<TemplateRef<{ $implicit: T }>>('itemTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<any>>('insertTemplate');
     private readonly cardViews = viewChildren('card', { read: ElementRef }) as Signal<readonly ElementRef<HTMLElement>[]>;
@@ -95,15 +97,15 @@ export class CardListComponent<T> {
         });
     }
 
+    async ngOnInit() {
+        await wait(1000);
+        this.initialized = true;
+    }
+
     async updateItems(update: { items?: T[], deletions?: number[] }) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
         this.updateItemCards(update);
-    }
-
-    async ngOnInit() {
-        await wait(1000);
-        this.initialized = true;
     }
 
     protected onItemClick(listItem: ItemCard<T>): void {
@@ -144,18 +146,18 @@ export class CardListComponent<T> {
         this.inserting.set(false);
     }
 
-    protected onDragStart(itemCard: ItemCard<T>) {
+    protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>) {
         this.dragDropMutex.acquire();
-        this.onDrag.emit(itemCard.item);
+        this.dragDrop.setDrag(event.source, itemCard.item);
     }
 
     protected onDragReleased(itemCard: ItemCard<T>) {
-        this.onDrag.emit(null);
+        this.dragDrop.clearDrag();
     }
 
     protected onDragEnd(itemCard: ItemCard<T>) {
         this.dragDropMutex.release();
-        this.onDrag.emit(null);
+        this.dragDrop.clearDrag();
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {

@@ -54,6 +54,9 @@
         &:hover {
             background-color: $hover-background-color;
             @include shadow.box(2);
+            &.selectable-outlined-card {
+                @include outlined;
+            }
         }
         &.active {
             background-color: $active-background-color;
@@ -74,13 +77,24 @@
             }
         }
         &.selectable-card {
-            &:hover {
-                background-color: $hover-background-transparent-color;
-                @include shadow.box(2);
+            &.disabled {
+                pointer-events: none;
+                background-color: $disabled-background-transparent-color;
             }
-            &.active {
-                background-color: $active-background-transparent-color;
-                @include shadow.box(4);
+            &:not(.disabled) {
+                &:hover {
+                    &.drop-target {
+                        
+                    }
+                    &:not(.drop-target) {
+                        background-color: $hover-background-transparent-color;
+                        @include shadow.box(2);
+                    }
+                }
+                &.active {
+                    background-color: $active-background-transparent-color;
+                    @include shadow.box(4);
+                }
             }
         }
     }

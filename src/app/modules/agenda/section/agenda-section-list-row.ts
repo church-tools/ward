@@ -1,7 +1,6 @@
-import { Component } from '@angular/core';
-import { AgendaPageComponent } from '../../../private/meetings/agenda/agenda-page';
+import { Component, inject } from '@angular/core';
+import { AdminService } from '../../../private/shared/admin.service';
 import { ListRowComponent } from '../../shared/list-row';
-import { Task } from '../../task/task';
 import { AgendaSectionFollowupComponent } from "./agenda-section-followup";
 import { AgendaSectionPrayerComponent } from "./agenda-section-prayer";
 import { AgendaSectionSuggestionsComponent } from "./agenda-section-suggestions";
@@ -11,7 +10,7 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
 @Component({
     selector: 'app-agenda-item-list-row',
     template: `
-        <div class="column m-6-8">
+        <div class="column" [class.m-6-8]="adminService.editMode()">
             @switch (row().type) {
                 @case ('text') {
                     <app-agenda-section-text [section]="row()"/>
@@ -20,12 +19,10 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
                     <app-agenda-section-prayer [section]="row()"/>
                 }
                 @case ('task_suggestions') {
-                    <app-agenda-section-suggestions [section]="row()"
-                        (draggedTask)="taskDragged($event)"/>
+                    <app-agenda-section-suggestions #suggestions [section]="row()"/>
                 }
                 @case ('tasks') {
-                    <app-agenda-section-tasks [section]="row()"
-                        (draggedTask)="taskDragged($event)"/>
+                    <app-agenda-section-tasks #tasks [section]="row()"/>
                 }
                 @case ('followups') {
                     <app-agenda-section-followup [section]="row()"/>
@@ -38,10 +35,5 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
 })
 export class AgendaItemListRowComponent extends ListRowComponent<'agenda_section'> {
 
-    protected taskDragged(task: Task.Row | null) {
-        const page = this.page();
-        const agendaPage = page instanceof AgendaPageComponent ? page : null;
-        if (!agendaPage) return;
-        agendaPage.draggedTask.set(task);
-    }
+    protected readonly adminService = inject(AdminService);
 }

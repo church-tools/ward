@@ -21,11 +21,30 @@
 }
 
 
-.agenda-container {
+.drop-zone {
     top: 50%;
     position: sticky;
+    transition: transform animation.$duration animation.$ease-out;
     transform: translateY(-50%);
-    width: max-content;
+    padding-left: 3rem;
     right: 0;
     justify-self: right;
+    &.drag-over {
+        transform: translate(calc(100% - 6rem), -50%);
+    }
+    .acrylic-card {
+        width: max-content;
+        .card {
+            position: relative;
+            justify-content: center;
+            .indicator {
+                position: absolute;
+                width: 4px;
+                height: 32px;
+                right: 4px;
+                border-radius: 2px;
+            }
+        }
+    }
+
 }
