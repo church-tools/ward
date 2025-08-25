@@ -1,24 +1,28 @@
-import { CdkDragExit, CdkDropList } from '@angular/cdk/drag-drop';
-import { Component, inject, input, signal } from "@angular/core";
+import { CdkDropList } from '@angular/cdk/drag-drop';
+import { Component, inject, input, OnDestroy, signal } from "@angular/core";
+import { Subscription } from 'rxjs';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
 import { Task } from '../../../../modules/task/task';
 import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
 import { asyncComputed } from "../../../../shared/utils/signal-utils";
+import { Agenda } from '../../../../modules/agenda/agenda';
 
 @Component({
     selector: 'app-agenda-drop-zone',
     template: `
         <div cdkDropList
             class="drop-zone"
-            (mouseenter)="onMouseEnter($event)"
-            (mouseleave)="onMouseLeave($event)"
+            (mouseenter)="onMouseEnter()"
+            (mouseleave)="onMouseLeave()"
             [class.drag-over]="dragOver()">
             <div class="acrylic-card column gap-4 p-4">
                 @for (agenda of agendas(); track agenda) {
                     @let active = agenda.id === draggedTask().data.agenda;
                     <div class="card canvas-card selectable-card selectable-outlined-card"
-                        [class.disabled]="active">
+                        [class.disabled]="active"
+                        (mouseenter)="onMouseEnterAgenda(agenda)"
+                        (mouseleave)="onMouseLeaveAgenda()">
                         @if (active) {
                             <div class="indicator accent-fg"></div>
                         }
@@ -34,7 +38,7 @@ import { asyncComputed } from "../../../../shared/utils/signal-utils";
         'animate.leave': 'slide-out'
     }
 })
-export class AgendaDropZoneComponent {
+export class AgendaDropZoneComponent implements OnDestroy {
 
     private readonly supabase = inject(SupabaseService);
     private readonly dragDrop = inject(DragDropService);
@@ -46,15 +50,34 @@ export class AgendaDropZoneComponent {
 
     protected readonly dragOver = signal(false);
 
-    protected onMouseEnter(event: MouseEvent) {   
+    private subscription: Subscription | undefined;
+
+    protected onMouseEnter() {   
         this.dragOver.set(true);
     }
 
-    protected onMouseLeave(event: MouseEvent) {
+    protected onMouseLeave() {
         this.dragOver.set(false);
     }
 
-    protected onDragExit(event: CdkDragExit<any>) {
-        this.dragOver.set(false);
+    protected onMouseEnterAgenda(agenda: Agenda.Row) {
+        this.subscription?.unsubscribe();
+        this.subscription = this.dragDrop.onDrop.subscribe(async ({ data: task, view }) => {
+            // view.classList.add.
+            await this.supabase.sync.from('task').update({
+                id: task.id,
+                agenda: agenda.id
+            });
+            alert(task);
+            
+        });
+    }
+
+    protected onMouseLeaveAgenda() {
+        this.subscription?.unsubscribe();
+    }
+
+    ngOnDestroy() {
+        this.subscription?.unsubscribe();
     }
 }

@@ -146,9 +146,9 @@ export class CardListComponent<T> {
         this.inserting.set(false);
     }
 
-    protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>) {
+    protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>, card: HTMLElement) {
         this.dragDropMutex.acquire();
-        this.dragDrop.setDrag(event.source, itemCard.item);
+        this.dragDrop.setDrag(event.source, itemCard.item, card);
     }
 
     protected onDragReleased(itemCard: ItemCard<T>) {

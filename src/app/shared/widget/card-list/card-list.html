@@ -9,7 +9,7 @@
             <a #card cdkDrag [routerLink]="getUrl(itemCard.item)"
                 class="{{cardClasses()}} stealth card-item selectable-card"
                 [class.active]="activeId() === itemCard.id"
-                (cdkDragStarted)="onDragStart($event, itemCard)"
+                (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragReleased)="onDragReleased(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
@@ -31,7 +31,7 @@
             <div #card cdkDrag
                 class="{{cardClasses()}} card-item selectable-card"
                 [class.active]="activeId() === itemCard.id"
-                (cdkDragStarted)="onDragStart($event, itemCard)"
+                (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
                 @if (itemCard.id === activeId()) {
