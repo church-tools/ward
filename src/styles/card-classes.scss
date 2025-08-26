@@ -44,7 +44,7 @@
         background-color: $background-transparent-color;
         @include shadow.box(3);
         &:not(.suppress-canvas-card-animation) {
-            animation: appear-on-page animation.$duration-lg ease-out;
+            @include card-appear;
         }
     }
 
@@ -67,7 +67,7 @@
     &.canvas-card {
         background-color: $background-transparent-color;
         &:not(.suppress-canvas-card-animation) {
-            animation: appear-on-page animation.$duration-lg ease-out;
+            @include card-appear;
         }
 
         @each $color in color.$names {
@@ -159,17 +159,6 @@
 .divider-border-bottom {
     border-bottom: $divider;
     border-bottom-color: $divider-color;
-}
-
-@keyframes appear-on-page {
-    0% {
-        opacity: 0.75;
-        transform: translateY(0.5rem);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
 }
 
 hr {

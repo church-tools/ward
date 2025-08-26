@@ -1,25 +1,26 @@
 export type ColorName = 'accent' | 'success' | 'warning' | 'danger' | 'gray'
-    | 'red' | 'pink' | 'berry' | 'purple' | 'lavender' | 'navy' | 'blue' | 'teal' | 'seafoam' | 'green' | 'forest' | 'yellowgreen' | 'yellow' | 'brass' | 'mustard' | 'peach' | 'orange';
+    | 'red' | 'pink' | 'magenta' | 'purple' | 'lavender' | 'navy' | 'blue' | 'teal' | 'seagreen'
+    | 'green' | 'olive' | 'yellowgreen' | 'yellow' | 'goldenrod' | 'peru' | 'orange' | 'coral';
 
 
 const huesByName: { [name: string]: number } = {
     'red': 356,
     'pink': 322,
-    'berry': 307,
+    'magenta': 307,
     'purple': 268,
     'lavender': 247,
     'navy': 227,
     'blue': 206,
     'teal': 182,
-    'seafoam': 151,
+    'seagreen': 151,
     'green': 120,
-    'forest': 87,
+    'olive': 87,
     'yellowgreen': 67,
     'yellow': 54,
-    'brass': 43,
-    'mustard': 38,
-    'peach': 33,
-    'orange': 16,
+    'goldenrod': 43,
+    'peru': 38,
+    'orange': 33,
+    'salmon': 16,
 } as const;
 
 const colorsByName: { [name: string]: string } = {
@@ -29,21 +30,21 @@ const colorsByName: { [name: string]: string } = {
     'gray': '#6c757d',
     'red': '#d13438',
     'pink': '#e43ba6',
-    'berry': '#c238b2',
+    'magenta': '#c238b2',
     'purple': '#5c2e91',
     'lavender': '#7160e8',
     'navy': '#0027b4',
     'blue': '#0078d4',
     'teal': '#038387',
-    'seafoam': '#00cc6a',
+    'seagreen': '#00cc6a',
     'green': '#107c10',
-    'forest': '#498205',
+    'olive': '#498205',
     'yellowgreen': '#a3b202',
     'yellow': '#fde300',
-    'brass': '#986f0b',
-    'mustard': '#c67c06',
-    'peach': '#ff8c00',
-    'orange': '#da3b01',
+    'goldenrod': '#986f0b',
+    'peru': '#c67c06',
+    'orange': '#ff8c00',
+    'salmon': '#da3b01',
 } as const;
 
 /**

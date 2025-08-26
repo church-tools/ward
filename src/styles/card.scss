@@ -50,6 +50,17 @@ $canvas-background-color: color-mix(
     color.$canvas-background $canvas-background-transparency,
     $background-transparent-color);
 
+@mixin card-appear {
+    transition: opacity animation.$duration-lg animation.$ease-out,
+        transform animation.$duration-lg animation.$ease-out;
+    opacity: 1;
+    transform: translateY(0);
+    @starting-style {
+        opacity: 0.75;
+        transform: translateY(0.5rem);
+    }
+}
+
 @mixin outlined {
     &::after {
         content: "";
