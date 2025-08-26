@@ -17,9 +17,8 @@ import { SwapContainerComponent } from '../swap-container/swap-container';
 type ItemCard<T> = {
     id: number;
     item: T;
-    entranceAnimation?: boolean;
     top?: number; // used for animations - relative to container
-    delete?: boolean;
+    view?: ElementRef<HTMLElement> | null;
 }
 
 @Component({
@@ -96,14 +95,12 @@ export class CardListComponent<T> {
                 }),
             ];
         });
-
-        // React to external consumption (drop into special zone)
         this.dragSubscriptions.push(
             this.dragDrop.consumed.subscribe(({ data }) => {
-                // Remove item with matching idKey
-                const idKey = this.idKey();
-                const id = (data as any)?.[idKey];
-                if (id == null) return;
+                // const previewEl = document.querySelector('.cdk-drag-preview');
+                // previewEl?.remove();
+                const id = data?.[this.idKey()];
+                if (!id) return;
                 this.updateItemCards({ deletions: [id] }, false);
             })
         );
@@ -192,25 +189,35 @@ export class CardListComponent<T> {
         this.dropped = true;
     }
 
-    private updateItemCards(update: { items?: T[], deletions?: number[] }, entranceAnimation = true) {
+    private updateItemCards(update: { items?: T[], deletions?: number[] }, animateNew = true) {
         const { items = [], deletions = [] } = update;
         if (!items.length && !deletions.length) return;
         const itemCards = [...this.itemCards()];
         const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
-        entranceAnimation &&= this.initialized;
+        animateNew &&= this.initialized;
         const idKey = this.idKey();
+        const deleteSet = new Set(deletions);
         for (const item of items) {
             const id = item[idKey] as number;
+            if (deleteSet.has(id)) continue;
             const itemCard = itemCardMap.get(id);
             if (itemCard) {
                 itemCard.item = item;
             } else if (item) {
-                itemCards.push({ id, item, entranceAnimation });
+                const itemCard: ItemCard<T> = { id, item };
+                if (!animateNew) itemCard.view = null;
+                itemCards.push(itemCard);
             }
         }
-        for (const id of deletions) {
-            const itemCard = itemCardMap.get(id);
-            if (itemCard) itemCard.delete = true;
+        const deletedCards = deletions.map(id => itemCardMap.get(id));
+        for (const deletedCard of deletedCards) {
+            if (!deletedCard?.view) continue;
+            const element = deletedCard.view.nativeElement;
+            const absoluteRect = element.getBoundingClientRect();
+            transitionStyle(element,
+                { height: `${absoluteRect.height}px`, opacity: animateNew ? '1' : '0' },
+                { height: '0px', opacity: '0' },
+                300, easeOut);
         }
         this.initialized = true;
         this.setItemCards(itemCards);
@@ -229,15 +236,15 @@ export class CardListComponent<T> {
         for (let i = 0; i < cardViews.length; i++) {
             const itemCard = itemCards[i];
             if (!itemCard) return;
-            const cardView = cardViews[i];
+            const isNew = !('view' in itemCard);
+            const cardView = itemCard.view = cardViews[i];
             const element = cardView.nativeElement;
             const oldTop = itemCard.top;
             const absoluteRect = element.getBoundingClientRect();
             const newTop = itemCard.top = absoluteRect.top - containerRect.top;
             const fromStyle: Partial<CSSStyleDeclaration> = {};
             const toStyle: Partial<CSSStyleDeclaration> = {};
-            if (itemCard.entranceAnimation) {
-                itemCard.entranceAnimation = false;
+            if (isNew) {
                 fromStyle.height = '0px';
                 fromStyle.opacity = '0';
                 toStyle.height = `${absoluteRect.height}px`;

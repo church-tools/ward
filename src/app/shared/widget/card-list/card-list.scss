@@ -64,14 +64,15 @@
 .cdk-drag-preview {
     .card-item {
         scale: 0.95;
-        background-color: card.$hover-background-transparent-color;
+        // background-color: card.$hover-background-transparent-color;
         transform-origin: center;
+        background-color: card.$active-background-transparent-color;
         @starting-style {
             scale: 1;
             @include card.shadow;
         }
+        @include card.vibrant-acrylic-background(400%);
         @include shadow.box(8);
-        @include card.acrylic-background;
     }
     &.shrink .card-item { 
         scale: 0.5;
@@ -92,7 +93,7 @@
         @starting-style {
             scale: 0.95;
             background-color: card.$hover-background-transparent-color;
-            @include card.acrylic-background;
+            @include card.vibrant-acrylic-background(400%);
             @include shadow.box(8);
         }
         @include card.shadow;

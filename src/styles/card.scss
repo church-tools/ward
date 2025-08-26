@@ -49,6 +49,15 @@ $acrylic-blend-mode: overlay;
     }
 }
 
+@mixin vibrant-acrylic-background($percentage) {
+    & {
+        -webkit-backdrop-filter: blur(60px) saturate($percentage);
+        backdrop-filter: blur(60px) saturate($percentage);
+        background-image: $acrylic-noise;
+        background-blend-mode: $acrylic-blend-mode;
+    }
+}
+
 $canvas-background-transparency: light-dark(60%, 33.3%);
 $canvas-background-color: color-mix(
     in srgb,
