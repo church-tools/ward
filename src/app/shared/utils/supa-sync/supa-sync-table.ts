@@ -106,6 +106,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                     const rows = await this.storeAdapter.readMany(updates.map(update => update[this.idKey]));
                     for (let i = 0; i < updates.length; i++) {
                         const existingRow = rows[i];
+                        const update = updates[i];
+                        if (!update[this.idKey])
+                            throw new Error(`Missing ID for update: ${JSON.stringify(update)}`);
                         Object.assign(existingRow ?? {}, updates[i]);
                     }
                     await this.storeAdapter.writeMany(rows);

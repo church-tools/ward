@@ -59,11 +59,8 @@
 }
 
 .cdk-drag-preview {
-    // transition: box-shadow animation.$duration-sm animation.$ease-out;
-    // background-color: card.$hover-background-color;
     background-color: card.$hover-background-transparent-color;
     @starting-style {
-        // background-color: card.$hover-background-color;
         @include card.shadow;
     }
     @include shadow.box(8);

@@ -70,6 +70,7 @@ export class CardListComponent<T> {
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
     private insertBtnHeight = 0;
+    private dragSubscriptions: Subscription[] = [];
 
     constructor() {
         xeffect([this.cardViews], cardViews => {
@@ -95,6 +96,17 @@ export class CardListComponent<T> {
                 }),
             ];
         });
+
+        // React to external consumption (drop into special zone)
+        this.dragSubscriptions.push(
+            this.dragDrop.consumed.subscribe(({ data }) => {
+                // Remove item with matching idKey
+                const idKey = this.idKey();
+                const id = (data as any)?.[idKey];
+                if (id == null) return;
+                this.updateItemCards({ deletions: [id] }, false);
+            })
+        );
     }
 
     async ngOnInit() {

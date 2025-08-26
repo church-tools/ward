@@ -46,7 +46,8 @@ export class AgendaDropZoneComponent implements OnDestroy {
     readonly draggedTask = input.required<DragData<Task.Row>>();
 
     protected readonly agendas = asyncComputed([],
-        () => this.supabase.sync.from('agenda').readAll().get());
+        () => this.supabase.sync.from('agenda').readAll().get()
+              .then(agendas => agendas.sort((a, b) => a.position - b.position)));
 
     protected readonly dragOver = signal(false);
 
@@ -62,18 +63,24 @@ export class AgendaDropZoneComponent implements OnDestroy {
 
     protected onMouseEnterAgenda(agenda: Agenda.Row) {
         this.subscription?.unsubscribe();
-        this.subscription = this.dragDrop.onDrop.subscribe(async ({ data: task, view }) => {
-            // view.classList.add.
-            await this.supabase.sync.from('task').update({
-                id: task.id,
-                agenda: agenda.id
-            });
-            alert(task);
-            
+        // const dragged = this.dragDrop.dragged();
+        // dragged?.drag.element.nativeElement.classList.add('shrink');
+        const previewEl = document.querySelector('.cdk-drag-preview');
+        previewEl?.classList.add('shrink');
+        this.subscription = this.dragDrop.onDrop.subscribe(async ({ data: task }) => {
+            this.dragDrop.consume();
+            // await this.supabase.sync.from('task').update({
+            //     id: task.id,
+            //     agenda: agenda.id
+            // });
         });
     }
 
     protected onMouseLeaveAgenda() {
+        const dragged = this.dragDrop.dragged();
+        // dragged?.drag.element.nativeElement.classList.remove('shrink');
+        const previewEl = document.querySelector('.cdk-drag-preview');
+        previewEl?.classList.remove('shrink');
         this.subscription?.unsubscribe();
     }
 

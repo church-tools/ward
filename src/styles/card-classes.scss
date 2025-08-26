@@ -83,16 +83,18 @@
             }
             &:not(.disabled) {
                 &:hover {
+                    @include vibrant(300%);
                     &.drop-target {
-                        
+
                     }
                     &:not(.drop-target) {
                         background-color: $hover-background-transparent-color;
                         @include shadow.box(2);
                     }
                 }
-                &.active {
+                &:active {
                     background-color: $active-background-transparent-color;
+                    @include vibrant(400%);
                     @include shadow.box(4);
                 }
             }
