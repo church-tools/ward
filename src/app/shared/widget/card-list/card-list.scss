@@ -3,10 +3,12 @@
 @use "card";
 @use "animation";
 
-.card-item-container {
-    &.cdk-drop-list-dragging .card-item:not(.cdk-drag-placeholder) {
-        transition: transform animation.$duration-sm ease;
-    }
+.card-item-container.cdk-drop-list-dragging .drag-card-host:not(.cdk-drag-placeholder) {
+    transition: transform animation.$duration-sm ease;
+}
+
+.drag-card-host {
+    transition: transform 0s;
 }
 
 .card-item {
@@ -15,7 +17,7 @@
     position: relative;
     align-items: center;
     box-sizing: border-box;
-    transition: all animation.$duration-sm ease, transform 0s;
+    transition: all animation.$duration-sm ease;
     
     &.hidden {
         opacity: 0;
@@ -46,7 +48,8 @@
         height: 40%;
         border-radius: 2px;
         opacity: 1;
-        transition: opacity animation.$duration-sm animation.$ease-out, height animation.$duration-sm animation.$ease-out;
+        transition: opacity animation.$duration-sm animation.$ease-out,
+                    height animation.$duration-sm animation.$ease-out;
         @starting-style {
             opacity: 0;
             height: 4px;
@@ -59,26 +62,39 @@
 }
 
 .cdk-drag-preview {
-    background-color: card.$hover-background-transparent-color;
-    @starting-style {
-        @include card.shadow;
+    .card-item {
+        scale: 0.95;
+        background-color: card.$hover-background-transparent-color;
+        transform-origin: center;
+        @starting-style {
+            scale: 1;
+            @include card.shadow;
+        }
+        @include shadow.box(8);
+        @include card.acrylic-background;
     }
-    @include shadow.box(8);
-    @include card.acrylic-background;
+    &.shrink .card-item { 
+        scale: 0.5;
+    }
 }
+
 
 .cdk-drag-placeholder {
     opacity: 0;
 }
 
 .cdk-drag-animating {
-    transition: all animation.$duration-sm ease;
-    animation: lower animation.$duration-sm ease;
-    background-color: card.$canvas-background-color;
-    @starting-style {
-        background-color: card.$hover-background-transparent-color;
-        @include card.acrylic-background;
-        @include shadow.box(8);
+    transition: transform animation.$duration-sm ease;
+    .card-item {
+        transition: all animation.$duration-sm ease;
+        background-color: card.$canvas-background-color;
+        scale: 1;
+        @starting-style {
+            scale: 0.95;
+            background-color: card.$hover-background-transparent-color;
+            @include card.acrylic-background;
+            @include shadow.box(8);
+        }
+        @include card.shadow;
     }
-    @include card.shadow;
 }

@@ -63,8 +63,6 @@ export class AgendaDropZoneComponent implements OnDestroy {
 
     protected onMouseEnterAgenda(agenda: Agenda.Row) {
         this.subscription?.unsubscribe();
-        // const dragged = this.dragDrop.dragged();
-        // dragged?.drag.element.nativeElement.classList.add('shrink');
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.add('shrink');
         this.subscription = this.dragDrop.onDrop.subscribe(async ({ data: task }) => {
@@ -77,8 +75,6 @@ export class AgendaDropZoneComponent implements OnDestroy {
     }
 
     protected onMouseLeaveAgenda() {
-        const dragged = this.dragDrop.dragged();
-        // dragged?.drag.element.nativeElement.classList.remove('shrink');
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.remove('shrink');
         this.subscription?.unsubscribe();
