@@ -3,7 +3,7 @@
     "version": "0.0.0",
     "scripts": {
         "ng": "ng",
-        "start": "ng serve ward-tools",
+        "start": "ng serve ward-tools --port 4201",
         "build": "ng build --configuration production",
         "watch": "ng build --watch --configuration development",
         "test": "ng test",
@@ -33,7 +33,7 @@
         "@angular/compiler": "^20.2.1",
         "@angular/compiler-cli": "^20.2.1",
         "@angular/language-service": "^20.2.1",
-        "supabase": "^2.34.3",
+        "supabase": "^2.39.2",
         "typescript": "^5.9.2"
     }
 }
