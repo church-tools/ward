@@ -97,8 +97,8 @@ export class CardListComponent<T> {
         });
         this.dragSubscriptions.push(
             this.dragDrop.consumed.subscribe(({ data }) => {
-                // const previewEl = document.querySelector('.cdk-drag-preview');
-                // previewEl?.remove();
+                const previewEl = document.querySelector('.cdk-drag-preview');
+                previewEl?.remove();
                 const id = data?.[this.idKey()];
                 if (!id) return;
                 this.updateItemCards({ deletions: [id] }, false);

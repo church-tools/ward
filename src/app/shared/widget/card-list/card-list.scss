@@ -88,7 +88,7 @@
     transition: transform animation.$duration-sm ease;
     .card-item {
         transition: all animation.$duration-sm ease;
-        background-color: card.$canvas-background-color;
+        background-color: card.$background-transparent-color;
         scale: 1;
         @starting-style {
             scale: 0.95;
@@ -96,6 +96,7 @@
             @include card.vibrant-acrylic-background(400%);
             @include shadow.box(8);
         }
+        @include card.vibrant(100%);
         @include card.shadow;
     }
 }
