@@ -1,12 +1,14 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Session } from '@supabase/supabase-js';
 import { ProfileService } from '../../modules/profile/profile.service';
 import { UnitService } from '../../modules/unit/unit.service';
 import MenuButtonComponent, { MenuButtonActionItem, MenuButtonItem } from '../../shared/form/button/menu/menu-button';
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import { SupabaseService } from '../../shared/service/supabase.service';
 import { ShellComponent } from '../../shared/shell/shell';
+import { blockInWeekToTime, HOUR, MINUTE } from '../../shared/utils/date-utils';
 import { xcomputed, xeffect } from '../../shared/utils/signal-utils';
 import { privateTabs } from '../private.routes';
 import { AdminService } from '../shared/admin.service';
@@ -25,10 +27,9 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     private readonly profileService = inject(ProfileService);
     private readonly adminService = inject(AdminService);
 
-    protected readonly authenticated = signal<boolean>(false);
     protected readonly tabs = signal<NavBarTab[]>([]);
     protected readonly editMode = signal(false);
-    private readonly supabaseService = inject(SupabaseService);
+    private readonly supabase = inject(SupabaseService);
     private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
 
@@ -57,8 +58,13 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     constructor() {
         super();
-        this.authenticate();
         xeffect([this.editMode], editMode => this.adminService.editMode.set(editMode));
+        this.authenticate()
+        .then(async session => {
+            if (!session || this.windowService.currentRoute() != '/') return;
+            const startRoute = await this.getStartRoute(session);
+            this.router.navigate([startRoute]);
+        });
     }
     
     async ngOnInit() {
@@ -67,7 +73,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     }
 
     private async authenticate() {
-        const session = await this.supabaseService.getSession();
+        const session = await this.supabase.getSession();
         if (!session) {
             this.router.navigate(['/login']);
             return;
@@ -77,6 +83,26 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
             this.router.navigate(['/setup']);
             return;
         }
-        this.authenticated.set(true);
+        return session;
+    }
+
+    private async getStartRoute(session: Session): Promise<string> {
+        const token = this.supabase.getDataFromAccessToken(session.access_token);
+        const [unit, agendas] = await Promise.all([
+            this.supabase.sync.from('unit').read(token.unit).get(),
+            this.supabase.sync.from('agenda').readAll().get(),
+        ]);
+        const now = Date.now();
+        const sacramentServiceStart = blockInWeekToTime(unit!.sacrament_service_time).getTime();
+        if (sacramentServiceStart <= now && now <= sacramentServiceStart + HOUR) {
+            return '/churchService';
+        }
+        for (const agenda of agendas) {
+            const startTime = blockInWeekToTime(agenda.start_time).getTime();
+            if (startTime <= now && now <= startTime + HOUR) {
+                return '/meetings/' + agenda.id;
+            }
+        }
+        return '/members';
     }
 }

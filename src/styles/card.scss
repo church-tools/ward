@@ -36,8 +36,14 @@ $acrylic-blend-mode: overlay;
 }
 
 @mixin vibrant($percentage) {
-    -webkit-backdrop-filter: saturate($percentage);
-    backdrop-filter: saturate($percentage);
+    @media (prefers-color-scheme: light) {
+        -webkit-backdrop-filter: saturate(2 * $percentage);
+        backdrop-filter: saturate(2 * $percentage);
+    }
+    @media (prefers-color-scheme: dark) {
+        -webkit-backdrop-filter: saturate($percentage);
+        backdrop-filter: saturate($percentage);
+    }
 }
 
 @mixin acrylic-background {

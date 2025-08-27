@@ -1,8 +1,9 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { WindowService } from '../../../shared/service/window.service';
 import { groupBy } from '../../../shared/utils/array-utils';
-import { xcomputed, xeffect } from '../../../shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xeffect } from '../../../shared/utils/signal-utils';
 import { InnerNavBarTab, NavbarTabComponent } from './tab/nav-bar-tab';
+import { wait } from '../../../shared/utils/flow-control-utils';
 
 export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
 
@@ -12,11 +13,10 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
         @for (innerTab of innerTabs(); track innerTab.index) {
             <app-nav-bar-tab [tab]="innerTab" [active]="innerTab === activeTab()"/>
         }
-        @if (!horizontal()) {
-            <div class="indicator accent-fg tab-{{activeTab()?.index}} prev-tab-{{prevTab()?.index}}"
+        @if (!horizontal() && activeTab()) {
+            <div class="indicator accent-fg tab-{{activeTab()?.index}} prev-tab-{{prevTab()?.index ?? 'none'}}"
                 [class.bottom]="activeTab()?.bottom"
-                [class.prev-bottom]="prevTab()?.bottom"
-                [class.visible]="activeTab()"></div>
+                [class.prev-bottom]="prevTab()?.bottom"></div>
         }
     `,
     imports: [NavbarTabComponent],
@@ -34,7 +34,8 @@ export class NavBarComponent {
 
     protected readonly innerTabs = xcomputed([this.tabs], tabs => this.toInnerTabs(tabs));
     protected readonly activeTab = signal<InnerNavBarTab | null>(null);
-    protected readonly prevTab = signal<InnerNavBarTab | null>(null);
+    protected readonly prevTab = asyncComputed(
+        [this.activeTab], tab => wait(100).then(() => tab));
 
     constructor() {
         xeffect([this.windowService.currentRoute, this.innerTabs], (currentRoute, innerTabs) => {
@@ -45,7 +46,6 @@ export class NavBarComponent {
                     : bestMatch;
             }, null as InnerNavBarTab | null);
             this.activeTab.set(activeTab);
-            if (activeTab) this.prevTab.set(activeTab);
         });
     }
 

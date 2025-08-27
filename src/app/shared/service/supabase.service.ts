@@ -13,6 +13,7 @@ export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
+        { name: 'unit', createOffline: false },
         { name: 'profile', createOffline: false, indexed: ['uid'] },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda', 'type'] },
@@ -72,7 +73,7 @@ export class SupabaseService {
         return data.session;
     }
 
-    private getDataFromAccessToken(token: string) {
+    getDataFromAccessToken(token: string) {
         const payload = token.split('.')[1];
         return JSON.parse(atob(payload));
     }

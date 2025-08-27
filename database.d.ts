@@ -16,31 +16,37 @@ export type Database = {
     Tables: {
       agenda: {
         Row: {
-          created_at: string
           deleted: boolean
           id: number
           name: string
           position: number
+          postponed_until: string | null
+          start_time: number
           unit: number
           updated_at: string
+          week_interval: number
         }
         Insert: {
-          created_at?: string
           deleted?: boolean
           id: number
           name: string
           position?: number
+          postponed_until?: string | null
+          start_time?: number
           unit: number
           updated_at?: string
+          week_interval?: number
         }
         Update: {
-          created_at?: string
           deleted?: boolean
           id?: number
           name?: string
           position?: number
+          postponed_until?: string | null
+          start_time?: number
           unit?: number
           updated_at?: string
+          week_interval?: number
         }
         Relationships: [
           {
@@ -670,22 +676,25 @@ export type Database = {
       }
       unit: {
         Row: {
-          created_at: string
           created_by: string
           id: number
           name: string
+          sacrament_service_time: number
+          updated_at: string
         }
         Insert: {
-          created_at?: string
           created_by: string
           id?: number
           name: string
+          sacrament_service_time?: number
+          updated_at?: string
         }
         Update: {
-          created_at?: string
           created_by?: string
           id?: number
           name?: string
+          sacrament_service_time?: number
+          updated_at?: string
         }
         Relationships: []
       }
@@ -720,21 +729,21 @@ export type Database = {
       color:
         | "red"
         | "pink"
-        | "berry"
+        | "magenta"
         | "purple"
         | "lavender"
         | "navy"
         | "blue"
         | "teal"
-        | "seafoam"
+        | "seagreen"
         | "green"
-        | "forest"
-        | "yellow"
-        | "brass"
-        | "peach"
-        | "orange"
+        | "olive"
         | "yellowgreen"
-        | "mustard"
+        | "yellow"
+        | "goldenrod"
+        | "peru"
+        | "orange"
+        | "coral"
       gender: "male" | "female"
       meeting_type:
         | "fast_and_testimony"
@@ -898,21 +907,21 @@ export const Constants = {
       color: [
         "red",
         "pink",
-        "berry",
+        "magenta",
         "purple",
         "lavender",
         "navy",
         "blue",
         "teal",
-        "seafoam",
+        "seagreen",
         "green",
-        "forest",
-        "yellow",
-        "brass",
-        "peach",
-        "orange",
+        "olive",
         "yellowgreen",
-        "mustard",
+        "yellow",
+        "goldenrod",
+        "peru",
+        "orange",
+        "coral",
       ],
       gender: ["male", "female"],
       meeting_type: [
