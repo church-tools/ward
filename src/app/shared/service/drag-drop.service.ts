@@ -1,7 +1,8 @@
-import { CdkDrag } from "@angular/cdk/drag-drop";
-import { EventEmitter, Injectable, signal } from "@angular/core";
+import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
+import { Injectable, signal } from "@angular/core";
 
 export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement };
+export type DropTarget = { dropList: CdkDropList, identity: string };
 
 @Injectable({
     providedIn: 'root',
@@ -11,10 +12,21 @@ export class DragDropService {
     private readonly _dragged = signal<DragData<any> | null>(null);
     readonly dragged = this._dragged.asReadonly();
 
-    // Fired on any drag end (legacy behaviour – keep for compatibility)
-    readonly onDrop = new EventEmitter<DragData<any>>();
-    // Fired when a drop zone explicitly "consumes" (removes) the dragged item
-    readonly consumed = new EventEmitter<DragData<any>>();
+    private readonly targetSet = new Set<DropTarget>();
+    private readonly _targets = signal<DropTarget[]>([]);
+    public readonly targets = this._targets.asReadonly();
+
+    registerTargets(targets: DropTarget[]) {
+        for (const target of targets)
+            this.targetSet.add(target);
+        this._targets.set([...this.targetSet]);
+    }
+
+    unregisterTargets(targets: DropTarget[]) {
+        for (const target of targets)
+            this.targetSet.delete(target);
+        this._targets.set([...this.targetSet]);
+    }
 
     setDrag<T>(drag: CdkDrag, data: T, view: HTMLElement) {
         this._dragged.set({ drag, data, view });
@@ -23,20 +35,7 @@ export class DragDropService {
     clearDrag() {
         const dragged = this._dragged();
         if (!dragged) return;
-        this.onDrop.emit(dragged);
         this._dragged.set(null);
     }
 
-    /**
-     * Explicitly consume the currently dragged item (e.g. dropped into a delete / move zone).
-     * Emits both onDrop (for backward compat) and consumed so listeners can differentiate.
-     */
-    consume() {
-        const dragged = this._dragged();
-        if (!dragged) return;
-        // Emit specialised event first so order-dependent listeners can act before generic cleanup
-        this.consumed.emit(dragged);
-        this.onDrop.emit(dragged);
-        this._dragged.set(null);
-    }
 }

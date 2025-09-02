@@ -2,7 +2,9 @@
 
 </div>
 <div #container class="card-item-container column gap-{{gap()}}"
-    cdkDropList (cdkDropListDropped)="onDrop($event)"
+    cdkDropList
+    [cdkDropListConnectedTo]="targetDropLists()"
+    (cdkDropListDropped)="onDrop($event)"
     [cdkDropListDisabled]="!reorderable() || !editable()">
     @if (getUrl(); as getUrl) {
         @for (itemCard of itemCards(); track itemCard.id) {
@@ -33,6 +35,8 @@
             <div #card cdkDrag
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
+                [cdkDragStartDelay]="300"
+                [cdkDragData]="itemCard.item"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">

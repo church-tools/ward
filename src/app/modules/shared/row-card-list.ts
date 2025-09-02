@@ -11,6 +11,7 @@ import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
 import { getViewService } from "./view.service";
+import { DropTarget } from "../../shared/service/drag-drop.service";
 
 @Component({
     selector: 'app-row-card-list',
@@ -30,7 +31,8 @@ import { getViewService } from "./view.service";
                 [getFilterText]="viewService()?.toString"
                 [getUrl]="getUrl()"
                 (orderChange)="updateRowPositions($event)"
-                [insertRow]="insertRow">
+                [insertRow]="insertRow"
+                [validateDropTarget]="validateDropTarget">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
                         [ngComponentOutletInputs]="{ row, page: this.page() }"/>
@@ -96,6 +98,8 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         const updates = mapToSubObjects(rows, idKey as Column<T>, orderKey as Column<T>, 'unit' as Column<T>);
         await this.table().update(updates);
     }
+
+    protected validateDropTarget = (target: DropTarget) => target.identity === this.tableName();
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();

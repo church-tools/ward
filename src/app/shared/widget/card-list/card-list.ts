@@ -4,13 +4,13 @@ import { Component, contentChild, ElementRef, inject, input, output, Signal, sig
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
-import { DragDropService } from '../../service/drag-drop.service';
+import { DragDropService, DropTarget } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
-import { xeffect } from '../../utils/signal-utils';
+import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { easeOut } from '../../utils/style';
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
@@ -44,6 +44,7 @@ export class CardListComponent<T> {
     readonly getUrl = input<(item: T) => string>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
+    readonly validateDropTarget = input<(target: DropTarget) => boolean | null>();
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -62,6 +63,11 @@ export class CardListComponent<T> {
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
 
+    protected readonly targetDropLists = xcomputed([this.dragDrop.targets, this.validateDropTarget],
+        (targets, validateDropTarget) => (validateDropTarget
+            ? targets.filter(target => validateDropTarget(target))
+            : targets).map(target => target.dropList));
+
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
     
@@ -69,7 +75,7 @@ export class CardListComponent<T> {
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
     private insertBtnHeight = 0;
-    private dragSubscriptions: Subscription[] = [];
+    // private readonly dragSubscription: Subscription;
 
     constructor() {
         xeffect([this.cardViews], cardViews => {
@@ -90,25 +96,23 @@ export class CardListComponent<T> {
             this.insertSubscriptions.forEach(sub => sub.unsubscribe());
             this.insertSubscriptions = [
                 this.windowService.onKeyPressed('Escape').subscribe(() => this.inserting.set(false)),
-                this.windowService.onKeyPressed('Enter').subscribe(async () => {
-                    this.itemInserted();
-                }),
+                this.windowService.onKeyPressed('Enter').subscribe(() => this.itemInserted()),
             ];
         });
-        this.dragSubscriptions.push(
-            this.dragDrop.consumed.subscribe(({ data }) => {
-                const previewEl = document.querySelector('.cdk-drag-preview');
-                previewEl?.remove();
-                const id = data?.[this.idKey()];
-                if (!id) return;
-                this.updateItemCards({ deletions: [id] }, false);
-            })
-        );
+        // this.dragSubscription = this.dragDrop.consumed.subscribe(({ data }) => {
+        //     const id = data?.[this.idKey()];
+        //     if (id == null) return;
+        //     this.updateItemCards({ deletions: [id] }, false);
+        // });
     }
 
     async ngOnInit() {
         await wait(1000);
         this.initialized = true;
+    }
+
+    ngOnDestroy() {
+        // this.dragSubscription.unsubscribe();
     }
 
     async updateItems(update: { items?: T[], deletions?: number[] }) {
@@ -122,7 +126,7 @@ export class CardListComponent<T> {
     }
 
     protected onInsertClick(): void {
-        const element = this.insertionCardView()!.nativeElement;
+        const element = this.insertionCardView()!.nativeElement as HTMLElement;
         this.insertBtnHeight = element.getBoundingClientRect().height;
         if (this.insertTemplate()) {
             this.inserting.set(true);
@@ -145,8 +149,9 @@ export class CardListComponent<T> {
             this.insertedItem.set(null);
             this.newEditCard.set(true);
             this.updateItemCards({ items: [insertedItem] }, false);
-            const element = this.insertionCardView()!.nativeElement;
-            await transitionStyle(element, { height: '0'}, { height: `${this.insertBtnHeight}px` }, 300, easeOut, true);
+            const element = this.insertionCardView()!.nativeElement as HTMLElement;
+            await transitionStyle(element, { height: '0'},
+                { height: `${this.insertBtnHeight}px` }, 300, easeOut, true);
             this.newEditCard.set(false);
         });
     }
@@ -196,10 +201,13 @@ export class CardListComponent<T> {
         const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
         animateNew &&= this.initialized;
         const idKey = this.idKey();
-        const deleteSet = new Set(deletions);
+        for (const id of deletions) {
+            const index = itemCards.findIndex(itemCard => itemCard.id === id);
+            if (index !== -1) itemCards.splice(index, 1);
+            continue;
+        }
         for (const item of items) {
             const id = item[idKey] as number;
-            if (deleteSet.has(id)) continue;
             const itemCard = itemCardMap.get(id);
             if (itemCard) {
                 itemCard.item = item;
@@ -275,4 +283,5 @@ export class CardListComponent<T> {
                 return false;
         return true;
     }
+
 }

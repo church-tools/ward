@@ -1,18 +1,17 @@
 import { CdkDropList } from '@angular/cdk/drag-drop';
-import { Component, inject, input, OnDestroy, signal } from "@angular/core";
+import { Component, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 import { Subscription } from 'rxjs';
+import { Agenda } from '../../../../modules/agenda/agenda';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
 import { Task } from '../../../../modules/task/task';
-import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
+import { DragData, DragDropService, DropTarget } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
-import { asyncComputed } from "../../../../shared/utils/signal-utils";
-import { Agenda } from '../../../../modules/agenda/agenda';
+import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/signal-utils";
 
 @Component({
     selector: 'app-agenda-drop-zone',
     template: `
-        <div cdkDropList
-            class="drop-zone"
+        <div class="drop-zone"
             (mouseenter)="onMouseEnter()"
             (mouseleave)="onMouseLeave()"
             [class.drag-over]="dragOver()">
@@ -20,9 +19,11 @@ import { Agenda } from '../../../../modules/agenda/agenda';
                 @for (agenda of agendas(); track agenda) {
                     @let active = agenda.id === draggedTask().data.agenda;
                     <div class="card canvas-card selectable-card selectable-outlined-card"
-                        [class.disabled]="active"
-                        (mouseenter)="onMouseEnterAgenda(agenda)"
-                        (mouseleave)="onMouseLeaveAgenda()">
+                        cdkDropList
+                        (cdkDropListEntered)="onAgendaDropListEntered(agenda)"
+                        (cdkDropListExited)="onAgendaDropListExited(agenda)"
+                        (cdkDropListDropped)="onTaskDropped(agenda)"
+                        [class.disabled]="active">
                         @if (active) {
                             <div class="indicator accent-fg"></div>
                         }
@@ -45,13 +46,23 @@ export class AgendaDropZoneComponent implements OnDestroy {
 
     readonly draggedTask = input.required<DragData<Task.Row>>();
 
+    private readonly dropLists = viewChildren(CdkDropList);
+
     protected readonly agendas = asyncComputed([],
         () => this.supabase.sync.from('agenda').readAll().get()
               .then(agendas => agendas.sort((a, b) => a.position - b.position)));
+    private readonly targets = xcomputed([this.dropLists],
+        dropLists => dropLists.map(dropList => <DropTarget>{ dropList, identity: 'task' }));
 
     protected readonly dragOver = signal(false);
 
     private subscription: Subscription | undefined;
+
+    constructor() {
+        xeffect([this.targets], targets => {
+            this.dragDrop.registerTargets(targets);
+        });
+    }
 
     protected onMouseEnter() {   
         this.dragOver.set(true);
@@ -61,26 +72,30 @@ export class AgendaDropZoneComponent implements OnDestroy {
         this.dragOver.set(false);
     }
 
-    protected onMouseEnterAgenda(agenda: Agenda.Row) {
+    protected onAgendaDropListEntered(agenda: Agenda.Row) {
         this.subscription?.unsubscribe();
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.add('shrink');
-        this.subscription = this.dragDrop.onDrop.subscribe(async ({ data: task }) => {
-            this.dragDrop.consume();
-            // await this.supabase.sync.from('task').update({
-            //     id: task.id,
-            //     agenda: agenda.id
-            // });
-        });
     }
 
-    protected onMouseLeaveAgenda() {
+    protected onAgendaDropListExited(agenda: Agenda.Row) {
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.remove('shrink');
         this.subscription?.unsubscribe();
     }
 
+    protected async onTaskDropped(agenda: Agenda.Row) {
+        const drag = this.dragDrop.dragged();
+        if (!drag) throw new Error('No task is being dragged');
+        const task = drag.data as Task.Row;
+        // await this.supabase.sync.from('task').update({
+        //     id: task.id,
+        //     agenda: agenda.id
+        // });
+    }
+
     ngOnDestroy() {
         this.subscription?.unsubscribe();
+        this.dragDrop.unregisterTargets(this.targets());
     }
 }

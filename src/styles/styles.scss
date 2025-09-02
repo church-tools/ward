@@ -14,16 +14,3 @@ body {
     margin: 0;
     @media (prefers-color-scheme: dark) { color-scheme: dark; }
 }
-
-// Global overlay styles for tooltips
-.tooltip-overlay-panel {
-    position: fixed !important;
-    z-index: 10000 !important;
-    pointer-events: auto !important;
-    transform: none !important;
-    
-    .cdk-overlay-pane {
-        position: static !important;
-        transform: none !important;
-    }
-}
