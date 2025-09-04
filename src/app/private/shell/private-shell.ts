@@ -8,10 +8,11 @@ import MenuButtonComponent, { MenuButtonActionItem, MenuButtonItem } from '../..
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import { SupabaseService } from '../../shared/service/supabase.service';
 import { ShellComponent } from '../../shared/shell/shell';
-import { blockInWeekToTime, HOUR, MINUTE } from '../../shared/utils/date-utils';
+import { blockInWeekToTime, HOUR } from '../../shared/utils/date-utils';
 import { xcomputed, xeffect } from '../../shared/utils/signal-utils';
 import { privateTabs } from '../private.routes';
 import { AdminService } from '../shared/admin.service';
+import { BackButtonComponent } from "./back-button/back-button";
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
 
@@ -19,7 +20,7 @@ import { OmniSearchComponent } from './omni-search/omni-search';
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent, PageRouterOutlet],
+    imports: [TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent, PageRouterOutlet, BackButtonComponent],
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 

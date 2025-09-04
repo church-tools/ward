@@ -8,15 +8,13 @@
     width: 0;
     transition: transform animation.$duration animation.$ease-out,
                 opacity animation.$duration animation.$ease-out;
-    transform: translateX(1rem);
-
-    @starting-style {
-        transform: translateX(-10rem);
-    }
-
-    &.slide-out {
-        transition-timing-function: animation.$ease-in;
-        transform: translateX(-10rem);
+    transform: translateX(-10rem);
+    opacity: 0;
+    transition-timing-function: animation.$ease-in;
+    &.visible {
+        opacity: 1;
+        transition-timing-function: animation.$ease-out;
+        transform: translateX(1rem);
     }
 }
 

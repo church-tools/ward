@@ -23,7 +23,6 @@ export class WindowService {
     readonly timeout = 10;
 
     private readonly onKeyPress = new EventEmitter<KeyboardEvent>();
-    readonly onRouteChange = new EventEmitter<string>();
     readonly onResize = new EventEmitter<Screen>();
     readonly onResizeBreakpoint = new EventEmitter<WindowSize>();
     readonly onFocusChange = new EventEmitter<boolean>();
@@ -40,6 +39,7 @@ export class WindowService {
     readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
     readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
+    readonly backUrl = signal<string | null>(null);
     readonly onlineState = new AsyncState<boolean>();
 
     constructor() {
@@ -66,11 +66,10 @@ export class WindowService {
             this.onlineState.set(true);
         this.document.defaultView!.addEventListener?.('online', () => { this.isOnline.set(true); this.onlineState.set(true); });
         this.document.defaultView!.addEventListener?.('offline', () => { this.isOnline.set(false); this.onlineState.unset(); });
-        this.router.events.subscribe(res => {
-            if (res instanceof NavigationEnd) {
-                this.onRouteChange.emit(res.urlAfterRedirects);
-                this._currentRoute.set(res.urlAfterRedirects);
-            }
+        this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(res => {
+            this._currentRoute.set(res.urlAfterRedirects);
+            const parts = res.urlAfterRedirects.split('/').slice(1, -1);
+            this.backUrl.set(parts.length ? '/' + parts.join('/') : null);
         });
         if (this.document.defaultView) {
             this.document.defaultView.onfocus = () => {

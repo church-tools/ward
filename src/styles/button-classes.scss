@@ -111,6 +111,36 @@ button, .button {
             }
         }
     }
+    &.subtle-with-gap {
+        background-color: transparent;
+        border: none;
+        &::after {
+            content: "";
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            right: 0.5rem;
+            bottom: 0.5rem;
+            border-radius: $border-radius;
+            transition: all animation.$duration ease;
+        }
+        &:disabled, &.disabled {
+            color: font.$color-muted;
+        }
+        &:not(:disabled):not(.disabled) {
+            color: font.$color;
+            &:focus, &:hover {
+                &::after {
+                    background-color: font.$color-alpha-10;
+                }
+            }
+            &:active {
+                &::after {
+                    background-color: font.$color-alpha-20;
+                }
+            }
+        }
+    }
     
     &.form {
         &:disabled, &.disabled {

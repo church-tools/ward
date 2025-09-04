@@ -5,7 +5,6 @@ import { Table } from '../../../modules/shared/table.types';
 import { Task } from '../../../modules/task/task';
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
-import { BackButtonComponent } from '../../shared/back-button';
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
@@ -17,7 +16,6 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow">
-                <app-back-button class="me-auto display-when-medium"/>
                 <span class="h0">{{title()}}</span>
                 <app-row-card-list #sectionList tableName="agenda_section"
                     [cardsVisible]="adminService.editMode()"
@@ -28,11 +26,9 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [page]="this"/>
             </div>
         </app-router-outlet-drawer>
-        @if (draggedTask(); as draggedTask) {
-            <app-agenda-drop-zone [draggedTask]="draggedTask"/>
-        }
+        <app-agenda-drop-zone [draggedTask]="draggedTask()"/>
     `,
-    imports: [RowCardListComponent, BackButtonComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent],
+    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent],
     host: { class: 'full-width' }
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {

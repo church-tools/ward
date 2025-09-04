@@ -17,7 +17,7 @@ import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/sign
             [class.drag-over]="dragOver()">
             <div class="acrylic-card column gap-4 p-4">
                 @for (agenda of agendas(); track agenda) {
-                    @let active = agenda.id === draggedTask().data.agenda;
+                    @let active = agenda.id === lastDrag()?.data?.agenda;
                     <div class="card canvas-card selectable-card selectable-outlined-card"
                         cdkDropList
                         (cdkDropListEntered)="onAgendaDropListEntered(agenda)"
@@ -36,18 +36,20 @@ import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/sign
     styleUrl: './agenda-drop-zone.scss',
     imports: [AgendaListRowComponent, CdkDropList],
     host: {
-        'animate.leave': 'slide-out'
+        '[class.visible]': 'draggedTask()',
     }
 })
 export class AgendaDropZoneComponent implements OnDestroy {
 
     private readonly supabase = inject(SupabaseService);
     private readonly dragDrop = inject(DragDropService);
+    
+    readonly draggedTask = input.required<DragData<Task.Row> | null>();
 
-    readonly draggedTask = input.required<DragData<Task.Row>>();
-
+    
     private readonly dropLists = viewChildren(CdkDropList);
 
+    protected readonly lastDrag = signal<DragData<Task.Row> | null>(null);
     protected readonly agendas = asyncComputed([],
         () => this.supabase.sync.from('agenda').readAll().get()
               .then(agendas => agendas.sort((a, b) => a.position - b.position)));
@@ -61,6 +63,10 @@ export class AgendaDropZoneComponent implements OnDestroy {
     constructor() {
         xeffect([this.targets], targets => {
             this.dragDrop.registerTargets(targets);
+        });
+        xeffect([this.draggedTask], lastDrag => {
+            if (!lastDrag) return;
+            this.lastDrag.set(lastDrag);
         });
     }
 
