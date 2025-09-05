@@ -3,7 +3,7 @@ import { NavigationEnd, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
 import { AsyncState } from "../utils/async-state";
 import { executeOnce } from "../utils/flow-control-utils";
-import { xcomputed } from "../utils/signal-utils";
+import { xcomputed, xeffect } from "../utils/signal-utils";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -41,6 +41,7 @@ export class WindowService {
     readonly isOnline = signal(navigator.onLine);
     readonly backUrl = signal<string | null>(null);
     readonly onlineState = new AsyncState<boolean>();
+    readonly titleBarColors = signal<{ focused: { light: string, dark: string }, unfocused: { light: string, dark: string } } | null>(null);
 
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
@@ -84,6 +85,11 @@ export class WindowService {
                 this.onFocusChange.emit(false);
             };
         }
+        xeffect([this.focused, this._darkColorScheme, this.titleBarColors], (focused, dark, colors) => {
+            if (!colors) return;
+            const color = focused ? colors.focused : colors.unfocused;
+            this.document.querySelector?.('meta[name=theme-color]')?.setAttribute('content', dark ? color.dark : color.light);
+        });
     }
 
     onKeyPressed(keyName: string) {
@@ -95,6 +101,10 @@ export class WindowService {
             filter(event => event[CTRL_KEY] && event.key === keyName),
             tap(event => event.preventDefault())
         );
+    }
+
+    setTitleBarColor(colors: { focused: { light: string, dark: string }, unfocused: { light: string, dark: string } }) {
+        this.titleBarColors.set(colors);
     }
 
     private getSize(width: number): WindowSize {

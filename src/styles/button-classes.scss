@@ -114,6 +114,7 @@ button, .button {
     &.subtle-with-gap {
         background-color: transparent;
         border: none;
+        border-radius: 0;
         &::after {
             content: "";
             position: absolute;

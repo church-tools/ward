@@ -14,6 +14,13 @@ export abstract class ShellComponent implements AfterViewInit {
 
     protected readonly windowService = inject(WindowService);
 
+    constructor() {
+        this.windowService.setTitleBarColor({
+            focused: { light: '#cedfdd', dark: '#182c2a' },
+            unfocused: { light: '#e0e0e0', dark: '#202020' }
+        });
+    }
+
     ngAfterViewInit() {
         window.dispatchEvent(new CustomEvent('view-initialized'));
     }
