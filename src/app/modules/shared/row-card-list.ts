@@ -32,7 +32,7 @@ import { DropTarget } from "../../shared/service/drag-drop.service";
                 [getUrl]="getUrl()"
                 (orderChange)="updateRowPositions($event)"
                 [insertRow]="insertRow"
-                [validateDropTarget]="validateDropTarget">
+                [dragDropGroup]="tableName()">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
                         [ngComponentOutletInputs]="{ row, page: this.page() }"/>
@@ -95,11 +95,9 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         const table = this.table();
         const idKey = table.idKey, orderKey = table.info.orderKey;
         if (!orderKey) throw new Error('Table is not ordered');
-        const updates = mapToSubObjects(rows, idKey as Column<T>, orderKey as Column<T>, 'unit' as Column<T>);
+        const updates = mapToSubObjects(rows, idKey, orderKey, 'unit' as Column<T>);
         await this.table().update(updates);
     }
-
-    protected validateDropTarget = (target: DropTarget) => target.identity === this.tableName();
 
     ngOnDestroy(): void {
         this.subscription?.unsubscribe();

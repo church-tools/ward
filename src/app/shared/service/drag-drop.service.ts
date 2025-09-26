@@ -2,12 +2,25 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { Injectable, signal } from "@angular/core";
 
 export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement };
-export type DropTarget = { dropList: CdkDropList, identity: string };
+export type DropTarget = CdkDropList;
 
 @Injectable({
     providedIn: 'root',
 })
 export class DragDropService {
+
+    private readonly groups: Record<string, DragDropGroup> = {};
+
+    getGroup(identity: string): DragDropGroup | undefined {
+        return this.groups[identity];
+    }
+
+    ensureGroup(identity: string) {
+        return this.groups[identity] ??= new DragDropGroup(identity);
+    }
+}
+
+export class DragDropGroup {
 
     private readonly _dragged = signal<DragData<any> | null>(null);
     readonly dragged = this._dragged.asReadonly();
@@ -16,13 +29,15 @@ export class DragDropService {
     private readonly _targets = signal<DropTarget[]>([]);
     public readonly targets = this._targets.asReadonly();
 
-    registerTargets(targets: DropTarget[]) {
+    constructor(public readonly identity: string) { }
+
+    registerTargets(targets: readonly DropTarget[]) {
         for (const target of targets)
             this.targetSet.add(target);
         this._targets.set([...this.targetSet]);
     }
 
-    unregisterTargets(targets: DropTarget[]) {
+    unregisterTargets(targets: readonly DropTarget[]) {
         for (const target of targets)
             this.targetSet.delete(target);
         this._targets.set([...this.targetSet]);
@@ -37,5 +52,4 @@ export class DragDropService {
         if (!dragged) return;
         this._dragged.set(null);
     }
-
 }

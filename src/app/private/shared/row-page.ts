@@ -26,6 +26,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     readonly onIdChange = new EventEmitter<number | null>();
     
     protected abstract readonly tableName: T;
+    protected get table() { return this.supabase.sync.from(this.tableName); }
     protected readonly viewService = asyncComputed([], () => getViewService(this.injector, this.tableName));
     protected readonly title = xcomputed([this.row, this.viewService],
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');

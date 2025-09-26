@@ -4,7 +4,7 @@ import { Component, contentChild, ElementRef, inject, input, output, Signal, sig
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
-import { DragDropService, DropTarget } from '../../service/drag-drop.service';
+import { DragDropService } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
@@ -44,7 +44,7 @@ export class CardListComponent<T> {
     readonly getUrl = input<(item: T) => string>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
-    readonly validateDropTarget = input<(target: DropTarget) => boolean | null>();
+    readonly dragDropGroup = input<string | null>(null);
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -63,10 +63,10 @@ export class CardListComponent<T> {
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
 
-    protected readonly targetDropLists = xcomputed([this.dragDrop.targets, this.validateDropTarget],
-        (targets, validateDropTarget) => (validateDropTarget
-            ? targets.filter(target => validateDropTarget(target))
-            : targets).map(target => target.dropList));
+    protected readonly _dragDropGroup = xcomputed([this.dragDropGroup],
+        group => group ? this.dragDrop.getGroup(group) : undefined);
+    protected readonly targetDropLists = xcomputed([this._dragDropGroup],
+        group => group?.targets() ?? []);
 
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
@@ -75,7 +75,6 @@ export class CardListComponent<T> {
     private insertSubscriptions: Subscription[] = [];
     private dropped = false;
     private insertBtnHeight = 0;
-    // private readonly dragSubscription: Subscription;
 
     constructor() {
         xeffect([this.cardViews], cardViews => {
@@ -99,11 +98,9 @@ export class CardListComponent<T> {
                 this.windowService.onKeyPressed('Enter').subscribe(() => this.itemInserted()),
             ];
         });
-        // this.dragSubscription = this.dragDrop.consumed.subscribe(({ data }) => {
-        //     const id = data?.[this.idKey()];
-        //     if (id == null) return;
-        //     this.updateItemCards({ deletions: [id] }, false);
-        // });
+        xeffect([this._dragDropGroup, this.dropList], (group, dropList) => {
+            if (dropList) group?.registerTargets([dropList]);
+        });
     }
 
     async ngOnInit() {
@@ -112,7 +109,8 @@ export class CardListComponent<T> {
     }
 
     ngOnDestroy() {
-        // this.dragSubscription.unsubscribe();
+        const dropList = this.dropList();
+        if (dropList) this._dragDropGroup()?.unregisterTargets([dropList]);
     }
 
     async updateItems(update: { items?: T[], deletions?: number[] }) {
@@ -162,16 +160,16 @@ export class CardListComponent<T> {
 
     protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>, card: HTMLElement) {
         this.dragDropMutex.acquire();
-        this.dragDrop.setDrag(event.source, itemCard.item, card);
+        this._dragDropGroup()?.setDrag(event.source, itemCard.item, card);
     }
 
     protected onDragReleased(itemCard: ItemCard<T>) {
-        this.dragDrop.clearDrag();
+        this._dragDropGroup()?.clearDrag();
     }
 
     protected onDragEnd(itemCard: ItemCard<T>) {
         this.dragDropMutex.release();
-        this.dragDrop.clearDrag();
+        this._dragDropGroup()?.clearDrag();
     }
     
     protected onDrop(event: CdkDragDrop<string[]>) {
@@ -182,15 +180,25 @@ export class CardListComponent<T> {
         const orderByKey = this.orderByKey();
         if (!orderByKey) return;
         const itemCard = itemCards[event.currentIndex];
+        let followingIndex = event.currentIndex + 1;
         const leadingPosition = <number | null>itemCards[event.currentIndex - 1]?.item[orderByKey];
-        const followingPosition = <number | null>itemCards[event.currentIndex + 1]?.item[orderByKey];
-        const position = (leadingPosition != null && followingPosition != null)
+        let followingPosition = <number | null>itemCards[followingIndex]?.item[orderByKey];
+        let position = (leadingPosition != null && followingPosition != null)
             ? (leadingPosition + followingPosition) / 2
             : (leadingPosition != null
                 ? leadingPosition + 1
                 : followingPosition != null ? followingPosition - 1 : 0);
         itemCard.item[orderByKey] = <any>position;
-        this.orderChange.emit([itemCard.item]);
+        const changed = [itemCard.item];
+        followingPosition ??= 0;
+        while (position >= followingPosition) {
+            const nextItemCard = itemCards[followingIndex];
+            if (!nextItemCard) break;
+            nextItemCard.item[orderByKey] = <any>++position;
+            changed.push(nextItemCard.item);
+            followingPosition = <number>itemCards[++followingIndex]?.item[orderByKey] ?? 0;
+        }
+        this.orderChange.emit(changed);
         this.dropped = true;
     }
 

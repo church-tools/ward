@@ -1,12 +1,11 @@
 import { CdkDropList } from '@angular/cdk/drag-drop';
 import { Component, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
-import { Subscription } from 'rxjs';
 import { Agenda } from '../../../../modules/agenda/agenda';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
 import { Task } from '../../../../modules/task/task';
-import { DragData, DragDropService, DropTarget } from '../../../../shared/service/drag-drop.service';
+import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
-import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/signal-utils";
+import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
 
 @Component({
     selector: 'app-agenda-drop-zone',
@@ -20,6 +19,7 @@ import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/sign
                     @let active = agenda.id === lastDrag()?.data?.agenda;
                     <div class="card canvas-card selectable-card selectable-outlined-card"
                         cdkDropList
+                        [cdkDropListDisabled]="active"
                         (cdkDropListEntered)="onAgendaDropListEntered(agenda)"
                         (cdkDropListExited)="onAgendaDropListExited(agenda)"
                         (cdkDropListDropped)="onTaskDropped(agenda)"
@@ -53,16 +53,14 @@ export class AgendaDropZoneComponent implements OnDestroy {
     protected readonly agendas = asyncComputed([],
         () => this.supabase.sync.from('agenda').readAll().get()
               .then(agendas => agendas.sort((a, b) => a.position - b.position)));
-    private readonly targets = xcomputed([this.dropLists],
-        dropLists => dropLists.map(dropList => <DropTarget>{ dropList, identity: 'task' }));
 
     protected readonly dragOver = signal(false);
 
-    private subscription: Subscription | undefined;
+    private readonly dragDropGroup = this.dragDrop.ensureGroup('task');
 
     constructor() {
-        xeffect([this.targets], targets => {
-            this.dragDrop.registerTargets(targets);
+        xeffect([this.dropLists], dropLists => {
+            this.dragDropGroup.registerTargets(dropLists);
         });
         xeffect([this.draggedTask], lastDrag => {
             if (!lastDrag) return;
@@ -79,7 +77,6 @@ export class AgendaDropZoneComponent implements OnDestroy {
     }
 
     protected onAgendaDropListEntered(agenda: Agenda.Row) {
-        this.subscription?.unsubscribe();
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.add('shrink');
     }
@@ -87,11 +84,10 @@ export class AgendaDropZoneComponent implements OnDestroy {
     protected onAgendaDropListExited(agenda: Agenda.Row) {
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.remove('shrink');
-        this.subscription?.unsubscribe();
     }
 
     protected async onTaskDropped(agenda: Agenda.Row) {
-        const drag = this.dragDrop.dragged();
+        const drag = this.dragDropGroup.dragged();
         if (!drag) throw new Error('No task is being dragged');
         const task = drag.data as Task.Row;
         // await this.supabase.sync.from('task').update({
@@ -101,7 +97,6 @@ export class AgendaDropZoneComponent implements OnDestroy {
     }
 
     ngOnDestroy() {
-        this.subscription?.unsubscribe();
-        this.dragDrop.unregisterTargets(this.targets());
+        this.dragDropGroup.unregisterTargets(this.dropLists());
     }
 }

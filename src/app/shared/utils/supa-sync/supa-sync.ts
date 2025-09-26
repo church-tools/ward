@@ -25,11 +25,10 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         this.client = supabaseClient;
         window.addEventListener('online', () => this.onlineState.set(true));
         window.addEventListener('offline', () => this.onlineState.unset());
-        for (const info of tableInfos) {
-            const tbl = new SupaSyncTable(
-                info.name, this.client, this.onlineState, info as any);
-            (this.tablesByName as any)[info.name] = tbl;
-        }
+        type TN = TableName<D>;
+        for (const info of tableInfos)
+            this.tablesByName[info.name as TN] = new SupaSyncTable<D, TN, IA[TN]>(
+                info.name, this.client, this.onlineState, info);
     }
 
     public async init(session: Session, dbName: string) {
@@ -140,8 +139,8 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         this.idb?.then(idb => idb.close());
     }
 
-    public from<T extends TableName<D>>(table: T) {
-        return this.tablesByName[table];
+    public from<T extends TableName<D>>(tableName: T) {
+        return this.tablesByName[tableName];
     }
 
     private async getLastSync() {

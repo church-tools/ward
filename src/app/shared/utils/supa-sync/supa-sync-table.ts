@@ -16,7 +16,6 @@ function serializeIndex(index: string[] | undefined) {
 const INDEX_PREFIX = "idx_";
 const PENDING_SUFFIX = "_pending";
 
-// zu Table umbenennen und Logik hier einfügen
 export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> {
 
     public readonly storeAdapter: IDBStoreAdapter<Row<D, T>>;
