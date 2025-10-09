@@ -48,6 +48,9 @@
     overflow: auto;
     justify-content: center;
     overflow-x: clip;
+    @media screen and (min-width: layout.$page-width-narrow) {
+        scrollbar-gutter: stable;
+    }
     .canvas {
         transition: margin 0.2s ease;
         position: relative;

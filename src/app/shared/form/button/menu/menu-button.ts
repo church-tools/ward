@@ -76,7 +76,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     });
 
     private shouldBeVisible = 0;
-    private timeout: NodeJS.Timeout | undefined;
+    private timeout: ReturnType<typeof setTimeout> | undefined;
 
     execute() {
         this.toggle();
