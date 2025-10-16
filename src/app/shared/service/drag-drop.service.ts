@@ -1,7 +1,8 @@
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
-import { Injectable, signal } from "@angular/core";
+import { EventEmitter, Injectable, signal } from "@angular/core";
 
 export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement };
+export type DropData<T> = { item: T, from: DropTarget, to: DropTarget, fromPosition: number, toPosition: number };
 export type DropTarget = CdkDropList;
 
 @Injectable({
@@ -11,23 +12,24 @@ export class DragDropService {
 
     private readonly groups: Record<string, DragDropGroup> = {};
 
-    getGroup(identity: string): DragDropGroup | undefined {
+    getGroup<T>(identity: string): DragDropGroup<T> | undefined {
         return this.groups[identity];
     }
 
-    ensureGroup(identity: string) {
-        return this.groups[identity] ??= new DragDropGroup(identity);
+    ensureGroup<T>(identity: string) {
+        return this.groups[identity] ??= new DragDropGroup<T>(identity);
     }
 }
 
-export class DragDropGroup {
+export class DragDropGroup<T = any> {
 
-    private readonly _dragged = signal<DragData<any> | null>(null);
+    private readonly _dragged = signal<DragData<T> | null>(null);
     readonly dragged = this._dragged.asReadonly();
 
     private readonly targetSet = new Set<DropTarget>();
     private readonly _targets = signal<DropTarget[]>([]);
     public readonly targets = this._targets.asReadonly();
+    public readonly dropped = new EventEmitter<DropData<T>>();
 
     constructor(public readonly identity: string) { }
 
@@ -43,7 +45,7 @@ export class DragDropGroup {
         this._targets.set([...this.targetSet]);
     }
 
-    setDrag<T>(drag: CdkDrag, data: T, view: HTMLElement) {
+    setDrag(drag: CdkDrag, data: T, view: HTMLElement) {
         this._dragged.set({ drag, data, view });
     }
 

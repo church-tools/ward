@@ -4,14 +4,15 @@ import { Component, contentChild, ElementRef, inject, input, output, Signal, sig
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
-import { DragDropService } from '../../service/drag-drop.service';
+import { DragDropService, DropData } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { hasRecords } from '../../utils/record-utils';
 import { xcomputed, xeffect } from '../../utils/signal-utils';
-import { easeOut } from '../../utils/style';
+import { animationDurationMs, easeOut } from '../../utils/style';
+import { WatchChildrenDirective } from "../../utils/watch-children";
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
 type ItemCard<T> = {
@@ -23,7 +24,7 @@ type ItemCard<T> = {
 
 @Component({
     selector: 'app-card-list',
-    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent],
+    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent, WatchChildrenDirective],
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
@@ -31,7 +32,7 @@ export class CardListComponent<T> {
 
     private readonly windowService = inject(WindowService);
     private readonly dragDrop = inject(DragDropService);
-    private readonly element = inject(ElementRef);
+    private readonly element = inject(ElementRef) as ElementRef<HTMLElement>;
 
     readonly editable = input(false);
     readonly gap = input(2);
@@ -49,6 +50,7 @@ export class CardListComponent<T> {
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
+    readonly itemDropped = output<T>();
     readonly addClick = output<void>();
 
     protected readonly dropList = viewChild.required(CdkDropList);
@@ -64,7 +66,7 @@ export class CardListComponent<T> {
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
 
     protected readonly _dragDropGroup = xcomputed([this.dragDropGroup],
-        group => group ? this.dragDrop.getGroup(group) : undefined);
+        group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
 
@@ -73,6 +75,7 @@ export class CardListComponent<T> {
     
     private initialized = false;
     private insertSubscriptions: Subscription[] = [];
+    private dropSubscription: Subscription | undefined;
     private dropped = false;
     private insertBtnHeight = 0;
 
@@ -100,6 +103,8 @@ export class CardListComponent<T> {
         });
         xeffect([this._dragDropGroup, this.dropList], (group, dropList) => {
             if (dropList) group?.registerTargets([dropList]);
+            this.dropSubscription?.unsubscribe();
+            this.dropSubscription = group?.dropped.subscribe(this.onDrop.bind(this));
         });
     }
 
@@ -109,6 +114,7 @@ export class CardListComponent<T> {
     }
 
     ngOnDestroy() {
+        this.dropSubscription?.unsubscribe();
         const dropList = this.dropList();
         if (dropList) this._dragDropGroup()?.unregisterTargets([dropList]);
     }
@@ -117,6 +123,11 @@ export class CardListComponent<T> {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
         this.updateItemCards(update);
+    }
+
+    protected placeholderAdded(item: HTMLElement) {
+        const height = item.getBoundingClientRect().height;
+        transitionStyle(item, { height: '0' }, { height: `${height}px` }, animationDurationMs, easeOut, true);
     }
 
     protected onItemClick(listItem: ItemCard<T>): void {
@@ -134,7 +145,7 @@ export class CardListComponent<T> {
     }
 
     protected insert = async (item: T) => {
-        this.changeLock.lock(async () => {
+        await this.changeLock.lock(async () => {
             this.insertedItem.set(item);
             this.inserting.set(false);
             const onInsert = this.insertRow();
@@ -148,7 +159,7 @@ export class CardListComponent<T> {
             this.newEditCard.set(true);
             this.updateItemCards({ items: [insertedItem] }, false);
             const element = this.insertionCardView()!.nativeElement as HTMLElement;
-            await transitionStyle(element, { height: '0'},
+            await transitionStyle(element, { height: '0' },
                 { height: `${this.insertBtnHeight}px` }, 300, easeOut, true);
             this.newEditCard.set(false);
         });
@@ -163,43 +174,76 @@ export class CardListComponent<T> {
         this._dragDropGroup()?.setDrag(event.source, itemCard.item, card);
     }
 
-    protected onDragReleased(itemCard: ItemCard<T>) {
-        this._dragDropGroup()?.clearDrag();
-    }
-
     protected onDragEnd(itemCard: ItemCard<T>) {
-        this.dragDropMutex.release();
-        this._dragDropGroup()?.clearDrag();
+        setTimeout(() => {
+            this.dragDropMutex.release();
+            this._dragDropGroup()?.clearDrag();
+        }, 0);
     }
     
-    protected onDrop(event: CdkDragDrop<string[]>) {
-        if (event.currentIndex === event.previousIndex)
-            return;
+    protected onDropHere(event: CdkDragDrop<string[]>) {
+        const item = this._dragDropGroup()?.dragged()?.data as T | null;
+        if (!item) return;
+        this._dragDropGroup()?.dropped.emit({ item,
+            from: event.previousContainer, to: event.container,
+            fromPosition: event.previousIndex, toPosition: event.currentIndex });
+    }
+
+    protected onDrop(data: DropData<T>) {
+        data.to === this.dropList()
+            ? data.from === this.dropList()
+                ? this.moveDroppedItem(data)
+                : this.addDroppedItem(data)
+            : data.from === this.dropList()
+                ? this.removeDroppedItem(data)
+                : null;
+        this.dropped = true;
+        setTimeout(() => this.dropped = false, 100);
+    }
+
+    private moveDroppedItem(data: DropData<T>) {
+        if (data.fromPosition === data.toPosition) return;
         const itemCards = this.itemCards();
-        moveItemInArray(itemCards, event.previousIndex, event.currentIndex);
+        moveItemInArray(itemCards, data.fromPosition, data.toPosition);
         const orderByKey = this.orderByKey();
         if (!orderByKey) return;
-        const itemCard = itemCards[event.currentIndex];
-        let followingIndex = event.currentIndex + 1;
-        const leadingPosition = <number | null>itemCards[event.currentIndex - 1]?.item[orderByKey];
-        let followingPosition = <number | null>itemCards[followingIndex]?.item[orderByKey];
-        let position = (leadingPosition != null && followingPosition != null)
+        const itemCard = itemCards.find(c => c.item === data.item);
+        if (!itemCard) return;
+        itemCard.item[orderByKey] = this.getPositionForIndex(itemCards, data.toPosition);
+        const changed = [itemCard.item];
+        this.orderChange.emit(changed);
+    }
+
+    private addDroppedItem(data: DropData<T>) {
+        const itemCards = this.itemCards();
+        const idKey = this.idKey();
+        const id = data.item[idKey] as number;
+        if (itemCards.some(card => card.id === id)) return;
+        const newItemCards = [...itemCards];
+        newItemCards.splice(data.toPosition, 0, { id, item: data.item });
+        const orderByKey = this.orderByKey();
+        if (orderByKey)
+            data.item[orderByKey] = this.getPositionForIndex(newItemCards, data.toPosition);
+        this.itemCards.set(newItemCards);
+        this.itemDropped.emit(data.item);
+    }
+
+    private removeDroppedItem(data: DropData<T>) {
+        const newItemCards = [...this.itemCards()];
+        newItemCards.splice(data.fromPosition, 1);
+        this.itemCards.set(newItemCards);
+    }
+
+    private getPositionForIndex(itemCards: ItemCard<T>[], index: number): any {
+        const orderByKey = this.orderByKey();
+        if (!orderByKey) throw new Error('OrderByKey is not set');
+        const leadingPosition = <number | null>itemCards[index - 1]?.item[orderByKey];
+        const followingPosition = <number | null>itemCards[index + 1]?.item[orderByKey];
+        return (leadingPosition != null && followingPosition != null)
             ? (leadingPosition + followingPosition) / 2
             : (leadingPosition != null
                 ? leadingPosition + 1
                 : followingPosition != null ? followingPosition - 1 : 0);
-        itemCard.item[orderByKey] = <any>position;
-        const changed = [itemCard.item];
-        followingPosition ??= 0;
-        while (position >= followingPosition) {
-            const nextItemCard = itemCards[followingIndex];
-            if (!nextItemCard) break;
-            nextItemCard.item[orderByKey] = <any>++position;
-            changed.push(nextItemCard.item);
-            followingPosition = <number>itemCards[++followingIndex]?.item[orderByKey] ?? 0;
-        }
-        this.orderChange.emit(changed);
-        this.dropped = true;
     }
 
     private updateItemCards(update: { items?: T[], deletions?: number[] }, animateNew = true) {
@@ -236,13 +280,9 @@ export class CardListComponent<T> {
                 300, easeOut);
         }
         this.initialized = true;
-        this.setItemCards(itemCards);
-    }
-
-    private setItemCards(newItemCards: ItemCard<T>[]) {
-        if (!this.orderIsCorrect(newItemCards))
-            this.sort(newItemCards);
-        this.itemCards.set(newItemCards);
+        if (!this.orderIsCorrect(itemCards))
+            this.sort(itemCards);
+        this.itemCards.set(itemCards);
     }
 
     private animateCardViews(cardViews: readonly ElementRef<HTMLElement>[]) {

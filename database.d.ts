@@ -30,7 +30,7 @@ export type Database = {
           deleted?: boolean
           id: number
           name: string
-          position?: number
+          position: number
           postponed_until?: string | null
           start_time?: number
           unit: number
@@ -72,7 +72,7 @@ export type Database = {
           agenda: number
           content?: string | null
           id?: number
-          position?: number
+          position: number
           type?: Database["public"]["Enums"]["agenda_section_type"]
           unit: number
           updated_at?: string
@@ -120,7 +120,7 @@ export type Database = {
           is_unique?: boolean
           name: string
           organization?: number | null
-          position?: number
+          position: number
           unit?: number
           updated_at?: string
           uuid: string
@@ -631,7 +631,7 @@ export type Database = {
           created_by: number
           deleted?: boolean
           id: number
-          position?: number
+          position: number
           stage?: Database["public"]["Enums"]["task_stage"]
           title?: string | null
           unit: number

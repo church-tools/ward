@@ -31,7 +31,8 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
         </div>
     `,
     host: { class: 'full-width' },
-    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTasksComponent, AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent],
+    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTasksComponent,
+        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent],
 })
 export class AgendaItemListRowComponent extends ListRowComponent<'agenda_section'> {
 

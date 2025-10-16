@@ -11,7 +11,6 @@ import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
 import { getViewService } from "./view.service";
-import { DropTarget } from "../../shared/service/drag-drop.service";
 
 @Component({
     selector: 'app-row-card-list',
@@ -30,7 +29,8 @@ import { DropTarget } from "../../shared/service/drag-drop.service";
                 [orderByKey]="table.info.orderKey"
                 [getFilterText]="viewService()?.toString"
                 [getUrl]="getUrl()"
-                (orderChange)="updateRowPositions($event)"
+                (orderChange)="onOrderChanged($event)"
+                (itemDropped)="onItemDropped($event)"
                 [insertRow]="insertRow"
                 [dragDropGroup]="tableName()">
                 <ng-template #itemTemplate let-row>
@@ -91,12 +91,17 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         return await table.insert(row);
     }
 
-    protected async updateRowPositions(rows: Row<T>[]) {
+    protected async onOrderChanged(rows: Row<T>[]) {
         const table = this.table();
         const idKey = table.idKey, orderKey = table.info.orderKey;
         if (!orderKey) throw new Error('Table is not ordered');
         const updates = mapToSubObjects(rows, idKey, orderKey, 'unit' as Column<T>);
         await this.table().update(updates);
+    }
+
+    protected async onItemDropped(row: Row<T>) {
+        await this.prepareInsert()?.(row);
+        await this.table().update(row);
     }
 
     ngOnDestroy(): void {

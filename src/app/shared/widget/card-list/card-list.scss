@@ -61,6 +61,10 @@
     }
 }
 
+.insertion-card {
+    order: 1; // max int
+}
+
 .cdk-drag-preview {
     .card-item {
         scale: 0.95;
@@ -94,12 +98,6 @@
     }
 }
 
-// for testing
-.cdk-drag-item-container {
-    background: red !important;
-    min-height: 2rem;
-}
-
 .cdk-drag-animating {
     transition: transform animation.$duration-sm ease;
     .card-item {
@@ -116,40 +114,6 @@
         @include card.shadow;
     }
 }
-
-// .cdk-drag-placeholder {
-//     transition: max-height 2000ms ease, opacity 200ms ease;
-//     opacity: 0.6;
-//     @starting-style {
-//         max-height: 0;
-//     }
-//     // any extra styling for the cross-list placeholder
-// }
-
-// for testing
-.cdk-drop-list-dragging {
-    .cdk-drag-placeholder {
-        transition: height 500ms ease;
-        height: 0px;
-        background: red !important;
-        opacity: 1;
-        @starting-style {
-            height: 0;
-        }
-    }
-}
-
-// .cdk-drop-list-receiving {
-//     .cdk-drag-placeholder {
-//         transition: height 500ms ease;
-//         height: 100px;
-//         background: blue !important;
-//         opacity: 1;
-//         @starting-style {
-//             height: 0;
-//         }
-//     }
-// }
 
 .drag-origin-hidden {
     visibility: hidden !important;

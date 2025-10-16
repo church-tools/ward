@@ -42,6 +42,6 @@ export class TaskListComponent {
     protected prepareTaskInsert = async (task: Task.Insert) => {
         task.agenda = this.agendaId();
         task.stage = this.stages()[0];
-        task.created_by = (await this.profileService.own.asPromise()).id;
+        task.created_by ??= (await this.profileService.own.asPromise()).id;
     }
 }

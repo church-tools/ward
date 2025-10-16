@@ -3,8 +3,10 @@
 </div>
 <div #container class="card-item-container column gap-{{gap()}}"
     cdkDropList
+    watchChildren watchChildClass="cdk-drag-placeholder"
+    (childAdded)="placeholderAdded($event)"
     [cdkDropListConnectedTo]="targetDropLists()"
-    (cdkDropListDropped)="onDrop($event)"
+    (cdkDropListDropped)="onDropHere($event)"
     [cdkDropListDisabled]="!reorderable() || !editable()">
     @if (getUrl(); as getUrl) {
         @for (itemCard of itemCards(); track itemCard.id) {
@@ -12,7 +14,6 @@
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
-                (cdkDragReleased)="onDragReleased(itemCard)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
                 <div class="card-item {{cardClasses()}} stealth selectable-card card-inner">
@@ -35,8 +36,6 @@
             <div #card cdkDrag
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
-                [cdkDragStartDelay]="300"
-                [cdkDragData]="itemCard.item"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
@@ -57,7 +56,7 @@
         }
     }
     @if (editable()) {
-        <div #insertionCard class="{{cardClasses()}} card-item selectable-card"
+        <div #insertionCard class="{{cardClasses()}} card-item selectable-card insertion-card"
             [class.new]="newEditCard()"
             (click)="onInsertClick()">
             <app-swap-container [swap]="inserting()" animationDuration="xs">
