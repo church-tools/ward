@@ -34,5 +34,5 @@ export class MeetingsPageComponent extends PrivatePageComponent {
         await this.supabase.sync.from('agenda').update(agendas);
     }
 
-    protected getUrl = (agenda: Agenda.Row) => `/meetings/${agenda.id}`;
+    protected getUrl = (agenda: Agenda.Row | null) => `/meetings/${agenda?.id ?? ""}`;
 }
