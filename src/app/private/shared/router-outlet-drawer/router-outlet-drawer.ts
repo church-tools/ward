@@ -1,5 +1,5 @@
-import { Component, ElementRef, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
-import { RouterOutlet } from "@angular/router";
+import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
+import { Router, RouterOutlet } from "@angular/router";
 import ButtonComponent from "../../../shared/form/button/button";
 import { PageComponent } from "../../../shared/page/page";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
@@ -25,7 +25,8 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     private static readonly SWIPE_TIME_LIMIT = 100;
     private static readonly INTERACTIVE_ELEMENTS = new Set(['button', 'a', 'input', 'textarea', 'select', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
-    readonly onClose = output<void>();
+    private readonly router = inject(Router);
+
     readonly activated = output<string | null>();
 
     protected readonly activeChild = signal<PageComponent | null>(null);
@@ -44,7 +45,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         delayTimeout?: number;
         startedOnBackground?: boolean; // Track if drag started on background
     } | null = null;
-    private abortController = new AbortController();
+    private readonly abortController = new AbortController();
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -66,6 +67,13 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         this.emitCurrentRoute();
         this.activeChild.set(page);
         await this.animateDrawerOpen();
+    }
+
+    protected onDeactivate(page: PageComponent) {
+        this.activated.emit(null);
+        this.slideOut();
+        if (page instanceof RowPageComponent)
+            delete page.onIdChange;
     }
 
     private emitCurrentRoute() {
@@ -92,14 +100,11 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         element.style.width = '';
     }
 
-    protected onDeactivate(page: PageComponent) {
-        this.activated.emit(null);
-        this.close();
-        if (page instanceof RowPageComponent)
-            delete page.onIdChange;
+    protected onClose() {
+        this.router.navigate(['..'], { relativeTo: this.routerOutlet().activatedRoute });
     }
 
-    protected async close() {
+    private async slideOut() {
         this.closing.set(true);
         const page = this.activeChild();
         if (page instanceof RowPageComponent)
@@ -115,9 +120,8 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         element.style.transform = '';
         element.style.opacity = '';
         element.style.transition = '';
-        if (this.contentChanging()) return;
+        if (this.contentChanging() || this.abortController.signal.aborted) return;
         this.activeChild.set(null);
-        this.onClose.emit();
         this.closing.set(false);
     }
 
@@ -209,7 +213,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             const velocity = deltaX / (Date.now() - this.dragState!.startTime);
             if (deltaX > 0) {
                 if (deltaX > 100 || velocity > 0.5) {
-                    this.close();
+                    this.slideOut();
                 } else {
                     // Set the current drag position without transition
                     element.style.transition = '';
@@ -227,7 +231,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
                 }
             }
         }
-        
         element.style.userSelect = '';
         this.dragState = null;
     }

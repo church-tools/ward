@@ -24,10 +24,22 @@
             transform: translateX(0);
         }
         &.left {
-            @starting-style { opacity: 0; transform: translateX($page-side-slide-distance) }
+            @starting-style {
+                opacity: 0;
+                transform: translateX($page-side-slide-distance);
+                @include layout.smaller-than(layout.$md) {
+                    transform: translateX($page-side-slide-distance-sm);
+                }
+            }
         }
         &.right {
-            @starting-style { opacity: 0; transform: translateX(-$page-side-slide-distance) }
+            @starting-style {
+                opacity: 0;
+                transform: translateX(-$page-side-slide-distance);
+                @include layout.smaller-than(layout.$md) {
+                    transform: translateX(-$page-side-slide-distance-sm);
+                }
+            }
         }
     }
     &.leave {
