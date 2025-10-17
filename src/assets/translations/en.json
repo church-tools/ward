@@ -37,6 +37,10 @@
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",
   "CALLINGS_PAGE.TITLE": "Callings",
+  "SERVICE_WORKER": {
+    "UPDATE_AVAILABLE": "A new version of the application is available. Would you like to update now?",
+    "ERROR_REFRESH": "The application encountered an error. Would you like to refresh the page?"
+  },
   "B": "B",
   "I": "I",
   "U": "U",

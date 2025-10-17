@@ -1,6 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, map } from 'rxjs/operators';
+import { TranslateService } from '@ngx-translate/core';
 
 @Injectable({
   providedIn: 'root'
@@ -8,6 +9,7 @@ import { filter, map } from 'rxjs/operators';
 export class ServiceWorkerService {
     
     private readonly swUpdate = inject(SwUpdate);
+    private readonly translate = inject(TranslateService);
 
     constructor() {
         if (!this.swUpdate.isEnabled) {
@@ -57,11 +59,8 @@ export class ServiceWorkerService {
     }
 
     private promptUserForUpdate(): void {
-        const userChoice = confirm('A new version of the application is available. Would you like to update now?');
-        
-        if (userChoice) {
+        if (confirm(this.translate.instant('SERVICE_WORKER.UPDATE_AVAILABLE')))
             this.activateUpdate();
-        }
     }
 
     private activateUpdate(): void {
@@ -74,7 +73,7 @@ export class ServiceWorkerService {
     private notifyUserOfError(): void {
         console.error('Application is in an unrecoverable state. Please refresh the page.');
         // You might want to show a user-friendly error message here
-        if (confirm('The application encountered an error. Would you like to refresh the page?')) {
+        if (confirm(this.translate.instant('SERVICE_WORKER.ERROR_REFRESH'))) {
             window.location.reload();
         }
     }
