@@ -1,3 +1,21 @@
+<ng-template #cardContent let-itemCard>
+    <div class="card-item {{cardClasses()}} mb-{{gap()}} selectable-card card-inner"
+        [class.appear]="itemCard.animateEntrance"
+        [class.disappear]="itemCard.removed()">
+        @if (itemCard.id === activeId()) {
+            <div class="indicator accent-fg"
+                animate.leave="disappear"></div>
+        }
+        @if (reorderable()) {
+            <div class="drag-handle">
+                <app-icon icon="re_order_dots_vertical"/>
+            </div>
+        }
+        <ng-container *ngTemplateOutlet="itemTemplate();
+            context: { $implicit: itemCard.item }"/>
+    </div>
+</ng-template>
+
 <div class="card-list-header">
 
 </div>
@@ -8,55 +26,29 @@
     [cdkDropListConnectedTo]="targetDropLists()"
     (cdkDropListDropped)="onDropHere($event)"
     [cdkDropListDisabled]="!reorderable() || !editable()">
-    @if (getUrl(); as getUrl) {
-        @for (itemCard of itemCards(); track itemCard.id) {
+    @for (itemCard of itemCards(); track itemCard.id) {
+        @if (getUrl(); as getUrl) {
             <a #card cdkDrag [routerLink]="getUrl(itemCard.item)"
-                class="drag-card-host"
+                class="drag-card-host stealth"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="card-item {{cardClasses()}} mb-{{gap()}} stealth selectable-card card-inner"
-                    [class.appear]="itemCard.animateEntrance"
-                    [class.disappear]="itemCard.removed()">
-                    @if (itemCard.id === activeId()) {
-                        <div class="indicator accent-fg"
-                            animate.leave="disappear"></div>
-                    }
-                    @if (reorderable()) {
-                        <div class="drag-handle">
-                            <app-icon icon="re_order_dots_vertical"/>
-                        </div>
-                    }
-                    <ng-container *ngTemplateOutlet="itemTemplate();
-                        context: { $implicit: itemCard.item }"/>
-                </div>
+                <ng-container *ngTemplateOutlet="cardContent;
+                    context: { $implicit: itemCard }"/>
             </a>
         }
-    } @else {
-        @for (itemCard of itemCards(); track itemCard.id) {
+        @else {
             <div #card cdkDrag
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="card-item {{cardClasses()}} mb-{{gap()}} selectable-card card-inner"
-                    [class.appear]="itemCard.animateEntrance"
-                    [class.disappear]="itemCard.removed()">
-                    @if (itemCard.id === activeId()) {
-                        <div class="indicator accent-fg"
-                            animate.leave="disappear"></div>
-                    }
-                    @if (reorderable()) {
-                        <div class="drag-handle">
-                            <app-icon icon="re_order_dots_vertical"/>
-                        </div>
-                    }
-                    <ng-container *ngTemplateOutlet="itemTemplate();
-                        context: { $implicit: itemCard.item }"/>
-                </div>
+                <ng-container *ngTemplateOutlet="cardContent;
+                    context: { $implicit: itemCard }"/>
             </div>
+
         }
     }
     @if (editable()) {

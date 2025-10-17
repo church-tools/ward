@@ -36,7 +36,7 @@ export class TaskListComponent {
     protected readonly activeTaskId = xcomputed([this.rowPageService.openRows],
         openRows => openRows['task'] ?? null);
 
-    protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
+    protected getTaskUrl = (task: Task.Row | null) => `/meetings/${this.agendaId()}/${task?.id ?? ""}`;
     
     protected prepareTaskInsert = async (task: Task.Insert) => {
         task.agenda = this.agendaId();

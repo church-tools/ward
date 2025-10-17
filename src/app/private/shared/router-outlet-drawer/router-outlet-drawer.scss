@@ -28,6 +28,11 @@
             gap: 0;
         }
     }
+    &.content-changing {
+        .drawer {
+            animation: drawer-content-change animation.$duration-lg animation.$ease-out;
+        }
+    }
 }
 
 .main {
@@ -63,5 +68,20 @@
             transition: opacity animation.$duration-lg ease;
             opacity: 0;
         }
+    }
+}
+
+@keyframes drawer-content-change {
+    0% {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    25% {
+        transform: translateX(25%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateX(0);
+        opacity: 1;
     }
 }

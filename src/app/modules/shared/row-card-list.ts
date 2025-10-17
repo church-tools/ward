@@ -1,5 +1,6 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, viewChild } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, output, viewChild } from "@angular/core";
+import { Router } from "@angular/router";
 import { Subscription } from "rxjs";
 import { PageComponent } from "../../shared/page/page";
 import { SupabaseService } from "../../shared/service/supabase.service";
@@ -32,7 +33,8 @@ import { getViewService } from "./view.service";
                 (orderChange)="onOrderChanged($event)"
                 (itemDropped)="onItemDropped($event)"
                 [insertRow]="insertRow"
-                [dragDropGroup]="tableName()">
+                [dragDropGroup]="tableName()"
+                (itemClick)="onRowClick($event)">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
                         [ngComponentOutletInputs]="{ row, page: this.page() }"/>
@@ -53,6 +55,7 @@ import { getViewService } from "./view.service";
 export class RowCardListComponent<T extends TableName> implements OnDestroy {
 
     readonly injector = inject(Injector);
+    private readonly router = inject(Router);
     private readonly supabase = inject(SupabaseService);
 
     readonly tableName = input.required<T>();
@@ -60,11 +63,12 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly editable = input(false);
     readonly gap = input(2);
     readonly cardsVisible = input(true);
-    readonly getUrl = input<(row: Row<T>) => string>();
+    readonly getUrl = input<(row: Row<T> | null) => string>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
     readonly page = input<PageComponent>();
+    readonly rowClicked = output<Row<T>>();
 
     protected readonly table = xcomputed([this.tableName], tableName => this.supabase.sync.from(tableName));
     protected readonly viewService = asyncComputed([this.tableName], tableName => getViewService(this.injector, tableName!));
@@ -102,6 +106,12 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     protected async onItemDropped(row: Row<T>) {
         await this.prepareInsert()?.(row);
         await this.table().update(row);
+    }
+
+    protected onRowClick(row: Row<T>) {
+        const getUrl = this.getUrl();
+        if (getUrl && this.activeId() === row[this.table().idKey])
+            this.router.navigate([getUrl(null)]);
     }
 
     ngOnDestroy(): void {

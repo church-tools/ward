@@ -1,4 +1,4 @@
-import { Component, EventEmitter, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Row, TableName } from '../../modules/shared/table.types';
@@ -25,7 +25,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     protected readonly supabase = inject(SupabaseService);
     
     readonly row = signal<Row<T> | null>(null);
-    readonly onIdChange = new EventEmitter<number | null>();
+    onIdChange?: (rowId: number) => Promise<void> | undefined;
     
     protected abstract readonly tableName: T;
     protected get table() { return this.supabase.sync.from(this.tableName); }
@@ -41,7 +41,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
             const rowId = params.get(this.tableName);
             if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
             this.rowPageService.pageOpened(this.tableName, +rowId);
-            this.onIdChange.emit(rowId ? +rowId : null);
+            await this.onIdChange?.(+rowId);
             const row = await this.supabase.sync.from(this.tableName).read(+rowId).get();
             this.row.set(row);
         });
@@ -54,8 +54,8 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     }
 
     close() {
-        const id = this.row()![this.table.idKey] as number;
-        this.rowPageService.pageClosed(this.tableName, id);
+        const id = this.row()?.[this.table.idKey] as number | undefined;
+        if (id) this.rowPageService.pageClosed(this.tableName, id);
     }
 
     protected navigateToThis() {

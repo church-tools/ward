@@ -66,8 +66,8 @@
         height: 40%;
         border-radius: 2px;
         opacity: 1;
-        transition: opacity animation.$duration-sm animation.$ease-out,
-                    height animation.$duration-sm animation.$ease-out;
+        transition: opacity animation.$duration animation.$ease-out,
+                    height animation.$duration animation.$ease-out;
         @starting-style {
             opacity: 0;
             height: 4px;

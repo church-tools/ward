@@ -3,36 +3,20 @@ import { RouterOutlet } from "@angular/router";
 import ButtonComponent from "../../../shared/form/button/button";
 import { PageComponent } from "../../../shared/page/page";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
-import { easeOut } from "../../../shared/utils/style";
+import { wait } from "../../../shared/utils/flow-control-utils";
+import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "../../../shared/utils/style";
 import { RowPageComponent } from "../row-page";
-import { Subscription } from "rxjs";
 
 @Component({
     selector: 'app-router-outlet-drawer',
-    template: `
-        <div class="main row center-content">
-            <ng-content/>
-        </div>
-        <div #drawer class="drawer"
-            (mousedown)="onDragStart($event)"
-            (touchstart)="onDragStart($event)">
-            <div class="drawer-card card canvas-card">
-                <div class="drawer-body">
-                    <router-outlet (activate)="onActivate($event)"
-                        (deactivate)="onDeactivate($event)"/>
-                </div>
-                <app-button type="subtle" icon="dismiss" size="large"
-                    class="close-button icon-only"
-                    (click)="close()"/>
-            </div>
-        </div>
-    `,
+    templateUrl: './router-outlet-drawer.html',
     imports: [RouterOutlet, ButtonComponent],
     styleUrl: './router-outlet-drawer.scss',
     host: {
         'animate.enter': 'show-gap',
         '[class.drawer-open]': 'activeChild()',
         '[class.closing]': 'closing()',
+        '[class.content-changing]': 'contentChanging()',
     },
 })
 export class RouterOutletDrawerComponent implements OnDestroy {
@@ -46,6 +30,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     protected readonly activeChild = signal<PageComponent | null>(null);
     protected readonly closing = signal(false);
+    protected readonly contentChanging = signal(false);
 
     private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
     private readonly routerOutlet = viewChild.required(RouterOutlet);
@@ -60,7 +45,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         startedOnBackground?: boolean; // Track if drag started on background
     } | null = null;
     private abortController = new AbortController();
-    private idChangeSubscription: Subscription | null = null;
 
     constructor() {
         // Add global event listeners for drag functionality
@@ -72,10 +56,13 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     protected async onActivate(page: PageComponent) {
-        if (page instanceof RowPageComponent) {
-            this.idChangeSubscription?.unsubscribe();
-            this.idChangeSubscription = page.onIdChange.subscribe(() => this.emitCurrentRoute());
-        }
+        if (page instanceof RowPageComponent)
+            page.onIdChange = async _ => {
+                this.contentChanging.set(true);
+                setTimeout(() => this.contentChanging.set(false), animationDurationLgMs);
+                this.emitCurrentRoute();
+                await wait(animationDurationLgMs * 0.25);
+            };
         this.emitCurrentRoute();
         this.activeChild.set(page);
         await this.animateDrawerOpen();
@@ -99,7 +86,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         await transitionStyle(element,
             { minWidth: '0px', width: '0px' },
             { minWidth: `${width}px`, width: `${width}px` },
-            500, easeOut, true);
+            animationDurationLgMs, easeOut, true);
             
         card.style.minWidth = '';
         element.style.width = '';
@@ -107,8 +94,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     protected onDeactivate(page: PageComponent) {
         this.activated.emit(null);
-        this.activeChild.set(null);
-        this.idChangeSubscription?.unsubscribe();
+        this.close();
+        if (page instanceof RowPageComponent)
+            delete page.onIdChange;
     }
 
     protected async close() {
@@ -122,14 +110,15 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         card.style.minWidth = `${width}px`;
         card.style.left = '0px';
         card.classList.add('fade-out');
-        await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, 500, easeOut, true);
+        await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, animationDurationLgMs, easeOut, true);
         card.classList.remove('fade-out');
-        this.activeChild.set(null);
-        this.onClose.emit();
-        this.closing.set(false);
         element.style.transform = '';
         element.style.opacity = '';
         element.style.transition = '';
+        if (this.contentChanging()) return;
+        this.activeChild.set(null);
+        this.onClose.emit();
+        this.closing.set(false);
     }
 
     protected onDragStart(event: MouseEvent | TouchEvent) {
@@ -204,7 +193,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     private performDrag(deltaX: number, event: MouseEvent | TouchEvent) {
         const element = this.drawerView().nativeElement;
         element.style.transform = `translateX(${deltaX}px)`;
-        element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
+        element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
         event.preventDefault();
     }
 
@@ -225,7 +214,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
                     // Set the current drag position without transition
                     element.style.transition = '';
                     element.style.transform = `translateX(${deltaX}px)`;
-                    element.style.opacity = `${Math.max(0.3, 1 - deltaX / 200)}`;
+                    element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
                     
                     // Use requestAnimationFrame to ensure the position is applied before transition
                     requestAnimationFrame(() => {
@@ -233,7 +222,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
                         element.style.transform = '';
                         element.style.opacity = '';
                         
-                        setTimeout(() => element.style.transition = '', 300);
+                        setTimeout(() => element.style.transition = '', animationDurationMs);
                     });
                 }
             }
@@ -245,7 +234,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     ngOnDestroy() {
         this.abortController.abort();
-        this.idChangeSubscription?.unsubscribe();
         this.clearDragTimeout();
     }
 }

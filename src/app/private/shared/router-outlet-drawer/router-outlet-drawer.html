@@ -1,0 +1,18 @@
+
+<div class="main row center-content">
+    <ng-content/>
+</div>
+<div #drawer class="drawer"
+    (mousedown)="onDragStart($event)"
+    (touchstart)="onDragStart($event)">
+    <div class="drawer-card card canvas-card">
+        <div class="drawer-body">
+            <router-outlet (activate)="onActivate($event)"
+                (deactivate)="onDeactivate($event)"/>
+        </div>
+        <app-button type="subtle" icon="dismiss" size="large"
+            class="close-button icon-only"
+            shortcut="Escape" [shortcutNeedsCtrl]="false"
+            (onClick)="close()"/>
+    </div>
+</div>
