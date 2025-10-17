@@ -3,10 +3,9 @@ import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
-import { getHighest } from '../../utils/array-utils';
+import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
-import { xeffect } from '../../utils/signal-utils';
-import { getAvgSimilarity, highlightWords } from '../../utils/string-utils';
+import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 
@@ -144,9 +143,9 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.optionsLoading.set(false);
         if (!search) return allOptions.map(o => this.addHighlights(o, []));
         search = search.toLocaleLowerCase();
-        const searchWords = search.split(/\s+/);
         for (const option of allOptions)
             option.lcText = option.view.toLocaleLowerCase();
+        const searchWords = search.split(/\s+/);
         let filteredOptions = allOptions
             .filter(option => option.lcText!.startsWith(search))
             .map(o => this.addHighlights(o, searchWords))
@@ -155,7 +154,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
             .filter(o => o.lcText!.includes(search))
             .map(o => this.addHighlights(o, searchWords));
         if (filteredOptions.length) return filteredOptions;
-        return getHighest(allOptions, o => getAvgSimilarity(searchWords, o.lcText!), 1)
+        return getLowest(allOptions, o => levenshteinDistance(search, o.lcText!), 1)
             .map(o => this.addHighlights(o, searchWords));
     }
 

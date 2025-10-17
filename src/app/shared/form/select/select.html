@@ -18,7 +18,7 @@
             <input #input type="text"
                 [(ngModel)]="search"
                 [placeholder]="selectedOption() ? '' : placeholder()"
-                (focus)="onFocus()" (blur)="closeOptions()"
+                (focus)="onFocus()"
                 (input)="updateVisibleOptions()">
         }
         <ng-content/>

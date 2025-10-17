@@ -21,14 +21,14 @@ body {
 
 @each $color in $names {
     .#{"" + $color} {
-        .color-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+        .color-bg { background-color: map.get($backgrounds, $color); }
         .color-fg { background-color: map.get($foregrounds, $color); }
         .color-border { border-color: map.get($foregrounds, $color); }
         .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
         .color-active { color: map.get($actives, $color); }
         app-icon { color: map.get($foregrounds, $color); }
     }
-    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
+    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color); }
     .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
     .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
     .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }

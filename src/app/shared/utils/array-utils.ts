@@ -1,6 +1,7 @@
 
 export type SortingFn<T> = (a: T, b: T) => number;
 export type WithSimilarity<T> = T & { similarity: number };
+export type WithDistance<T> = T & { distance: number };
 
 export function range(start: number, end: number, step = 1): number[] {
     return Array.from({ length: Math.ceil((end - start + 1) / step) }, (_, i) => start + i * step);
@@ -52,6 +53,22 @@ export function getHighest<T>(array: T[], getValue: (item: T, i: number) => numb
     }
     return highest;
 }
+
+export function getLowest<T>(array: T[], getValue: (item: T, i: number) => number, limit?: number): WithDistance<T>[] {
+    const lowest: WithDistance<T>[] = [];
+    for (let i = 0; i < array.length; i++) {
+        const elem = array[i] as WithDistance<T>;
+        elem.distance = getValue(elem, i);
+        if (limit && lowest.length === limit) {
+            if (elem.distance >= lowest.at(-1)!.distance)
+                continue;
+            lowest.pop();
+        }
+        sortInto(elem, lowest, (a, b) => a.distance - b.distance);
+    }
+    return lowest;
+}
+
 
 export function mapToSubObjects<T>(array: T[], ...keys: (keyof T)[]): Partial<T>[] {
     return array.map(item => {
