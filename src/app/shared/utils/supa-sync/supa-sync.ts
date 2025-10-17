@@ -89,7 +89,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                         switch (payload.eventType) {
                             case 'INSERT':
                             case 'UPDATE':
-                                await adapter.write(payload.new);
+                                payload.old = (await adapter.writeAndGet([payload.new]))[0].old;
                                 adapter.onChangeReceived.emit([payload]);
                                 break;
                             case 'DELETE':

@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, input, output, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
+import { Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconComponent } from '../../icon/icon';
@@ -9,8 +9,7 @@ import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
-import { hasRecords } from '../../utils/record-utils';
-import { xcomputed, xeffect } from '../../utils/signal-utils';
+import { waitForChange, xcomputed, xeffect } from '../../utils/signal-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
 import { SwapContainerComponent } from '../swap-container/swap-container';
@@ -19,7 +18,8 @@ type ItemCard<T> = {
     id: number;
     item: T;
     top?: number; // used for animations - relative to container
-    view?: ElementRef<HTMLElement> | null;
+    animateEntrance: boolean;
+    removed: WritableSignal<boolean>;
 }
 
 @Component({
@@ -30,6 +30,7 @@ type ItemCard<T> = {
 })
 export class CardListComponent<T> {
 
+    private readonly injector = inject(Injector);
     private readonly windowService = inject(WindowService);
     private readonly dragDrop = inject(DragDropService);
     private readonly element = inject(ElementRef) as ElementRef<HTMLElement>;
@@ -76,17 +77,9 @@ export class CardListComponent<T> {
     private initialized = false;
     private insertSubscriptions: Subscription[] = [];
     private dropSubscription: Subscription | undefined;
-    private dropped = false;
     private insertBtnHeight = 0;
 
     constructor() {
-        xeffect([this.cardViews], cardViews => {
-            if (this.dropped) {
-                this.dropped = false;
-                return;
-            }
-            this.animateCardViews(cardViews);
-        });
         xeffect([this.insertionView, this.inserting], async (insertionView, inserting) => {
             if (!inserting || !insertionView) {
                 this.insertSubscriptions.forEach(sub => sub.unsubscribe());
@@ -197,8 +190,6 @@ export class CardListComponent<T> {
             : data.from === this.dropList()
                 ? this.removeDroppedItem(data)
                 : null;
-        this.dropped = true;
-        setTimeout(() => this.dropped = false, 100);
     }
 
     private moveDroppedItem(data: DropData<T>) {
@@ -220,7 +211,7 @@ export class CardListComponent<T> {
         const id = data.item[idKey] as number;
         if (itemCards.some(card => card.id === id)) return;
         const newItemCards = [...itemCards];
-        newItemCards.splice(data.toPosition, 0, { id, item: data.item });
+        newItemCards.splice(data.toPosition, 0, { id, item: data.item, animateEntrance: false, removed: signal(false) });
         const orderByKey = this.orderByKey();
         if (orderByKey)
             data.item[orderByKey] = this.getPositionForIndex(newItemCards, data.toPosition);
@@ -246,74 +237,48 @@ export class CardListComponent<T> {
                 : followingPosition != null ? followingPosition - 1 : 0);
     }
 
-    private updateItemCards(update: { items?: T[], deletions?: number[] }, animateNew = true) {
+    private async updateItemCards(update: { items?: T[], deletions?: number[] }, animateEntrance = true) {
         const { items = [], deletions = [] } = update;
         if (!items.length && !deletions.length) return;
-        const itemCards = [...this.itemCards()];
-        const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
-        animateNew &&= this.initialized;
+        let itemCards = [...this.itemCards()];
+        animateEntrance &&= this.initialized;
         const idKey = this.idKey();
-        for (const id of deletions) {
-            const index = itemCards.findIndex(itemCard => itemCard.id === id);
-            if (index !== -1) itemCards.splice(index, 1);
-            continue;
-        }
+        const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
         for (const item of items) {
             const id = item[idKey] as number;
             const itemCard = itemCardMap.get(id);
             if (itemCard) {
                 itemCard.item = item;
             } else if (item) {
-                const itemCard: ItemCard<T> = { id, item };
-                if (!animateNew) itemCard.view = null;
-                itemCards.push(itemCard);
+                itemCards.push({ id, item, animateEntrance, removed: signal(false) });
             }
         }
-        const deletedCards = deletions.map(id => itemCardMap.get(id));
-        for (const deletedCard of deletedCards) {
-            if (!deletedCard?.view) continue;
-            const element = deletedCard.view.nativeElement;
-            const absoluteRect = element.getBoundingClientRect();
-            transitionStyle(element,
-                { height: `${absoluteRect.height}px`, opacity: animateNew ? '1' : '0' },
-                { height: '0px', opacity: '0' },
-                300, easeOut);
+        if (deletions.length) {
+            itemCards = itemCards.filter(card => {
+                if (!deletions.includes(card.id)) return true;
+                card.removed.set(true);
+                return false;
+            });
+            await wait(animationDurationMs);
         }
         this.initialized = true;
-        if (!this.orderIsCorrect(itemCards))
-            this.sort(itemCards);
         this.itemCards.set(itemCards);
-    }
-
-    private animateCardViews(cardViews: readonly ElementRef<HTMLElement>[]) {
-        if (!cardViews.length) return;
+        if (this.orderIsCorrect(itemCards)) return;
+        this.sort(itemCards);
+        const cardViews = await waitForChange(this.cardViews, this.injector);
         const containerRect = this.element.nativeElement.getBoundingClientRect();
-        const itemCards = this.itemCards();
         for (let i = 0; i < cardViews.length; i++) {
             const itemCard = itemCards[i];
             if (!itemCard) return;
-            const isNew = !('view' in itemCard);
-            const cardView = itemCard.view = cardViews[i];
+            const cardView = cardViews[i];
             const element = cardView.nativeElement;
             const oldTop = itemCard.top;
             const absoluteRect = element.getBoundingClientRect();
             const newTop = itemCard.top = absoluteRect.top - containerRect.top;
-            const fromStyle: Partial<CSSStyleDeclaration> = {};
-            const toStyle: Partial<CSSStyleDeclaration> = {};
-            if (isNew) {
-                fromStyle.height = '0px';
-                fromStyle.opacity = '0';
-                toStyle.height = `${absoluteRect.height}px`;
-                toStyle.opacity = '1';
-            }
-            if (oldTop !== undefined) {
-                if (Math.abs(oldTop - newTop) > 1) {
-                    fromStyle.transform = `translate(0px, ${oldTop - newTop}px)`;
-                    toStyle.transform = 'translate(0px, 0px)';
-                }
-            }
-            if (hasRecords(fromStyle))
-                transitionStyle(element, fromStyle, toStyle, 300, easeOut, true);
+            if (oldTop === undefined || Math.abs(oldTop - newTop) < 1) continue;
+            transitionStyle(element,
+                { transform: `translate(0px, ${oldTop - newTop}px)` },
+                { transform: 'translate(0px, 0px)' }, 300, easeOut, true);
         }
     }
 

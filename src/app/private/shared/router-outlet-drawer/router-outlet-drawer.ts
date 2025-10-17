@@ -113,6 +113,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     protected async close() {
         this.closing.set(true);
+        const page = this.activeChild();
+        if (page instanceof RowPageComponent)
+            page.close();
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
         const width = element.offsetWidth;

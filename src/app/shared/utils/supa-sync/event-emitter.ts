@@ -40,7 +40,7 @@ export class EventEmitter<T> {
 
     emit(event: T) {
         for (const listener of this.listeners)
-            listener(event);
+            listener?.(event);
     }
     
     subscribe(callback: (event: T) => any): Subscription {

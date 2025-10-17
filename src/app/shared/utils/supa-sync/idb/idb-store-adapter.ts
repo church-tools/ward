@@ -19,56 +19,28 @@ export class IDBStoreAdapter<T> {
     public init(idb: Promise<IDBDatabase>) {
         idb.then(this.idbSet);
     }
-    
+
     public async write(item: T) {
         const idb = await this.idb;
-        await new Promise<void>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readwrite");
-            const store = transaction.objectStore(this.storeName);
-            store.put(item);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = err => reject(err);
-        });
+        await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => store.put(item));
     }
 
     public async writeMany(items: T[]) {
-        if (items.length === 0) return Promise.resolve();
+        if (items.length === 0) return;
         const idb = await this.idb;
-        await new Promise<void>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readwrite");
-            const store = transaction.objectStore(this.storeName);
-            for (const row of items) store.put(row);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = err => reject(err);
-        });
+        await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => items.forEach(item => store.put(item)));
     }
 
     public async writeAndGet(items: T[]) {
-        if (items.length === 0) return [] as { old: T | undefined, new: T }[];
+        if (items.length === 0) return [];
         const idb = await this.idb;
-        return new Promise<{ old: T | undefined, new: T }[]>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, 'readwrite');
-            const store = transaction.objectStore(this.storeName);
-            const keyPath = store.keyPath as keyof T & string;
-            const results = new Array<{ old: T | undefined, new: T }>(items.length);
-            for (let i = 0; i < items.length; i++) {
-                const row = items[i];
-                const key = row[keyPath] as IDBValidKey;
-                const getOld = store.get(key);
-                getOld.onerror = () => reject(getOld.error);
-                getOld.onsuccess = () => {
-                    const putReq = store.put(row);
-                    putReq.onerror = () => reject(putReq.error);
-                    putReq.onsuccess = () => {
-                        const getNew = store.get(putReq.result);
-                        getNew.onerror = () => reject(getNew.error);
-                        getNew.onsuccess = () => results[i] = { old: getOld.result, new: getNew.result as T };
-                    };
-                };
-            }
-            transaction.oncomplete = () => resolve(results);
-            transaction.onerror = () => reject(transaction.error as any);
-        });
+        return await idb.transaction(this.storeName, 'readwrite')
+            .toPromise(store => Promise.all(items.map(item => Promise.all([
+                store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>(),
+                store.put(item).toPromise()
+            ]).then(([old]) => ({ old, new: item })))));
     }
 
     public abort() {
@@ -78,107 +50,57 @@ export class IDBStoreAdapter<T> {
 
     public async read<I = T>(key: IDBValidKey) {
         const idb = await this.idb;
-        return new Promise<I | undefined>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readonly");
-            const store = transaction.objectStore(this.storeName);
-            const req = store.get(key);
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = err => reject(err);
-        });
+        return await idb.transaction(this.storeName, "readonly")
+            .toPromise(store => store.get(key).toPromise<I>());
     }
 
     public async readMany(keys: IDBValidKey[], abortSignal?: AbortSignal) {
         if (keys.length === 0) return Promise.resolve([]);
         const idb = await this.idb;
-        return new Promise<(T | undefined)[]>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readonly");
-            if (abortSignal) abortSignal.onabort = transaction.abort.bind(transaction);
-            const store = transaction.objectStore(this.storeName);
-            const results = new Array<T | undefined>(keys.length);
-            for (let i = 0; i < keys.length; i++) {
-                const req = store.get(keys[i]);
-                req.onsuccess = () => results[i] = req.result;
-                req.onerror = err => reject(err);
-            }
-            transaction.oncomplete = () => resolve(results);
-        });
+        return await idb.transaction(this.storeName, "readonly")
+            .abortOn(abortSignal)
+            .toPromise(store => Promise.all(keys.map(key => store.get(key).toPromise<T>())));
     }
 
     public async readAll(abortSignal?: AbortSignal) {
         const idb = await this.idb;
-        return new Promise<T[]>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readonly");
-            if (abortSignal) abortSignal.onabort = transaction.abort.bind(transaction);
-            const store = transaction.objectStore(this.storeName);
-            const req = store.getAll();
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = err => reject(err);
-        });
+        return await idb.transaction(this.storeName, "readonly")
+            .abortOn(abortSignal)
+            .toPromise(store => store.getAll().toPromise<T[]>());
     }
 
     public async readAllKeys(abortSignal?: AbortSignal) {
         const idb = await this.idb;
-        return new Promise<IDBValidKey[]>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readonly");
-            if (abortSignal) abortSignal.onabort = transaction.abort.bind(transaction);
-            const store = transaction.objectStore(this.storeName);
-            const req = store.getAllKeys();
-            req.onsuccess = () => resolve(req.result);
-            req.onerror = err => reject(err);
-        });
+        return await idb.transaction(this.storeName, "readonly")
+            .abortOn(abortSignal)
+            .toPromise(store => store.getAllKeys().toPromise());
     }
 
     public async findLargestId() {
         const idb = await this.idb;
-        return new Promise<number | undefined>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readonly");
-            const store = transaction.objectStore(this.storeName);
-            const index = store.index('id');
-            const req = index.openKeyCursor(null, 'prev');
-            req.onsuccess = () => {
-                const cursor = req.result;
-                if (cursor) {
-                    resolve(cursor.key as number);
-                } else {
-                    resolve(undefined);
-                }
-            };
-            req.onerror = err => reject(err);
-        });
+        return await idb.transaction(this.storeName, "readonly")
+            .toPromise(store => store.index('id')
+                .openKeyCursor(null, 'prev').toPromise()
+                .then(cursor => cursor?.key as number | undefined));
     }
 
     public async delete(key: number) {
         const idb = await this.idb;
-        await new Promise<void>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readwrite");
-            const store = transaction.objectStore(this.storeName);
-            store.delete(key);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = err => reject(err);
-        });
+        await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => store.delete(key).toPromise());
     }
 
     public async deleteMany(keys: number[]) {
         if (keys.length === 0) return Promise.resolve();
         const idb = await this.idb;
-        await new Promise<void>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readwrite");
-            const store = transaction.objectStore(this.storeName);
-            for (const key of keys) store.delete(key);
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = err => reject(err);
-        });
+        await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => keys.forEach(key => store.delete(key)));
     }
 
     public async clear() {
         const idb = await this.idb;
-        return new Promise<void>((resolve, reject) => {
-            const transaction = idb.transaction(this.storeName, "readwrite");
-            const store = transaction.objectStore(this.storeName);
-            store.clear();
-            transaction.oncomplete = () => resolve();
-            transaction.onerror = err => reject(err);
-        });
+        await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => store.clear());
     }
 
     public lock(safeFunc: () => Promise<void>, timeout = 5000) {
@@ -193,11 +115,41 @@ export class IDBStoreAdapter<T> {
 
     public async getIndex(indexName: keyof T & string) {
         const idb = await this.idb;
-        const transaction = idb.transaction(this.storeName, "readonly");
-        const store = transaction.objectStore(this.storeName);
+        const store = idb.transaction(this.storeName, "readonly").objectStore(this.storeName);
         if (!store.indexNames.contains(indexName))
             throw new Error(`"${this.storeName}" store doesn't have an index for "${indexName}".\n
                 Add "${indexName}" to the indexed array of the tableInfo that is passed to the SupaSync constructor.`);
         return store.index(indexName) as IDBIndex;
     }
 }
+
+declare global {
+    interface IDBRequest<T = any> {
+        toPromise<R = T>(): Promise<R>;
+    }
+    interface IDBTransaction<T = any> {
+        toPromise<R = T>(fn: (store: IDBObjectStore) => R | Promise<R>): Promise<R>;
+        abortOn(abortSignal: AbortSignal | undefined): this;
+    }
+}
+
+IDBRequest.prototype.toPromise = function<T>(this: IDBRequest<T>) {
+    return new Promise<T>((resolve, reject) => {
+        this.onsuccess = () => resolve(this.result);
+        this.onerror = () => reject(this.error);
+    });
+};
+
+IDBTransaction.prototype.toPromise = function<T>(this: IDBTransaction<T>, fn: (store: IDBObjectStore) => T | Promise<T>): Promise<T> {
+    return new Promise<T>((resolve, reject) => {
+        const store = this.objectStore(this.objectStoreNames[0]);
+        const resultPromise = fn(store);
+        this.onabort = () => reject(this.error);
+        this.oncomplete = async () => resolve(await resultPromise);
+        this.onerror = () => reject(this.error);
+    });
+};
+IDBTransaction.prototype.abortOn = function<T>(this: IDBTransaction<T>, abortSignal: AbortSignal | undefined): IDBTransaction<T> {
+    if (abortSignal) abortSignal.onabort = this.abort.bind(this);
+    return this;
+};

@@ -48,12 +48,14 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
     private async getResults<R extends Row<D, T> | IDBValidKey>(keysOnly?: R extends IDBValidKey ? true : undefined): Promise<R[]> {
         if (this.conditions.length === 1) {
             const index = await this.store.getIndex(this.conditions[0].field);
-            return await this.queryCondition(this.conditions[0], keysOnly ? index.getAllKeys.bind(index) : index.getAll.bind(index)) as R[];;
+            return await queryCondition<R, T>(this.conditions[0], keysOnly
+                ? index.getAllKeys.bind(index)
+                : index.getAll.bind(index));
         } else {
             let keys: Set<IDBValidKey>;
             await Promise.all(this.conditions.map(async condition => {
                 const index = await this.store.getIndex(condition.field);
-                const result = await this.queryCondition(condition, index.getAllKeys.bind(index)) as IDBValidKey[];
+                const result = await queryCondition<IDBValidKey, T>(condition, index.getAllKeys.bind(index));
                 keys = keys?.intersection(new Set(result)) ?? new Set(result);
             }));
             const keyArray = Array.from(keys!);
@@ -74,21 +76,22 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
             }
         });
     }
-    
-    private async queryCondition(condition: Condition<T, keyof T>, fetchFn: (value: IDBValidKey | IDBKeyRange) => IDBRequest) {
-        const requests = (function getRequests() {
-            switch (condition.operator) {
-                case 'eq': return [fetchFn(condition.value)];
-                case 'in': return condition.value.map(val => fetchFn(val));
-                case 'gt': return [fetchFn(IDBKeyRange.lowerBound(condition.value))];
-                case 'lt': return [fetchFn(IDBKeyRange.upperBound(condition.value))];
-                case 'not': return [fetchFn(IDBKeyRange.lowerBound(condition.value, true)), fetchFn(IDBKeyRange.upperBound(condition.value, true))];
-            }
-        })();
-        return (await Promise.all(requests.map(req => new Promise((resolve, reject) => {
-            req.addEventListener('success', () => resolve(req.result));
-            req.addEventListener('error', () => reject(req.error));
-        })))).flat();
-    }
 
 }
+
+function queryCondition<R, T>(condition: Condition<T, keyof T>, fetchFn: (value: IDBValidKey | IDBKeyRange) => IDBRequest) {
+    const requests = [(() => {
+        const { operator, value } = condition;
+        switch (operator) {
+            case 'eq': return fetchFn(value);
+            case 'in': return value.map(val => fetchFn(val));
+            case 'gt': return fetchFn(IDBKeyRange.lowerBound(value));
+            case 'lt': return fetchFn(IDBKeyRange.upperBound(value));
+            case 'not': return [
+                fetchFn(IDBKeyRange.lowerBound(value, true)),
+                fetchFn(IDBKeyRange.upperBound(value, true)),
+            ];
+        }
+    })()].flat();
+    return Promise.all(requests.map(req => req.toPromise<R[]>())).then(results => results.flat());
+};

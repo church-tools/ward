@@ -9,6 +9,12 @@
 
 .drag-card-host {
     transition: transform 0s;
+    
+    &:last-child {
+        .card-item {
+            margin-bottom: 0 !important;
+        }
+    }
 }
 
 .card-item {
@@ -17,13 +23,25 @@
     position: relative;
     align-items: center;
     box-sizing: border-box;
-    transition: all animation.$duration-sm ease;
-    
-    &.hidden {
+    transition: all animation.$duration-sm ease,
+        height animation.$duration-sm animation.$ease-out,
+        opacity animation.$duration-sm animation.$ease-out,
+        margin-bottom animation.$duration-sm animation.$ease-out;
+    height: calc-size(auto);
+    opacity: 1;
+    &.appear {
+        @starting-style {
+            height: 0;
+            opacity: 0;
+            margin-bottom: 0 !important;
+        }
+    }
+    &.disappear {
+        height: 0;
         opacity: 0;
+        margin-bottom: 0 !important;
     }
     &.new {
-        opacity: 1;
         transition: opacity animation.$duration animation.$ease-out;
         @starting-style {
             opacity: 0;

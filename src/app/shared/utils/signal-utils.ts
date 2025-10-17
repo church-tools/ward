@@ -1,4 +1,4 @@
-import { computed, CreateEffectOptions, effect, signal, Signal, WritableSignal } from "@angular/core";
+import { computed, CreateEffectOptions, effect, Injector, signal, Signal, WritableSignal } from "@angular/core";
 
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
@@ -94,4 +94,17 @@ export function property<T extends object, K extends keyof T>(parent: Signal<T |
         return newValue;
     });
     return s;
+}
+
+export function waitForChange<T>(signal: Signal<T>, injector: Injector): Promise<T> {
+    return new Promise<T>(resolve => {
+        const currentValue = signal();
+        const effectRef = effect(() => {
+            const newValue = signal();
+            if (newValue !== currentValue) {
+                effectRef.destroy();
+                resolve(newValue);
+            }
+        }, { injector });
+    });
 }

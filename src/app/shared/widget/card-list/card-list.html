@@ -1,7 +1,7 @@
 <div class="card-list-header">
 
 </div>
-<div #container class="card-item-container column gap-{{gap()}}"
+<div #container class="card-item-container column"
     cdkDropList
     watchChildren watchChildClass="cdk-drag-placeholder"
     (childAdded)="placeholderAdded($event)"
@@ -16,7 +16,9 @@
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="card-item {{cardClasses()}} stealth selectable-card card-inner">
+                <div class="card-item {{cardClasses()}} mb-{{gap()}} stealth selectable-card card-inner"
+                    [class.appear]="itemCard.animateEntrance"
+                    [class.disappear]="itemCard.removed()">
                     @if (itemCard.id === activeId()) {
                         <div class="indicator accent-fg"
                             animate.leave="disappear"></div>
@@ -39,7 +41,9 @@
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
                 (click)="onItemClick(itemCard)">
-                <div class="card-item {{cardClasses()}} selectable-card card-inner">
+                <div class="card-item {{cardClasses()}} mb-{{gap()}} selectable-card card-inner"
+                    [class.appear]="itemCard.animateEntrance"
+                    [class.disappear]="itemCard.removed()">
                     @if (itemCard.id === activeId()) {
                         <div class="indicator accent-fg"
                             animate.leave="disappear"></div>

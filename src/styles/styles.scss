@@ -12,5 +12,6 @@ body {
     position: relative;
     min-height: 100vh;
     margin: 0;
+    interpolate-size: allow-keywords;
     @media (prefers-color-scheme: dark) { color-scheme: dark; }
 }
