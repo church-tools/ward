@@ -9,6 +9,7 @@
 @use 'sass:color' as sassColor;
 
 button, .button {
+    -webkit-tap-highlight-color: transparent;
     text-decoration: none !important;
     width: 100%;
     min-height: 2.25rem;
@@ -253,4 +254,8 @@ button, .button {
 
 .round > button, .round > .button {
     border-radius: card.$border-radius-round;
+}
+
+a {
+    -webkit-tap-highlight-color: transparent;
 }

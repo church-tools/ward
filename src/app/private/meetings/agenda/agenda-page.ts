@@ -10,6 +10,8 @@ import { SupaSyncedDirective } from "../../../shared/utils/supa-sync/supa-synced
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
+import { IconComponent } from "../../../shared/icon/icon";
+import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
 
 @Component({
     selector: 'app-agenda-page',
@@ -19,9 +21,16 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (activated)="onActivate($event)">
             <div class="page narrow">
                 @if (adminService.editMode() && row()) {
+                    <app-icon-picker />
                     <app-text-input [supaSynced]="table" [row]="row()!" column="name" [subtle]="true" textClass="h0"/>
                 } @else {
-                    <span class="h0">{{title()}}</span>
+                    <span class="h0">
+                        @if (row()?.shape) {
+                            <app-icon [icon]="row()!.shape!" [filled]="true" size="lg"
+                                class="{{row()!.color}}"></app-icon>
+                        }
+                        {{title()}}
+                    </span>
                 }
                 <app-row-card-list #sectionList tableName="agenda_section"
                     [cardsVisible]="adminService.editMode()"
@@ -34,7 +43,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         </app-router-outlet-drawer>
         <app-agenda-drop-zone [draggedTask]="draggedTask()"/>
     `,
-    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent, SupaSyncedDirective],
+    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent, SupaSyncedDirective, IconComponent, IconPickerComponent],
     host: { class: 'full-width' }
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {

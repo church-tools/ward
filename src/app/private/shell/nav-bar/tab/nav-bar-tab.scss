@@ -6,6 +6,7 @@
 @use 'sass:map';
 
 .btn {
+    -webkit-tap-highlight-color: transparent;
     text-decoration: none !important;
     min-height: 4rem;
     width: 4.5rem;

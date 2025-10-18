@@ -32,6 +32,9 @@
     &.clear {
         background-color: transparent;
     }
+    &.large {
+        border-radius: $border-radius-lg;
+    }
     &.round {
         border-radius: $border-radius-round;
     }

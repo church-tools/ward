@@ -2,6 +2,7 @@ import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewC
 import { Router, RouterOutlet } from "@angular/router";
 import ButtonComponent from "../../../shared/form/button/button";
 import { PageComponent } from "../../../shared/page/page";
+import { WindowService } from "../../../shared/service/window.service";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
 import { wait } from "../../../shared/utils/flow-control-utils";
 import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "../../../shared/utils/style";
@@ -32,6 +33,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected readonly activeChild = signal<PageComponent | null>(null);
     protected readonly closing = signal(false);
     protected readonly contentChanging = signal(false);
+    protected readonly onBottom = inject(WindowService).isSmall;
 
     private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
     private readonly routerOutlet = viewChild.required(RouterOutlet);
@@ -57,23 +59,30 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     protected async onActivate(page: PageComponent) {
-        if (page instanceof RowPageComponent)
+        this.emitCurrentRoute();
+        this.activeChild.set(page);
+        await this.animateDrawerOpen();
+        if (page instanceof RowPageComponent) {
             page.onIdChange = async _ => {
+                if (this.onBottom()) return;
                 this.contentChanging.set(true);
                 setTimeout(() => this.contentChanging.set(false), animationDurationLgMs);
                 this.emitCurrentRoute();
                 await wait(animationDurationLgMs * 0.25);
             };
-        this.emitCurrentRoute();
-        this.activeChild.set(page);
-        await this.animateDrawerOpen();
+        }
     }
 
     protected onDeactivate(page: PageComponent) {
         this.activated.emit(null);
-        this.slideOut();
+        this.animateDrawerClose();
         if (page instanceof RowPageComponent)
             delete page.onIdChange;
+    }
+
+    protected async onClose() {
+        await this.animateDrawerClose();
+        this.router.navigate(['..'], { relativeTo: this.routerOutlet().activatedRoute });
     }
 
     private emitCurrentRoute() {
@@ -86,6 +95,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         await new Promise(resolve => requestAnimationFrame(resolve));
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
+        if (this.onBottom()) {
+            card.style.minWidth = ``;
+            return;
+        }
         const width = element.offsetWidth;
         
         card.style.minWidth = `${width}px`;
@@ -97,30 +110,35 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             animationDurationLgMs, easeOut, true);
             
         card.style.minWidth = '';
-        element.style.width = '';
     }
 
-    protected onClose() {
-        this.router.navigate(['..'], { relativeTo: this.routerOutlet().activatedRoute });
-    }
-
-    private async slideOut() {
+    private async animateDrawerClose() {
         this.closing.set(true);
         const page = this.activeChild();
+        if (!page) return;
         if (page instanceof RowPageComponent)
             page.close();
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
-        const width = element.offsetWidth;
-        card.style.minWidth = `${width}px`;
-        card.style.left = '0px';
-        card.classList.add('fade-out');
-        await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, animationDurationLgMs, easeOut, true);
-        card.classList.remove('fade-out');
-        element.style.transform = '';
-        element.style.opacity = '';
-        element.style.transition = '';
-        if (this.contentChanging() || this.abortController.signal.aborted) return;
+        if (this.onBottom()) {
+            const height = element.offsetHeight;
+            card.style.minHeight = `${height}px`;
+            element.style.minHeight = `${height}px`;
+            await wait(animationDurationMs);
+            card.style.minHeight = '';
+            element.style.minHeight = '';
+        } else {
+            const width = element.offsetWidth;
+            card.style.minWidth = `${width}px`;
+            card.style.left = '0px';
+            card.classList.add('fade-out');
+            await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, animationDurationLgMs, easeOut, true);
+            card.classList.remove('fade-out');
+            element.style.transform = '';
+            element.style.opacity = '';
+            element.style.transition = '';
+        }
+        if (this.contentChanging()) return;
         this.activeChild.set(null);
         this.closing.set(false);
     }
@@ -213,7 +231,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             const velocity = deltaX / (Date.now() - this.dragState!.startTime);
             if (deltaX > 0) {
                 if (deltaX > 100 || velocity > 0.5) {
-                    this.slideOut();
+                    this.animateDrawerClose();
                 } else {
                     // Set the current drag position without transition
                     element.style.transition = '';

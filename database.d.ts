@@ -16,33 +16,39 @@ export type Database = {
     Tables: {
       agenda: {
         Row: {
+          color: Database["public"]["Enums"]["color"] | null
           deleted: boolean
           id: number
           name: string
           position: number
           postponed_until: string | null
+          shape: Database["public"]["Enums"]["shape"] | null
           start_time: number
           unit: number
           updated_at: string
           week_interval: number
         }
         Insert: {
+          color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id: number
           name: string
           position: number
           postponed_until?: string | null
+          shape?: Database["public"]["Enums"]["shape"] | null
           start_time?: number
           unit: number
           updated_at?: string
           week_interval?: number
         }
         Update: {
+          color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id?: number
           name?: string
           position?: number
           postponed_until?: string | null
+          shape?: Database["public"]["Enums"]["shape"] | null
           start_time?: number
           unit?: number
           updated_at?: string
@@ -463,6 +469,7 @@ export type Database = {
           created_at: string
           id: number
           name: string
+          order: number | null
           unit: number
           updated_at: string
         }
@@ -471,6 +478,7 @@ export type Database = {
           created_at?: string
           id: number
           name: string
+          order?: number | null
           unit: number
           updated_at?: string
         }
@@ -479,6 +487,7 @@ export type Database = {
           created_at?: string
           id?: number
           name?: string
+          order?: number | null
           unit?: number
           updated_at?: string
         }
@@ -751,6 +760,43 @@ export type Database = {
         | "stake_conference"
         | "ward_conference"
       permission: "calling" | "sacrament_meeting" | "music"
+      shape:
+        | "circle"
+        | "triangle"
+        | "square"
+        | "pentagon"
+        | "hexagon"
+        | "shapes"
+        | "oval"
+        | "rhombus"
+        | "premium"
+        | "fire"
+        | "water"
+        | "mountain_trail"
+        | "weather_cloudy"
+        | "weather_sunny"
+        | "weather_moon"
+        | "star"
+        | "heart"
+        | "bow_tie"
+        | "briefcase"
+        | "guardian"
+        | "hat_graduation"
+        | "book"
+        | "food_fish"
+        | "lightbulb"
+        | "key_multiple"
+        | "compass_northwest"
+        | "card_ui"
+        | "dust"
+        | "tree_deciduous"
+        | "plant_ragweed"
+        | "food_grains"
+        | "hand_right"
+        | "money"
+        | "savings"
+        | "people_audience"
+        | "scales"
       task_stage:
         | "suggestion"
         | "topic"
@@ -931,6 +977,44 @@ export const Constants = {
         "ward_conference",
       ],
       permission: ["calling", "sacrament_meeting", "music"],
+      shape: [
+        "circle",
+        "triangle",
+        "square",
+        "pentagon",
+        "hexagon",
+        "shapes",
+        "oval",
+        "rhombus",
+        "premium",
+        "fire",
+        "water",
+        "mountain_trail",
+        "weather_cloudy",
+        "weather_sunny",
+        "weather_moon",
+        "star",
+        "heart",
+        "bow_tie",
+        "briefcase",
+        "guardian",
+        "hat_graduation",
+        "book",
+        "food_fish",
+        "lightbulb",
+        "key_multiple",
+        "compass_northwest",
+        "card_ui",
+        "dust",
+        "tree_deciduous",
+        "plant_ragweed",
+        "food_grains",
+        "hand_right",
+        "money",
+        "savings",
+        "people_audience",
+        "scales",
+      ],
       task_stage: [
         "suggestion",
         "topic",

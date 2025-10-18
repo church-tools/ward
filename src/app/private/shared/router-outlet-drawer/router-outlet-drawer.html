@@ -2,10 +2,10 @@
 <div class="main row center-content">
     <ng-content/>
 </div>
-<div #drawer class="drawer"
+<div #drawer class="drawer" [class.on-bottom]="onBottom()"
     (mousedown)="onDragStart($event)"
     (touchstart)="onDragStart($event)">
-    <div class="drawer-card card canvas-card">
+    <div class="drawer-card card large {{ onBottom() ? 'acrylic-card' : 'canvas-card' }}">
         <div class="drawer-body">
             <router-outlet
                 (activate)="onActivate($event)"

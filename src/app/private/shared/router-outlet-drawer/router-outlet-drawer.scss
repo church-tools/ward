@@ -23,9 +23,20 @@
         }
         .drawer {
             display: block;
+            &.on-bottom {
+                @starting-style {
+                    transform: translateY(100%);
+                }
+            }
         }
         &.closing {
             gap: 0;
+            .drawer {
+                &.on-bottom {
+                    transition-timing-function: animation.$ease-in;
+                    transform: translateY(100%);
+                }
+            }
         }
     }
     &.content-changing {
@@ -46,6 +57,21 @@
     top: layout.$canvas-margin-y;
     width: 100%;
     max-width: layout.$page-width-narrow;
+
+    &.on-bottom {
+        position: fixed;
+        height: min-content;
+        top: auto;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        transition: transform animation.$duration animation.$ease-out;
+        .drawer-card {
+            border-bottom-left-radius: 0;
+            border-bottom-right-radius: 0;
+            border-bottom: none;
+        }
+    }
 
     &:active {
         cursor: grabbing;
