@@ -88,6 +88,7 @@ body {
     .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
     .#{"" + $color}-active { color: map.get($actives, $color); }
     app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
+    app-icon.#{"" + $color}-high-contrast { color: map.get($high-contrast, $color); }
     
     @each $color2 in $names {
         .bg-gradient {

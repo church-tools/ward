@@ -113,9 +113,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     private async animateDrawerClose() {
-        this.closing.set(true);
         const page = this.activeChild();
         if (!page) return;
+        this.closing.set(true);
         if (page instanceof RowPageComponent)
             page.close();
         const element = this.drawerView().nativeElement;
@@ -138,9 +138,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             element.style.opacity = '';
             element.style.transition = '';
         }
+        this.closing.set(false);
         if (this.contentChanging()) return;
         this.activeChild.set(null);
-        this.closing.set(false);
     }
 
     protected onDragStart(event: MouseEvent | TouchEvent) {

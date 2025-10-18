@@ -1,8 +1,9 @@
-import { Component, OnDestroy, input, signal } from '@angular/core';
+import { Component, OnDestroy, inject, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { Icon, IconComponent } from '../../../../shared/icon/icon';
+import { WindowService } from '../../../../shared/service/window.service';
 import { ColorName } from '../../../../shared/utils/color-utils';
 
 export type InnerNavBarTab = {
@@ -34,10 +35,13 @@ export type InnerNavBarTab = {
     `,
     styleUrl: './nav-bar-tab.scss',
     host: {
-        '[class]': 'tab().class'
+        '[class]': 'tab().class',
+        '[class.mobile]': 'mobileOS'
     }
 })
 export class NavbarTabComponent implements OnDestroy {
+
+    protected readonly mobileOS = inject(WindowService).mobileOS;
     
     readonly tab = input.required<InnerNavBarTab>();
     readonly active = input.required<boolean>();

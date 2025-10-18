@@ -736,23 +736,30 @@ export type Database = {
         | "set_apart"
       class: "sunday_school" | "relief_society" | "elders_quorum"
       color:
+        | "crimson"
         | "red"
-        | "pink"
-        | "magenta"
-        | "purple"
-        | "lavender"
-        | "navy"
-        | "blue"
-        | "teal"
-        | "seagreen"
-        | "green"
-        | "olive"
-        | "yellowgreen"
-        | "yellow"
-        | "goldenrod"
-        | "peru"
+        | "orangered"
         | "orange"
-        | "coral"
+        | "gold"
+        | "yellow"
+        | "chartreuse"
+        | "limegreen"
+        | "lime"
+        | "springgreen"
+        | "mediumspringgreen"
+        | "aqua"
+        | "turquoise"
+        | "deepskyblue"
+        | "dodgerblue"
+        | "blue"
+        | "mediumblue"
+        | "blueviolet"
+        | "purple"
+        | "violet"
+        | "magenta"
+        | "deeppink"
+        | "hotpink"
+        | "mediumvioletred"
       gender: "male" | "female"
       meeting_type:
         | "fast_and_testimony"
@@ -951,23 +958,30 @@ export const Constants = {
       ],
       class: ["sunday_school", "relief_society", "elders_quorum"],
       color: [
+        "crimson",
         "red",
-        "pink",
-        "magenta",
-        "purple",
-        "lavender",
-        "navy",
-        "blue",
-        "teal",
-        "seagreen",
-        "green",
-        "olive",
-        "yellowgreen",
-        "yellow",
-        "goldenrod",
-        "peru",
+        "orangered",
         "orange",
-        "coral",
+        "gold",
+        "yellow",
+        "chartreuse",
+        "limegreen",
+        "lime",
+        "springgreen",
+        "mediumspringgreen",
+        "aqua",
+        "turquoise",
+        "deepskyblue",
+        "dodgerblue",
+        "blue",
+        "mediumblue",
+        "blueviolet",
+        "purple",
+        "violet",
+        "magenta",
+        "deeppink",
+        "hotpink",
+        "mediumvioletred",
       ],
       gender: ["male", "female"],
       meeting_type: [

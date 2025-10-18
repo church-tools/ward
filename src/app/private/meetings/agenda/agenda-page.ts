@@ -25,9 +25,9 @@ import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picke
                     <app-text-input [supaSynced]="table" [row]="row()!" column="name" [subtle]="true" textClass="h0"/>
                 } @else {
                     <span class="h0">
-                        @if (row()?.shape) {
+                        @if (row()?.shape && windowService.isLarge()) {
                             <app-icon [icon]="row()!.shape!" [filled]="true" size="lg"
-                                class="{{row()!.color}}"></app-icon>
+                                class="{{row()!.color}}-active ms--12"></app-icon>
                         }
                         {{title()}}
                     </span>

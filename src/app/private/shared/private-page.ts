@@ -1,5 +1,6 @@
 import { Component, inject, OnDestroy, signal } from '@angular/core';
 import { PageComponent } from '../../shared/page/page';
+import { WindowService } from '../../shared/service/window.service';
 import { AdminService } from './admin.service';
 
 @Component({
@@ -13,6 +14,7 @@ import { AdminService } from './admin.service';
 export abstract class PrivatePageComponent extends PageComponent implements OnDestroy {
     
     protected readonly adminService = inject(AdminService);
+    protected readonly windowService = inject(WindowService);
     protected readonly abortController = new AbortController();
     
     protected readonly show = signal<boolean>(true);

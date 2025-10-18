@@ -9,7 +9,8 @@ import { xcomputed } from '../../shared/utils/signal-utils';
         <div class="row m-6-8">
             <h3>
                 @if (row().shape) {
-                    <app-icon [icon]="icon()" [filled]="true" class="{{row().color}}"></app-icon>
+                    <app-icon [icon]="icon()" [filled]="true"
+                        class="{{row().color}}-active"></app-icon>
                 }
                 {{ row().name }}
             </h3>

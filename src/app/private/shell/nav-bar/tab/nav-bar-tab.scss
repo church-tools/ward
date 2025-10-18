@@ -90,4 +90,14 @@
             .count-dot { opacity: 1; }
         }
     }
+    &.mobile {
+        .btn {
+            &.active {
+                .tab-title { opacity: 1; }
+                .icon, .active-icon {
+                    margin-top: -0.75rem;
+                }
+            }
+        }
+    }
 }

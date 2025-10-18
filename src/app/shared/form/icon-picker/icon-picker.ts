@@ -1,8 +1,7 @@
 import { Component, input } from "@angular/core";
 import { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
-import { SelectComponent } from "../select/select";
-import { getProviders, InputBaseComponent } from "../shared/input-base";
 import { IconComponent } from "../../icon/icon";
+import { getProviders, InputBaseComponent } from "../shared/input-base";
 
 @Component({
     selector: 'app-icon-picker',
@@ -10,7 +9,7 @@ import { IconComponent } from "../../icon/icon";
         <app-icon icon="access_time" [filled]="true"/>
     `,
     providers: getProviders(() => IconPickerComponent),
-    imports: [SelectComponent, IconComponent],
+    imports: [IconComponent],
 })
 export class IconPickerComponent<T extends TableName> extends InputBaseComponent<T> {
 
