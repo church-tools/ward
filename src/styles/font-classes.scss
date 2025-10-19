@@ -1,6 +1,5 @@
 @use "font" as *;
 @use "color";
-@use 'sass:map';
 
 html {
     font-size: $size;
@@ -43,21 +42,21 @@ a, .link {
         @extend .font-color;
     }
     &:not(.stealth) {
-        color: map.get(color.$foregrounds, color.$accent);
+        color: color.get-variant(color.$accent, 'foreground');
         transition: all 0.1s ease-in-out;
         
         &:not(.no-hover) {
             &:hover, &:focus{
-                color: map.get(color.$actives, color.$accent);
+                color: color.get-variant(color.$accent, 'active');
             }
         }
     }
     &:hover { text-decoration: none; }
     @each $color in color.$names {
         &.#{"" + $color} {
-            color: map.get(color.$foregrounds, $color);
+            color: color.get-variant($color, 'foreground');
             &:hover, &:focus {
-                color: map.get(color.$actives, $color);
+                color: color.get-variant($color, 'active');
             }
         }
     }

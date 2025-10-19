@@ -37,7 +37,7 @@ export class WindowService {
     readonly darkColorScheme = this._darkColorScheme.asReadonly();
     readonly isSmall = xcomputed([this.size], size => size === WindowSize.sm);
     readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
-    readonly mobileOS = false || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    readonly mobileOS = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
     readonly backUrl = signal<string | null>(null);

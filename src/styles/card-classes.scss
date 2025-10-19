@@ -4,7 +4,6 @@
 @use "animation";
 @use "layout-classes";
 @use "shadow-classes";
-@use 'sass:map';
 
 .card {
     display: flex;
@@ -17,8 +16,8 @@
     }
     @each $color in color.$names {
         &.#{"" + $color} {
-            background-color: map.get(color.$backgrounds, $color);
-            color: map.get(color.$foregrounds, $color);
+            background-color: color.get-variant($color, 'background');
+            color: color.get-variant($color, 'foreground');
         }
     }
 
@@ -75,8 +74,8 @@
 
         @each $color in color.$names {
             &.#{"" + $color} {
-                background-color: map.get(color.$backgrounds, $color) light-dark(0.6, 0.33);
-                color: map.get(color.$foregrounds, $color);
+                background-color: color.get-variant($color, 'background') light-dark(0.6, 0.33);
+                color: color.get-variant($color, 'foreground');
             }
         }
         &.selectable-card {

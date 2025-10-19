@@ -1,5 +1,4 @@
 @use "color" as *;
-@use 'sass:map';
 
 body {
     background-color: $canvas-background;
@@ -16,39 +15,40 @@ body {
 .accent-bg { @extend .#{"" + $accent}-bg; }
 .accent-fg { @extend .#{"" + $accent}-fg; }
 .accent-border { @extend .#{"" + $accent}-border; }
-.accent-text { @extend .#{"" + $accent}-text; }
 .accent-active { @extend .#{"" + $accent}-active; }
+.accent-text { @extend .#{"" + $accent}-text; }
 
 @each $color in $names {
     .#{"" + $color} {
-        .color-bg { background-color: map.get($backgrounds, $color); }
-        .color-fg { background-color: map.get($foregrounds, $color); }
-        .color-border { border-color: map.get($foregrounds, $color); }
-        .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
-        .color-active { color: map.get($actives, $color); }
-        app-icon { color: map.get($foregrounds, $color); }
+        .color-bg { background-color: get-variant($color, 'background'); }
+        .color-fg { background-color: get-variant($color, 'foreground'); }
+        .color-border { border-color: get-variant($color, 'foreground'); }
+        .color-text { color: get-variant($color, 'foreground'); font-weight: 500; }
+        .color-active { color: get-variant($color, 'active'); }
+        app-icon { color: get-variant($color, 'foreground'); }
     }
-    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color); }
-    .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
-    .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
-    .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
-    .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
-    .#{"" + $color}-active { color: map.get($actives, $color); }
-    app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
-    
+    .#{"" + $color}-bg { background-color: get-variant($color, 'background'); }
+    .#{"" + $color}-fg { background-color: get-variant($color, 'foreground'); }
+    .#{"" + $color}-active-bg { background-color: get-variant($color, 'active'); }
+    .#{"" + $color}-border { border-color: get-variant($color, 'foreground'); }
+    .#{"" + $color}-text { color: get-variant($color, 'foreground'); font-weight: 500; }
+    .#{"" + $color}-active { color: get-variant($color, 'active'); }
+    app-icon.#{"" + $color} { color: get-variant($color, 'foreground'); }
+    app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
+
     @each $color2 in $names {
         .bg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    map.get($backgrounds, $color),
-                    map.get($actives, $color2));
+                    get-variant($color, 'background'),
+                    get-variant($color2, 'active'));
             }
         }
         .fg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    map.get($actives, $color),
-                    map.get($foregrounds, $color2));
+                    get-variant($color, 'active'),
+                    get-variant($color2, 'foreground'));
             }
         }
     }
@@ -66,51 +66,55 @@ body {
     background-color: $canvas-background-transparent;
 }
 
-.accent-bg { @extend .#{"" + $accent}-bg; }
-.accent-fg { @extend .#{"" + $accent}-fg; }
-.accent-border { @extend .#{"" + $accent}-border; }
-.accent-text { @extend .#{"" + $accent}-text; }
-.accent-active { @extend .#{"" + $accent}-active; }
+@each $name, $color in $semantic-colors {
+    .#{"" + $name}-bg { @extend .#{"" + $color}-bg; }
+    .#{"" + $name}-fg { @extend .#{"" + $color}-fg; }
+    .#{"" + $name}-border { @extend .#{"" + $color}-border; }
+    .#{"" + $name}-text { @extend .#{"" + $color}-text; }
+    .#{"" + $name}-active { @extend .#{"" + $color}-active; }
+    .#{"" + $name}-active-bg { @extend .#{"" + $color}-active-bg; }
+    .#{"" + $name}-high-contrast { @extend .#{"" + $color}-high-contrast; }
+    .#{"" + $name}-high-contrast-bg { @extend .#{"" + $color}-high-contrast-bg; }
+}
     
 @each $color in $names {
     .#{"" + $color} {
-        .color-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
-        .color-fg { background-color: map.get($foregrounds, $color); }
-        .color-border { border-color: map.get($foregrounds, $color); }
-        .color-text { color: map.get($foregrounds, $color); font-weight: 500; }
-        .color-active { color: map.get($actives, $color); }
-        app-icon { color: map.get($foregrounds, $color); }
+        .color-bg { background-color: get-variant($color, 'background') $bg-opacity; }
+        .color-fg { background-color: get-variant($color, 'foreground'); }
+        .color-border { border-color: get-variant($color, 'foreground'); }
+        .color-text { color: get-variant($color, 'foreground'); font-weight: 500; }
+        .color-active { color: get-variant($color, 'active'); }
+        app-icon { color: get-variant($color, 'foreground'); }
     }
-    .#{"" + $color}-bg { background-color: map.get($backgrounds, $color) $bg-opacity; }
-    .#{"" + $color}-fg { background-color: map.get($foregrounds, $color); }
-    .#{"" + $color}-active-bg { background-color: map.get($actives, $color); }
-    .#{"" + $color}-border { border-color: map.get($foregrounds, $color); }
-    .#{"" + $color}-text { color: map.get($foregrounds, $color); font-weight: 500; }
-    .#{"" + $color}-active { color: map.get($actives, $color); }
-    app-icon.#{"" + $color} { color: map.get($foregrounds, $color); }
-    app-icon.#{"" + $color}-high-contrast { color: map.get($high-contrast, $color); }
-    
+    .#{"" + $color}-bg { background-color: get-variant($color, 'background') $bg-opacity; }
+    .#{"" + $color}-fg { background-color: get-variant($color, 'foreground'); }
+    .#{"" + $color}-active-bg { background-color: get-variant($color, 'active'); }
+    .#{"" + $color}-high-contrast-bg { background-color: get-variant($color, 'high-contrast'); }
+    .#{"" + $color}-border { border-color: get-variant($color, 'foreground'); }
+    .#{"" + $color}-text { color: get-variant($color, 'foreground'); font-weight: 500; }
+    .#{"" + $color}-active { color: get-variant($color, 'active'); }
+    app-icon.#{"" + $color} { color: get-variant($color, 'foreground'); }
+    app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
+    app-icon.#{"" + $color}-high-contrast-bg { background-color: get-variant($color, 'high-contrast'); }
+
     @each $color2 in $names {
         .bg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    map.get($backgrounds, $color),
-                    map.get($actives, $color2));
+                    get-variant($color, 'background'),
+                    get-variant($color2, 'active'));
             }
         }
         .fg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
                 background: linear-gradient(135deg,
-                    map.get($actives, $color),
-                    map.get($foregrounds, $color2));
+                    get-variant($color, 'active'),
+                    get-variant($color2, 'foreground'));
             }
         }
     }
 }
 
-::selection {
-    background-color: map.get($backgrounds, $accent);
-}
-::-moz-selection {
-    background-color: map.get($backgrounds, $accent);
+::selection, ::-moz-selection {
+    background-color: get-variant($accent, 'background');
 }

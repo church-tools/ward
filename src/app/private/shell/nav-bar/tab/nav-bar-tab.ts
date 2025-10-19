@@ -22,13 +22,14 @@ export type InnerNavBarTab = {
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <app-icon class="icon" [icon]="tab().icon"/>
-            <app-icon class="active-icon accent" [icon]="tab().icon" [filled]="true"/>
+            <app-icon class="active-icon accent{{mobileOS ? '-high-contrast' : ''}}" [icon]="tab().icon" [filled]="true"/>
             <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
         </a>
         @if (tab().counts) {
             <div class="counts column" [class.visible]="!active()">
                 @for (count of tab().counts; track $index) {
-                    <div class="count-dot {{count.color}}-fg" [class.visible]="visibleCounts().has(count)"></div>
+                    <div class="count-dot {{count.color}}-fg"
+                        [class.visible]="visibleCounts().has(count)"></div>
                 }
             </div>
         }

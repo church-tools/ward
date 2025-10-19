@@ -1,6 +1,5 @@
 @use "color";
 @use "card";
-@use 'sass:map';
 
 @mixin highlight {
     &::after {
@@ -18,11 +17,12 @@
         pointer-events: none;
         background: conic-gradient(from
             var(--highlight-rotation),
-            map.get(color.$actives, color.$accent),
-            map.get(color.$actives, color.$accent-variation-1),
-            map.get(color.$actives, color.$accent-variation-2),
-            map.get(color.$actives, color.$accent)) border-box;
+            color.get-variant(color.$accent, 'active'),
+            color.get-variant(color.$accent-variation-1, 'active'),
+            color.get-variant(color.$accent-variation-2, 'active'),
+            color.get-variant(color.$accent, 'active')) border-box;
         -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
     }

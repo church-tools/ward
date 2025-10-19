@@ -1,7 +1,6 @@
 @use 'color';
 @use 'shadow';
 @use 'animation';
-@use 'sass:map';
 
 $background-color: light-dark(#f6f6f6, #323232);
 $background-color-transparent: light-dark(rgba(#f6f6f6, 0.5), rgba(#323232, 0.5));
@@ -95,13 +94,14 @@ $canvas-background-color: color-mix(
         border: 4px solid transparent; /* Needed for border-image to show */
         border-radius: calc($border-radius + 3px);
         background: linear-gradient(10deg,
-                map.get(color.$actives, color.$accent-variation-1),
-                map.get(color.$actives, color.$accent),
-                map.get(color.$actives, color.$accent),
-                map.get(color.$actives, color.$accent),
-                map.get(color.$actives, color.$accent-variation-2)) border-box, padding-box;
+            color.get-variant(color.$accent-variation-1, 'active'),
+            color.get-variant(color.$accent, 'active'),
+            color.get-variant(color.$accent, 'active'),
+            color.get-variant(color.$accent, 'active'),
+            color.get-variant(color.$accent-variation-2, 'active')) border-box, padding-box;
         background-clip: border-box, padding-box;
         -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+        mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
         -webkit-mask-composite: xor;
         mask-composite: exclude;
         @starting-style {

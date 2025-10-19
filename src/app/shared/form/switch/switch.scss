@@ -2,7 +2,6 @@
 @use "font";
 @use "color";
 @use "animation";
-@use "sass:map";
 
 .switch {
     position: relative;
@@ -54,7 +53,7 @@
 
     &.is-invalid, &.ng-invalid.ng-touched {
         .switch {
-            border-color: map.get(color.$actives, danger);
+            border-color: color.get-variant(color.$danger, 'active');
         }
     }
 }

@@ -5,7 +5,6 @@
 @use "layout";
 @use "animation";
 @use "shadow";
-@use 'sass:map';
 
 .input-color {
     color: $color;
@@ -126,9 +125,9 @@
     
         &.is-invalid, &.ng-invalid.ng-touched {
             .form-input {
-                border-color: map.get(color.$actives, danger);
+                border-color: color.get-variant(color.$danger, 'active');
                 &::after {
-                    border-bottom-color: map.get(color.$foregrounds, danger);
+                    border-bottom-color: color.get-variant(color.$danger, 'foreground');
                 }
             }
         }
@@ -141,7 +140,7 @@
 }
 
 .required-indicator {
-    color: map.get(color.$actives, danger);
+    color: color.get-variant(color.$danger, 'active');
     font-weight: bold;
     font-size: 1em;
 }

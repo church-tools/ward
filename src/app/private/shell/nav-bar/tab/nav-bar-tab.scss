@@ -3,7 +3,6 @@
 @use "card";
 @use "animation";
 @use "shadow";
-@use 'sass:map';
 
 .btn {
     -webkit-tap-highlight-color: transparent;
@@ -38,7 +37,7 @@
             color: font.$color;
         }
         .active-icon {
-            color: map.get(color.$foregrounds, color.$accent);
+            color: color.get-variant(color.$accent, 'foreground');
         }
     }
     &.active {

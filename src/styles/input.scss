@@ -2,7 +2,6 @@
 @use "animation";
 @use "card";
 @use "color";
-@use 'sass:map';
 
 $background-color: light-dark(rgba(#fafafa, 0.75), rgba(#292929, 0.75));
 $background-transparent-color: light-dark(rgba(#fafafa, 0.75), rgba(#292929, 0.75));
@@ -78,7 +77,7 @@ $option-hover-background-color: light-dark(rgba(#242424, 0.075), rgba(#f5f5f5, 0
     border-bottom-right-radius: card.$border-radius-sm;
     border-bottom-width: 2px;
     border-bottom-style: solid;
-    border-bottom-color: map.get(color.$foregrounds, color.$accent);
+    border-bottom-color: color.get-variant(color.$accent, 'foreground');
     clip-path: inset(calc(100% - 2px) 0px 0px);
     transform: scaleX(0);
     transition-property: transform;

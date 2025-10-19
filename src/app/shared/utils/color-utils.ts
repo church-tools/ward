@@ -1,4 +1,33 @@
-export type ColorName = 'accent' | 'success' | 'warning' | 'danger' | 'gray'
-    | "magenta" | "crimson" | "red" | "orange" | "gold" | "yellow"
-    | "lime" | "springgreen" | "mediumspringgreen" | "cyan" | "deepskyblue" | "dodgerblue"
-    | "blue" | "blueviolet" | "violet" | "orchid" | "palevioletred" | "hotpink";
+
+export const COLOR_NAMES = [
+    "accent",
+    "success",
+    "warning",
+    "danger",
+    "palevioletred",
+    "red",
+    "tomato",
+    "coral",
+    "chocolate",
+    "orange",
+    "goldenrod",
+    "yellow",
+    "yellowgreen",
+    "lawngreen",
+    "green",
+    "aquamarine",
+    "turquoise",
+    "teal",
+    "powderblue",
+    "skyblue",
+    "steelblue",
+    "dodgerblue",
+    "royalblue",
+    "blue",
+    "mediumpurple",
+    "indigo",
+    "magenta",
+    "deeppink",
+];
+
+export type ColorName = typeof COLOR_NAMES[number];

@@ -1,4 +1,5 @@
 @use "sass:map";
+@use "sass:list";
 
 $canvas-background: light-dark(#e8e8e8, #272727);
 $canvas-background-transparent: light-dark(rgba(246, 246, 246, 0.6), rgba(54, 54, 54, 0.333));
@@ -9,49 +10,68 @@ $navbar-tab: light-dark(rgba(#242424, 0.75), rgba(white, 0.666));
 $navbar-tab-hover-background: light-dark(rgba(#242424, 0.05), rgba(white, 0.05));
 $navbar-tab-active-background: light-dark(rgba(#242424, 0.1), rgba(white, 0.1));
 
-// https://www.w3schools.com/colors/colors_names.asp
-$names: (success, warning, danger, gray,
-    crimson, red, orangered, orange, gold, yellow, chartreuse, limegreen,
-    lime, springgreen, mediumspringgreen, aqua, turquoise, deepskyblue, dodgerblue, blue,
-    mediumblue, blueviolet, purple, violet, magenta, deeppink, hotpink, mediumvioletred);
+$names: (
+    palevioletred,
+    red,
+    tomato,
+    coral,
+    chocolate,
+    orange,
+    goldenrod,
+    yellow,
+    yellowgreen,
+    lawngreen,
+    green,
+    aquamarine,
+    turquoise,
+    teal,
+    powderblue,
+    skyblue,
+    steelblue,
+    dodgerblue,
+    royalblue,
+    blue,
+    mediumpurple,
+    indigo,
+    magenta,
+    deeppink
+);
 
-$accent: turquoise;
-$accent-variation-1: mediumspringgreen;
-$accent-variation-2: dodgerblue;
+$accent: teal;
+$accent-variation-1: aquamarine;
+$accent-variation-2: steelblue;
+$success: lawngreen;
+$warning: coral;
+$danger: palevioletred;
 
-$hues: (crimson: 0, red: 15, orangered: 30, orange: 45, gold: 60, yellow: 75, chartreuse: 90, limegreen: 105,
-    lime: 120, springgreen: 135, mediumspringgreen: 150, aqua: 165, turquoise: 180, deepskyblue: 195, dodgerblue: 210, blue: 225,
-    mediumblue: 240, blueviolet: 255, purple: 270, violet: 285, magenta: 300, deeppink: 340, hotpink: 240, mediumvioletred: 240);
+$semantic-colors: (
+    accent: $accent,
+    accent-variation-1: $accent-variation-1,
+    accent-variation-2: $accent-variation-2,
+    success: $success,
+    warning: $warning,
+    danger: $danger,
+);
 
-$actives: ();
-$backgrounds: ();
-$foregrounds: ();
-$high-contrast: ();
-@each $name, $hue in $hues {
-    $actives: map.merge($actives, (
-        $name: light-dark(
-            oklch(0.6 0.175 $hue),
-            oklch(0.7 0.15 $hue)
-        )
-    ));
-    $backgrounds: map.merge($backgrounds, (
-        $name: light-dark(
-            oklch(0.8 0.075 $hue),
-            oklch(0.35 0.1 $hue)
-        )
-    ));
-    $foregrounds: map.merge($foregrounds, (
-        $name: light-dark(
-            oklch(0.45 0.15 $hue),
-            oklch(0.8 0.075 $hue)
-        )
-    ));
-    $high-contrast: map.merge($high-contrast, (
-        $name: light-dark(
-            oklch(0.5 0.15 $hue),
-            oklch(0.5 0.15 $hue)
-        )
-    ));
+$hues: ();
+$index: 0;
+$stepsize: calc(360 / list.length($names));
+@each $color in $names {
+    $hues: map.merge($hues, ($color: $index * $stepsize));
+    $index: $index + 1;
+}
+
+@function get-variant($name, $variant) {
+    $hue: map.get($hues, $name);
+    @if $variant == 'active' {
+        @return light-dark(oklch(60% 35% $hue), oklch(70% 30% $hue));
+    } @else if $variant == 'background' {
+        @return light-dark(oklch(80% 15% $hue), oklch(35% 15% $hue));
+    } @else if $variant == 'foreground' {
+        @return light-dark(oklch(45% 25% $hue), oklch(80% 15% $hue));
+    } @else if $variant == 'high-contrast' {
+        @return light-dark(oklch(40% 10% $hue), oklch(85% 10% $hue));
+    }
 }
 
 $bg-opacity: light-dark(1, 1);
