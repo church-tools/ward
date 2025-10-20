@@ -116,6 +116,9 @@
                 padding: 0.25rem 0.25rem;
                 border-radius: card.$border-radius-round;
             }
+            .tab-title {
+                font-size: 7.75pt;
+            }
             &.active {
                 background: none;
                 .icon-area {
