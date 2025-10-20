@@ -73,13 +73,14 @@ export class CardListComponent<T> {
     
     // Touch requires a hold delay to distinguish from scrolling, mouse can drag immediately
     protected readonly dragStartDelay = signal({ touch: 300, mouse: 0 });
-
+    
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
     
     private initialized = false;
     private insertSubscriptions: Subscription[] = [];
     private dropSubscription: Subscription | undefined;
+    private dragStart: number | null = null;
     private insertBtnHeight = 0;
 
     constructor() {
@@ -122,6 +123,7 @@ export class CardListComponent<T> {
     }
 
     protected placeholderAdded(item: HTMLElement) {
+        if (this.dragStart && this.dragStart + 100 > Date.now()) return;
         const height = item.getBoundingClientRect().height;
         transitionStyle(item, { height: '0' }, { height: `${height}px` }, animationDurationMs, easeOut, true);
     }
@@ -166,6 +168,7 @@ export class CardListComponent<T> {
     }
 
     protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>, card: HTMLElement) {
+        this.dragStart = Date.now();
         this.dragDropMutex.acquire();
         this._dragDropGroup()?.setDrag(event.source, itemCard.item, card);
     }
