@@ -4,7 +4,9 @@
             <app-back-button [url]="url"/>
         }
         <div class="handle app-logo-and-name items-center row no-wrap gap-5 p-2 ps-0 ms-3">
-            <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
+            @if (!(windowService.backUrl() && windowService.isSmall())) {
+                <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
+            }
             <div class="app-name display-when-not-small small-text"
                 [class.subtle-text]="!windowService.focused()">{{ 'APP_NAME' | translate }}</div>
         </div>

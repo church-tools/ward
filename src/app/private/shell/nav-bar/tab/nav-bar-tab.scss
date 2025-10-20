@@ -15,12 +15,22 @@
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    .icon, .active-icon, .tab-title {
-        transition: all animation.$duration-sm ease;
+    .icon-area {
+        transition: transform animation.$duration-sm ease,
+            padding animation.$duration-sm animation.$ease-out,
+            background-color animation.$duration-sm ease;
+        min-width: 24px;
+        min-height: 24px;
+        .icon, .active-icon {
+            position: absolute;
+        }
     }
-    .icon, .active-icon {
-        position: fixed;
-        margin-top: -0.75rem;
+    .icon-area, .tab-title {
+        transform: translateY(0.125rem);
+    }
+    .icon, .active-icon, .tab-title {
+        transition: opacity animation.$duration-sm ease,
+            color animation.$duration-sm ease;
     }
     .icon, .tab-title {
         color: color.$navbar-tab;
@@ -29,7 +39,6 @@
     .tab-title {
         font-size: 7.5pt;
         line-height: 13pt;
-        margin-top: 2.5rem;
     }
     &:hover {
         background-color: color.$navbar-tab-hover-background;
@@ -44,8 +53,8 @@
         background-color: color.$navbar-tab-active-background;
         .icon, .tab-title { opacity: 0; }
         .active-icon { opacity: 1; }
-        .icon, .active-icon {
-            margin-top: 0;
+        .icon-area {
+            transform: translateY(0.625rem);
         }
     }
 
@@ -89,12 +98,34 @@
             .count-dot { opacity: 1; }
         }
     }
-    &.mobile {
+    &.pill-mode {
         .btn {
+            &:hover {
+                background: none;
+                .icon, .tab-title {
+                    color: font.$color;
+                }
+                .active-icon, .icon, .tab-title {
+                    color: color.get-variant(color.$accent, 'high-contrast');
+                }
+            }
+            .icon-area, .tab-title {
+                transform: translateY(0.125rem);
+            }
+            .icon-area {
+                padding: 0.25rem 0.25rem;
+                border-radius: card.$border-radius-round;
+            }
             &.active {
-                .tab-title { opacity: 1; }
-                .icon, .active-icon {
-                    margin-top: -0.75rem;
+                background: none;
+                .icon-area {
+                    transform: translateY(0.125rem);
+                    padding: 0.25rem 1rem;
+                    background-color: color-mix(in srgb, color.get-variant(color.$accent, 'mute') 100%, transparent);
+                }
+                .tab-title {
+                    opacity: 1;
+                    color: color.get-variant(color.$accent, 'high-contrast');
                 }
             }
         }

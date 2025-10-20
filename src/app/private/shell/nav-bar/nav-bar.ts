@@ -11,9 +11,9 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
     selector: 'app-nav-bar',
     template: `
         @for (innerTab of innerTabs(); track innerTab.index) {
-            <app-nav-bar-tab [tab]="innerTab" [active]="innerTab === activeTab()"/>
+            <app-nav-bar-tab [tab]="innerTab" [active]="innerTab === activeTab()" [pillMode]="pillMode()"/>
         }
-        @if (!horizontal() && activeTab()) {
+        @if (!pillMode() && activeTab()) {
             <div class="indicator accent-fg tab-{{activeTab()?.index}} prev-tab-{{prevTab()?.index ?? 'none'}}"
                 [class.bottom]="activeTab()?.bottom"
                 [class.prev-bottom]="prevTab()?.bottom"></div>
@@ -27,13 +27,15 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
 })
 export class NavBarComponent {
 
-    private readonly windowService = inject(WindowService);
+    protected readonly windowService = inject(WindowService);
 
     readonly tabs = input.required<NavBarTab[]>();
     readonly horizontal = input.required<boolean>();
 
-    protected readonly innerTabs = xcomputed([this.tabs], tabs => this.toInnerTabs(tabs));
     protected readonly activeTab = signal<InnerNavBarTab | null>(null);
+    protected readonly innerTabs = xcomputed([this.tabs], tabs => this.toInnerTabs(tabs));
+    protected readonly pillMode = xcomputed([this.windowService.isSmall],
+        isSmall => isSmall || this.windowService.mobileOS);
     protected readonly prevTab = asyncComputed(
         [this.activeTab], tab => wait(100).then(() => tab));
 

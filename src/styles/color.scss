@@ -38,8 +38,8 @@ $names: (
 );
 
 $accent: teal;
-$accent-variation-1: aquamarine;
-$accent-variation-2: steelblue;
+$accent-variation-1: lawngreen;
+$accent-variation-2: dodgerblue;
 $success: lawngreen;
 $warning: coral;
 $danger: palevioletred;
@@ -64,13 +64,15 @@ $stepsize: calc(360 / list.length($names));
 @function get-variant($name, $variant) {
     $hue: map.get($hues, $name);
     @if $variant == 'active' {
-        @return light-dark(oklch(60% 35% $hue), oklch(70% 30% $hue));
+        @return light-dark(oklch(60% 35% $hue), oklch(70% 40% $hue));
     } @else if $variant == 'background' {
-        @return light-dark(oklch(80% 15% $hue), oklch(35% 15% $hue));
+        @return light-dark(oklch(80% 15% $hue), oklch(35% 20% $hue));
     } @else if $variant == 'foreground' {
-        @return light-dark(oklch(45% 25% $hue), oklch(80% 15% $hue));
+        @return light-dark(oklch(45% 30% $hue), oklch(80% 15% $hue));
     } @else if $variant == 'high-contrast' {
-        @return light-dark(oklch(40% 10% $hue), oklch(85% 10% $hue));
+        @return light-dark(oklch(40% 10% $hue), oklch(90% 10% $hue));
+    } @else if $variant == 'mute' {
+        @return light-dark(oklch(85% 7.5% $hue), oklch(30% 5% $hue));
     }
 }
 

@@ -15,10 +15,11 @@ import { COLOR_NAMES } from '../shared/utils/color-utils';
         <div class="column gap-2">
             @for (color of colorNames; track color) {
                 <div class="row gap-2">
+                    <div class="col p-3 round {{color}}-mute-bg"></div>
                     <div class="col p-3 round {{color}}-bg"></div>
-                    <div class="col p-3 round {{color}}-high-contrast-bg"></div>
                     <div class="col p-3 round {{color}}-active-bg"></div>
                     <div class="col p-3 round {{color}}-fg"></div>
+                    <div class="col p-3 round {{color}}-high-contrast-bg"></div>
                     <div> hue: {{ $index * 15 }}  <span class="ms-3">{{ color }}</span></div>
                 </div>
             }

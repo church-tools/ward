@@ -1,9 +1,8 @@
-import { Component, OnDestroy, inject, input, signal } from '@angular/core';
+import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
 import { Icon, IconComponent } from '../../../../shared/icon/icon';
-import { WindowService } from '../../../../shared/service/window.service';
 import { ColorName } from '../../../../shared/utils/color-utils';
 
 export type InnerNavBarTab = {
@@ -21,8 +20,10 @@ export type InnerNavBarTab = {
     imports: [RouterModule, TranslateModule, IconComponent],
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
-            <app-icon class="icon" [icon]="tab().icon"/>
-            <app-icon class="active-icon accent{{mobileOS ? '-high-contrast' : ''}}" [icon]="tab().icon" [filled]="true"/>
+            <div class="icon-area">
+                <app-icon class="icon" [icon]="tab().icon"/>
+                <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}" [icon]="tab().icon" [filled]="true"/>
+            </div>
             <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
         </a>
         @if (tab().counts) {
@@ -37,15 +38,14 @@ export type InnerNavBarTab = {
     styleUrl: './nav-bar-tab.scss',
     host: {
         '[class]': 'tab().class',
-        '[class.mobile]': 'mobileOS'
+        '[class.pill-mode]': 'pillMode()'
     }
 })
 export class NavbarTabComponent implements OnDestroy {
 
-    protected readonly mobileOS = inject(WindowService).mobileOS;
-    
     readonly tab = input.required<InnerNavBarTab>();
     readonly active = input.required<boolean>();
+    readonly pillMode = input.required<boolean>();
 
     protected readonly visibleCounts = signal(new Set<any>());
 

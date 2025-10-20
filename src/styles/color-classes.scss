@@ -25,6 +25,7 @@ body {
         .color-border { border-color: get-variant($color, 'foreground'); }
         .color-text { color: get-variant($color, 'foreground'); font-weight: 500; }
         .color-active { color: get-variant($color, 'active'); }
+        .color-mute { color: get-variant($color, 'mute'); }
         app-icon { color: get-variant($color, 'foreground'); }
     }
     .#{"" + $color}-bg { background-color: get-variant($color, 'background'); }
@@ -33,6 +34,8 @@ body {
     .#{"" + $color}-border { border-color: get-variant($color, 'foreground'); }
     .#{"" + $color}-text { color: get-variant($color, 'foreground'); font-weight: 500; }
     .#{"" + $color}-active { color: get-variant($color, 'active'); }
+    .#{"" + $color}-mute { color: get-variant($color, 'mute'); }
+    .#{"" + $color}-mute-bg { background-color: get-variant($color, 'mute'); }
     app-icon.#{"" + $color} { color: get-variant($color, 'foreground'); }
     app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
 
