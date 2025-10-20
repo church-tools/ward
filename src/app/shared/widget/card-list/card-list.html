@@ -28,7 +28,9 @@
     [cdkDropListDisabled]="!reorderable() || !editable()">
     @for (itemCard of itemCards(); track itemCard.id) {
         @if (getUrl(); as getUrl) {
-            <a #card cdkDrag [routerLink]="getUrl(itemCard.item)"
+            <a #card cdkDrag 
+                [cdkDragStartDelay]="dragStartDelay()"
+                [routerLink]="getUrl(itemCard.item)"
                 class="drag-card-host stealth"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
@@ -40,6 +42,7 @@
         }
         @else {
             <div #card cdkDrag
+                [cdkDragStartDelay]="dragStartDelay()"
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"

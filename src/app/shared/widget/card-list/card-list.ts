@@ -70,6 +70,9 @@ export class CardListComponent<T> {
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
+    
+    // Touch requires a hold delay to distinguish from scrolling, mouse can drag immediately
+    protected readonly dragStartDelay = signal({ touch: 300, mouse: 0 });
 
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
