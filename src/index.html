@@ -6,7 +6,8 @@
     <base href="/">
     <link rel="apple-touch-icon" href="assets/favicon/favicon.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <meta name="theme-color" content="#e8e8e8"/>
+    <meta name="theme-color" content="#d8dbdd" media="(prefers-color-scheme: light)"/>
+    <meta name="theme-color" content="#202426" media="(prefers-color-scheme: dark)"/>
     <meta name="mobile-web-app-capable" content="yes"/>
 
     <link rel="icon" type="image/png" href="assets/favicon/favicon-96x96.png" sizes="96x96" />
@@ -18,9 +19,6 @@
     <link rel="preload" href="/assets/fonts/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     
     <script type="text/javascript">
-        if (window.matchMedia('(prefers-color-scheme: dark)').matches)
-            document.querySelector('meta[name=theme-color]').setAttribute('content', '#272727');
-        
         let fontLoaded = false;
         let viewInitialized = false;
 
