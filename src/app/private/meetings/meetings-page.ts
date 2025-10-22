@@ -13,6 +13,7 @@ import { PrivatePageComponent } from '../shared/private-page';
         <app-row-card-list
             tableName="agenda"
             [getQuery]="getQuery"
+            [page]="this"
             [editable]="adminService.editMode()"
             [gap]="4"
             [getUrl]="getUrl"/>
