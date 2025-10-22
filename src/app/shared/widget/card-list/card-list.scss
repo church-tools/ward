@@ -10,6 +10,9 @@
 .drag-card-host {
     transition: transform 0s;
     touch-action: pan-y;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    user-select: none;
     
     &:last-child {
         .card-item {
