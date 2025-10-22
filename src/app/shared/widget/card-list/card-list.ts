@@ -65,15 +65,13 @@ export class CardListComponent<T> {
     protected readonly insertedItem = signal<T | null>(null);
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
+    protected readonly dragStartDelay = { touch: this.windowService.mobileOS ? 500 : 300, mouse: 0 };
 
     protected readonly _dragDropGroup = xcomputed([this.dragDropGroup],
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
-    
-    // Touch requires a hold delay to distinguish from scrolling, mouse can drag immediately
-    protected readonly dragStartDelay = signal({ touch: 300, mouse: 0 });
-    
+
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
     

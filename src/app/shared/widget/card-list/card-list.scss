@@ -9,6 +9,7 @@
 
 .drag-card-host {
     transition: transform 0s;
+    touch-action: pan-y;
     
     &:last-child {
         .card-item {

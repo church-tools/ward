@@ -21,8 +21,9 @@ export type InnerNavBarTab = {
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <div class="icon-area">
-                <app-icon class="icon" [icon]="tab().icon"/>
-                <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}" [icon]="tab().icon" [filled]="true"/>
+                <app-icon class="icon" [icon]="tab().icon" [size]="pillMode() ? 'lg' : 'md'"/>
+                <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}"
+                    [icon]="tab().icon" [filled]="true"  [size]="pillMode() ? 'lg' : 'md'"/>
             </div>
             <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
         </a>

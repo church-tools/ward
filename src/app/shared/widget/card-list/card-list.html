@@ -29,7 +29,7 @@
     @for (itemCard of itemCards(); track itemCard.id) {
         @if (getUrl(); as getUrl) {
             <a #card cdkDrag 
-                [cdkDragStartDelay]="dragStartDelay()"
+                [cdkDragStartDelay]="dragStartDelay"
                 [routerLink]="getUrl(itemCard.item)"
                 class="drag-card-host stealth"
                 [class.active]="activeId() === itemCard.id"
@@ -42,7 +42,7 @@
         }
         @else {
             <div #card cdkDrag
-                [cdkDragStartDelay]="dragStartDelay()"
+                [cdkDragStartDelay]="dragStartDelay"
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
