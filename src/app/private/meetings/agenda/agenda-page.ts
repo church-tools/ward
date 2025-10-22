@@ -26,7 +26,7 @@ import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picke
                 } @else {
                     <span class="h0">
                         @if (row()?.shape && windowService.isLarge()) {
-                            <app-icon [icon]="row()!.shape!" [filled]="true" size="lg"
+                            <app-icon [icon]="row()!.shape!" [filled]="true" size="xl"
                                 class="{{row()!.color}}-active ms--12"></app-icon>
                         }
                         {{title()}}

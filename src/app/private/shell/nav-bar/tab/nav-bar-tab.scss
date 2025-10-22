@@ -113,13 +113,13 @@
                 transform: translateY(0.125rem);
             }
             .icon-area {
-                min-width: 32px;
-                min-height: 32px;
+                min-width: 28px;
+                min-height: 28px;
                 padding: 0.25rem 0.25rem;
                 border-radius: card.$border-radius-round;
             }
             .tab-title {
-                font-size: 9pt;
+                font-size: 8pt;
             }
             &.active {
                 background: none;
