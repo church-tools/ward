@@ -712,10 +712,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      access_token_hook: {
-        Args: { event: Json }
-        Returns: Json
-      }
+      access_token_hook: { Args: { event: Json }; Returns: Json }
     }
     Enums: {
       agenda_section_type:
@@ -736,30 +733,30 @@ export type Database = {
         | "set_apart"
       class: "sunday_school" | "relief_society" | "elders_quorum"
       color:
-        | "crimson"
+        | "palevioletred"
         | "red"
-        | "orangered"
+        | "tomato"
+        | "coral"
+        | "chocolate"
         | "orange"
-        | "gold"
+        | "goldenrod"
         | "yellow"
-        | "chartreuse"
-        | "limegreen"
-        | "lime"
-        | "springgreen"
-        | "mediumspringgreen"
-        | "aqua"
+        | "yellowgreen"
+        | "lawngreen"
+        | "green"
+        | "aquamarine"
         | "turquoise"
-        | "deepskyblue"
+        | "teal"
+        | "powderblue"
+        | "skyblue"
+        | "steelblue"
         | "dodgerblue"
+        | "royalblue"
         | "blue"
-        | "mediumblue"
-        | "blueviolet"
-        | "purple"
-        | "violet"
+        | "mediumpurple"
+        | "indigo"
         | "magenta"
         | "deeppink"
-        | "hotpink"
-        | "mediumvioletred"
       gender: "male" | "female"
       meeting_type:
         | "fast_and_testimony"
@@ -958,30 +955,30 @@ export const Constants = {
       ],
       class: ["sunday_school", "relief_society", "elders_quorum"],
       color: [
-        "crimson",
+        "palevioletred",
         "red",
-        "orangered",
+        "tomato",
+        "coral",
+        "chocolate",
         "orange",
-        "gold",
+        "goldenrod",
         "yellow",
-        "chartreuse",
-        "limegreen",
-        "lime",
-        "springgreen",
-        "mediumspringgreen",
-        "aqua",
+        "yellowgreen",
+        "lawngreen",
+        "green",
+        "aquamarine",
         "turquoise",
-        "deepskyblue",
+        "teal",
+        "powderblue",
+        "skyblue",
+        "steelblue",
         "dodgerblue",
+        "royalblue",
         "blue",
-        "mediumblue",
-        "blueviolet",
-        "purple",
-        "violet",
+        "mediumpurple",
+        "indigo",
         "magenta",
         "deeppink",
-        "hotpink",
-        "mediumvioletred",
       ],
       gender: ["male", "female"],
       meeting_type: [
