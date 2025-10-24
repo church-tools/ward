@@ -4,6 +4,7 @@ import { RichTextComponent } from "../../../../shared/form/rich-text/rich-text";
 import { TextInputComponent } from '../../../../shared/form/text/text-input';
 import { property } from '../../../../shared/utils/signal-utils';
 import { RowPageComponent } from '../../../shared/row-page';
+import { RowHistoryComponent } from "../../../shared/row-history";
 
 @Component({
     selector: 'app-task-page',
@@ -11,9 +12,10 @@ import { RowPageComponent } from '../../../shared/row-page';
         <app-text-input [(ngModel)]="taskTitle" name="title" textClass="h1"
             [subtle]="true"/>
         <app-rich-text [(ngModel)]="taskContent" name="content"/>
+        <app-row-history [row]="row()" class="mt-auto"/>
     `,
-    host: { class: 'page narrow' },
-    imports: [FormsModule, TextInputComponent, RichTextComponent],
+    host: { class: 'page narrow full-height' },
+    imports: [FormsModule, TextInputComponent, RichTextComponent, RowHistoryComponent],
 })
 export class TaskPageComponent extends RowPageComponent<'task'> {
 

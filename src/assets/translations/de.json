@@ -41,6 +41,14 @@
     "UPDATE_AVAILABLE": "Eine neue Version der Anwendung ist verfügbar. Möchten Sie jetzt aktualisieren?",
     "ERROR_REFRESH": "Die Anwendung ist auf einen Fehler gestoßen. Möchten Sie die Seite neu laden?"
   },
+  "HISTORY": {
+    "CREATED_BY": "Erstellt von",
+    "CREATED_AT": "am",
+    "FULL_CREATED_AT": "Erstellt am",
+    "UPDATED_BY": "Aktualisiert von",
+    "UPDATED_AT": "am",
+    "FULL_UPDATED_AT": "Aktualisiert am"
+  },
   "B": "F",
   "I": "K",
   "U": "U",

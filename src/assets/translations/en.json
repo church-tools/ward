@@ -41,6 +41,14 @@
     "UPDATE_AVAILABLE": "A new version of the application is available. Would you like to update now?",
     "ERROR_REFRESH": "The application encountered an error. Would you like to refresh the page?"
   },
+  "HISTORY": {
+    "CREATED_BY": "Created by",
+    "CREATED_AT": "at",
+    "FULL_CREATED_AT": "Created at",
+    "UPDATED_BY": "Updated by",
+    "UPDATED_AT": "at",
+    "FULL_UPDATED_AT": "Updated at"
+  },
   "B": "B",
   "I": "I",
   "U": "U",
