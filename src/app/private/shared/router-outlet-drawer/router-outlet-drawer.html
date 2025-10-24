@@ -6,28 +6,34 @@
     <dialog #drawer class="bottom-drawer"
         (mousedown)="onDragStart($event)"
         (touchstart)="onDragStart($event)">
-        <div class="drawer-card card large acrylic-card">
-            @if (windowService.hasTouch) {
-                <div class="drag-handle"></div>
-            }
-            @if (windowService.hasMouse) {
-                <app-button type="subtle" icon="dismiss" size="large"
-                    class="close-button icon-only"
-                    shortcut="Escape" [shortcutNeedsCtrl]="false"
-                    (onClick)="onClose()"/>
-            }
+        <div class="drawer-card card large acrylic-card no-shadow">
             <div class="drawer-body">
                 <router-outlet
                     (activate)="onActivate($event)"
                     (deactivate)="onDeactivate($event)"/>
             </div>
+            @if (windowService.hasTouch) {
+                <div class="drag-handle"></div>
+            }
+            @if (windowService.hasMouse) {
+                <app-button type="subtle" icon="dismiss"
+                    class="close-button icon-only"
+                    shortcut="Escape" [shortcutNeedsCtrl]="false"
+                    (onClick)="onClose()"/>
+            }
         </div>
     </dialog>
 } @else {
     <div #drawer class="side-drawer"
         (mousedown)="onDragStart($event)"
         (touchstart)="onDragStart($event)">
-        <div class="drawer-card card large canvas-card">
+        <div class="drawer-card card large canvas-card"
+            [class.dense]="!windowService.isLarge()">
+            <div class="drawer-body">
+                <router-outlet
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"/>
+            </div>
             @if (windowService.hasTouch) {
                 <div class="drag-handle"></div>
             }
@@ -37,11 +43,6 @@
                     shortcut="Escape" [shortcutNeedsCtrl]="false"
                     (onClick)="onClose()"/>
             }
-            <div class="drawer-body">
-                <router-outlet
-                    (activate)="onActivate($event)"
-                    (deactivate)="onDeactivate($event)"/>
-            </div>
         </div>
     </div>
 }

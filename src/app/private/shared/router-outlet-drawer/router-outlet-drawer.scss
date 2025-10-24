@@ -1,5 +1,7 @@
 @use 'layout';
 @use 'input';
+@use 'card';
+@use 'shadow';
 @use 'animation';
 
 :host {
@@ -63,11 +65,13 @@
         .drawer-body {
             margin: layout.$canvas-margin;
         }
+        &.dense {
+            .drawer-body {
+                margin: layout.$canvas-margin-narrow;
+            }
+        }
         .close-button {
             position: absolute;
-            top: layout.$gutter * 2;
-            right: layout.$gutter * 2;
-            z-index: 1;
         }
         &.fade-out {
             transition: opacity animation.$duration-lg ease;
@@ -90,10 +94,16 @@
     height: layout.$canvas-height;
     top: layout.$canvas-margin-y;
     max-width: layout.$page-width-narrow;
-    .drag-handle {
-        height: 40px;
-        left: 0.5rem;
-        top: calc(50% - 20px);
+    .drawer-card {
+        .drag-handle {
+            height: 40px;
+            left: 0.5rem;
+            top: calc(50% - 20px);
+        }
+        .close-button {
+            top: layout.$gutter * 2;
+            right: layout.$gutter * 2;
+        }
     }
 }
 
@@ -104,15 +114,28 @@
     height: min-content;
     bottom: 0;
     transition: transform animation.$duration animation.$ease-out;
-    .drag-handle {
-        width: 40px;
-        top: 0.5rem;
-        align-self: center;
-    }
     .drawer-card {
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
         border-bottom: none;
+        @include shadow.box-up(16);
+        .drag-handle {
+            width: 40px;
+            top: 0.5rem;
+            align-self: center;
+        }
+        .drawer-body {
+            margin: layout.$canvas-margin-narrow;
+        }
+        .close-button {
+            top: layout.$gutter;
+            right: layout.$gutter;
+            ::ng-deep {
+                button {
+                    border-top-right-radius: card.$border-radius;
+                }
+            }
+        }
     }
 }
 

@@ -98,6 +98,11 @@
             border: 1px solid transparent;
             border-radius: $border-radius;
             box-sizing: content-box;
+            transition: none;
+            &:hover, &:active, &:focus-within {
+                transition: background-color animation.$duration ease,
+                    border-color animation.$duration ease;
+            }
             &:hover { @include box; @include box-hovered; }
             &:active { @include box; @include box-active; }
             &:focus-within {
@@ -111,7 +116,6 @@
                 padding: 0px;
             }
         }
-
     }
 
     &:not(.disabled) {

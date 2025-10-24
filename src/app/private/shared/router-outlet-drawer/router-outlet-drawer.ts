@@ -18,6 +18,7 @@ import { RowPageComponent } from "../row-page";
         '[class.drawer-open]': 'activeChild()',
         '[class.closing]': 'closing()',
         '[class.content-changing]': 'contentChanging()',
+        '[class.dense]': '!windowService.isLarge()',
     },
 })
 export class RouterOutletDrawerComponent implements OnDestroy {
@@ -34,7 +35,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected readonly activeChild = signal<PageComponent | null>(null);
     protected readonly closing = signal(false);
     protected readonly contentChanging = signal(false);
-    protected readonly onBottom = inject(WindowService).isSmall;
+    protected readonly onBottom = this.windowService.isSmall;
 
     private readonly drawerView = viewChild('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
     private readonly routerOutlet = viewChild.required(RouterOutlet);

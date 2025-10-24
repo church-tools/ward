@@ -41,4 +41,7 @@ $color-inverse-alpha-20: light-dark(rgba(white, 0.2), rgba(#242424, 0.2));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    contain: inline-size;
+    min-width: 0;
+    flex: 1;
 }
