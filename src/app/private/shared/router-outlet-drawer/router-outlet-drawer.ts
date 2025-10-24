@@ -185,21 +185,16 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         if (!this.dragState.isDragActive) {
             this.tryActivateDrag(currentX, currentY, event);
         } else {
-            if (this.onBottom()) {
-                const deltaY = currentY - this.dragState.startY;
-                if (deltaY > 0) {
-                    this.performDrag(deltaY, event);
-                }
-            } else {
-                const deltaX = currentX - this.dragState.startX;
-                if (deltaX > 0) {
-                    this.performDrag(deltaX, event);
-                }
+            const delta = this.onBottom() 
+                ? currentY - this.dragState.startY 
+                : currentX - this.dragState.startX;
+            if (delta > 0) {
+                this.performDrag(delta, event);
             }
         }
     }
 
-    private tryActivateDrag(currentX: number, currentY: number, event: MouseEvent | TouchEvent) {
+    private tryActivateDrag(currentX: number, currentY: number, event: MouseEvent | TouchEvent): any {
         const { startX, startY, startTime, startedOnBackground } = this.dragState!;
         const deltaX = currentX - startX;
         const deltaY = currentY - startY;
@@ -208,26 +203,14 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
         if (distance > RouterOutletDrawerComponent.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
-            
-            // For bottom drawer, check if dragging in the correct direction (downward)
-            if (this.onBottom() && Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
-                // Dragging upward on bottom drawer, not a valid close gesture
-                this.dragState = null;
-                return;
-            }
-            
-            // For side drawer, check if dragging in the correct direction (rightward)
-            if (!this.onBottom() && Math.abs(deltaX) < Math.abs(deltaY)) {
-                // Dragging vertically on side drawer, not a valid close gesture
-                this.dragState = null;
-                return;
-            }
-            
-            // Allow drag if within time limit OR if started on card background
+            if (this.onBottom() && Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0)
+                return this.dragState = null;
+            if (!this.onBottom() && Math.abs(deltaX) < Math.abs(deltaY))
+                return this.dragState = null;
             if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground) {
                 this.activateDrag(event);
             } else {
-                this.dragState = null; // Too late for swipe on interactive elements
+                this.dragState = null;
             }
         }
     }
@@ -240,12 +223,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     private performDrag(delta: number, event: MouseEvent | TouchEvent) {
         const element = this.drawerView().nativeElement;
-        if (this.onBottom()) {
-            element.style.transform = `translateY(${delta}px)`;
-        } else {
-            element.style.transform = `translateX(${delta}px)`;
+        const axis = this.onBottom() ? 'Y' : 'X';
+        element.style.transform = `translate${axis}(${delta}px)`;
+        if (!this.onBottom())
             element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
-        }
         event.preventDefault();
     }
 
@@ -259,52 +240,36 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
             const currentY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY;
             
-            if (this.onBottom()) {
-                const deltaY = currentY - this.dragState!.startY;
-                const velocity = deltaY / (Date.now() - this.dragState!.startTime);
-                if (deltaY > 0) {
-                    if (deltaY > 100 || velocity > 0.5) {
-                        this.animateDrawerClose();
-                    } else {
-                        // Set the current drag position without transition
-                        element.style.transition = '';
-                        element.style.transform = `translateY(${deltaY}px)`;
-                        
-                        // Use requestAnimationFrame to ensure the position is applied before transition
-                        requestAnimationFrame(() => {
-                            element.style.transition = 'transform 0.3s ease-out';
-                            element.style.transform = '';
-                            
-                            setTimeout(() => element.style.transition = '', animationDurationMs);
-                        });
-                    }
-                }
-            } else {
-                const deltaX = currentX - this.dragState!.startX;
-                const velocity = deltaX / (Date.now() - this.dragState!.startTime);
-                if (deltaX > 0) {
-                    if (deltaX > 100 || velocity > 0.5) {
-                        this.animateDrawerClose();
-                    } else {
-                        // Set the current drag position without transition
-                        element.style.transition = '';
-                        element.style.transform = `translateX(${deltaX}px)`;
-                        element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
-                        
-                        // Use requestAnimationFrame to ensure the position is applied before transition
-                        requestAnimationFrame(() => {
-                            element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                            element.style.transform = '';
-                            element.style.opacity = '';
-                            
-                            setTimeout(() => element.style.transition = '', animationDurationMs);
-                        });
-                    }
+            const isBottom = this.onBottom();
+            const delta = isBottom ? currentY - this.dragState.startY : currentX - this.dragState.startX;
+            const velocity = delta / (Date.now() - this.dragState.startTime);
+            
+            if (delta > 0) {
+                if (delta > 100 || velocity > 0.5) {
+                    this.animateDrawerClose();
+                } else {
+                    this.snapBackDrawer(element, delta, isBottom);
                 }
             }
         }
         element.style.userSelect = '';
         this.dragState = null;
+    }
+
+    private snapBackDrawer(element: HTMLElement, delta: number, isBottom: boolean) {
+        const axis = isBottom ? 'Y' : 'X';
+        element.style.transition = '';
+        element.style.transform = `translate${axis}(${delta}px)`;
+        if (!isBottom)
+            element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
+        requestAnimationFrame(() => {
+            const transitions = isBottom ? 'transform 0.3s ease-out' : 'transform 0.3s ease-out, opacity 0.3s ease-out';
+            element.style.transition = transitions;
+            element.style.transform = '';
+            if (!isBottom)
+                element.style.opacity = '';
+            setTimeout(() => element.style.transition = '', animationDurationMs);
+        });
     }
 
     ngOnDestroy() {
