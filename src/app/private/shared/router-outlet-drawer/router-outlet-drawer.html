@@ -2,18 +2,46 @@
 <div class="main row center-content">
     <ng-content/>
 </div>
-<div #drawer class="drawer" [class.on-bottom]="onBottom()"
-    (mousedown)="onDragStart($event)"
-    (touchstart)="onDragStart($event)">
-    <div class="drawer-card card large {{ onBottom() ? 'acrylic-card' : 'canvas-card' }}">
-        <div class="drawer-body">
-            <router-outlet
-                (activate)="onActivate($event)"
-                (deactivate)="onDeactivate($event)"/>
+@if (onBottom()) {
+    <dialog #drawer class="bottom-drawer"
+        (mousedown)="onDragStart($event)"
+        (touchstart)="onDragStart($event)">
+        <div class="drawer-card card large acrylic-card">
+            @if (windowService.hasTouch) {
+                <div class="drag-handle"></div>
+            }
+            @if (windowService.hasMouse) {
+                <app-button type="subtle" icon="dismiss" size="large"
+                    class="close-button icon-only"
+                    shortcut="Escape" [shortcutNeedsCtrl]="false"
+                    (onClick)="onClose()"/>
+            }
+            <div class="drawer-body">
+                <router-outlet
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"/>
+            </div>
         </div>
-        <app-button type="subtle" icon="dismiss" size="large"
-            class="close-button icon-only"
-            shortcut="Escape" [shortcutNeedsCtrl]="false"
-            (onClick)="onClose()"/>
+    </dialog>
+} @else {
+    <div #drawer class="side-drawer"
+        (mousedown)="onDragStart($event)"
+        (touchstart)="onDragStart($event)">
+        <div class="drawer-card card large canvas-card">
+            @if (windowService.hasTouch) {
+                <div class="drag-handle"></div>
+            }
+            @if (windowService.hasMouse) {
+                <app-button type="subtle" icon="dismiss" size="large"
+                    class="close-button icon-only"
+                    shortcut="Escape" [shortcutNeedsCtrl]="false"
+                    (onClick)="onClose()"/>
+            }
+            <div class="drawer-body">
+                <router-outlet
+                    (activate)="onActivate($event)"
+                    (deactivate)="onDeactivate($event)"/>
+            </div>
+        </div>
     </div>
-</div>
+}

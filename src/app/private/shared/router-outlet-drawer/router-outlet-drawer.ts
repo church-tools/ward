@@ -26,6 +26,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     private static readonly SWIPE_TIME_LIMIT = 100;
     private static readonly INTERACTIVE_ELEMENTS = new Set(['button', 'a', 'input', 'textarea', 'select', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
+    protected readonly windowService = inject(WindowService);
     private readonly router = inject(Router);
 
     readonly activated = output<string | null>();
@@ -35,7 +36,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     protected readonly contentChanging = signal(false);
     protected readonly onBottom = inject(WindowService).isSmall;
 
-    private readonly drawerView = viewChild.required('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
+    private readonly drawerView = viewChild('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
     private readonly routerOutlet = viewChild.required(RouterOutlet);
     
     // Drag state

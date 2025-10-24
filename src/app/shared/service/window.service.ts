@@ -38,6 +38,8 @@ export class WindowService {
     readonly isSmall = xcomputed([this.size], size => size === WindowSize.sm);
     readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
     readonly mobileOS = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    readonly hasTouch = 'ontouchstart' in window;
+    readonly hasMouse = 'onmousedown' in window;
     readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
     readonly backUrl = signal<string | null>(null);

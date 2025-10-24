@@ -1,4 +1,5 @@
 @use 'layout';
+@use 'input';
 @use 'animation';
 
 :host {
@@ -21,26 +22,24 @@
         @include layout.smaller-than(layout.$md) {
             gap: layout.$gutter * 4;
         }
-        .drawer {
+        .side-drawer, .bottom-drawer {
             display: block;
-            &.on-bottom {
-                @starting-style {
-                    transform: translateY(100%);
-                }
+        }
+        .bottom-drawer {
+            @starting-style {
+                transform: translateY(100%);
             }
         }
         &.closing {
             gap: 0;
-            .drawer {
-                &.on-bottom {
-                    transition-timing-function: animation.$ease-in;
-                    transform: translateY(100%);
-                }
+            .bottom-drawer {
+                transition-timing-function: animation.$ease-out;
+                transform: translateY(100%);
             }
         }
     }
     &.content-changing {
-        .drawer {
+        .side-drawer {
             animation: drawer-content-change animation.$duration-lg animation.$ease-out;
         }
     }
@@ -49,34 +48,14 @@
 .main {
     width: 100%;
 }
-.drawer {
+
+.side-drawer, .bottom-drawer {
     display: none;
-    position: sticky;
     box-sizing: border-box;
-    height: layout.$canvas-height;
-    top: layout.$canvas-margin-y;
     width: 100%;
-    max-width: layout.$page-width-narrow;
-
-    &.on-bottom {
-        position: fixed;
-        height: min-content;
-        top: auto;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        transition: transform animation.$duration animation.$ease-out;
-        .drawer-card {
-            border-bottom-left-radius: 0;
-            border-bottom-right-radius: 0;
-            border-bottom: none;
-        }
-    }
-
     &:active {
         cursor: grabbing;
     }
-
     .drawer-card {
         position: relative;
         height: 100%;
@@ -94,6 +73,46 @@
             transition: opacity animation.$duration-lg ease;
             opacity: 0;
         }
+    }
+    
+    .drag-handle {
+        position: absolute;
+        background-color: input.$color;
+        min-width: 0.25rem;
+        min-height: 0.25rem;
+        border-radius: 0.125rem;
+        opacity: 0.125;
+    }
+}
+
+.side-drawer {
+    position: sticky;
+    height: layout.$canvas-height;
+    top: layout.$canvas-margin-y;
+    max-width: layout.$page-width-narrow;
+    .drag-handle {
+        height: 40px;
+        left: 0.5rem;
+        top: calc(50% - 20px);
+    }
+}
+
+.bottom-drawer {
+    background: none;
+    padding: 0;
+    position: fixed;
+    height: min-content;
+    bottom: 0;
+    transition: transform animation.$duration animation.$ease-out;
+    .drag-handle {
+        width: 40px;
+        top: 0.5rem;
+        align-self: center;
+    }
+    .drawer-card {
+        border-bottom-left-radius: 0;
+        border-bottom-right-radius: 0;
+        border-bottom: none;
     }
 }
 

@@ -215,3 +215,8 @@ ul {
     &.narrow { max-width: $page-width-narrow; }
     &.wide { max-width: $page-width-wide; }
 }
+
+dialog {
+  border: none;
+  outline: none;
+}
