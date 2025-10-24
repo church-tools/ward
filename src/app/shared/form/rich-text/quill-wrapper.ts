@@ -23,8 +23,13 @@ export class QuillWrapper {
     private ignoreNextUpdate = false;
 
     constructor(elemSignal: Signal<ElementRef<HTMLDivElement>>,
-        private readonly characterLimit: Signal<number>) {
-        xeffect([elemSignal], elem => {
+        private readonly characterLimit: Signal<number>,
+        private readonly minLines: Signal<number>) {
+        xeffect([elemSignal, this.minLines], (elem, minLines) => {
+            // Set minimum height based on minLines on the parent container
+            if (minLines)
+                this.setMinHeight(elem.nativeElement, minLines);
+            
             const quill = new Quill(elem.nativeElement, {
                 modules: {
                     toolbar: false,
@@ -39,6 +44,14 @@ export class QuillWrapper {
                 formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'indent']
             });
             this.quill.set(quill);
+            
+            // Make the entire container clickable to focus the editor
+            elem.nativeElement.addEventListener('click', (e) => {
+                if (e.target === elem.nativeElement) {
+                    quill.focus();
+                }
+            });
+            
             quill.on('text-change', () => {
                 if (this.ignoreNextUpdate) {
                     this.ignoreNextUpdate = false;
@@ -187,5 +200,13 @@ export class QuillWrapper {
 
     private clamp(value: number, min: number, max: number): number {
         return Math.min(Math.max(value, min), max);
+    }
+
+    private setMinHeight(element: HTMLDivElement, minLines: number) {
+        const lineHeight = 1.5;
+        const fontSize = 14;
+        const padding = 5 * 2; // input.$padding-y * 2
+        const minHeight = (minLines * fontSize * lineHeight) + padding;
+        element.style.minHeight = `${minHeight}px`;
     }
 }

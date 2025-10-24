@@ -3,9 +3,7 @@
     <ng-content/>
 </div>
 @if (onBottom()) {
-    <dialog #drawer class="bottom-drawer"
-        (mousedown)="onDragStart($event)"
-        (touchstart)="onDragStart($event)">
+    <dialog #drawer class="bottom-drawer">
         <div class="drawer-card card large acrylic-card no-shadow">
             <div class="drawer-body">
                 <router-outlet
@@ -24,9 +22,7 @@
         </div>
     </dialog>
 } @else {
-    <div #drawer class="side-drawer"
-        (mousedown)="onDragStart($event)"
-        (touchstart)="onDragStart($event)">
+    <div #drawer class="side-drawer">
         <div class="drawer-card card large canvas-card"
             [class.dense]="!windowService.isLarge()">
             <div class="drawer-body">

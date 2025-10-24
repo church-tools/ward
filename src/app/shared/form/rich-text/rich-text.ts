@@ -19,11 +19,12 @@ import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-tex
 export class RichTextComponent extends InputBaseComponent<string> {
     
     readonly characterLimit = input<number>(0);
+    readonly minLines = input<number>(3);
     readonly autocomplete = input<string>('off');
 
     private readonly editor = viewChild.required('editor', { read: ElementRef });
 
-    protected readonly quill = new QuillWrapper(this.editor, this.characterLimit);
+    protected readonly quill = new QuillWrapper(this.editor, this.characterLimit, this.minLines);
 
     protected readonly formatButtons: RichTextToolbarButton<Format>[] = [
         { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },

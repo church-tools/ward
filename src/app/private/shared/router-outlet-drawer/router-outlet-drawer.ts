@@ -5,6 +5,7 @@ import { PageComponent } from "../../../shared/page/page";
 import { WindowService } from "../../../shared/service/window.service";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
 import { wait } from "../../../shared/utils/flow-control-utils";
+import { xeffect } from "../../../shared/utils/signal-utils";
 import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "../../../shared/utils/style";
 import { RowPageComponent } from "../row-page";
 
@@ -58,6 +59,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         document.addEventListener('mouseup', this.handleDragEnd.bind(this), { signal });
         document.addEventListener('touchmove', this.handleDrag.bind(this), { passive: false, signal });
         document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
+        xeffect([this.drawerView], drawer => {
+            drawer?.nativeElement.addEventListener('mousedown', this.onDragStart.bind(this), { passive: true });
+            drawer?.nativeElement.addEventListener('touchstart', this.onDragStart.bind(this), { passive: true });
+        });
     }
 
     protected async onActivate(page: PageComponent) {
@@ -127,7 +132,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             element.style.minHeight = `${height}px`;
             await wait(animationDurationMs);
             card.style.minHeight = '';
-            element.style.minHeight = '';
         } else {
             const width = element.offsetWidth;
             card.style.minWidth = `${width}px`;
@@ -135,20 +139,21 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             card.classList.add('fade-out');
             await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, animationDurationLgMs, easeOut, true);
             card.classList.remove('fade-out');
-            element.style.transform = '';
-            element.style.opacity = '';
-            element.style.transition = '';
         }
+        element.style.opacity = '';
+        element.style.transform = '';
+        element.style.transition = '';
         this.closing.set(false);
         if (this.contentChanging()) return;
         this.activeChild.set(null);
     }
 
-    protected onDragStart(event: MouseEvent | TouchEvent) {
-        const clientX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const clientY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
-        const target = event.target as HTMLElement;
-        
+    private onDragStart(event: Event) {
+        const pointEvent = event as MouseEvent | TouchEvent;
+        const clientX = pointEvent instanceof MouseEvent ? pointEvent.clientX : pointEvent.touches[0].clientX;
+        const clientY = pointEvent instanceof MouseEvent ? pointEvent.clientY : pointEvent.touches[0].clientY;
+        const target = pointEvent.target as HTMLElement;
+
         this.clearDragTimeout();
         this.dragState = { 
             startX: clientX, 
@@ -177,40 +182,31 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
     private handleDrag(event: MouseEvent | TouchEvent) {
         if (!this.dragState) return;
-
-        const currentX = event instanceof MouseEvent ? event.clientX : event.touches[0].clientX;
-        const currentY = event instanceof MouseEvent ? event.clientY : event.touches[0].clientY;
-        
+        const current = event instanceof MouseEvent ? event : event.touches[0];
         if (!this.dragState.isDragActive) {
-            this.tryActivateDrag(currentX, currentY, event);
+            this.tryActivateDrag(current, event);
         } else {
-            const delta = this.onBottom() 
-                ? currentY - this.dragState.startY 
-                : currentX - this.dragState.startX;
-            if (delta > 0) {
-                this.performDrag(delta, event);
-            }
+            const isBottom = this.onBottom();
+            const delta = isBottom
+                ? current.clientY - this.dragState.startY
+                : current.clientX - this.dragState.startX;
+            if (delta > 0)
+                this.performDrag(delta, event, isBottom);
         }
     }
 
-    private tryActivateDrag(currentX: number, currentY: number, event: MouseEvent | TouchEvent): any {
+    private tryActivateDrag(current: Touch | MouseEvent, event: MouseEvent | TouchEvent): any {
         const { startX, startY, startTime, startedOnBackground } = this.dragState!;
-        const deltaX = currentX - startX;
-        const deltaY = currentY - startY;
+        const deltaX = current.clientX - startX;
+        const deltaY = current.clientY - startY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         const timeElapsed = Date.now() - startTime;
-
         if (distance > RouterOutletDrawerComponent.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
-            if (this.onBottom() && Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0)
-                return this.dragState = null;
-            if (!this.onBottom() && Math.abs(deltaX) < Math.abs(deltaY))
-                return this.dragState = null;
-            if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground) {
+            if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground)
                 this.activateDrag(event);
-            } else {
+            else
                 this.dragState = null;
-            }
         }
     }
 
@@ -220,10 +216,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         event.preventDefault();
     }
 
-    private performDrag(delta: number, event: MouseEvent | TouchEvent) {
+    private performDrag(delta: number, event: MouseEvent | TouchEvent, isBottom: boolean) {
         const element = this.drawerView().nativeElement;
-        const axis = this.onBottom() ? 'Y' : 'X';
-        element.style.transform = `translate${axis}(${delta}px)`;
+        element.style.transform = `translate${isBottom ? 'Y' : 'X'}(${delta}px)`;
         if (!this.onBottom())
             element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
         event.preventDefault();
@@ -236,19 +231,15 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         const element = this.drawerView().nativeElement;
         
         if (this.dragState.isDragActive) {
-            const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
-            const currentY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY;
-            
+            const { clientX, clientY } = event instanceof MouseEvent ? event : event.changedTouches[0];
             const isBottom = this.onBottom();
-            const delta = isBottom ? currentY - this.dragState.startY : currentX - this.dragState.startX;
+            const delta = isBottom ? clientY - this.dragState.startY : clientX - this.dragState.startX;
             const velocity = delta / (Date.now() - this.dragState.startTime);
-            
             if (delta > 0) {
-                if (delta > 100 || velocity > 0.5) {
+                if (delta > 100 || velocity > 0.5)
                     this.onClose();
-                } else {
+                else
                     this.snapBackDrawer(element, delta, isBottom);
-                }
             }
         }
         element.style.userSelect = '';
@@ -256,17 +247,16 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     private snapBackDrawer(element: HTMLElement, delta: number, isBottom: boolean) {
-        const axis = isBottom ? 'Y' : 'X';
         element.style.transition = '';
-        element.style.transform = `translate${axis}(${delta}px)`;
+        element.style.transform = `translate${isBottom ? 'Y' : 'X'}(${delta}px)`;
         if (!isBottom)
             element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
         requestAnimationFrame(() => {
-            const transitions = isBottom ? 'transform 0.3s ease-out' : 'transform 0.3s ease-out, opacity 0.3s ease-out';
-            element.style.transition = transitions;
+            element.style.transition = isBottom
+                ? 'transform 0.3s ease-out'
+                : 'transform 0.3s ease-out, opacity 0.3s ease-out';
             element.style.transform = '';
-            if (!isBottom)
-                element.style.opacity = '';
+            element.style.opacity = '';
             setTimeout(() => element.style.transition = '', animationDurationMs);
         });
     }
