@@ -42,7 +42,10 @@
     }
     &.content-changing {
         .side-drawer {
-            animation: drawer-content-change animation.$duration-lg animation.$ease-out;
+            animation: side-drawer-content-change animation.$duration-lg animation.$ease-out;
+        }
+        .bottom-drawer {
+            animation: bottom-drawer-content-change animation.$duration-lg animation.$ease-out;
         }
     }
 }
@@ -139,7 +142,7 @@
     }
 }
 
-@keyframes drawer-content-change {
+@keyframes side-drawer-content-change {
     0% {
         transform: translateX(0);
         opacity: 1;
@@ -151,5 +154,17 @@
     100% {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+@keyframes bottom-drawer-content-change {
+    0% {
+        transform: translateY(0);
+    }
+    25% {
+        transform: translateY(100%);
+    }
+    100% {
+        transform: translateY(0);
     }
 }

@@ -66,7 +66,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         await this.animateDrawerOpen();
         if (page instanceof RowPageComponent) {
             page.onIdChange = async _ => {
-                if (this.onBottom()) return;
                 this.contentChanging.set(true);
                 setTimeout(() => this.contentChanging.set(false), animationDurationLgMs);
                 this.emitCurrentRoute();
@@ -230,7 +229,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         event.preventDefault();
     }
 
-    private handleDragEnd(event: MouseEvent | TouchEvent) {
+    private async handleDragEnd(event: MouseEvent | TouchEvent) {
         if (!this.dragState) return;
         
         this.clearDragTimeout();
@@ -246,7 +245,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             
             if (delta > 0) {
                 if (delta > 100 || velocity > 0.5) {
-                    this.animateDrawerClose();
+                    this.onClose();
                 } else {
                     this.snapBackDrawer(element, delta, isBottom);
                 }
