@@ -184,8 +184,18 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         
         if (!this.dragState.isDragActive) {
             this.tryActivateDrag(currentX, currentY, event);
-        } else if (currentX > this.dragState.startX) {
-            this.performDrag(currentX - this.dragState.startX, event);
+        } else {
+            if (this.onBottom()) {
+                const deltaY = currentY - this.dragState.startY;
+                if (deltaY > 0) {
+                    this.performDrag(deltaY, event);
+                }
+            } else {
+                const deltaX = currentX - this.dragState.startX;
+                if (deltaX > 0) {
+                    this.performDrag(deltaX, event);
+                }
+            }
         }
     }
 
@@ -198,6 +208,20 @@ export class RouterOutletDrawerComponent implements OnDestroy {
 
         if (distance > RouterOutletDrawerComponent.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
+            
+            // For bottom drawer, check if dragging in the correct direction (downward)
+            if (this.onBottom() && Math.abs(deltaY) > Math.abs(deltaX) && deltaY < 0) {
+                // Dragging upward on bottom drawer, not a valid close gesture
+                this.dragState = null;
+                return;
+            }
+            
+            // For side drawer, check if dragging in the correct direction (rightward)
+            if (!this.onBottom() && Math.abs(deltaX) < Math.abs(deltaY)) {
+                // Dragging vertically on side drawer, not a valid close gesture
+                this.dragState = null;
+                return;
+            }
             
             // Allow drag if within time limit OR if started on card background
             if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground) {
@@ -214,10 +238,14 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         event.preventDefault();
     }
 
-    private performDrag(deltaX: number, event: MouseEvent | TouchEvent) {
+    private performDrag(delta: number, event: MouseEvent | TouchEvent) {
         const element = this.drawerView().nativeElement;
-        element.style.transform = `translateX(${deltaX}px)`;
-        element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
+        if (this.onBottom()) {
+            element.style.transform = `translateY(${delta}px)`;
+        } else {
+            element.style.transform = `translateX(${delta}px)`;
+            element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
+        }
         event.preventDefault();
     }
 
@@ -229,25 +257,49 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         
         if (this.dragState.isDragActive) {
             const currentX = event instanceof MouseEvent ? event.clientX : event.changedTouches[0].clientX;
-            const deltaX = currentX - this.dragState!.startX;
-            const velocity = deltaX / (Date.now() - this.dragState!.startTime);
-            if (deltaX > 0) {
-                if (deltaX > 100 || velocity > 0.5) {
-                    this.animateDrawerClose();
-                } else {
-                    // Set the current drag position without transition
-                    element.style.transition = '';
-                    element.style.transform = `translateX(${deltaX}px)`;
-                    element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
-                    
-                    // Use requestAnimationFrame to ensure the position is applied before transition
-                    requestAnimationFrame(() => {
-                        element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
-                        element.style.transform = '';
-                        element.style.opacity = '';
+            const currentY = event instanceof MouseEvent ? event.clientY : event.changedTouches[0].clientY;
+            
+            if (this.onBottom()) {
+                const deltaY = currentY - this.dragState!.startY;
+                const velocity = deltaY / (Date.now() - this.dragState!.startTime);
+                if (deltaY > 0) {
+                    if (deltaY > 100 || velocity > 0.5) {
+                        this.animateDrawerClose();
+                    } else {
+                        // Set the current drag position without transition
+                        element.style.transition = '';
+                        element.style.transform = `translateY(${deltaY}px)`;
                         
-                        setTimeout(() => element.style.transition = '', animationDurationMs);
-                    });
+                        // Use requestAnimationFrame to ensure the position is applied before transition
+                        requestAnimationFrame(() => {
+                            element.style.transition = 'transform 0.3s ease-out';
+                            element.style.transform = '';
+                            
+                            setTimeout(() => element.style.transition = '', animationDurationMs);
+                        });
+                    }
+                }
+            } else {
+                const deltaX = currentX - this.dragState!.startX;
+                const velocity = deltaX / (Date.now() - this.dragState!.startTime);
+                if (deltaX > 0) {
+                    if (deltaX > 100 || velocity > 0.5) {
+                        this.animateDrawerClose();
+                    } else {
+                        // Set the current drag position without transition
+                        element.style.transition = '';
+                        element.style.transform = `translateX(${deltaX}px)`;
+                        element.style.opacity = `${Math.max(0.3, 1 - deltaX / animationDurationSmMs)}`;
+                        
+                        // Use requestAnimationFrame to ensure the position is applied before transition
+                        requestAnimationFrame(() => {
+                            element.style.transition = 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                            element.style.transform = '';
+                            element.style.opacity = '';
+                            
+                            setTimeout(() => element.style.transition = '', animationDurationMs);
+                        });
+                    }
                 }
             }
         }
