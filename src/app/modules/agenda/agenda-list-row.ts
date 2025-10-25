@@ -22,7 +22,7 @@ import { MeetingsPageComponent } from '../../private/meetings/meetings-page';
     `,
     imports: [IconComponent],
     host: {
-        class: 'full-width row items-center'
+        class: 'full-width row items-center',
     }
 })
 export class AgendaListRowComponent extends ListRowComponent<'agenda'> {

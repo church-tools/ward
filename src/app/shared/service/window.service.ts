@@ -39,7 +39,8 @@ export class WindowService {
     readonly isLarge = xcomputed([this.size], size => size > WindowSize.md);
     readonly mobileOS = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     readonly hasTouch = 'ontouchstart' in window;
-    readonly hasMouse = this.document.defaultView?.matchMedia?.('(pointer: fine)').matches ?? false;
+    private readonly _hasMouse = signal(this.document.defaultView?.matchMedia?.('(any-pointer: fine)').matches ?? false);
+    readonly hasMouse = this._hasMouse.asReadonly();
     readonly isExtraLarge = xcomputed([this.size], size => size > WindowSize.lg);
     readonly isOnline = signal(navigator.onLine);
     readonly backUrl = signal<string | null>(null);
@@ -52,6 +53,9 @@ export class WindowService {
         }, { once: true });
         this.document.defaultView!.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
             this._darkColorScheme.set(event.matches);
+        });
+        this.document.defaultView!.matchMedia?.('(any-pointer: fine)').addEventListener('change', event => {
+            this._hasMouse.set(event.matches);
         });
         this.document.defaultView!.addEventListener?.('keydown', async event => {
             executeOnce(() => this.onKeyPress.emit(event), this.timeout);

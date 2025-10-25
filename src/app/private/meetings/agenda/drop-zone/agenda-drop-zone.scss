@@ -31,7 +31,7 @@
         transform: translate(calc(100% - 6rem), -50%);
     }
     .acrylic-card {
-        width: max-content;
+        min-width: 200pt;
         .card {
             position: relative;
             justify-content: center;
