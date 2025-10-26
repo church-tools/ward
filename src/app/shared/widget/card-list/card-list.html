@@ -21,11 +21,11 @@
 </div>
 <div #container class="card-item-container column"
     cdkDropList
-    watchChildren watchChildClass="cdk-drag-placeholder"
-    (childAdded)="placeholderAdded($event)"
     [cdkDropListConnectedTo]="targetDropLists()"
     (cdkDropListDropped)="onDropHere($event)"
-    [cdkDropListDisabled]="!reorderable() || !editable()">
+    [cdkDropListDisabled]="!reorderable() || !editable()"
+    watchChildren watchChildClass="cdk-drag-placeholder"
+    (childAdded)="placeholderAdded($event)">
     @for (itemCard of itemCards(); track itemCard.id) {
         @if (getUrl(); as getUrl) {
             <a #card cdkDrag 

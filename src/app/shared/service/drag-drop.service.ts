@@ -34,12 +34,14 @@ export class DragDropGroup<T = any> {
     constructor(public readonly identity: string) { }
 
     registerTargets(targets: readonly DropTarget[]) {
+        if (!targets.length) return;
         for (const target of targets)
             this.targetSet.add(target);
         this._targets.set([...this.targetSet]);
     }
 
     unregisterTargets(targets: readonly DropTarget[]) {
+        if (!targets.length) return;
         for (const target of targets)
             this.targetSet.delete(target);
         this._targets.set([...this.targetSet]);
