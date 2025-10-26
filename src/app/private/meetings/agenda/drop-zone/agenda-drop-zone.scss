@@ -6,6 +6,7 @@
     left: 0;
     bottom: 0;
     width: 0;
+    pointer-events: none;
     transition: transform animation.$duration animation.$ease-out,
                 opacity animation.$duration animation.$ease-out;
     transform: translateX(-10rem);
@@ -13,6 +14,7 @@
     transition-timing-function: animation.$ease-in;
     &.visible {
         opacity: 1;
+        pointer-events: auto;
         transition-timing-function: animation.$ease-out;
         transform: translateX(1rem);
     }

@@ -1,0 +1,25 @@
+<div class="drop-zone"
+    (mouseenter)="onMouseEnter()"
+    (mouseleave)="onMouseLeave()"
+    [class.drag-over]="dragOver()">
+    <div class="acrylic-card column gap-4 p-4">
+        @for (agenda of agendas(); track agenda) {
+            @let active = agenda.id === lastDrag()?.data?.agenda;
+            <div cdkDropList
+                [id]="'agenda-drop-' + agenda.id"
+                [cdkDropListConnectedTo]="targetDropLists()"
+                (cdkDropListEntered)="onAgendaDropListEntered(agenda)"
+                (cdkDropListExited)="onAgendaDropListExited(agenda)"
+                (cdkDropListDropped)="onTaskDropped(agenda)">
+                <div class="card canvas-card selectable-card selectable-outlined-card"
+                    [class.disabled]="active"
+                    [class.drag-over-agenda]="hoveredAgenda() === agenda">
+                    @if (active) {
+                        <div class="indicator accent-fg"></div>
+                    }
+                    <app-agenda-list-row [row]="agenda"/>
+                </div>
+            </div>
+        }
+    </div>
+</div>
