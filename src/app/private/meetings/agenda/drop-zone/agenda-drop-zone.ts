@@ -34,9 +34,9 @@ export class AgendaDropZoneComponent implements OnDestroy {
     protected readonly hoveredAgenda = signal<Agenda.Row | null>(null);
 
     private readonly dragDropGroup = this.dragDrop.ensureGroup('task');
-    private readonly taskDropSubscription = this.dragDropGroup.dropped.subscribe(this.handleTaskDropped.bind(this));
     
     private dragMoveListener: ((e: MouseEvent | TouchEvent) => void) | null = null;
+    private dragEndListener: ((e: MouseEvent | TouchEvent) => void) | null = null;
 
     constructor() {
         xeffect([this.draggedTask], draggedTask => {
@@ -80,9 +80,29 @@ export class AgendaDropZoneComponent implements OnDestroy {
             }
         };
 
+        this.dragEndListener = async (event: MouseEvent | TouchEvent) => {
+            const agenda = this.hoveredAgenda();
+            if (agenda && this.lastDrag()) {
+                // Trigger the drop on the hovered agenda
+                const dragData = this.lastDrag()!;
+                const previewEl = document.querySelector('.cdk-drag-preview');
+                if (previewEl) previewEl.classList.add('shrink-out');
+                const agenda = this.hoveredAgenda();
+                if (!agenda) return;
+                await this.supabase.sync.from('task').update({
+                    id: dragData.data.id,
+                    agenda: agenda.id
+                });
+            }
+        };
+
         // Listen for both mouse and touch move events
         document.addEventListener('mousemove', this.dragMoveListener, { passive: true });
         document.addEventListener('touchmove', this.dragMoveListener, { passive: true });
+        
+        // Listen for mouse and touch release events
+        document.addEventListener('mouseup', this.dragEndListener, { passive: true });
+        document.addEventListener('touchend', this.dragEndListener, { passive: true });
     }
 
     private findHoveredAgenda(clientX: number, clientY: number): Agenda.Row | null {
@@ -101,25 +121,17 @@ export class AgendaDropZoneComponent implements OnDestroy {
             document.removeEventListener('touchmove', this.dragMoveListener);
             this.dragMoveListener = null;
         }
+        if (this.dragEndListener) {
+            document.removeEventListener('mouseup', this.dragEndListener);
+            document.removeEventListener('touchend', this.dragEndListener);
+            this.dragEndListener = null;
+        }
         this.hoveredAgenda.set(null);
         const previewEl = document.querySelector('.cdk-drag-preview');
         previewEl?.classList.remove('shrink');
     }
 
-    private async handleTaskDropped(dropData: DropData<Task.Row>) {
-        const previewEl = document.querySelector('.cdk-drag-preview');
-        if (previewEl) previewEl.classList.add('shrink-out');
-        const agenda = this.hoveredAgenda();
-        if (!agenda) return;
-        dropData.handled = true;
-        await this.supabase.sync.from('task').update({
-            id: dropData.item.id,
-            agenda: agenda.id
-        });
-    }
-
     ngOnDestroy() {
         this.stopDragPositionMonitoring();
-        this.taskDropSubscription.unsubscribe();
     }
 }

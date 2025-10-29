@@ -119,11 +119,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 .upsert(updates)
                 .select("*")
                 .throwOnError();
-            for (const row of data) {
-                this.storeAdapter.write(row);
-            }
+            this.storeAdapter.writeMany(data);
         }
-        await this.storeAdapter.writeMany(updates);
+        this.storeAdapter.onChangeReceived.emit(updates.map(update => ({ new: update })));
     }
 
     public async delete(row: Row<D, T> | number | string) {

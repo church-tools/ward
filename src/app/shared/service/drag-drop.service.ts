@@ -1,8 +1,8 @@
 import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { EventEmitter, Injectable, signal } from "@angular/core";
 
-export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement };
-export type DropData<T> = { item: T, from: DropTarget, to: DropTarget, fromPosition: number, toPosition: number, handled?: boolean };
+export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement, dropHandled?: boolean };
+export type DropData<T> = { item: T, from: DropTarget, to: DropTarget, fromPosition: number, toPosition: number };
 export type DropTarget = CdkDropList & { popover?: boolean };
 
 @Injectable({

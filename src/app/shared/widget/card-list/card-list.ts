@@ -185,7 +185,9 @@ export class CardListComponent<T> {
     }
     
     protected onDropHere(event: CdkDragDrop<string[]>) {
-        const item = this._dragDropGroup()?.dragged()?.data as T | null;
+        const dragData = this._dragDropGroup()?.dragged();
+        if (dragData?.dropHandled) return;
+        const item = dragData?.data as T | null;
         if (!item) return;
         this._dragDropGroup()?.dropped.emit({ item,
             from: event.previousContainer, to: event.container,
@@ -193,7 +195,6 @@ export class CardListComponent<T> {
     }
 
     protected onDrop(data: DropData<T>) {
-        if (data.handled) return;
         const fromHere = data.from === this.dropList();
         data.to === this.dropList()
             ? fromHere
