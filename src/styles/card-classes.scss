@@ -53,13 +53,13 @@
     &.selectable-card {
         cursor: pointer;
         transition: all animation.$duration animation.$ease-out;
-        &:hover {
+        &:hover, &.hover {
             background-color: $hover-background-color;
             @include shadow.box(2);
             &.selectable-outlined-card {
                 @include outlined;
             }
-        }
+        } 
         &.active {
             background-color: $active-background-color;
             @include shadow.box(4);

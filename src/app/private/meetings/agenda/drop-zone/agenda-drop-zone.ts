@@ -1,17 +1,16 @@
-import { CdkDropList, CdkDragDrop } from '@angular/cdk/drag-drop';
-import { Component, effect, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
+import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 import { Agenda } from '../../../../modules/agenda/agenda';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
 import { Task } from '../../../../modules/task/task';
-import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
+import { DragData, DragDropService, DropData } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
-import { asyncComputed, xcomputed, xeffect } from "../../../../shared/utils/signal-utils";
+import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
 
 @Component({
     selector: 'app-agenda-drop-zone',
     templateUrl: './agenda-drop-zone.html',
     styleUrl: './agenda-drop-zone.scss',
-    imports: [AgendaListRowComponent, CdkDropList],
+    imports: [AgendaListRowComponent],
     host: {
         '[class.visible]': 'draggedTask()',
     }
@@ -24,7 +23,7 @@ export class AgendaDropZoneComponent implements OnDestroy {
     
     readonly draggedTask = input.required<DragData<Task.Row> | null>();
 
-    private readonly dropLists = viewChildren(CdkDropList);
+    private readonly agendaCards = viewChildren('agendaCard', { read: ElementRef });
 
     protected readonly lastDrag = signal<DragData<Task.Row> | null>(null);
     protected readonly agendas = asyncComputed([],
@@ -35,27 +34,15 @@ export class AgendaDropZoneComponent implements OnDestroy {
     protected readonly hoveredAgenda = signal<Agenda.Row | null>(null);
 
     private readonly dragDropGroup = this.dragDrop.ensureGroup('task');
-    protected readonly targetDropLists = this.dragDropGroup.targets;
+    private readonly taskDropSubscription = this.dragDropGroup.dropped.subscribe(this.handleTaskDropped.bind(this));
     
     private dragMoveListener: ((e: MouseEvent | TouchEvent) => void) | null = null;
 
     constructor() {
-        // Register drop lists AFTER a delay to ensure they're registered after the card-list
-        xeffect([this.dropLists], dropLists => {
-            setTimeout(() => {
-                this.dragDropGroup.registerTargets(dropLists);
-            }, 0);
-        });
-        xeffect([this.draggedTask], lastDrag => {
-            if (!lastDrag) return;
-            this.lastDrag.set(lastDrag);
-        });
-
-        // Monitor drag position for touch devices
-        effect(() => {
-            const draggedTask = this.draggedTask();
+        xeffect([this.draggedTask], draggedTask => {
             if (draggedTask) {
                 this.startDragPositionMonitoring();
+                this.lastDrag.set(draggedTask);
             } else {
                 this.stopDragPositionMonitoring();
                 this.dragOver.set(false);
@@ -63,63 +50,21 @@ export class AgendaDropZoneComponent implements OnDestroy {
         });
     }
 
-    protected onMouseEnter() {   
-        this.dragOver.set(true);
-    }
-
-    protected onMouseLeave() {
-        this.dragOver.set(false);
-    }
-
     private startDragPositionMonitoring() {
         this.stopDragPositionMonitoring(); // Clean up any existing listener
         
-        this.dragMoveListener = (e: MouseEvent | TouchEvent) => {
+        this.dragMoveListener = (event: MouseEvent | TouchEvent) => {
             const dropZoneEl = (this.elementRef.nativeElement as HTMLElement).querySelector('.drop-zone') as HTMLElement;
             if (!dropZoneEl) return;
-            
-            let clientX: number, clientY: number;
-            if (e instanceof TouchEvent && e.touches.length > 0) {
-                clientX = e.touches[0].clientX;
-                clientY = e.touches[0].clientY;
-            } else if (e instanceof MouseEvent) {
-                clientX = e.clientX;
-                clientY = e.clientY;
-            } else {
-                return;
-            }
-
-            // Get the actual visual position of the drop zone (including transforms)
+            const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
             const rect = dropZoneEl.getBoundingClientRect();
-            
-            // Check if cursor is over the drop zone's current visual position
-            const isOverDropZone = clientX >= rect.left && 
-                                   clientX <= rect.right && 
-                                   clientY >= rect.top && 
-                                   clientY <= rect.bottom;
-            
-            // Also trigger if we're near the left edge (initial trigger area)
-            const nearLeftEdge = clientX < 100;
-            
-            this.dragOver.set(isOverDropZone || nearLeftEdge);
-
-            // Check which agenda card is being hovered
-            let hoveredAgenda: Agenda.Row | null = null;
-            if (isOverDropZone || nearLeftEdge) {
-                const dropLists = this.dropLists(), agendas = this.agendas();
-                for (let i = 0; i < dropLists.length; i++) {
-                    const dropList = dropLists[i];
-                    const cardRect = dropList.element.nativeElement.getBoundingClientRect();
-                    if (clientX >= cardRect.left && clientX <= cardRect.right &&
-                        clientY >= cardRect.top && clientY <= cardRect.bottom) {
-                        const agendaId = dropList.element.nativeElement.id.replace('agenda-drop-', '');
-                        if (agendaId) {
-                            hoveredAgenda = agendas?.[i] ?? null;
-                            break;
-                        }
-                    }
-                }
-            }
+            const show = (rect.left <= clientX && clientX <= rect.right && 
+                        rect.top <= clientY && clientY <= rect.bottom)
+                        || clientX < 100;
+            this.dragOver.set(show);
+            const hoveredAgenda = show
+                ? this.findHoveredAgenda(clientX, clientY)
+                : null;
             
             // Update hover state and apply preview effects
             const previousHovered = this.hoveredAgenda();
@@ -140,6 +85,16 @@ export class AgendaDropZoneComponent implements OnDestroy {
         document.addEventListener('touchmove', this.dragMoveListener, { passive: true });
     }
 
+    private findHoveredAgenda(clientX: number, clientY: number): Agenda.Row | null {
+        const index = this.agendaCards().findIndex(card => {
+            const cardRect = card.nativeElement.getBoundingClientRect();
+            return clientX >= cardRect.left && clientX <= cardRect.right &&
+                   clientY >= cardRect.top && clientY <= cardRect.bottom;
+        });
+        const hovered = index >= 0 ? (this.agendas()?.[index] ?? null) : null;
+        return hovered?.id === this.lastDrag()?.data?.agenda ? null : hovered;
+    }
+
     private stopDragPositionMonitoring() {
         if (this.dragMoveListener) {
             document.removeEventListener('mousemove', this.dragMoveListener);
@@ -151,34 +106,20 @@ export class AgendaDropZoneComponent implements OnDestroy {
         previewEl?.classList.remove('shrink');
     }
 
-    protected onAgendaDropListEntered(agenda: Agenda.Row) {
+    private async handleTaskDropped(dropData: DropData<Task.Row>) {
         const previewEl = document.querySelector('.cdk-drag-preview');
-        previewEl?.classList.add('shrink');
-        this.hoveredAgenda.set(agenda);
-    }
-
-    protected onAgendaDropListExited(agenda: Agenda.Row) {
-        const previewEl = document.querySelector('.cdk-drag-preview');
-        previewEl?.classList.remove('shrink');
-        this.hoveredAgenda.set(null);
-    }
-
-    protected onTaskDropped(agenda: Agenda.Row) {
-        this.handleTaskDropped(agenda);
-    }
-
-    private async handleTaskDropped(agenda: Agenda.Row) {
-        const drag = this.dragDropGroup.dragged();
-        if (!drag) throw new Error('No task is being dragged');
-        const task = drag.data as Task.Row;
+        if (previewEl) previewEl.classList.add('shrink-out');
+        const agenda = this.hoveredAgenda();
+        if (!agenda) return;
+        dropData.handled = true;
         await this.supabase.sync.from('task').update({
-            id: task.id,
+            id: dropData.item.id,
             agenda: agenda.id
         });
     }
 
     ngOnDestroy() {
         this.stopDragPositionMonitoring();
-        this.dragDropGroup.unregisterTargets(this.dropLists());
+        this.taskDropSubscription.unsubscribe();
     }
 }

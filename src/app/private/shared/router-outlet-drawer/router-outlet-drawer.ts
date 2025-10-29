@@ -148,19 +148,15 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         this.activeChild.set(null);
     }
 
-    private onDragStart(event: Event) {
-        const pointEvent = event as MouseEvent | TouchEvent;
-        const clientX = pointEvent instanceof MouseEvent ? pointEvent.clientX : pointEvent.touches[0].clientX;
-        const clientY = pointEvent instanceof MouseEvent ? pointEvent.clientY : pointEvent.touches[0].clientY;
-        const target = pointEvent.target as HTMLElement;
-
+    private onDragStart(event: MouseEvent | TouchEvent) {
+        const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
         this.clearDragTimeout();
         this.dragState = { 
             startX: clientX, 
             startY: clientY,
             startTime: Date.now(),
             isDragActive: false,
-            startedOnBackground: this.isCardBackground(target)
+            startedOnBackground: this.isCardBackground(event.target as HTMLElement),
         };
         if (!this.dragState.startedOnBackground) {
             this.dragState.delayTimeout = window.setTimeout(() => {

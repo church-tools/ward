@@ -120,6 +120,12 @@ export class CardListComponent<T> {
         this.updateItemCards(update);
     }
 
+    getLast(): T | null {
+        const itemCards = this.itemCards();
+        if (!itemCards.length) return null;
+        return itemCards[itemCards.length - 1].item;
+    }
+
     protected placeholderAdded(item: HTMLElement) {
         if (this.dragStart && this.dragStart + 100 > Date.now()) return;
         const height = item.getBoundingClientRect().height;
@@ -187,11 +193,13 @@ export class CardListComponent<T> {
     }
 
     protected onDrop(data: DropData<T>) {
+        if (data.handled) return;
+        const fromHere = data.from === this.dropList();
         data.to === this.dropList()
-            ? data.from === this.dropList()
+            ? fromHere
                 ? this.moveDroppedItem(data)
                 : this.addDroppedItem(data)
-            : data.from === this.dropList()
+            : fromHere
                 ? this.removeDroppedItem(data)
                 : null;
     }

@@ -2,8 +2,8 @@ import { CdkDrag, CdkDropList } from "@angular/cdk/drag-drop";
 import { EventEmitter, Injectable, signal } from "@angular/core";
 
 export type DragData<T> = { drag: CdkDrag, data: T, view: HTMLElement };
-export type DropData<T> = { item: T, from: DropTarget, to: DropTarget, fromPosition: number, toPosition: number };
-export type DropTarget = CdkDropList;
+export type DropData<T> = { item: T, from: DropTarget, to: DropTarget, fromPosition: number, toPosition: number, handled?: boolean };
+export type DropTarget = CdkDropList & { popover?: boolean };
 
 @Injectable({
     providedIn: 'root',
@@ -33,18 +33,18 @@ export class DragDropGroup<T = any> {
 
     constructor(public readonly identity: string) { }
 
-    registerTargets(targets: readonly DropTarget[]) {
+    registerTargets(targets: readonly DropTarget[], ) {
         if (!targets.length) return;
         for (const target of targets)
             this.targetSet.add(target);
-        this._targets.set([...this.targetSet]);
+        this._targets.set([...this.targetSet].sort((a, b) => a.popover ? 1 : b.popover ? -1 : 0));
     }
 
     unregisterTargets(targets: readonly DropTarget[]) {
         if (!targets.length) return;
         for (const target of targets)
             this.targetSet.delete(target);
-        this._targets.set([...this.targetSet]);
+        this._targets.set([...this.targetSet].sort((a, b) => a.popover ? 1 : b.popover ? -1 : 0));
     }
 
     setDrag(drag: CdkDrag, data: T, view: HTMLElement) {

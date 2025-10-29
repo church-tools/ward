@@ -44,7 +44,7 @@ import { getViewService } from "./view.service";
                         [ngComponentOutletInputs]="{
                             insert: functions.insert,
                             cancel: functions.cancel,
-                            prepareInsert: this.prepareInsert(),
+                            prepareInsert: _prepareInsert.bind(this),
                         }"/>
                 </ng-template>
             </app-card-list>
@@ -112,6 +112,13 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
         const getUrl = this.getUrl();
         if (getUrl && this.activeId() === row[this.table().idKey])
             this.router.navigate([getUrl(null)]);
+    }
+
+    protected _prepareInsert(row: Row<T>): PromiseOrValue<void> {
+        this.prepareInsert()?.(row);
+        const orderKey = this.table().info.orderKey;
+        if (orderKey)
+            row[orderKey] = (this.cardListView()?.getLast()?.[orderKey] ?? -1) + 1;
     }
 
     ngOnDestroy(): void {
