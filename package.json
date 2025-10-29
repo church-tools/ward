@@ -13,12 +13,12 @@
     "private": true,
     "dependencies": {
         "@angular/cdk": "^20.2.10",
-        "@angular/common": "^20.3.7",
-        "@angular/core": "^20.3.7",
-        "@angular/forms": "^20.3.7",
-        "@angular/platform-browser": "^20.3.7",
-        "@angular/router": "^20.3.7",
-        "@angular/service-worker": "^20.3.7",
+        "@angular/common": "^20.3.9",
+        "@angular/core": "^20.3.9",
+        "@angular/forms": "^20.3.9",
+        "@angular/platform-browser": "^20.3.9",
+        "@angular/router": "^20.3.9",
+        "@angular/service-worker": "^20.3.9",
         "@ngx-translate/core": "^17.0.0",
         "@ngx-translate/http-loader": "^17.0.0",
         "@supabase/supabase-js": "^2.77.0",
@@ -27,11 +27,11 @@
         "tslib": "^2.8.1"
     },
     "devDependencies": {
-        "@angular/build": "^20.3.7",
-        "@angular/cli": "^20.3.7",
-        "@angular/compiler": "^20.3.7",
-        "@angular/compiler-cli": "^20.3.7",
-        "@angular/language-service": "^20.3.7",
+        "@angular/build": "^20.3.8",
+        "@angular/cli": "^20.3.8",
+        "@angular/compiler": "^20.3.9",
+        "@angular/compiler-cli": "^20.3.9",
+        "@angular/language-service": "^20.3.9",
         "supabase": "^2.54.11",
         "typescript": "^5.9.3"
     }

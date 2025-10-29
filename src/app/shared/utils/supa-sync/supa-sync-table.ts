@@ -3,7 +3,7 @@ import { AsyncState } from "../async-state";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { Column, Database, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import type { Change, Column, Database, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
@@ -99,6 +99,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public async update(update: Update<D, T> | Update<D, T>[]) {
         await this.storeAdapter.initialized.get();
         const updates = Array.isArray(update) ? update : [update];
+        let changes: Change<T>[] | undefined = [];
         if (this.updateOffline) {
             await Promise.all([
                 this.storeAdapter.lock(async () => {
@@ -110,7 +111,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                             throw new Error(`Missing ID for update: ${JSON.stringify(update)}`);
                         Object.assign(existingRow ?? {}, updates[i]);
                     }
-                    await this.storeAdapter.writeMany(rows);
+                    changes = await (this.storeAdapter.onChangeReceived.hasSubscriptions
+                        ? this.storeAdapter.writeAndGet(rows)
+                        : this.storeAdapter.writeMany(rows));
                 }),
                 this.writePending(updates),
             ]);
@@ -119,9 +122,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 .upsert(updates)
                 .select("*")
                 .throwOnError();
-            this.storeAdapter.writeMany(data);
+            changes = await (this.storeAdapter.onChangeReceived.hasSubscriptions
+                ? this.storeAdapter.writeAndGet(data)
+                : this.storeAdapter.writeMany(data));
         }
-        this.storeAdapter.onChangeReceived.emit(updates.map(update => ({ new: update })));
+        if (changes) this.storeAdapter.onChangeReceived.emit(changes);
     }
 
     public async delete(row: Row<D, T> | number | string) {

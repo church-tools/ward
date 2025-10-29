@@ -26,7 +26,7 @@ export class IDBStoreAdapter<T> {
             .toPromise(store => store.put(item));
     }
 
-    public async writeMany(items: T[]) {
+    public async writeMany(items: T[]): Promise<undefined> {
         if (items.length === 0) return;
         const idb = await this.idb;
         await idb.transaction(this.storeName, "readwrite")

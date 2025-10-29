@@ -119,12 +119,10 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                 .throwOnError();
             const adapter = table.storeAdapter;
             if (data.length) {
-                if (adapter.onChangeReceived.hasSubscriptions) {
-                    const changes = await adapter.writeAndGet(data);
-                    adapter.onChangeReceived.emit(changes);
-                } else {
-                    await adapter.writeMany(data);
-                }
+                const changes = await (adapter.onChangeReceived.hasSubscriptions
+                    ? adapter.writeAndGet(data)
+                    : adapter.writeMany(data));
+                if (changes) adapter.onChangeReceived.emit(changes);
             }
             adapter.initialized.set(true);
         }));
