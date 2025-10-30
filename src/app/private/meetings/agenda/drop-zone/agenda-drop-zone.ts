@@ -85,8 +85,16 @@ export class AgendaDropZoneComponent implements OnDestroy {
             if (agenda && this.lastDrag()) {
                 // Trigger the drop on the hovered agenda
                 const dragData = this.lastDrag()!;
-                const previewEl = document.querySelector('.cdk-drag-preview');
-                if (previewEl) previewEl.classList.add('shrink-out');
+                const previewEl = document.querySelector('.cdk-drag-preview') as HTMLElement;
+                if (previewEl) {
+                    // Lock the current position before shrinking
+                    const rect = previewEl.getBoundingClientRect();
+                    previewEl.style.position = 'fixed';
+                    previewEl.style.left = `${rect.left}px`;
+                    previewEl.style.top = `${rect.top}px`;
+                    previewEl.style.transform = 'none';
+                    previewEl.classList.add('shrink-out');
+                }
                 const agenda = this.hoveredAgenda();
                 if (!agenda) return;
                 await this.supabase.sync.from('task').update({

@@ -106,8 +106,12 @@
     &.shrink .card-item { 
         scale: 0.5;
     }
-    &.shrink-out .card-item {
-        scale: 0.0001;
+    &.shrink-out {
+        transition: none !important;
+        transform: none !important;
+        .card-item {
+            scale: 0.0001;
+        }
     }
 }
 
