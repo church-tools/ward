@@ -46,14 +46,13 @@
     flex-direction: row;
     overflow: auto;
     justify-content: center;
-    overflow-x: clip;
+    overflow-x: hidden;
     @media screen and (min-width: layout.$page-width-narrow) {
         scrollbar-gutter: stable;
     }
     .canvas {
         transition: margin 0.2s ease;
         position: relative;
-        height: min-content;
         width: 100%;
         box-sizing:border-box;
         display: flex;

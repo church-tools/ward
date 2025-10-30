@@ -104,7 +104,7 @@
         @include shadow.box(8);
     }
     &.shrink .card-item { 
-        scale: 0.5;
+        scale: 0.75;
     }
     &.shrink-out {
         transition: none !important;
