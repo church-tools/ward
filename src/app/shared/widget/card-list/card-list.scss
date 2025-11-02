@@ -110,7 +110,8 @@
         transition: none !important;
         transform: none !important;
         .card-item {
-            scale: 0.0001;
+            scale: 0.125;
+            opacity: 0;
         }
     }
 }
