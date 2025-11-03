@@ -96,7 +96,7 @@ export function property<T extends object, K extends keyof T>(parent: Signal<T |
     return s;
 }
 
-export function waitForChange<T>(signal: Signal<T>, injector: Injector): Promise<T> {
+export function waitForNextChange<T>(signal: Signal<T>, injector: Injector): Promise<T> {
     return new Promise<T>(resolve => {
         const currentValue = signal();
         const effectRef = effect(() => {

@@ -9,7 +9,7 @@ import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
-import { waitForChange, xcomputed, xeffect } from '../../utils/signal-utils';
+import { waitForNextChange, xcomputed, xeffect } from '../../utils/signal-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
 import { SwapContainerComponent } from '../swap-container/swap-container';
@@ -117,7 +117,7 @@ export class CardListComponent<T> {
     async updateItems(update: { items?: T[], deletions?: number[] }) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
-        this.updateItemCards(update);
+        await this.updateItemCards(update);
     }
 
     getLast(): T | null {
@@ -278,7 +278,7 @@ export class CardListComponent<T> {
         this.itemCards.set(itemCards);
         if (this.orderIsCorrect(itemCards)) return;
         this.sort(itemCards);
-        const cardViews = await waitForChange(this.cardViews, this.injector);
+        const cardViews = await waitForNextChange(this.cardViews, this.injector);
         const containerRect = this.element.nativeElement.getBoundingClientRect();
         for (let i = 0; i < cardViews.length; i++) {
             const itemCard = itemCards[i];

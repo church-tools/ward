@@ -1,36 +1,38 @@
 import { ComponentRef, Directive, EnvironmentInjector, Injector, Signal, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts, ROUTER_OUTLET_DATA, RouterOutlet } from '@angular/router';
+import { animationDurationLgMs } from '../utils/style';
 import { PageComponent } from './page';
 
 @Directive({ selector: 'app-page-router-outlet' })
 export class PageRouterOutlet extends RouterOutlet {
-
+    
     private path: string | null = null;
 
-    override async activateWith(activatedRoute: ActivatedRoute, environmentInjector: EnvironmentInjector) {
+    override activateWith(activatedRoute: ActivatedRoute, environmentInjector: EnvironmentInjector) {
         const previousPath = this.path;
         this.path = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
-        const currentComponent = this['activated'] as ComponentRef<PageComponent> | null;
+        const oldPageRef = this['activated'] as ComponentRef<PageComponent> | null;
         const location = this['location'] as ViewContainerRef;
-        const childContexts = this['parentContexts'].getOrCreateContext(this.name).children;
-        const componentRef = location.createComponent(activatedRoute.snapshot.component!, {
+        const newPageRef = location.createComponent(activatedRoute.snapshot.component!, {
             index: location.length,
-            injector: new OutletInjector(activatedRoute, childContexts, location.injector, this.routerOutletData),
+            injector: new OutletInjector(activatedRoute,
+                this['parentContexts'].getOrCreateContext(this.name).children,
+                location.injector, this.routerOutletData),
             environmentInjector
         });
-        this.attach(componentRef, activatedRoute);
+        this.attach(newPageRef, activatedRoute);
         const animation = this.getAnimationClass(previousPath, this.path);
-        componentRef.instance.el.classList.add('router-page', 'enter', animation);
-        if (currentComponent) {
-            const classes = currentComponent.instance.el.classList;
-            classes.remove('enter', 'fade', 'left', 'right');
-            classes.add('leave', animation);
-            setTimeout(() => {
-                location.detach(location.indexOf(currentComponent.hostView));
-                currentComponent.destroy();
-                this.detachEvents.emit(currentComponent.instance);
-            }, 500);
-        }
+        const newPage = newPageRef.instance;
+        newPage.el.classList.add('page-transitioning', 'enter', animation);
+        if (!oldPageRef) return;
+        const oldPage = oldPageRef.instance as PageComponent;
+        oldPage.el.classList.remove('enter', 'fade', 'left', 'right');
+        oldPage.el.classList.add('leave', animation);
+        setTimeout(() => {
+            location.detach(location.indexOf(oldPageRef.hostView));
+            oldPageRef.destroy();
+            this.detachEvents.emit(oldPage);
+        }, animationDurationLgMs);
     }
 
     override deactivate(): void {} // No-op to prevent deactivation logic
