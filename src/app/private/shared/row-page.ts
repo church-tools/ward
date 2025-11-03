@@ -1,4 +1,4 @@
-import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
+import { Component, inject, Injector, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Row, TableName } from '../../modules/shared/table.types';
@@ -13,7 +13,6 @@ import { PrivatePageComponent } from './private-page';
     template: ``,
     host: {
         class: "column gap-3",
-        '[class.hidden]': "!show()",
     },
 })
 export abstract class RowPageComponent<T extends TableName> extends PrivatePageComponent implements OnInit, OnDestroy {
@@ -36,7 +35,6 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     private subscription?: Subscription;
 
     async ngOnInit() {
-        // Subscribe to route parameter changes instead of using snapshot
         this.subscription = this.route.paramMap.subscribe(async (params) => {
             const rowId = params.get(this.tableName);
             if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
