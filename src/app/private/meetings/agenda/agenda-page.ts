@@ -3,15 +3,15 @@ import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
 import { Task } from '../../../modules/task/task';
+import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
 import { TextInputComponent } from "../../../shared/form/text/text-input";
+import { IconComponent } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { SupaSyncedDirective } from "../../../shared/utils/supa-sync/supa-synced.directive";
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
-import { IconComponent } from "../../../shared/icon/icon";
-import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
 
 @Component({
     selector: 'app-agenda-page',
