@@ -18,57 +18,6 @@ body {
 .accent-active { @extend .#{"" + $accent}-active; }
 .accent-text { @extend .#{"" + $accent}-text; }
 
-@each $color in $names {
-    .#{"" + $color} {
-        .color-bg { background-color: get-variant($color, 'background'); }
-        .color-fg { background-color: get-variant($color, 'foreground'); }
-        .color-border { border-color: get-variant($color, 'foreground'); }
-        .color-text { color: get-variant($color, 'foreground'); font-weight: 500; }
-        .color-active { color: get-variant($color, 'active'); }
-        .color-mute { color: get-variant($color, 'mute'); }
-        app-icon { color: get-variant($color, 'foreground'); }
-    }
-    .#{"" + $color}-bg { background-color: get-variant($color, 'background'); }
-    .#{"" + $color}-fg { background-color: get-variant($color, 'foreground'); }
-    .#{"" + $color}-active-bg { background-color: get-variant($color, 'active'); }
-    .#{"" + $color}-border { border-color: get-variant($color, 'foreground'); }
-    .#{"" + $color}-text { color: get-variant($color, 'foreground'); font-weight: 500; }
-    .#{"" + $color}-active { color: get-variant($color, 'active'); }
-    .#{"" + $color}-mute { color: get-variant($color, 'mute'); }
-    .#{"" + $color}-mute-bg { background-color: get-variant($color, 'mute'); }
-    app-icon.#{"" + $color} { color: get-variant($color, 'foreground'); }
-    app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
-
-    @each $color2 in $names {
-        .bg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
-                    get-variant($color, 'background'),
-                    get-variant($color2, 'active'));
-            }
-        }
-        .fg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
-                    get-variant($color, 'active'),
-                    get-variant($color2, 'foreground'));
-            }
-        }
-    }
-}
-
-body {
-    background-color: $canvas-background;
-}
-
-.canvas-background {
-    background-color: $canvas-background;
-}
-
-.transparent-canvas-background {
-    background-color: $canvas-background-transparent;
-}
-
 @each $name, $color in $semantic-colors {
     .#{"" + $name}-bg { @extend .#{"" + $color}-bg; }
     .#{"" + $name}-fg { @extend .#{"" + $color}-fg; }
@@ -96,6 +45,8 @@ body {
     .#{"" + $color}-border { border-color: get-variant($color, 'foreground'); }
     .#{"" + $color}-text { color: get-variant($color, 'foreground'); font-weight: 500; }
     .#{"" + $color}-active { color: get-variant($color, 'active'); }
+    .#{"" + $color}-mute { color: get-variant($color, 'mute'); }
+    .#{"" + $color}-mute-bg { background-color: get-variant($color, 'mute'); }
     app-icon.#{"" + $color} { color: get-variant($color, 'foreground'); }
     app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
     app-icon.#{"" + $color}-high-contrast-bg { background-color: get-variant($color, 'high-contrast'); }

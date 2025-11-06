@@ -2,7 +2,7 @@
 @use "sass:list";
 
 $canvas-background: light-dark(#e8e8e8, #272727);
-$canvas-background-transparent: light-dark(rgba(246, 246, 246, 0.6), rgba(54, 54, 54, 0.333));
+$canvas-background-transparent: light-dark(rgba(246, 246, 246, 0.5), rgba(54, 54, 54, 0.5));
 $canvas-border: light-dark(#c2c2c2, #1d1d1d);
 $canvas-transparent-border: light-dark(rgba(#c2c2c2, 0.25), rgba(#1d1d1d, 0.25));
 $navbar-background: light-dark(#e0e0e0, #202020);

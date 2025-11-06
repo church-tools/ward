@@ -6,7 +6,7 @@
 :host {
     @include layout.fullscreen;
     @include layout.column;
-    background-color: color.$navbar-background;
+    background: none;
     ::after {
         content: '';
         @include layout.fullscreen;
@@ -14,18 +14,18 @@
         z-index: -1;
         opacity: 0;
         background-image: radial-gradient(farthest-corner at 100% 0%,
-            color-mix(in srgb, color.get-variant(color.$accent, 'background') 30%, color.$navbar-background) 0%,
+            color-mix(in srgb, color.get-variant(color.$accent, 'background') 25%, color.$navbar-background) 0%,
             color-mix(in srgb, color.get-variant(color.$accent-variation-1, 'background') 20%, color.$navbar-background) 40%,
-            color-mix(in srgb, color.get-variant(color.$accent-variation-2, 'background') 30%, color.$navbar-background) 100%);
+            color-mix(in srgb, color.get-variant(color.$accent-variation-2, 'background') 25%, color.$navbar-background) 100%);
         @media (prefers-color-scheme: dark) {
             background-image: radial-gradient(farthest-corner at 100% 0%,
-                color-mix(in srgb, color.get-variant(color.$accent, 'background') 15%, color.$navbar-background) 0%,
-                color-mix(in srgb, color.get-variant(color.$accent-variation-1, 'background') 10%, color.$navbar-background) 40%,
-                color-mix(in srgb, color.get-variant(color.$accent-variation-2, 'background') 15%, color.$navbar-background) 100%);
+                color-mix(in srgb, color.get-variant(color.$accent, 'background') 33%, color.$navbar-background) 0%,
+                color-mix(in srgb, color.get-variant(color.$accent-variation-1, 'background') 25%, color.$navbar-background) 40%,
+                color-mix(in srgb, color.get-variant(color.$accent-variation-2, 'background') 33%, color.$navbar-background) 100%);
         }
     }
     &.focused ::after {
-        opacity: 0.95;
+        opacity: 1;
     }
     &.dense .canvas {
         margin: layout.$canvas-margin-narrow;
@@ -47,11 +47,21 @@
     overflow: auto;
     justify-content: center;
     overflow-x: hidden;
+    transition: transform animation.$duration-lg animation.$ease-out;
     @media screen and (min-width: layout.$page-width-narrow) {
+        // @starting-style {
+        //     transform: translate(250px, 250px);
+        // }
         scrollbar-gutter: stable;
+        // .canvas {
+        //     @starting-style {
+        //         transform: translate(-250px, -250px);
+        //     }
+        // }
     }
     .canvas {
-        transition: margin 0.2s ease;
+        transition: margin animation.$duration-sm animation.$ease-out,
+            transform animation.$duration-lg animation.$ease-out;
         position: relative;
         width: 100%;
         box-sizing:border-box;

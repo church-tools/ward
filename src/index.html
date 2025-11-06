@@ -19,15 +19,13 @@
     <link rel="preload" href="/assets/fonts/FluentSystemIcons-Resizable.woff2" as="font" type="font/woff2" crossorigin="anonymous" />
     
     <script type="text/javascript">
-        let fontLoaded = false;
-        let viewInitialized = false;
+        let fontLoaded = false, viewInitialized = false;
 
         function hideLoadingScreen() {
-            if (fontLoaded && viewInitialized) {
-                const pageLoading = document.querySelector('.page-loading');
-                pageLoading?.classList.add('hidden');
-                setTimeout(function() { pageLoading?.remove() }, 1000);
-            }
+            if (!fontLoaded || !viewInitialized) return;
+            const pageLoading = document.querySelector('.page-loading');
+            pageLoading?.classList.add('hidden');
+            setTimeout(function() { pageLoading?.remove() }, 1000);
         }
 
         window.addEventListener('view-initialized', function() {
@@ -45,16 +43,12 @@
             });
         }, { once: true });
     </script>
-
-    <!-- Loading Page -->
     <style>
         :root {
             --navbar-background: light-dark(#e0e0e0, #202020);
-            --accent-background: light-dark(hsl(182, 47%, 73%), hsl(182, 95%, 15%));
-            --accent-variation-1-background: light-dark(hsl(150, 71%, 80%), hsl(150, 100%, 20%));
-            --accent-variation-2-background: light-dark(hsl(205, 74%, 81%), hsl(206, 100%, 23%));
-            --color-ratio-1: light-dark(30%, 15%);
-            --color-ratio-2: light-dark(20%, 10%);
+            --accent-background: light-dark(oklch(80% 15% 195), oklch(35% 20% 195));
+            --accent-variation-1-background: light-dark(oklch(80% 15% 135), oklch(35% 20% 135));
+            --accent-variation-2-background: light-dark(oklch(80% 15% 255), oklch(35% 20% 255));
         }
         .page-loading {
             app-region: drag;
@@ -64,12 +58,15 @@
             bottom: 0;
             right: 0;
             overflow: hidden;
-            background-color: var(--navbar-background);
             opacity: 1;
             transition: opacity 0.5s ease;
             display: flex;
             align-items: center;
             justify-content: center;
+            background-image: radial-gradient(farthest-corner at 100% 0%,
+                color-mix(in srgb, var(--accent-background) 25%, var(--navbar-background)) 0%,
+                color-mix(in srgb, var(--accent-variation-1-background) 20%, var(--navbar-background)) 40%,
+                color-mix(in srgb, var(--accent-variation-2-background) 25%, var(--navbar-background)) 100%);
             img {
                 position: absolute;
                 transition: all 0.1s cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -85,36 +82,22 @@
                 }
             }
         }
+        @media (prefers-color-scheme: dark) {
+            .page-loading {
+                background-image: radial-gradient(farthest-corner at 100% 0%,
+                    color-mix(in srgb, var(--accent-background) 33%, var(--navbar-background)) 0%,
+                    color-mix(in srgb, var(--accent-variation-1-background) 25%, var(--navbar-background)) 40%,
+                    color-mix(in srgb, var(--accent-variation-2-background) 33%, var(--navbar-background)) 100%);
+            }
+        }
         .page-loading.hidden {
             opacity: 0;
-        }
-        .page-loading-color {
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            right: 0;
-            background-image: radial-gradient(farthest-corner at 100% 0%,
-                color-mix(in srgb, var(--accent-background) 30%, var(--navbar-background)) 0%,
-                color-mix(in srgb, var(--accent-variation-1-background) 20%, var(--navbar-background)) 40%,
-                color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
-            opacity: 0.95;
-        }
-        @media (prefers-color-scheme: dark) {
-            html { color-scheme: dark; }
-            .page-loading-color {
-                background-image: radial-gradient(farthest-corner at 100% 0%,
-                    color-mix(in srgb, var(--accent-background) 15%, var(--navbar-background)) 0%,
-                    color-mix(in srgb, var(--accent-variation-1-background) 10%, var(--navbar-background)) 40%,
-                    color-mix(in srgb, var(--accent-variation-2-background) 15%, var(--navbar-background)) 100%);
-            }
         }
     </style>
 </head>
 <body>
     <app-root></app-root>
     <div class="page-loading">
-        <div class="page-loading-color"></div>
         <img angularImage title="logo" src="assets/img/logo/logo.svg"/>
     </div>
     <noscript>Please enable JavaScript to continue using this application.</noscript>
