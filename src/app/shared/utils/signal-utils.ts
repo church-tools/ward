@@ -1,7 +1,49 @@
 import { computed, CreateEffectOptions, effect, Injector, signal, Signal, WritableSignal } from "@angular/core";
 
+/**
+ * Enhanced Signal Utilities with Improved Type Safety
+ * 
+ * This module provides utility functions for working with Angular signals with improved type inference.
+ * The key improvement is that callback parameters now accurately reflect whether they can be null/undefined
+ * based on the input signal types.
+ * 
+ * Key Features:
+ * - `xeffect`: Effect with explicit dependencies and improved parameter type inference
+ * - `xcomputed`: Computed signal with explicit dependencies and improved parameter type inference  
+ * - `asyncComputed`: Async computed signal that returns a promise-like signal
+ * - `xsignal`: Signal with awaitable promise support
+ * 
+ * Type Safety Improvements:
+ * - Non-nullable signals (Signal<T>) result in non-nullable callback parameters (T)
+ * - Nullable signals (Signal<T | null>) result in nullable callback parameters (T | null)
+ * - No unnecessary undefined types added to callback parameters
+ * 
+ * Example:
+ * ```typescript
+ * const count = signal<number>(0);  // Signal<number>
+ * const name = signal<string | null>(null);  // Signal<string | null>
+ * 
+ * // Before: count parameter was number | undefined, name was string | null | undefined
+ * // After: count parameter is number, name is string | null
+ * xeffect([count, name], (count, name) => {
+ *   // count is correctly typed as number (no undefined!)
+ *   // name is correctly typed as string | null (no undefined!)
+ *   console.log(count.toFixed(2));  // No need to check for undefined
+ *   if (name) console.log(name.toUpperCase());
+ * });
+ * ```
+ */
+
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
+
+// Helper type to unwrap signal value and preserve nullability
+type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
+
+// Helper type to make non-nullable if the signal type doesn't include null/undefined
+type StrictUnwrap<T> = T extends Signal<infer U> 
+    ? (null extends U ? U : undefined extends U ? U : Exclude<U, null | undefined>)
+    : never;
 
 
 export function xsignal<T>(initialValue: T | null = null) {
@@ -19,25 +61,116 @@ export function xsignal<T>(initialValue: T | null = null) {
     return rs;
 }
 
+// Overloads for xcomputed to handle type safety based on signal nullability
+export function xcomputed<T, D1>(
+    dependencies: [Signal<D1>],
+    computation: (value1: StrictUnwrap<Signal<D1>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2>(
+    dependencies: [Signal<D1>, Signal<D2>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4, D5>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4, D5, D6>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>) => T
+): Signal<T>;
 export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
-    dependencies: [Signal<D1>, Signal<D2>?, Signal<D3>?, Signal<D4>?, Signal<D5>?, Signal<D6>?, Signal<D7>?, Signal<D8>?, Signal<D9>?],
-    computation: (value1: D1, value2?: D2, value3?: D3, value4?: D4, value5?: D5, value6?: D6, value7?: D7, value8?: D8, value9?: D9) => T) {
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => T
+): Signal<T>;
+export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+    dependencies: (Signal<any> | undefined)[],
+    computation: (...values: any[]) => T
+): Signal<T> {
     return computed(() => {
         const values = dependencies.map(d => d ? d() : null);
-        return computation(...<[D1, D2, D3, D4, D5, D6, D7, D8, D9]>values);
+        return computation(...values);
     });
 }
 
+
+// Overloads for asyncComputed to handle type safety based on signal nullability
+export function asyncComputed<T>(
+    dependencies: [],
+    computation: () => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1>(
+    dependencies: [Signal<D1>],
+    computation: (value1: StrictUnwrap<Signal<D1>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2>(
+    dependencies: [Signal<D1>, Signal<D2>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4, D5>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
 export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
-    dependencies: [Signal<D1>?, Signal<D2>?, Signal<D3>?, Signal<D4>?, Signal<D5>?, Signal<D6>?, Signal<D7>?, Signal<D8>?, Signal<D9>?],
-    computation: (value1?: D1, value2?: D2, value3?: D3, value4?: D4, value5?: D5, value6?: D6, value7?: D7, value8?: D8, value9?: D9) => Promise<T>,
-    defaultValue: T | null = null) {
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
+    computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => Promise<T>,
+    defaultValue?: T | null
+): AwaitableSignal<T | null>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+    dependencies: (Signal<any> | undefined)[],
+    computation: (...values: any[]) => Promise<T>,
+    defaultValue: T | null = null
+): AwaitableSignal<T | null> {
     const s = signal<T | null>(defaultValue);
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;
     const initPromise = new Promise<Exclude<T, null>>(resolve => initialized = resolve);
     effect(() => {
         const values = dependencies.map(d => d ? d() : null);
-        computation(...<[D1, D2, D3, D4, D5, D6, D7, D8, D9]>values).then(result => {
+        computation(...values).then(result => {
             s.set(result);
             if (result != null)
                 initialized?.(result as Exclude<T, null>);
@@ -48,26 +181,74 @@ export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     return rs;
 }
 
+
+// Overloads for xeffect to handle type safety based on signal nullability
+export function xeffect<T, D1>(
+    dependencies: [Signal<D1>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2>(
+    dependencies: [Signal<D1>, Signal<D2>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4, D5>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4, D5, D6>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4, D5, D6, D7>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8>(
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
-    dependencies: [Signal<D1>, Signal<D2>?, Signal<D3>?, Signal<D4>?, Signal<D5>?, Signal<D6>?, Signal<D7>?, Signal<D8>?, Signal<D9>?],
-    effectFn: (value1: D1, value2?: D2, value3?: D3, value4?: D4, value5?: D5, value6?: D6, value7?: D7, value8?: D8, value9?: D9) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }) {
-    let lastValues: [D1, D2, D3, D4, D5, D6, D7, D8, D9] | null = null;
+    dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
+    effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T };
+export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+    dependencies: (Signal<any> | undefined)[],
+    effectFn: (...values: any[]) => T,
+    options?: CreateEffectOptions & { skipFirst?: boolean }
+): { effectRef: any, fn: () => T } {
+    let lastValues: any[] | null = null;
     let first = options?.skipFirst;
     const effectRef = effect(() => {
         const values = dependencies.map(d => d ? d() : null);
         if (lastValues?.every((v, i) => v === values[i]))
             return;
-        lastValues = <[D1, D2, D3, D4, D5, D6, D7, D8, D9]>values;
+        lastValues = values;
         if (first) {
             first = false;
             return;
         }
-        effectFn(...<[D1, D2, D3, D4, D5, D6, D7, D8, D9]>values);
+        effectFn(...values);
     }, options);
     return { effectRef, fn: () => {
         const values = dependencies.map(d => d ? d() : null);
-        return effectFn(...<[D1, D2, D3, D4, D5, D6, D7, D8, D9]>values);
+        return effectFn(...values);
     }};
 }
 

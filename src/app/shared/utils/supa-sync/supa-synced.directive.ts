@@ -13,7 +13,7 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
     private readonly inputBase = inject(InputBaseComponent);
 
     readonly fromTable = input.required<SupaSyncTable<D, T>>({ alias: 'supaSynced' });
-    readonly row = input.required<Row<D, T>>();
+    readonly row = input.required<Row<D, T> | null>();
     readonly column = input.required<C>();
     
     private subscription?: Subscription;
@@ -22,13 +22,14 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
     constructor() {
         xeffect([this.fromTable, this.row, this.column], (fromTable, row, column) => {
             this.subscription?.unsubscribe();
+            if (!row) return;
             const idKey = fromTable.idKey;
-            this.inputBase.writeValue(row![column!]);
+            this.inputBase.writeValue(row[column]);
             this.subscription = fromTable.findOne()
-                .eq(idKey, row![idKey])
+                .eq(idKey, row[idKey])
                 .subscribe(({ result: row }) => {
-                    if (row?.[column!] == null) return;
-                    const value = row[column!];
+                    if (row?.[column] == null) return;
+                    const value = row[column];
                     if (this.lastValue === value) return;
                     this.lastValue = value;
                     this.inputBase.writeValue(value);
@@ -37,9 +38,9 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
         this.inputBase.registerOnChange((value: Row<D, T>[C]) => {
             if (this.lastValue === value) return;
             this.lastValue = value;
-            const column = this.column();
-            if (!column) return;
-            const fromTable = this.fromTable(), row = this.row();
+            const row = this.row();
+            if (!row) return;
+            const column = this.column(), fromTable = this.fromTable();
             const idKey = fromTable.idKey;
             fromTable.update({ [idKey]: row[idKey], [column]: value });
         });
