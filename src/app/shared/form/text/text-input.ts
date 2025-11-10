@@ -40,6 +40,7 @@ export class TextInputComponent extends InputBaseComponent<string> {
     protected readonly copied = signal(false);
 
     private readonly inputView = viewChild.required('input', { read: ElementRef });
+    override readonly debounceTime = 300;
 
     protected onClick(event: MouseEvent) {
         event.stopImmediatePropagation();

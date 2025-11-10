@@ -68,6 +68,7 @@
 
     &.canvas-card {
         background-color: $background-transparent-color;
+        @include vibrant(100%);
         &:not(.suppress-canvas-card-animation) {
             @include card-appear;
         }

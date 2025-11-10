@@ -23,6 +23,8 @@ export class RichTextComponent extends InputBaseComponent<string> {
     readonly autocomplete = input<string>('off');
 
     private readonly editor = viewChild.required('editor', { read: ElementRef });
+    
+    override readonly debounceTime = 300;
 
     protected readonly quill = new QuillWrapper(this.editor, this.characterLimit, this.minLines);
 

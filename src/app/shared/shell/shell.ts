@@ -16,8 +16,8 @@ export abstract class ShellComponent implements AfterViewInit {
 
     constructor() {
         this.windowService.setTitleBarColor({
-            focused: { light: '#cedfdd', dark: '#1b2626' },
-            unfocused: { light: '#e0e0e0', dark: '#202020' }
+            focused: { light: '#cedad8', dark: '#172825' },
+            unfocused: { light: '#e8e8e8', dark: '#272727' }
         });
     }
 

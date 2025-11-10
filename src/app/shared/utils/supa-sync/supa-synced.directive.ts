@@ -42,7 +42,7 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
             if (!row) return;
             const column = this.column(), fromTable = this.fromTable();
             const idKey = fromTable.idKey;
-            fromTable.update({ [idKey]: row[idKey], [column]: value });
+            fromTable.update({ [idKey]: row[idKey], [column]: value }, this.inputBase.debounceTime);
         });
     }
 

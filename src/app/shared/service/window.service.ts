@@ -88,10 +88,13 @@ export class WindowService {
                 this.onFocusChange.emit(false);
             };
         }
-        xeffect([this.focused, this._darkColorScheme, this.titleBarColors], (focused, dark, colors) => {
+        xeffect([this._focused, this.titleBarColors], (focused, colors) => {
             if (!colors) return;
             const color = focused ? colors.focused : colors.unfocused;
-            this.document.querySelector?.('meta[name=theme-color]')?.setAttribute('content', dark ? color.dark : color.light);
+            this.document.querySelector?.('meta[name=theme-color][media="(prefers-color-scheme: light)"]')
+                ?.setAttribute('content', color.light);
+            this.document.querySelector?.('meta[name=theme-color][media="(prefers-color-scheme: dark)"]')
+                ?.setAttribute('content', color.dark);
         });
     }
 

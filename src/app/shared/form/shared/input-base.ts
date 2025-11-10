@@ -39,7 +39,8 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
 
     readonly value = signal<TIn | null>(null);
     protected readonly disabledState = signal<boolean>(false);
-
+    
+    readonly debounceTime: number | undefined;
 
     private justClickedSomething = false;
 
