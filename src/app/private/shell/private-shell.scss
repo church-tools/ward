@@ -5,7 +5,6 @@
 
 .header {
     .handle {
-        width: 100%;
         .app-name {
             transition: color animation.$duration-sm ease;
         }
@@ -14,11 +13,14 @@
                 padding-right: 4rem;
             }
         }
-         
     }
     app-omni-search {
         width: 100%;
         min-width: 15rem;
+    }
+    .title-bar-margin {
+        transition: margin-right animation.$duration-sm animation.$ease-out;
+        margin-right: max(calc(100vw - env(titlebar-area-width, 100vw)), 0.5rem);
     }
 }
 

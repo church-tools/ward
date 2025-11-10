@@ -3,7 +3,7 @@
         @if (windowService.backUrl(); as url) {
             <app-back-button [url]="url"/>
         }
-        <div class="handle app-logo-and-name items-center row no-wrap gap-5 p-2 ps-0 ms-3">
+        <div class="handle full-width items-center row no-wrap gap-5 p-2 ps-0 ms-3">
             @if (!(windowService.backUrl() && windowService.isSmall())) {
                 <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
             }
@@ -15,13 +15,14 @@
         <div class="handle height-2"></div>
         <app-omni-search class="pb-2"/>
     </div>
-    <div class="handle row no-wrap items-center end-content gap-1 p-2">
-        <!-- user icon -->
-        @if (additionalItems().length) {
+    <div class="row full-width full-height row no-wrap items-center end-content gap-1">
+        <div class="handle full-width full-height">
             @if (editMode()) {
                 <span class="overflow-ellipsis">{{ 'EDIT_MODE' | translate }}</span>
             }
-            <app-menu-button type="subtle" class="icon-only"
+        </div>
+        @if (additionalItems().length) {
+            <app-menu-button type="subtle" class="icon-only title-bar-margin"
                 [items]="additionalItems()" alignment="left">
                 <app-menu-button menu-content type="subtle"
                     icon="translate"
