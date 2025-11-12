@@ -8,7 +8,6 @@
 .menu-popup {
     position: absolute;
     z-index: 1;
-    padding: input.$padding-y input.$padding-x;
     transition: opacity animation.$duration-xs ease, transform animation.$duration-xs ease;
 
     @starting-style {
@@ -17,6 +16,7 @@
     }
     
     &.leave {
+        transition: opacity animation.$duration-xxs ease, transform animation.$duration-xxs ease;
         transform: translateY(-10px);
         opacity: 0;
     }

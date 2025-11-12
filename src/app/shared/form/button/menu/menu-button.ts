@@ -17,39 +17,7 @@ export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuBut
 @Component({
     selector: 'app-menu-button',
     imports: [FormsModule, TranslateModule, IconComponent, SwitchComponent],
-    template: `
-        <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" [class]="classes()">
-            @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
-            <ng-content select="[button-text]"/>
-        </button>
-        @if (visible()) {
-            <div class="menu-popup acrylic-card" animate.leave="leave" [style]="style()">
-                @for (item of items(); track item) {
-                    @if ('link' in item) {
-                        <a class="menu-item" [href]="item.link">
-                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
-                            @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            {{ item.label || (item.labelTranslateId! | translate) }}
-                        </a>
-                    } @else if ('action' in item) {
-                        <button class="menu-item subtle" (click)="item.action()">
-                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}" class="menu-img"/> }
-                            @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            {{ item.label || (item.labelTranslateId! | translate) }}
-                        </button>
-                    } @else if ('toggle' in item) {
-                        <div class="menu-item">
-                            @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
-                            @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                            <app-switch [(ngModel)]="item.toggle" class="menu-item" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
-                                [forceLabelOnSide]="true" labelSide="left"/>
-                        </div>
-                    }
-                }
-                <ng-content select="[menu-content]"/>
-            </div>
-        }
-    `,
+    templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
 })
 export default class MenuButtonComponent extends ButtonBaseComponent implements OnDestroy {
@@ -90,8 +58,8 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         this.setVisibility(!this.visible());
         if (this.visible()) {
             const elem: HTMLElement = this.elementRef.nativeElement;
-            elem.addEventListener('mouseenter', this.setVisibilityFromMouse.bind(this, true));
-            elem.addEventListener('mouseleave', this.setVisibilityFromMouse.bind(this, false));
+            elem.addEventListener('mouseenter', this.show);
+            // elem.addEventListener('mouseleave', this.hide);
         }
     }
 
@@ -100,6 +68,9 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         if (!this.isRealClick()) return;
         this.toggle();
     }
+
+    private show = () => this.setVisibilityFromMouse(true);
+    private hide = () => this.setVisibilityFromMouse(false);
 
     private setVisibilityFromMouse(show: boolean) {
         this.shouldBeVisible += show ? 1 : -1;
@@ -111,9 +82,10 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         if (this.visible() === visible) return;
         this.visible.set(visible);
         if (!visible) {
+            this.shouldBeVisible = 0;
             const elem: HTMLElement = this.elementRef.nativeElement;
-            elem.removeEventListener('mouseenter', this.setVisibilityFromMouse.bind(this, true));
-            elem.removeEventListener('mouseleave', this.setVisibilityFromMouse.bind(this, false));
+            elem.removeEventListener('mouseenter', this.show);
+            elem.removeEventListener('mouseleave', this.hide);
         }
     }
 }

@@ -180,7 +180,7 @@ fieldset {
 .input-acrylic-card {
     margin: 0;
     padding: 0.25rem;
-    border-radius: $border-radius;
+    border-radius: card.$border-radius;
     gap: 0.25rem;
     border: 1px solid color.$canvas-border;
     background-color: $background-transparent-color;

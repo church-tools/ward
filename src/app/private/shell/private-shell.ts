@@ -37,6 +37,14 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     protected readonly additionalItems = xcomputed([this.profileService.own], profile => {
         const items: MenuButtonItem[] = [];
         if (!profile) return items;
+        items.push({
+            labelTranslateId: 'SIGN_OUT',
+            icon: 'sign_out',
+            action: async () => {
+                await this.supabase.signOut();
+                this.router.navigate(['/login']);
+            }
+        });
         if (profile.is_unit_admin) {
             items.push({
                 labelTranslateId: 'ENABLE_EDIT_MODE',
@@ -87,7 +95,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         return session;
     }
 
-    private async getStartRoute(session: Session): Promise<string> {
+    private async getStartRoute(session: Session) {
         const token = this.supabase.getDataFromAccessToken(session.access_token);
         const [unit, agendas] = await Promise.all([
             this.supabase.sync.from('unit').read(token.unit).get(),

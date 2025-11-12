@@ -7,7 +7,7 @@
     @include layout.fullscreen;
     @include layout.column;
     background: none;
-    ::after {
+    > ::after {
         content: '';
         @include layout.fullscreen;
         transition: opacity animation.$duration-lg animation.$ease-out;
