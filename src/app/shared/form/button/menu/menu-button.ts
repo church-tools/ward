@@ -59,7 +59,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         if (this.visible()) {
             const elem: HTMLElement = this.elementRef.nativeElement;
             elem.addEventListener('mouseenter', this.show);
-            // elem.addEventListener('mouseleave', this.hide);
+            elem.addEventListener('mouseleave', this.hide);
         }
     }
 
