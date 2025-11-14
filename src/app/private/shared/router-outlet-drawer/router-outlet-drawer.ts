@@ -130,8 +130,11 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             const height = element.offsetHeight;
             card.style.minHeight = `${height}px`;
             element.style.minHeight = `${height}px`;
+            element.style.transform = '';
+            element.style.transition = '';
             await wait(animationDurationMs);
             card.style.minHeight = '';
+            element.style.minHeight = '';
         } else {
             const width = element.offsetWidth;
             card.style.minWidth = `${width}px`;
@@ -249,8 +252,8 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
         requestAnimationFrame(() => {
             element.style.transition = isBottom
-                ? 'transform 0.3s ease-out'
-                : 'transform 0.3s ease-out, opacity 0.3s ease-out';
+                ? `transform ${animationDurationMs}ms ease-out`
+                : `transform ${animationDurationMs}ms ease-out, opacity ${animationDurationMs}ms ease-out`;
             element.style.transform = '';
             element.style.opacity = '';
             setTimeout(() => element.style.transition = '', animationDurationMs);
