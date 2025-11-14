@@ -116,6 +116,7 @@
     position: fixed;
     height: min-content;
     bottom: 0;
+    left: 0;
     transition: transform animation.$duration animation.$ease-out;
     .drawer-card {
         border-bottom-left-radius: 0;

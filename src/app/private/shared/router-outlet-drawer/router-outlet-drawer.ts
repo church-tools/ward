@@ -49,7 +49,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         isDragActive: boolean;
         delayTimeout?: number;
         startedOnBackground?: boolean; // Track if drag started on background
-    } | null = null;
+    } | undefined;
     private readonly abortController = new AbortController();
 
     constructor() {
@@ -161,7 +161,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         if (!this.dragState.startedOnBackground) {
             this.dragState.delayTimeout = window.setTimeout(() => {
                 if (this.dragState && !this.dragState.isDragActive)
-                    this.dragState = null;
+                    delete this.dragState;
             }, RouterOutletDrawerComponent.SWIPE_TIME_LIMIT);
         }
     }
@@ -202,7 +202,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground)
                 this.activateDrag(event);
             else
-                this.dragState = null;
+                delete this.dragState;
         }
     }
 
@@ -239,7 +239,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             }
         }
         element.style.userSelect = '';
-        this.dragState = null;
+        delete this.dragState;
     }
 
     private snapBackDrawer(element: HTMLElement, delta: number, isBottom: boolean) {
