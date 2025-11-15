@@ -18,6 +18,7 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
     
     private subscription?: Subscription;
     private lastValue: Row<D, T>[C] | undefined;
+    private updateInProgress = false;
 
     constructor() {
         xeffect([this.fromTable, this.row, this.column], (fromTable, row, column) => {
@@ -28,6 +29,7 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
             this.subscription = fromTable.findOne()
                 .eq(idKey, row[idKey])
                 .subscribe(({ result: row }) => {
+                    if (this.updateInProgress) return;
                     if (row?.[column] == null) return;
                     const value = row[column];
                     if (this.lastValue === value) return;
@@ -42,7 +44,9 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
             if (!row) return;
             const column = this.column(), fromTable = this.fromTable();
             const idKey = fromTable.idKey;
-            fromTable.update({ [idKey]: row[idKey], [column]: value }, this.inputBase.debounceTime);
+            this.updateInProgress = true;
+            fromTable.update({ [idKey]: row[idKey], [column]: value },
+                this.inputBase.debounceTime, () => this.updateInProgress = false);
         });
     }
 

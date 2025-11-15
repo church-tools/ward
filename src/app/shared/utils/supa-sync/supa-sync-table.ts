@@ -25,6 +25,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     private readonly createOffline: boolean;
     private readonly updateOffline: boolean;
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
+    private readonly onSents: (() => void)[] = [];
 
     constructor(
         private readonly tableName: T,
@@ -97,7 +98,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         }
     }
 
-    public async update(update: Update<D, T> | Update<D, T>[], debounce = 0) {
+    public async update(update: Update<D, T> | Update<D, T>[], debounce = 0, onSent?: () => void) {
         await this.storeAdapter.initialized.get();
         const updates = Array.isArray(update) ? update : [update];
         let changes: Change<T>[] | undefined;
@@ -116,13 +117,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                         ? this.storeAdapter.writeAndGet(rows)
                         : this.storeAdapter.writeMany(rows));
                 }),
-                this.writePending(updates, debounce),
+                this.writePending(updates, debounce, onSent),
             ]);
         } else {
             const { data } = await this.supabaseClient.from(this.tableName)
                 .upsert(updates)
                 .select("*")
                 .throwOnError();
+            onSent?.();
             changes = await (this.storeAdapter.onChangeReceived.hasSubscriptions
                 ? this.storeAdapter.writeAndGet(data)
                 : this.storeAdapter.writeMany(data));
@@ -144,8 +146,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         return this.storeAdapter.findLargestId();
     }
 
-    private async writePending(rows: Update<D, T>[], debounce = 0) {
+    private async writePending(rows: Update<D, T>[], debounce = 0, onSent?: () => void) {
         await this.pendingAdapter.writeMany(rows);
+        if (onSent) this.onSents.push(onSent);
         if (this.sendPendingTimeout) clearTimeout(this.sendPendingTimeout);
         if (debounce)
             this.sendPendingTimeout = setTimeout(() => this.sendPending(), debounce);
@@ -172,6 +175,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 return;
             }
             await this.pendingAdapter.deleteMany(indexes);
+            for (const onSent of this.onSents) onSent();
+            this.onSents.length = 0;
         });
     }
 
