@@ -37,7 +37,11 @@ import { getViewService } from "./view.service";
                 (itemClick)="onRowClick($event)">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
-                        [ngComponentOutletInputs]="{ row, page: this.page() }"/>
+                        [ngComponentOutletInputs]="{
+                            row,
+                            page: this.page(),
+                            onRemove: this.removeRow.bind(this)
+                        }"/>
                 </ng-template>
                 <ng-template #insertTemplate let-functions>               
                     <ng-container [ngComponentOutlet]="insertComponent"
@@ -93,6 +97,15 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     protected insertRow = async (row: Row<T>) => {
         const table = this.table();
         return await table.insert(row);
+    }
+
+    protected removeRow = async (row: Row<T>) => {
+        const table = this.table();
+        const id = row[table.idKey] as number;
+        await Promise.all([
+            table.delete(row),
+            this.cardListView()?.updateItems({ deletions: [id] }),
+        ]);
     }
 
     protected async onOrderChanged(rows: Row<T>[]) {

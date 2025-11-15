@@ -121,6 +121,10 @@
             padding: $size * $gutter $size2 * $gutter !important;
         }
     }
+    .left-#{$size} { left: $size * $gutter !important; }
+    .right-#{$size} { right: $size * $gutter !important; }
+    .top-#{$size} { top: $size * $gutter !important; }
+    .bottom-#{$size} { bottom: $size * $gutter !important; }
 }
 .mt-auto { margin-top: auto !important; }
 .mb-auto { margin-bottom: auto !important; }

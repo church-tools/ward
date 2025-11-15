@@ -79,7 +79,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
 
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(row: I): Promise<I extends Insert<D, T>[] ? Row<D, T>[] : Row<D, T>> {
         await this.storeAdapter.initialized.get();
-        const rows: Insert<D, T>[] = Array.isArray(row) ? row : [row];
+        const isArray = Array.isArray(row);
+        const rows: Insert<D, T>[] = isArray ? row : [row];
         if (this.createOffline) {
             for (const row of rows) {
                 row[this.idKey] ??= getRandomId();
@@ -87,14 +88,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             }
             this.storeAdapter.writeMany(rows);
             await this.writePending(rows);
-            return rows;
+            return isArray ? rows : rows[0];
         } else {
             const { data } = await this.supabaseClient.from(this.tableName)
                 .insert(rows)
                 .select("*")
                 .throwOnError();
-            await this.storeAdapter.writeMany(rows);
-            return data;
+            await this.storeAdapter.writeMany(data);
+            return isArray ? data : data[0] as Row<D, T>;
         }
     }
 

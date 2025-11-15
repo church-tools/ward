@@ -6,11 +6,17 @@ import { AgendaSectionPrayerComponent } from "./agenda-section-prayer";
 import { AgendaSectionSuggestionsComponent } from "./agenda-section-suggestions";
 import { AgendaSectionTasksComponent } from "./agenda-section-tasks";
 import { AgendaSectionTextComponent } from "./agenda-section-text";
+import ButtonComponent from '../../../shared/form/button/button';
 
 @Component({
-    selector: 'app-agenda-item-list-row',
+    selector: 'app-agenda-section-list-row',
     template: `
         <div class="column" [class.m-6-8]="adminService.editMode()">
+            @if (adminService.editMode()) {
+                <app-button icon="dismiss" type="subtle" size="large"
+                    class="icon-only position-absolute right-1 top-1"
+                    (onClick)="remove()"/>
+            }
             @switch (row().type) {
                 @case ('text') {
                     <app-agenda-section-text [section]="row()"/>
@@ -32,9 +38,13 @@ import { AgendaSectionTextComponent } from "./agenda-section-text";
     `,
     host: { class: 'full-width' },
     imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTasksComponent,
-        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent],
+        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent, ButtonComponent],
 })
-export class AgendaItemListRowComponent extends ListRowComponent<'agenda_section'> {
+export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {
 
     protected readonly adminService = inject(AdminService);
+
+    remove() {
+        return this.onRemove()(this.row());
+    }
 }

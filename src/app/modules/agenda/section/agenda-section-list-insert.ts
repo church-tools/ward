@@ -7,7 +7,7 @@ import { AgendaSection } from './agenda-section';
 import { AgendaSectionViewService } from './agenda-section-view.service';
 
 @Component({
-    selector: 'app-agenda-list-insert',
+    selector: 'app-agenda-section-list-insert',
     template: `
         <div class="row gap-2 center-content">
             @for (option of agendaSectionView.typeOptions; track option) {
