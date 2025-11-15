@@ -148,7 +148,8 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         element.style.transition = '';
         this.closing.set(false);
         if (this.contentChanging()) return;
-        this.activeChild.set(null);
+        if (this.activeChild() === page)
+            this.activeChild.set(null);
     }
 
     private onDragStart(event: MouseEvent | TouchEvent) {
