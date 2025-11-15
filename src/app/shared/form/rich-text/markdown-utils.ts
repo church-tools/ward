@@ -168,7 +168,7 @@ function buildNestedList(items: Array<{ element: Element; type: string; indent: 
     const allSameType = items.every(item => item.type === firstItem.type);
     
     if (allSameLevel && allSameType) {
-        const listTag = firstItem.type === 'numbered' ? 'ol' : 'ul';
+        const listTag = firstItem.type === 'ordered' ? 'ol' : 'ul';
         const list = document.createElement(listTag);
         items.forEach(item => list.appendChild(item.element));
         return list;
@@ -178,7 +178,7 @@ function buildNestedList(items: Array<{ element: Element; type: string; indent: 
     let root: Element | null = null;
     
     items.forEach(item => {
-        const listTag = item.type === 'numbered' ? 'ol' : 'ul';
+        const listTag = item.type === 'ordered' ? 'ol' : 'ul';
         
         while (stack.length > 0 && stack[stack.length - 1].indent >= item.indent) {
             stack.pop();

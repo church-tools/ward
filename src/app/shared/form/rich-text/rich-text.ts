@@ -44,7 +44,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
 
     protected readonly listButtons: RichTextToolbarButton<List>[] = [
         { icon: 'text_bullet_list_ltr', action: 'bullet', title: 'Bullet List' },
-        { icon: 'text_number_list_ltr', action: 'numbered', title: 'Numbered List' },
+        { icon: 'text_number_list_ltr', action: 'ordered', title: 'Numbered List' },
     ] as const;
 
     protected readonly indentButtons: RichTextToolbarButton<1 | -1>[] = [

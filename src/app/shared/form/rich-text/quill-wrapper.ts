@@ -5,7 +5,7 @@ import { xcomputed, xeffect } from "../../utils/signal-utils";
 
 export type Format = 'bold' | 'italic' | 'underline' | 'strike';
 export type Heading = 1 | 2 | 3 | false;
-export type List = 'bullet' | 'numbered';
+export type List = 'bullet' | 'ordered';
 
 const TOOLBAR_WIDTH = 450;
 const HALF_TOOLBAR_WIDTH = TOOLBAR_WIDTH / 2;
@@ -167,7 +167,7 @@ export class QuillWrapper {
         const formats = quill.getFormat(selection);
         switch (format) {
             case 'bullet':
-            case 'numbered':
+            case 'ordered':
                 return formats['list'] === format;
             default:
                 return !!formats[format];
