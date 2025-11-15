@@ -89,12 +89,22 @@ export class QuillWrapper {
 
     async setContent(content: string) {
         const quill = await this.quill.get();
+        const currentSelection = quill.getSelection();
+        const hadFocus = quill.hasFocus();
         this.ignoreNextUpdate = true;
         
         // Use Quill's clipboard to properly parse and insert HTML
         // This preserves the HTML structure better than direct innerHTML assignment
         const delta = quill.clipboard.convert({ html: content });
         quill.setContents(delta, 'silent');
+
+        if (currentSelection && hadFocus) {
+            const maxIndex = Math.max(0, quill.getLength() - 1);
+            const clampedIndex = Math.min(currentSelection.index, maxIndex);
+            const maxLength = Math.max(0, quill.getLength() - clampedIndex);
+            const clampedLength = Math.min(currentSelection.length, maxLength);
+            quill.setSelection(clampedIndex, clampedLength, 'silent');
+        }
     }
 
     async setPlaceholder(placeholder: string) {
