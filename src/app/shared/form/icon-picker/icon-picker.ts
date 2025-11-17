@@ -1,20 +1,38 @@
-import { Component, input } from "@angular/core";
-import { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
-import { IconComponent } from "../../icon/icon";
+import { Component, input, model } from "@angular/core";
+import { Icon, IconComponent } from "../../icon/icon";
+import { COLOR_NAMES, ColorName } from "../../utils/color-utils";
+import MenuButtonComponent, { MenuButtonItem } from "../button/menu/menu-button";
 import { getProviders, InputBaseComponent } from "../shared/input-base";
 
 @Component({
     selector: 'app-icon-picker',
     template: `
-        <app-icon icon="access_time" [filled]="true"/>
+        <app-menu-button type="subtle" [icon]="value()" [items]="[]" class="icon-only">
+            <div>
+                @for (option of iconOptions(); track option) {
+                    <div class="icon-picker-option p-2 cursor-pointer hover-bg-light"
+                        [class.bg-light]="option === value()"
+                        (click)="value.set(option); $event.stopPropagation();">
+                        <app-icon [icon]="option" [filled]="filled()" [class]="color() ? color() + '-active' : ''"/>
+                    </div>
+                }
+                @for (c of colors; track c) {
+                    <div class="icon-picker-option p-2 cursor-pointer hover-bg-light"
+                        (click)="color.set(c); $event.stopPropagation();">
+                        <span class="color-swatch" [class]="color + '-active'"></span>
+                    </div>
+                }
+            </div>
+        </app-menu-button>
     `,
     providers: getProviders(() => IconPickerComponent),
-    imports: [IconComponent],
+    imports: [MenuButtonComponent, IconComponent],
 })
-export class IconPickerComponent<T extends TableName> extends InputBaseComponent<T> {
+export class IconPickerComponent extends InputBaseComponent<Icon> {
 
-    readonly iconOptions = input<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>(null);
-    readonly colored = input<boolean>(false);
+    readonly iconOptions = input.required<Icon[]>();
+    readonly color = model<ColorName>();
     readonly filled = input<boolean>(false);
 
+    protected readonly colors = COLOR_NAMES;
 }

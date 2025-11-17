@@ -28,6 +28,6 @@ export const COLOR_NAMES = [
     "indigo",
     "magenta",
     "deeppink",
-];
+] as const;
 
 export type ColorName = typeof COLOR_NAMES[number];

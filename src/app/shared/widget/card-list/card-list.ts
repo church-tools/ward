@@ -62,6 +62,7 @@ export class CardListComponent<T> {
     private readonly insertionCardView = viewChild('insertionCard', { read: ElementRef });
     
     protected readonly inserting = signal(false);
+    readonly isInserting = this.inserting.asReadonly();
     protected readonly insertedItem = signal<T | null>(null);
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);

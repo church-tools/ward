@@ -20,7 +20,7 @@ export class SetupPageComponent extends PageComponent {
     protected readonly unitName = model<string>('');
     protected readonly selectedUnit = model<number | null>(null);
 
-    protected readonly unitOptions = signal<SelectOption<number>[]>([{ value: 18, view: 'Gemeinde Hamburg', color: 'red' }, { value: 19, view: 'Gemeinde Test', color: 'blueviolet' }]);
+    protected readonly unitOptions = signal<SelectOption<number>[]>([{ value: 18, view: 'Gemeinde Hamburg', color: 'red' }, { value: 19, view: 'Gemeinde Test', color: 'blue' }]);
 
     constructor() {
         super();

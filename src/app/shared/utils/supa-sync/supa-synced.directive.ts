@@ -18,7 +18,7 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
     
     private subscription?: Subscription;
     private lastValue: Row<D, T>[C] | undefined;
-    private updateInProgress = false;
+    private timeout: ReturnType<typeof setTimeout> | undefined;
 
     constructor() {
         xeffect([this.fromTable, this.row, this.column], (fromTable, row, column) => {
@@ -29,28 +29,32 @@ export class SupaSyncedDirective<D extends Database, T extends TableName<D>, C e
             this.subscription = fromTable.findOne()
                 .eq(idKey, row[idKey])
                 .subscribe(({ result: row }) => {
-                    if (this.updateInProgress) return;
-                    if (row?.[column] == null) return;
-                    const value = row[column];
-                    if (this.lastValue === value) return;
+                    const value = row?.[column];
+                    if (value == null || this.lastValue === value) return;
                     this.lastValue = value;
                     this.inputBase.writeValue(value);
                 });
         });
-        this.inputBase.registerOnChange((value: Row<D, T>[C]) => {
-            if (this.lastValue === value) return;
-            this.lastValue = value;
-            const row = this.row();
-            if (!row) return;
-            const column = this.column(), fromTable = this.fromTable();
-            const idKey = fromTable.idKey;
-            this.updateInProgress = true;
-            fromTable.update({ [idKey]: row[idKey], [column]: value },
-                this.inputBase.debounceTime, () => this.updateInProgress = false);
-        });
+        this.inputBase.registerOnChange((value: Row<D, T>[C]) => this.sendUpdate(value));
     }
 
     ngOnDestroy() {
         this.subscription?.unsubscribe();
+    }
+
+    private sendUpdate(value: Row<D, T>[C]) {
+        const column = this.column(), fromTable = this.fromTable(), row = this.row();
+        if (!row) return;
+        const idKey = fromTable.idKey;
+        if (!this.inputBase.debounceTime) {
+            this.lastValue = value;
+            fromTable.update({ [idKey]: row[idKey], [column]: value });
+        } else {
+            if (this.timeout) clearTimeout(this.timeout);
+            this.timeout = setTimeout(() => {
+                this.lastValue = value;
+                fromTable.update({ [idKey]: row[idKey], [column]: value });
+            }, this.inputBase.debounceTime);
+        }
     }
 }

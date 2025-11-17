@@ -21,8 +21,10 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (activated)="onActivate($event)">
             <div class="page narrow">
                 @if (adminService.editMode() && row()) {
-                    <app-icon-picker />
-                    <app-text-input [supaSynced]="table" [row]="row()!" column="name" [subtle]="true" textClass="h0"/>
+                    <div class="d-flex">
+                        <app-icon-picker class="ms--12" [iconOptions]="[]"/>
+                        <app-text-input [supaSynced]="table" [row]="row()!" column="name" [subtle]="true" textClass="h0"/>
+                    </div>
                 } @else {
                     <span class="h0">
                         @if (row()?.shape && windowService.isLarge()) {

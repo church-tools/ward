@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
-import { RichTextComponent } from "../../../shared/form/rich-text/rich-text";
-import { SupabaseService } from '../../../shared/service/supabase.service';
-import { SupaSyncedDirective } from '../../../shared/utils/supa-sync/supa-synced.directive';
-import { AgendaSection } from './agenda-section';
+import { RichTextComponent } from "../../../../shared/form/rich-text/rich-text";
+import { SupabaseService } from '../../../../shared/service/supabase.service';
+import { SupaSyncedDirective } from '../../../../shared/utils/supa-sync/supa-synced.directive';
+import { AgendaSection } from '../agenda-section';
 
 @Component({
     selector: 'app-agenda-section-text',

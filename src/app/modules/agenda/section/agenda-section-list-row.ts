@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { AdminService } from '../../../private/shared/admin.service';
 import { ListRowComponent } from '../../shared/list-row';
-import { AgendaSectionFollowupComponent } from "./agenda-section-followup";
-import { AgendaSectionPrayerComponent } from "./agenda-section-prayer";
-import { AgendaSectionSuggestionsComponent } from "./agenda-section-suggestions";
-import { AgendaSectionTasksComponent } from "./agenda-section-tasks";
-import { AgendaSectionTextComponent } from "./agenda-section-text";
+import { AgendaSectionFollowupComponent } from "./variants/agenda-section-followup";
+import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
+import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
+import { AgendaSectionTasksComponent } from "./variants/agenda-section-tasks";
+import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
 import ButtonComponent from '../../../shared/form/button/button';
 
 @Component({
@@ -14,7 +14,7 @@ import ButtonComponent from '../../../shared/form/button/button';
         <div class="column" [class.m-6-8]="adminService.editMode()">
             @if (adminService.editMode()) {
                 <app-button icon="dismiss" type="subtle" size="large"
-                    class="icon-only position-absolute right-1 top-1"
+                    class="z-1 icon-only position-absolute right-1 top-1"
                     (onClick)="remove()"/>
             }
             @switch (row().type) {
@@ -25,10 +25,10 @@ import ButtonComponent from '../../../shared/form/button/button';
                     <app-agenda-section-prayer [section]="row()"/>
                 }
                 @case ('task_suggestions') {
-                    <app-agenda-section-suggestions #suggestions [section]="row()"/>
+                    <app-agenda-section-suggestions [section]="row()"/>
                 }
                 @case ('tasks') {
-                    <app-agenda-section-tasks #tasks [section]="row()"/>
+                    <app-agenda-section-tasks [section]="row()"/>
                 }
                 @case ('followups') {
                     <app-agenda-section-followup [section]="row()"/>
@@ -45,6 +45,6 @@ export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_sect
     protected readonly adminService = inject(AdminService);
 
     remove() {
-        return this.onRemove()(this.row());
+        return this.onRemove()?.(this.row());
     }
 }

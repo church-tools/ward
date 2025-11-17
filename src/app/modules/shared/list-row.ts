@@ -19,6 +19,6 @@ export async function getListRowComponent<T extends TableName>(tableName: T) {
 export abstract class ListRowComponent<T extends TableName> {
     
     readonly row = input.required<Row<T>>();
-    readonly onRemove = input.required<(row: Row<T>) => Promise<void>>();
+    readonly onRemove = input<(row: Row<T>) => Promise<void>>();
     readonly page = input<PageComponent>();
 }

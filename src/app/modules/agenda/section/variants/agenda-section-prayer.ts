@@ -1,11 +1,11 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { RowSelectComponent } from "../../../shared/form/row-select/row-select";
-import { TextInputComponent } from "../../../shared/form/text/text-input";
-import { SupabaseService } from '../../../shared/service/supabase.service';
-import { asyncComputed, xcomputed } from '../../../shared/utils/signal-utils';
-import { SupaSyncedDirective } from "../../../shared/utils/supa-sync/supa-synced.directive";
-import { AgendaSection } from './agenda-section';
+import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
+import { TextInputComponent } from "../../../../shared/form/text/text-input";
+import { SupabaseService } from '../../../../shared/service/supabase.service';
+import { asyncComputed, xcomputed } from '../../../../shared/utils/signal-utils';
+import { SupaSyncedDirective } from "../../../../shared/utils/supa-sync/supa-synced.directive";
+import { AgendaSection } from '../agenda-section';
 
 @Component({
     selector: 'app-agenda-section-prayer',

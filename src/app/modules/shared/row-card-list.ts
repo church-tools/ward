@@ -43,7 +43,7 @@ import { getViewService } from "./view.service";
                             onRemove: this.removeRow.bind(this)
                         }"/>
                 </ng-template>
-                <ng-template #insertTemplate let-functions>               
+                <ng-template #insertTemplate let-functions>   
                     <ng-container [ngComponentOutlet]="insertComponent"
                         [ngComponentOutletInputs]="{
                             insert: functions.insert,

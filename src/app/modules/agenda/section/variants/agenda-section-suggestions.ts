@@ -1,7 +1,7 @@
 import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
 import { AgendaSectionTasksComponent } from './agenda-section-tasks';
-import { TaskListComponent } from './task-list';
+import { TaskListComponent } from '../task-list';
 
 @Component({
     selector: 'app-agenda-section-suggestions',

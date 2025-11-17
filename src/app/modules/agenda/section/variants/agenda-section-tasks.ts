@@ -1,8 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { TaskViewService } from '../../task/task-view.service';
-import { AgendaSection } from './agenda-section';
-import { TaskListComponent } from './task-list';
+import { TaskViewService } from '../../../task/task-view.service';
+import { AgendaSection } from '../agenda-section';
+import { TaskListComponent } from '../task-list';
 
 @Component({
     selector: 'app-agenda-section-tasks',
