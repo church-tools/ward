@@ -39,6 +39,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [editable]="adminService.editMode()"
                     [getQuery]="sectionQuery()"
                     [gap]="8"
+                    [insertContext]="row()"
                     [prepareInsert]="prepareSectionInsert"
                     [page]="this"/>
             </div>

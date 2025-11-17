@@ -16,13 +16,14 @@ export async function getListInsertComponent<T extends TableName>(tableName: T) 
     selector: 'app-list-insert',
     template: '',
 })
-export abstract class ListInsertComponent<T extends TableName> {
+export abstract class ListInsertComponent<T extends TableName, C = unknown> {
     
     private readonly profileService = inject(ProfileService);
     
     readonly insert = input.required<(item: Insert<T>) => PromiseOrValue<void>>();
     readonly cancel = input.required<() => void>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
+    readonly context = input<C | null>(null);
 
     protected async submit() {
         const profile = await this.profileService.own.asPromise();

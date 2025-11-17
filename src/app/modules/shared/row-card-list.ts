@@ -49,6 +49,7 @@ import { getViewService } from "./view.service";
                             insert: functions.insert,
                             cancel: functions.cancel,
                             prepareInsert: _prepareInsert.bind(this),
+                            context: insertContext()
                         }"/>
                 </ng-template>
             </app-card-list>
@@ -69,6 +70,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T> | null) => string>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
+    readonly insertContext = input<unknown>(null);
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
     readonly page = input<PageComponent>();

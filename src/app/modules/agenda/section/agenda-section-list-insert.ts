@@ -1,10 +1,11 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component, computed, inject } from '@angular/core';
 import ButtonComponent from '../../../shared/form/button/button';
 import { SupabaseService } from '../../../shared/service/supabase.service';
 import { asyncComputed } from '../../../shared/utils/signal-utils';
 import { Profile } from '../../profile/profile';
 import { ListInsertComponent } from '../../shared/list-insert';
+import { Agenda } from '../agenda';
 import { AgendaSection } from './agenda-section';
 import { AgendaSectionViewService } from './agenda-section-view.service';
 
@@ -22,17 +23,17 @@ import { AgendaSectionViewService } from './agenda-section-view.service';
     `,
     imports: [ButtonComponent, AsyncPipe],
 })
-export class AgendaSectionListInsertComponent extends ListInsertComponent<'agenda_section'> {
+export class AgendaSectionListInsertComponent extends ListInsertComponent<'agenda_section', Agenda.Row> {
 
     protected readonly agendaSectionView = inject(AgendaSectionViewService);
     private readonly supabase = inject(SupabaseService);
 
     private type: AgendaSection.Type | undefined;
+    private readonly agenda = computed(() => this.context());
 
-    protected readonly options = asyncComputed([this.prepareInsert], async prepareInsert => {
-        const insert = { agenda: 0 } as AgendaSection.Insert;
-        await prepareInsert!(insert);
-        const currentSections = await this.supabase.sync.from('agenda_section').find().eq('agenda', insert.agenda).get();
+    protected readonly options = asyncComputed([this.agenda], async agenda => {
+        if (!agenda) return [];
+        const currentSections = await this.supabase.sync.from('agenda_section').find().eq('agenda', agenda.id).get();
         const existingTypes = new Set(currentSections.map(section => section.type));
         return this.agendaSectionView.typeOptions.filter(option => {
             switch (option.type) {
