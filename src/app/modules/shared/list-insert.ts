@@ -9,6 +9,7 @@ export async function getListInsertComponent<T extends TableName>(tableName: T) 
         case 'agenda': return (await import('../agenda/agenda-list-insert')).AgendaListInsertComponent;
         case 'agenda_section': return (await import('../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent;
         case 'task': return (await import('../task/task-list-insert')).TaskListInsertComponent;
+        case 'member': return (await import('../member/member-list-insert')).MemberListInsertComponent;
         default: throw new Error(`No list insert component found for table: ${tableName}`);
     }
 }

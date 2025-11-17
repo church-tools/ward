@@ -18,8 +18,8 @@ import { PrivatePageComponent } from '../shared/private-page';
             [gap]="4"
             [getUrl]="getUrl"/>
     `,
-    host: { class: 'page narrow' },
     imports: [TranslateModule, RowCardListComponent],
+    host: { class: 'page narrow' },
 })
 export class MeetingsPageComponent extends PrivatePageComponent {
 

@@ -8,6 +8,7 @@ export async function getListRowComponent<T extends TableName>(tableName: T) {
         case 'agenda_section': return (await import('../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent;
         case 'task': return (await import('../task/task-list-row')).TaskListRowComponent;
         case 'profile': return (await import('../profile/profile-list-row')).ProfileListRowComponent;
+        case 'member': return (await import('../member/member-list-row')).MemberListRowComponent;
         default: throw new Error(`No list row component found for table: ${tableName}`);
     }
 }

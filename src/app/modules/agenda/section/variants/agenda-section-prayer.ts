@@ -1,21 +1,17 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
-import { TextInputComponent } from "../../../../shared/form/text/text-input";
 import { SupabaseService } from '../../../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../../../shared/utils/signal-utils';
-import { SupaSyncedDirective } from "../../../../shared/utils/supa-sync/supa-synced.directive";
 import { AgendaSection } from '../agenda-section';
 
 @Component({
     selector: 'app-agenda-section-prayer',
     template: `
         <h1>{{ title() | translate }}</h1>
-        <app-text-input #textInput [supaSynced]="table" [row]="section()" column="content"
-            [class.subtle]="textInput.value()"/>
-        <app-row-select table="member"/>
+        <app-row-select table="member" />
     `,
-    imports: [TranslateModule, TextInputComponent, SupaSyncedDirective, RowSelectComponent],
+    imports: [TranslateModule, RowSelectComponent],
 })
 export class AgendaSectionPrayerComponent {
 
