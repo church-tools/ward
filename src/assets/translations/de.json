@@ -34,7 +34,10 @@
     "CLOSING_PRAYER": "Schlussgebet",
     "SPIRITUAL_THOUGHT": "Geistiger Gedanke"
   },
-  "MEMBERS_PAGE.TITLE": "Mitglieder",
+  "MEMBERS_PAGE": {
+    "TITLE": "Mitglieder",
+    "LCR_MEMBER_PAGE": "LCR Mitgliederverzeichnis"
+  },
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE.TITLE": "Sitzungen",
   "CALLINGS_PAGE.TITLE": "Berufungen",

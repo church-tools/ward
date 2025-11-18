@@ -34,7 +34,10 @@
     "CLOSING_PRAYER": "Closing Prayer",
     "SPIRITUAL_THOUGHT": "Spiritual Thought"
   },
-  "MEMBERS_PAGE.TITLE": "Members",
+  "MEMBERS_PAGE": {
+    "TITLE": "Members",
+    "LCR_MEMBER_PAGE": "LCR Member List"
+  },
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",
   "CALLINGS_PAGE.TITLE": "Callings",
