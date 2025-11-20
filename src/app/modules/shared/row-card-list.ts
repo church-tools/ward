@@ -22,7 +22,7 @@ import { getViewService } from "./view.service";
         @if (table && rowComponent && insertComponent) {
             <app-card-list
                 [cardClasses]="cardsVisible() ? cardClasses() : ''"
-                [reorderable]="editable()"
+                [reorderable]="editable() && !!table.info.orderKey"
                 [editable]="editable()"
                 [activeId]="activeId()"
                 [gap]="gap()"
@@ -113,7 +113,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     protected async onOrderChanged(rows: Row<T>[]) {
         const table = this.table();
         const idKey = table.idKey, orderKey = table.info.orderKey;
-        if (!orderKey) throw new Error('Table is not ordered');
+        if (!orderKey) return;
         const updates = mapToSubObjects(rows, idKey, orderKey, 'unit' as Column<T>);
         await this.table().update(updates);
     }

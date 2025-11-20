@@ -288,12 +288,12 @@ export type Database = {
           first_name: string
           id: number
           last_name: string | null
-          modified_at: string
           nick_name: string | null
           notes: string | null
           permissions: Database["public"]["Enums"]["permission"][] | null
           profile: number | null
           unit: number
+          updated_at: string
         }
         Insert: {
           agenda_permissions?: number[] | null
@@ -301,12 +301,12 @@ export type Database = {
           first_name: string
           id: number
           last_name?: string | null
-          modified_at?: string
           nick_name?: string | null
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
           profile?: number | null
           unit: number
+          updated_at?: string
         }
         Update: {
           agenda_permissions?: number[] | null
@@ -314,12 +314,12 @@ export type Database = {
           first_name?: string
           id?: number
           last_name?: string | null
-          modified_at?: string
           nick_name?: string | null
           notes?: string | null
           permissions?: Database["public"]["Enums"]["permission"][] | null
           profile?: number | null
           unit?: number
+          updated_at?: string
         }
         Relationships: [
           {
@@ -623,7 +623,6 @@ export type Database = {
         Row: {
           agenda: number
           content: string | null
-          created_at: string
           created_by: number
           deleted: boolean
           id: number
@@ -632,11 +631,11 @@ export type Database = {
           title: string | null
           unit: number
           updated_at: string
+          updated_by: number | null
         }
         Insert: {
           agenda: number
           content?: string | null
-          created_at?: string
           created_by: number
           deleted?: boolean
           id: number
@@ -645,11 +644,11 @@ export type Database = {
           title?: string | null
           unit: number
           updated_at?: string
+          updated_by?: number | null
         }
         Update: {
           agenda?: number
           content?: string | null
-          created_at?: string
           created_by?: number
           deleted?: boolean
           id?: number
@@ -658,6 +657,7 @@ export type Database = {
           title?: string | null
           unit?: number
           updated_at?: string
+          updated_by?: number | null
         }
         Relationships: [
           {

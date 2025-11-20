@@ -18,7 +18,8 @@ export class SupabaseService {
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda', 'type'] },
         { name: 'task', orderKey: 'position', indexed: ['agenda', 'stage'] },
-        { name: 'calling', orderKey: 'position', indexed: [] }
+        { name: 'calling', orderKey: 'position', indexed: [] },
+        { name: 'member', createOffline: false, indexed: ['unit', 'profile'] }
     ]);
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();
