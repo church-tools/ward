@@ -1,46 +1,8 @@
 import { computed, CreateEffectOptions, effect, Injector, signal, Signal, WritableSignal } from "@angular/core";
 
-/**
- * Enhanced Signal Utilities with Improved Type Safety
- * 
- * This module provides utility functions for working with Angular signals with improved type inference.
- * The key improvement is that callback parameters now accurately reflect whether they can be null/undefined
- * based on the input signal types.
- * 
- * Key Features:
- * - `xeffect`: Effect with explicit dependencies and improved parameter type inference
- * - `xcomputed`: Computed signal with explicit dependencies and improved parameter type inference  
- * - `asyncComputed`: Async computed signal that returns a promise-like signal
- * - `xsignal`: Signal with awaitable promise support
- * 
- * Type Safety Improvements:
- * - Non-nullable signals (Signal<T>) result in non-nullable callback parameters (T)
- * - Nullable signals (Signal<T | null>) result in nullable callback parameters (T | null)
- * - No unnecessary undefined types added to callback parameters
- * 
- * Example:
- * ```typescript
- * const count = signal<number>(0);  // Signal<number>
- * const name = signal<string | null>(null);  // Signal<string | null>
- * 
- * // Before: count parameter was number | undefined, name was string | null | undefined
- * // After: count parameter is number, name is string | null
- * xeffect([count, name], (count, name) => {
- *   // count is correctly typed as number (no undefined!)
- *   // name is correctly typed as string | null (no undefined!)
- *   console.log(count.toFixed(2));  // No need to check for undefined
- *   if (name) console.log(name.toUpperCase());
- * });
- * ```
- */
-
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 
-// Helper type to unwrap signal value and preserve nullability
-type UnwrapSignal<T> = T extends Signal<infer U> ? U : never;
-
-// Helper type to make non-nullable if the signal type doesn't include null/undefined
 type StrictUnwrap<T> = T extends Signal<infer U> 
     ? (null extends U ? U : undefined extends U ? U : Exclude<U, null | undefined>)
     : never;
@@ -61,7 +23,6 @@ export function xsignal<T>(initialValue: T | null = null) {
     return rs;
 }
 
-// Overloads for xcomputed to handle type safety based on signal nullability
 export function xcomputed<T, D1>(
     dependencies: [Signal<D1>],
     computation: (value1: StrictUnwrap<Signal<D1>>) => T
@@ -108,8 +69,6 @@ export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     });
 }
 
-
-// Overloads for asyncComputed to handle type safety based on signal nullability
 export function asyncComputed<T>(
     dependencies: [],
     computation: () => Promise<T>,
@@ -160,7 +119,7 @@ export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => Promise<T>,
     defaultValue?: T | null
 ): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+export function asyncComputed<T>(
     dependencies: (Signal<any> | undefined)[],
     computation: (...values: any[]) => Promise<T>,
     defaultValue: T | null = null
@@ -181,8 +140,6 @@ export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     return rs;
 }
 
-
-// Overloads for xeffect to handle type safety based on signal nullability
 export function xeffect<T, D1>(
     dependencies: [Signal<D1>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>) => T,
@@ -228,7 +185,7 @@ export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => T,
     options?: CreateEffectOptions & { skipFirst?: boolean }
 ): { effectRef: any, fn: () => T };
-export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+export function xeffect<T>(
     dependencies: (Signal<any> | undefined)[],
     effectFn: (...values: any[]) => T,
     options?: CreateEffectOptions & { skipFirst?: boolean }

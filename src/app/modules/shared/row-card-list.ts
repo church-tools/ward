@@ -76,10 +76,10 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly page = input<PageComponent>();
     readonly rowClicked = output<Row<T>>();
 
-    protected readonly table = xcomputed([this.tableName], tableName => this.supabase.sync.from(tableName));
-    protected readonly viewService = asyncComputed([this.tableName], tableName => getViewService(this.injector, tableName!));
-    protected readonly rowComponent = asyncComputed([this.tableName], tableName => getListRowComponent(tableName!));
-    protected readonly insertComponent = asyncComputed([this.tableName], tableName => getListInsertComponent(tableName!));
+    protected readonly table = xcomputed([this.tableName], t => this.supabase.sync.from(t));
+    protected readonly viewService = asyncComputed([this.tableName], t => getViewService(this.injector, t));
+    protected readonly rowComponent = asyncComputed([this.tableName], t => getListRowComponent(t));
+    protected readonly insertComponent = asyncComputed([this.tableName], t => getListInsertComponent(t));
 
     protected readonly cardListView = viewChild(CardListComponent);
     private subscription: Subscription | undefined;

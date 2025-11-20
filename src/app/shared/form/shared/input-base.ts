@@ -45,7 +45,7 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
     private justClickedSomething = false;
 
     private onChange = (value: any) => {};
-    private onTouched = () => {};
+    protected onTouched = () => {};
 
     constructor() {
         xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label!));

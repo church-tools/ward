@@ -30,9 +30,9 @@ export class TaskListComponent {
         (agenda, stages) => (table: Table<'task'>) =>
             table.find()
                 .eq('agenda', agenda)
-                .in('stage', stages!));
+                .in('stage', stages));
     protected readonly taskFilter = xcomputed([this.agendaId, this.stages],
-        ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages!.includes(task.stage)));
+        ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages.includes(task.stage)));
     protected readonly activeTaskId = xcomputed([this.rowPageService.openRows],
         openRows => openRows['task'] ?? null);
 

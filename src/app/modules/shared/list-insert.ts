@@ -1,18 +1,30 @@
-import { Component, inject, input } from "@angular/core";
+import { Component, inject, input, type Type } from "@angular/core";
 import type { PromiseOrValue } from "../../shared/types";
 import { Profile } from "../profile/profile";
 import { ProfileService } from "../profile/profile.service";
 import { Insert, TableName } from "./table.types";
 
-export async function getListInsertComponent<T extends TableName>(tableName: T) {
-    switch (tableName) {
-        case 'agenda': return (await import('../agenda/agenda-list-insert')).AgendaListInsertComponent;
-        case 'agenda_section': return (await import('../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent;
-        case 'task': return (await import('../task/task-list-insert')).TaskListInsertComponent;
-        case 'member': return (await import('../member/member-list-insert')).MemberListInsertComponent;
-        default: throw new Error(`No list insert component found for table: ${tableName}`);
-    }
+type ListInsertCtor<T extends TableName> = Type<ListInsertComponent<T>>;
+
+const listInsertComponentLoaders = {
+    agenda: async () => (await import('../agenda/agenda-list-insert')).AgendaListInsertComponent,
+    agenda_section: async () => (await import('../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent,
+    task: async () => (await import('../task/task-list-insert')).TaskListInsertComponent,
+    member: async () => (await import('../member/member-list-insert')).MemberListInsertComponent,
+    calling: async () => (await import('../calling/calling-list-insert')).CallingListInsertComponent,
+} as const;
+
+type ListInsertLoaders = typeof listInsertComponentLoaders;
+
+export type ListInsertComponentType<T extends TableName> = ListInsertCtor<T>;
+
+export function getListInsertComponent<T extends TableName>(tableName: T) {
+    const loader = listInsertComponentLoaders[tableName as keyof ListInsertLoaders];
+    if (!loader)
+        throw new Error(`No list insert component found for table: ${tableName}`);
+    return loader() as Promise<ListInsertComponentType<T>>;
 }
+
 @Component({
     selector: 'app-list-insert',
     template: '',
