@@ -1,5 +1,5 @@
-import { Component, forwardRef, ForwardRefFn, input, model, output, signal, viewChild } from "@angular/core";
-import { AbstractControl, ControlValueAccessor, NG_VALIDATORS, NG_VALUE_ACCESSOR, ValidationErrors, Validator } from "@angular/forms";
+import { Component, ForwardRefFn, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
+import { FormValueControl } from "@angular/forms/signals";
 import { Icon } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
 import { xeffect } from "../../utils/signal-utils";
@@ -8,8 +8,6 @@ import InputLabelComponent from "./input-label";
 
 export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
-        { provide: NG_VALUE_ACCESSOR, useExisting: forwardRef(forwardRefFn), multi: true },
-        { provide: NG_VALIDATORS, useExisting: forwardRef(forwardRefFn), multi: true },
         { provide: InputBaseComponent, useExisting: forwardRef(forwardRefFn) },
     ]
 }
@@ -18,12 +16,12 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
     template: '',
     host: {
         'class': 'input',
-        '[class.disabled]': 'disabledState()',
+        '[class.disabled]': 'disabled()',
         '[class.subtle]': 'subtle()',
-        '(focusout)': 'onTouched(); onBlur.emit()',
+        '(focusout)': 'markTouched(); onBlur.emit()',
     },
 })
-export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor, Validator {
+export class InputBaseComponent<TIn, TOut = TIn> implements FormValueControl<TOut | null> {
 
     private readonly labelView = viewChild(InputLabelComponent);
     protected readonly errorView = viewChild(ErrorMessageComponent);
@@ -37,61 +35,55 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
     readonly subtle = input<boolean>(false);
     readonly onBlur = output<void>();
 
-    readonly value = signal<TIn | null>(null);
-    protected readonly disabledState = signal<boolean>(false);
+    protected readonly viewValue = signal<TIn | null>(null);
+    readonly value = model<TOut | null>(null);
+    readonly disabled = model(false);
+    readonly touched = model(false);
     
     readonly debounceTime: number | undefined;
 
     private justClickedSomething = false;
 
-    private onChange = (value: any) => {};
-    protected onTouched = () => {};
+    private suppressModelSync = false;
+    private currentMapToken: symbol | null = null;
 
     constructor() {
         xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label!));
         xeffect([this.labelView, this.labelIcon], (labelView, icon) => labelView?.icon.set(icon));
         xeffect([this.labelView, this.info], (labelView, info) => labelView?.info.set(info));
-        xeffect([this.labelView, this.required, this.indicateRequired, this.disabledState],
+        xeffect([this.labelView, this.required, this.indicateRequired, this.disabled],
             (labelView, required, indicateRequired, disabledState) => labelView?.required.set(!!required && !!indicateRequired && !disabledState));
-    }
-
-    async writeValue(value: TOut) {
-        const mapped = await this.mapIn(value)
-        this.value.set(mapped);
+        xeffect([this.value], (modelValue) => {
+            if (this.suppressModelSync)
+                return;
+            this.updateViewFromModel(modelValue);
+        });
     }
 
     getValue(): TIn | null {
-        return this.value();
+        return this.viewValue();
     }
 
-    registerOnChange(fn: (value: any) => void): void {
-        this.onChange = fn;
+    protected markTouched() {
+        this.touched.set(true);
     }
 
-    registerOnTouched(fn: () => void): void {
-        this.onTouched = fn;
+    protected setViewValue(value: TIn | null, emit = true) {
+        this.viewValue.set(value);
+        if (emit)
+            this.emitChange(value);
     }
 
-    setDisabledState(isDisabled: boolean): void {
-        this.disabledState.set(isDisabled);
+    protected async emitChange(viewValue: TIn | null = this.viewValue()) {
+        const mapped = await this.mapOut(viewValue);
+        this.pushModelValue(mapped);
     }
 
-    validate(control: AbstractControl): ValidationErrors | null {
-        return null;
-    }
-
-    protected async emitChange() {
-        this.onTouched?.();
-        if (!this.onChange) return;
-        const mapped = await this.mapOut(this.value());
-        this.onChange?.(mapped);
-    }
-
-    protected mapIn(value: TOut): PromiseOrValue<TIn> {
+    protected mapIn(value: TOut | null): PromiseOrValue<TIn | null> {
         return value as any as TIn;
     }
 
-    protected mapOut(value: TIn | null): PromiseOrValue<TOut> {
+    protected mapOut(value: TIn | null): PromiseOrValue<TOut | null> {
         return value as any as TOut;
     }
 
@@ -99,6 +91,24 @@ export class InputBaseComponent<TIn, TOut = TIn> implements ControlValueAccessor
         
     }
     
+    private async updateViewFromModel(value: TOut | null) {
+        const token = Symbol("mapIn");
+        this.currentMapToken = token;
+        const mapped = await this.mapIn(value);
+        if (this.currentMapToken !== token)
+            return;
+        this.viewValue.set(mapped);
+    }
+
+    private pushModelValue(value: TOut | null) {
+        this.suppressModelSync = true;
+        try {
+            this.value.set(value);
+        } finally {
+            queueMicrotask(() => this.suppressModelSync = false);
+        }
+    }
+
     protected isRealClick() {
         if (this.justClickedSomething)
             return false;

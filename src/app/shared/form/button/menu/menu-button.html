@@ -21,7 +21,8 @@
                 <div class="menu-item ms-3">
                     @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
                     @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                    <app-switch [(ngModel)]="item.toggle" class="ms--2" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
+                    <app-switch [value]="item.toggle()" (valueChange)="item.toggle.set($event ?? false)"
+                        class="ms--2" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
                         [forceLabelOnSide]="true" labelSide="left"/>
                 </div>
             }

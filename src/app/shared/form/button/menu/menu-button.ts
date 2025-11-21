@@ -1,5 +1,4 @@
 import { Component, ElementRef, inject, input, OnDestroy, signal, WritableSignal } from "@angular/core";
-import { FormsModule } from "@angular/forms";
 import { TranslateModule } from "@ngx-translate/core";
 import { Icon, IconComponent, IconPath } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
@@ -16,7 +15,7 @@ export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuBut
 
 @Component({
     selector: 'app-menu-button',
-    imports: [FormsModule, TranslateModule, IconComponent, SwitchComponent],
+    imports: [TranslateModule, IconComponent, SwitchComponent],
     templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
 })

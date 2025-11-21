@@ -1,10 +1,10 @@
 import { Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
+import { xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
@@ -20,7 +20,7 @@ type VisibleOption<T> = SelectOption<T> & { highlights: [string, boolean][] };
 
 @Component({
     selector: 'app-select',
-    imports: [FormsModule, InputLabelComponent, IconComponent],
+    imports: [InputLabelComponent, IconComponent],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => SelectComponent),
@@ -48,6 +48,9 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     constructor() {
         super();
+        xeffect([this.viewValue, this.options], (value, options) => {
+            this.syncSelectedOption(value, options);
+        });
     }
 
     protected onFocus() {
@@ -58,8 +61,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.selectedOption.set(null);
         this.search.set("");
         this.input()?.nativeElement.focus();
-        this.value.set(null);
-        this.emitChange();
+        this.setViewValue(null);
     }
 
     protected async updateVisibleOptions() {
@@ -73,9 +75,8 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         event?.preventDefault();
         this.selectedOption.set(option);
         this.search.set("");
-        this.value.set(option.value);
+        this.setViewValue(option.value);
         this.closeOptions();
-        this.emitChange();
     }
 
     protected closeOptions() {
@@ -133,7 +134,15 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     }
 
     private deleteLastSelection() {
+        if (!this.selectedOption()) return;
         this.selectedOption.set(null);
+        this.setViewValue(null);
+    }
+
+    protected onSearch(event: Event) {
+        const target = event.target as HTMLInputElement;
+        this.search.set(target.value ?? '');
+        this.updateVisibleOptions();
     }
 
     private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
@@ -160,6 +169,16 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     private addHighlights(option: SelectOption<T>, searchWords: string[]): VisibleOption<T> {
         return { ...option, highlights: highlightWords(option.view, searchWords) };
+    }
+
+    private async syncSelectedOption(value: T | null, options: SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)) {
+        if (value == null) {
+            this.selectedOption.set(null);
+            return;
+        }
+        const allOptions = Array.isArray(options) ? options : await options('');
+        const match = allOptions.find(option => option.value === value) ?? null;
+        this.selectedOption.set(match);
     }
 
     ngOnDestroy() {

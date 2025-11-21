@@ -1,10 +1,9 @@
 import { Component, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
+import { markdownToQuillHtml, quillHtmlToMarkdown } from '../shared/form/rich-text/markdown-utils';
 import { RichTextComponent } from '../shared/form/rich-text/rich-text';
 import { PageComponent } from '../shared/page/page';
-import { xcomputed } from '../shared/utils/signal-utils';
-import { markdownToQuillHtml, quillHtmlToMarkdown } from '../shared/form/rich-text/markdown-utils';
 import { COLOR_NAMES } from '../shared/utils/color-utils';
+import { xcomputed } from '../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-not-found-page',
@@ -25,8 +24,8 @@ import { COLOR_NAMES } from '../shared/utils/color-utils';
             }
         </div>
 
-        <app-rich-text [(ngModel)]="richTextContent" name="test"/>
-        <app-rich-text [ngModel]="htmlContent()" name="test-out"/>
+        <app-rich-text [value]="richTextContent()" (valueChange)="richTextContent.set($event ?? '')" name="test"/>
+        <app-rich-text [value]="htmlContent()" name="test-out"/>
         <p>Aktueller Inhalt:</p>
         {{ richTextContent() }}
         <p>Markdown:</p>
@@ -39,7 +38,7 @@ import { COLOR_NAMES } from '../shared/utils/color-utils';
         </p>
             
     `,
-    imports: [FormsModule, RichTextComponent],
+    imports: [RichTextComponent],
     host: { class: 'page narrow' },
 })
 export class TestComponent extends PageComponent {

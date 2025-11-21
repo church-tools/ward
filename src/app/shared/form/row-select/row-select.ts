@@ -6,7 +6,8 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
 @Component({
     selector: 'app-row-select',
     template: `
-        <app-select [options]="getOptions"/>
+        <app-select [options]="getOptions"
+            [value]="viewValue()" (valueChange)="setViewValue($event)"/>
     `,
     providers: getProviders(() => RowSelectComponent),
     imports: [SelectComponent],

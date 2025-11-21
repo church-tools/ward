@@ -8,7 +8,7 @@
             <app-select
                 [options]="unitOptions()"
                 placeholder="Gemeinde suchen..."
-                [(ngModel)]="selectedUnit"/>
+                [value]="selectedUnit()" (valueChange)="selectedUnit.set($event)"/>
             <app-async-button icon="home"
                 [disabled]="!selectedUnit()"
                 [needsInternet]="true"
@@ -18,7 +18,8 @@
     <div class="col-md-6 card canvas-card">
         <div class="card-body">
             <h3>Neu anlegen</h3>
-            <app-text-input [(ngModel)]="unitName" placeholder="Gemeinde Name"/>
+            <app-text-input [value]="unitName()" (valueChange)="unitName.set($event ?? '')"
+                [trim]="true" placeholder="Gemeinde Name"/>
             <app-async-button icon="home_add"
                 [disabled]="!unitName()"
                 [needsInternet]="true"

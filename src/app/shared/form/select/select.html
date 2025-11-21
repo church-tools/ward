@@ -6,7 +6,7 @@
             <div class="value-container row gap-1">
                 <button class="value-btn subtle" type="button">
                     <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
-                    @if (!disabledState()) {
+                    @if (!disabled()) {
                         <button class="delete-btn subtle" type="button" (click)="clearSelection()">
                             <app-icon icon="dismiss" size="xs"/>
                         </button>
@@ -14,12 +14,12 @@
                 </button>
             </div>
         }
-        @if (!disabledState()) {
+        @if (!disabled()) {
             <input #input type="text"
-                [(ngModel)]="search"
+                [value]="search()"
                 [placeholder]="selectedOption() ? '' : placeholder()"
                 (focus)="onFocus()"
-                (input)="updateVisibleOptions()">
+                (input)="onSearch($event)">
         }
         <ng-content/>
     </div>

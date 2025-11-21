@@ -59,13 +59,12 @@ export class RichTextComponent extends InputBaseComponent<string> {
     constructor() {
         super();
         this.quill.onChange.subscribe(html => {
-            this.value.set(html);
-            this.emitChange();
+            this.setViewValue(html);
         });
     }
 
-    protected override mapIn(value: string) {
-        const html = markdownToQuillHtml(value);
+    protected override mapIn(value: string | null) {
+        const html = markdownToQuillHtml(value ?? '');
         this.quill.setContent(html);
         return html;
     }

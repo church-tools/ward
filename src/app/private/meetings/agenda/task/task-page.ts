@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { RichTextComponent } from "../../../../shared/form/rich-text/rich-text";
 import { TextInputComponent } from '../../../../shared/form/text/text-input';
 import { SupaSyncedDirective } from "../../../../shared/utils/supa-sync/supa-synced.directive";
@@ -15,7 +14,7 @@ import { RowPageComponent } from '../../../shared/row-page';
         <app-row-history [row]="row()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [FormsModule, TextInputComponent, RichTextComponent, RowHistoryComponent, SupaSyncedDirective],
+    imports: [TextInputComponent, RichTextComponent, RowHistoryComponent, SupaSyncedDirective],
 })
 export class TaskPageComponent extends RowPageComponent<'task'> {
 

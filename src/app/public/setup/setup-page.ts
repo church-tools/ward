@@ -1,5 +1,4 @@
 import { Component, inject, model, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { Profile } from '../../modules/profile/profile';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../shared/form/select/select";
@@ -9,7 +8,7 @@ import { SupabaseService } from '../../shared/service/supabase.service';
 
 @Component({
     selector: 'app-setup-page',
-    imports: [FormsModule, AsyncButtonComponent, TextInputComponent, SelectComponent],
+    imports: [AsyncButtonComponent, TextInputComponent, SelectComponent],
     templateUrl: './setup-page.html',
     host: { class: 'page narrow' },
 })
@@ -27,13 +26,15 @@ export class SetupPageComponent extends PageComponent {
     }
 
     protected createUnit = async () => {
+        const unitName = this.unitName();
+        if (!unitName) return;
         const session = await this.supabaseService.getSession();
         const functions = this.supabaseService.client.functions;
         functions.setAuth(session?.access_token || '');
         const { data, error } = await functions
             .invoke('create-unit', {
                 method: 'POST',
-                body: { name: this.unitName() },
+                body: { name: unitName },
             });
         if (error) throw error;
         const user = await this.assureProfileExists(data);

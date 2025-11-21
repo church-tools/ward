@@ -1,9 +1,9 @@
 import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
+import { xcomputed } from '../../utils/signal-utils';
 
 @Component({
     selector: 'app-text-input',
@@ -13,10 +13,11 @@ import InputLabelComponent from "../shared/input-label";
             <div class="form-input">
                 <input #input [required]="true" type="text"
                     [class]="textClass()"
-                    [(ngModel)]="value" [attr.disabled]="disabledState()"
-                    [placeholder]="placeholder()" [pattern]="pattern()"
+                    [value]="viewValue() ?? ''" (input)="onInput($event)"
+                    [disabled]="disabled()"
+                    [placeholder]="placeholder()"
+                    [attr.pattern]="patternAttribute()"
                     [autocomplete]="autocomplete()" (click)="onClick($event)"
-                    (input)="emitChange()"
                     (keypress)="onKeyPress($event)">
                 @if (copyable()) {
                     <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
@@ -26,14 +27,15 @@ import InputLabelComponent from "../shared/input-label";
         </label>
     `,
     providers: getProviders(() => TextInputComponent),
-    imports: [FormsModule, InputLabelComponent, ButtonComponent]
+    imports: [InputLabelComponent, ButtonComponent]
 })
 export class TextInputComponent extends InputBaseComponent<string> {
     
     readonly characterLimit = input<number>(0);
     readonly autocomplete = input<string>('off');
-    readonly pattern = input<string | RegExp>('');
+    readonly pattern = input<readonly RegExp[] | undefined>(); 
     readonly patternErrorMsg = input<string>();
+    readonly trim = input<boolean>(false);
     readonly copyable = input(false);
     readonly textClass = input<string | undefined>();
 
@@ -42,21 +44,34 @@ export class TextInputComponent extends InputBaseComponent<string> {
     private readonly inputView = viewChild.required('input', { read: ElementRef });
     override readonly debounceTime = 300;
 
+    protected readonly patternAttribute = xcomputed([this.pattern], (pattern) => {
+        if (!pattern) return undefined;
+        return pattern[0]?.source;
+    });
+
     protected onClick(event: MouseEvent) {
         event.stopImmediatePropagation();
+    }
+
+    protected onInput(event: Event) {
+        const target = event.target as HTMLInputElement;
+        this.setViewValue(target.value ?? '');
     }
 
     protected onKeyPress(event: KeyboardEvent) {
         if (event.key === 'Enter')
             this.inputView().nativeElement.blur();
-        if (this.characterLimit() && (this.value()?.length ?? 0) >= this.characterLimit()) {
+        if (this.characterLimit() && (this.viewValue()?.length ?? 0) >= this.characterLimit()) {
             event.preventDefault();
         }
     }
 
+    protected override mapOut(value: string): string {
+        return this.trim() ? value.trim() : value;
+    }
 
     protected async copy() {
-        const value = this.value();
+        const value = this.viewValue();
         if (!value) return;
         copyToClipboard(value);
         this.copied.set(true);
