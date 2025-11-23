@@ -1,0 +1,22 @@
+@use "color";
+@use "card";
+
+input {
+    cursor: pointer;
+    opacity: 0;
+    border: none;
+    width: 100%;
+    height: 100%;
+}
+
+:host {
+    @include card.outlined;
+    position: absolute;
+    opacity: 0;
+    transition: all 0.15s ease;
+    border-radius: card.$border-radius-sm * 1.5;
+    &.drag-hovered {
+        border-width: 3px;
+        opacity: 1;
+    }
+}

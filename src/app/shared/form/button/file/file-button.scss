@@ -1,0 +1,25 @@
+@use "styles";
+
+.file {
+    .upload-button-content {
+        display: flex;
+        align-items: center;
+        app-icon { margin-right: 0.5rem; }
+    }
+
+    input {
+        position: absolute;
+        opacity: 0;
+        border: none;
+        width: 100%;
+        height: 100%;
+    }
+}
+
+:host {
+    &.icon-only {
+        .upload-button-content {
+            app-icon { margin-right: 0; }
+        }
+    }
+}

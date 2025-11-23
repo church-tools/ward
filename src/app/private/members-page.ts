@@ -7,6 +7,8 @@ import { xcomputed } from '../shared/utils/signal-utils';
 import { RowPageService } from './row-page.service';
 import { PrivatePageComponent } from './shared/private-page';
 import LinkButtonComponent from '../shared/form/button/link/link-button';
+import FileButtonComponent from '../shared/form/button/file/file-button';
+import { extractTextFromPdf } from '../shared/utils/pdf-utils';
 
 @Component({
     selector: 'app-members-page',
@@ -27,8 +29,10 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
             [page]="this"
             [getUrl]="getMemberUrl"
             [activeId]="activeMemberId()"/>
+        <app-file-button (onUpload)="showPdfImport($event)">PDF aus LCR importieren</app-file-button>
+        
     `,
-    imports: [TranslateModule, RowCardListComponent, LinkButtonComponent],
+    imports: [TranslateModule, RowCardListComponent, LinkButtonComponent, FileButtonComponent],
     host: { class: 'page narrow' },
 })
 export class MembersPageComponent extends PrivatePageComponent {
@@ -46,4 +50,10 @@ export class MembersPageComponent extends PrivatePageComponent {
         
     protected getMemberUrl = (member: Member.Row | null) => `/members/${member?.id ?? ""}`;
     
+    protected async showPdfImport(file: File) {
+        
+        const text = await extractTextFromPdf(file);
+        console.log("Extracted text:", text);
+        // Further processing of the extracted text can be done here
+    }
 }

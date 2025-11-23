@@ -1,0 +1,16 @@
+<div class="button file">
+    <div class="upload-button-content">
+        @let icon = visibleIcon();
+        @if (icon) {
+            <app-icon size="sm"
+                [icon]="icon"
+                [filled]="iconFilled()"
+                [size]="iconSize()"/>
+        }
+        <ng-content/>
+    </div>
+    @if (!disabled()) {
+        <app-file-drop [accept]="accept()" [capture]="capture()" [disabled]="disabled()"
+            (onFile)="handleFileInput($event)"/>
+    }
+</div>
