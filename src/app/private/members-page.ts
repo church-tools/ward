@@ -29,7 +29,7 @@ import { extractTextFromPdf } from '../shared/utils/pdf-utils';
             [page]="this"
             [getUrl]="getMemberUrl"
             [activeId]="activeMemberId()"/>
-        <app-file-button (onUpload)="showPdfImport($event)">PDF aus LCR importieren</app-file-button>
+        <app-file-button (onUpload)="showPdfImport($event)" type="secondary">PDF aus LCR importieren</app-file-button>
         
     `,
     imports: [TranslateModule, RowCardListComponent, LinkButtonComponent, FileButtonComponent],
