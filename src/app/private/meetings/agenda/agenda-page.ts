@@ -8,7 +8,7 @@ import { TextInputComponent } from "../../../shared/form/text/text-input";
 import { IconComponent } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
-import { SupaSyncedDirective } from "../../../shared/utils/supa-sync/supa-synced.directive";
+import { SyncedFieldDirective } from "../../../shared/utils/supa-sync/synced-field.directive";
 import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
@@ -23,7 +23,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                 @if (adminService.editMode() && row()) {
                     <div class="d-flex">
                         <app-icon-picker class="ms--12" [iconOptions]="[]"/>
-                        <app-text-input [supaSynced]="table" [row]="row()!" column="name" [subtle]="true" textClass="h0"/>
+                        <app-text-input [syncedRow]="syncedRow" column="name" [subtle]="true" textClass="h0"/>
                     </div>
                 } @else {
                     <span class="h0">
@@ -46,7 +46,8 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         </app-router-outlet-drawer>
         <app-agenda-drop-zone [draggedTask]="draggedTask()"/>
     `,
-    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent, SupaSyncedDirective, IconComponent, IconPickerComponent],
+    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent,
+        SyncedFieldDirective, IconComponent, IconPickerComponent],
     host: { class: 'full-width' }
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
@@ -54,7 +55,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     private readonly dragDrop = inject(DragDropService);
     private readonly taskDragDrop = this.dragDrop.ensureGroup('task');
 
-    protected readonly sectionQuery = xcomputed([this.row],
+    protected readonly sectionQuery = xcomputed([this.syncedRow.value],
         row => row ? (table: Table<'agenda_section'>) => table.find().eq('agenda', row.id) : null);
     protected readonly draggedTask = xcomputed([this.taskDragDrop.dragged],
         drag => drag?.data && 'agenda' in drag.data ? drag : null);
@@ -72,7 +73,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
 
     protected prepareSectionInsert = (section: AgendaSection.Insert) => {
-        const agenda = this.row();
+        const agenda = this.syncedRow.value();
         if (!agenda) throw new Error("Agenda row is not set");
         section.agenda = +agenda.id;
     }

@@ -7,6 +7,7 @@ import { SupabaseService } from '../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../shared/utils/signal-utils';
 import { RowPageService } from '../row-page.service';
 import { PrivatePageComponent } from './private-page';
+import { SyncedRow } from '../../shared/utils/supa-sync/synced-row';
 
 @Component({
     selector: 'app-row-page',
@@ -23,13 +24,14 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     protected readonly injector = inject(Injector);
     protected readonly supabase = inject(SupabaseService);
     
-    readonly row = signal<Row<T> | null>(null);
+    protected readonly rowId = signal<number | null>(null);
     onIdChange?: (rowId: number) => Promise<void> | undefined;
     
     protected abstract readonly tableName: T;
     protected get table() { return this.supabase.sync.from(this.tableName); }
+    protected readonly syncedRow = new SyncedRow(this.table, this.rowId);
     protected readonly viewService = asyncComputed([], () => getViewService(this.injector, this.tableName));
-    protected readonly title = xcomputed([this.row, this.viewService],
+    protected readonly title = xcomputed([this.syncedRow.value, this.viewService],
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');
 
     private subscription?: Subscription;
@@ -40,8 +42,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
             if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
             this.rowPageService.pageOpened(this.tableName, +rowId);
             await this.onIdChange?.(+rowId);
-            const row = await this.supabase.sync.from(this.tableName).read(+rowId).get();
-            this.row.set(row);
+            this.rowId.set(+rowId);
         });
     }
 
@@ -49,10 +50,11 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
         this.close();
         super.ngOnDestroy();
         this.subscription?.unsubscribe();
+        this.syncedRow.destroy();
     }
 
     close() {
-        const id = this.row()?.[this.table.idKey] as number | undefined;
+        const id = this.syncedRow.id();
         if (id) this.rowPageService.pageClosed(this.tableName, id);
     }
 

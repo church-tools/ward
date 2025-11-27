@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { Member } from '../modules/member/member';
-import { RowCardListComponent } from "../modules/shared/row-card-list";
-import { Table } from '../modules/shared/table.types';
-import { xcomputed } from '../shared/utils/signal-utils';
-import { RowPageService } from './row-page.service';
-import { PrivatePageComponent } from './shared/private-page';
-import LinkButtonComponent from '../shared/form/button/link/link-button';
-import FileButtonComponent from '../shared/form/button/file/file-button';
-import { extractTextFromPdf } from '../shared/utils/pdf-utils';
+import { Member } from '../../modules/member/member';
+import { RowCardListComponent } from "../../modules/shared/row-card-list";
+import { Table } from '../../modules/shared/table.types';
+import { xcomputed } from '../../shared/utils/signal-utils';
+import { RowPageService } from '../row-page.service';
+import { PrivatePageComponent } from '../shared/private-page';
+import LinkButtonComponent from '../../shared/form/button/link/link-button';
+import FileButtonComponent from '../../shared/form/button/file/file-button';
+import { extractTextFromPdf } from '../../shared/utils/pdf-utils';
 
 @Component({
     selector: 'app-members-page',
