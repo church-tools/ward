@@ -9,6 +9,7 @@ import InputLabelComponent from "./input-label";
 export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
         { provide: InputBaseComponent, useExisting: forwardRef(forwardRefFn) },
+        { provide: HasFormValueControl, useExisting: forwardRef(forwardRefFn) },
     ]
 }
 

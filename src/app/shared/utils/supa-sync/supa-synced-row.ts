@@ -42,7 +42,7 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
         table: SupaSyncTable<D, T>,
         rowSignal: WritableSignal<Row<D, T>>,
     ): SupaSyncedRow<D, T> {
-        const id = signal(rowSignal()?.[table.idKey] ?? null);
+        const id = signal<number | null>(null);
         const self = new SupaSyncedRow<D, T>(table, id, rowSignal, self => {
             const row = rowSignal();
             id.set(row?.[self._table.idKey] ?? null);
