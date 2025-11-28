@@ -5,8 +5,11 @@ import { environment } from '../../../environments/environment';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
 import { getSiteOrigin } from '../utils/url-utils';
+import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
+
+export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {

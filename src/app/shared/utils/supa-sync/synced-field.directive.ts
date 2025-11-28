@@ -1,18 +1,22 @@
-import { Directive, inject, input, OnDestroy } from "@angular/core";
+import { Directive, effect, inject, input, ModelSignal, OnDestroy } from "@angular/core";
+import { FormValueControl } from "@angular/forms/signals";
 import { Subscription } from "rxjs";
-import { InputBaseComponent } from "../../form/shared/input-base";
-import { xeffect } from "../signal-utils";
 import type { Column, Database, Row, TableName } from "./supa-sync.types";
-import { SyncedRow } from "./synced-row";
+import { SupaSyncedRow } from "./supa-synced-row";
+
+export abstract class HasFormValueControl<T> implements FormValueControl<T> {
+    abstract value: ModelSignal<T>;
+    abstract debounceTime: number | undefined;
+}
 
 @Directive({
     selector: '[syncedRow][column]',
 })
 export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C extends Column<D, T>> implements OnDestroy {
 
-    private readonly inputBase = inject(InputBaseComponent);
+    private readonly inputBase = inject(HasFormValueControl);
 
-    readonly syncedRow = input.required<SyncedRow<D, T>>();
+    readonly syncedRow = input.required<SupaSyncedRow<D, T>>();
     readonly column = input.required<C>();
     
     private subscription?: Subscription;
@@ -21,15 +25,18 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     private applyingRemoteValue = false;
 
     constructor() {
-        xeffect([this.syncedRow, this.column], (syncedRow, column) => {
+        effect(() => {
+            const syncedRow = this.syncedRow();
             this.subscription?.unsubscribe();
             const row = syncedRow.value();
             if (!row) return;
+            const column = this.column();
             const value = row[column];
             if (value == null || this.lastValue === value) return;
             this.applyRemoteValue(row[column]);
         });
-        xeffect([this.inputBase.value], (currentValue) => {
+        effect(() => {
+            const currentValue = this.inputBase.value();
             if (this.applyingRemoteValue) return;
             const columnValue = currentValue as Row<D, T>[C] | null;
             if (columnValue == null) return;

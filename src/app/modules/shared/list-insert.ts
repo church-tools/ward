@@ -36,7 +36,7 @@ export abstract class ListInsertComponent<T extends TableName, C = unknown> {
     readonly insert = input.required<(item: Insert<T>) => PromiseOrValue<void>>();
     readonly cancel = input.required<() => void>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
-    readonly context = input<C | null>(null);
+    readonly context = input<C>();
 
     protected async submit() {
         const profile = await this.profileService.own.asPromise();

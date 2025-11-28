@@ -15,4 +15,5 @@ import { ListRowComponent } from '../shared/list-row';
     }
 })
 export class MemberListRowComponent extends ListRowComponent<'member'> {
+
 }

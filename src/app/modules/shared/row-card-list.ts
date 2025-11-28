@@ -1,12 +1,12 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, output, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { Subscription } from "rxjs";
 import { PageComponent } from "../../shared/page/page";
 import { SupabaseService } from "../../shared/service/supabase.service";
 import { PromiseOrValue } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
 import { asyncComputed, xcomputed, xeffect } from "../../shared/utils/signal-utils";
+import { Subscription } from "../../shared/utils/supa-sync/event-emitter";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";

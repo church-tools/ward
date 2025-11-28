@@ -2,7 +2,7 @@ import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren }
 import { Agenda } from '../../../../modules/agenda/agenda';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
 import { Task } from '../../../../modules/task/task';
-import { DragData, DragDropService, DropData } from '../../../../shared/service/drag-drop.service';
+import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
 import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
 

@@ -1,7 +1,7 @@
 import { inject, Injectable, OnDestroy } from "@angular/core";
-import { Subscription } from "rxjs";
 import { SupabaseService } from "../../shared/service/supabase.service";
 import { xeffect, xsignal } from "../../shared/utils/signal-utils";
+import { Subscription } from "../../shared/utils/supa-sync/event-emitter";
 import { Profile } from "./profile";
 
 @Injectable({ providedIn: 'root' })

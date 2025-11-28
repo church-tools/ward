@@ -27,7 +27,7 @@ import { MeetingsPageComponent } from '../../private/meetings/meetings-page';
 })
 export class AgendaListRowComponent extends ListRowComponent<'agenda'> {
     
-    protected readonly icon = xcomputed([this.row], row => row?.shape as Icon);
+    protected readonly icon = xcomputed([this.row], row => row.shape as Icon);
 
     protected readonly showChevron = xcomputed([this.page],
         page => page instanceof MeetingsPageComponent);

@@ -1,13 +1,13 @@
-import { Component, inject, Injector, OnDestroy, OnInit, signal, WritableSignal } from '@angular/core';
+import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Row, TableName } from '../../modules/shared/table.types';
+import { TableName } from '../../modules/shared/table.types';
 import { getViewService } from '../../modules/shared/view.service';
 import { SupabaseService } from '../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../shared/utils/signal-utils';
+import { SupaSyncedRow } from '../../shared/utils/supa-sync/supa-synced-row';
 import { RowPageService } from '../row-page.service';
 import { PrivatePageComponent } from './private-page';
-import { SyncedRow } from '../../shared/utils/supa-sync/synced-row';
 
 @Component({
     selector: 'app-row-page',
@@ -28,8 +28,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     onIdChange?: (rowId: number) => Promise<void> | undefined;
     
     protected abstract readonly tableName: T;
-    protected get table() { return this.supabase.sync.from(this.tableName); }
-    protected readonly syncedRow = new SyncedRow(this.table, this.rowId);
+    protected readonly syncedRow = SupaSyncedRow.fromId(this.supabase.sync, () => this.tableName, this.rowId);
     protected readonly viewService = asyncComputed([], () => getViewService(this.injector, this.tableName));
     protected readonly title = xcomputed([this.syncedRow.value, this.viewService],
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');

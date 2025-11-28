@@ -1,8 +1,8 @@
 import { Component, ForwardRefFn, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
-import { FormValueControl } from "@angular/forms/signals";
 import { Icon } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
 import { xeffect } from "../../utils/signal-utils";
+import { HasFormValueControl } from "../../utils/supa-sync/synced-field.directive";
 import ErrorMessageComponent from "../../widget/error-message/error-message";
 import InputLabelComponent from "./input-label";
 
@@ -21,7 +21,7 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
         '(focusout)': 'markTouched(); onBlur.emit()',
     },
 })
-export class InputBaseComponent<TIn, TOut = TIn> implements FormValueControl<TOut | null> {
+export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOut | null> {
 
     private readonly labelView = viewChild(InputLabelComponent);
     protected readonly errorView = viewChild(ErrorMessageComponent);
@@ -48,6 +48,7 @@ export class InputBaseComponent<TIn, TOut = TIn> implements FormValueControl<TOu
     private currentMapToken: symbol | null = null;
 
     constructor() {
+        super();
         xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label!));
         xeffect([this.labelView, this.labelIcon], (labelView, icon) => labelView?.icon.set(icon));
         xeffect([this.labelView, this.info], (labelView, info) => labelView?.info.set(info));

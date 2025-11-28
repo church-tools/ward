@@ -1,4 +1,5 @@
-import { Observable, Subscription } from "rxjs";
+import { Observable } from "rxjs";
+import { Subscription } from "../event-emitter";
 import { Database, QueryResult, Row, TableName } from "../supa-sync.types";
 import { IDBStoreAdapter } from "./idb-store-adapter";
 
@@ -43,22 +44,26 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
                 const result = this.resultMapping(items);
                 subscriber.next({ result });
             });
-            const sub = this.store.onChangeReceived.subscribe(changes => {
-                const items: Row<D, T>[] = [];
-                const deletions: number[] = [];
-                for (const change of changes) {
-                    const { old, new: cur } = change;
-                    if (cur && this.filterRow(cur)) {
-                        items.push(cur);
-                    } else if (old && this.filterRow(old)) {
-                        deletions.push(old.id);
-                    }
-                }
-                if (!items.length && !deletions.length) return;
-                const result = items.length ? this.resultMapping(items) : undefined;
-                subscriber.next({ result, deletions });
-            });
+            const sub = this.listenToChanges(res => subscriber.next(res));
             return () => sub.unsubscribe();
         }).subscribe(callback);
+    }
+
+    public listenToChanges(callback: (result: QueryResult<R>) => void) {
+        return this.store.onChangeReceived.subscribe(changes => {
+            const items: Row<D, T>[] = [];
+            const deletions: number[] = [];
+            for (const change of changes) {
+                const { old, new: cur } = change;
+                if (cur && this.filterRow(cur)) {
+                    items.push(cur);
+                } else if (old && this.filterRow(old)) {
+                    deletions.push(old.id);
+                }
+            }
+            if (!items.length && !deletions.length) return;
+            const result = items.length ? this.resultMapping(items) : undefined;
+            callback({ result, deletions });
+        });
     }
 }

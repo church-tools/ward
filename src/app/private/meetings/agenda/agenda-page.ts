@@ -20,16 +20,17 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow">
-                @if (adminService.editMode() && row()) {
+                @if (adminService.editMode()) {
                     <div class="d-flex">
                         <app-icon-picker class="ms--12" [iconOptions]="[]"/>
                         <app-text-input [syncedRow]="syncedRow" column="name" [subtle]="true" textClass="h0"/>
                     </div>
                 } @else {
                     <span class="h0">
-                        @if (row()?.shape && windowService.isLarge()) {
-                            <app-icon [icon]="row()!.shape!" [filled]="true" size="xl"
-                                class="{{row()!.color}}-active ms--12"></app-icon>
+                        @let row = syncedRow.value();
+                        @if (row && row.shape && windowService.isLarge()) {
+                            <app-icon [icon]="row.shape" [filled]="true" size="xl"
+                                class="{{row.color}}-active ms--12"></app-icon>
                         }
                         {{title()}}
                     </span>
@@ -39,7 +40,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [editable]="adminService.editMode()"
                     [getQuery]="sectionQuery()"
                     [gap]="8"
-                    [insertContext]="row()"
+                    [insertContext]="syncedRow"
                     [prepareInsert]="prepareSectionInsert"
                     [page]="this"/>
             </div>
