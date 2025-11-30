@@ -87,6 +87,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
     }
 
     protected async onClose() {
+        if (!this.routerOutlet().isActivated) return;
         await this.animateDrawerClose();
         this.router.navigate(['..'], { relativeTo: this.routerOutlet().activatedRoute });
     }

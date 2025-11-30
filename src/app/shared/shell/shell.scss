@@ -71,7 +71,7 @@
 }
 
 .app-name {
-    animation: color animation.$duration ease;
+    transition: color animation.$duration ease;
 }
 
 .header {

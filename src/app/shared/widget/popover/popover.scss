@@ -1,0 +1,24 @@
+@use 'layout';
+
+dialog {
+    margin: auto;
+
+    transition: opacity 150ms ease-in, transform 150ms ease-in;
+
+    @starting-styles {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    &.popover-disappear {
+        opacity: 0;
+        transform: scale(0.9);
+    }
+
+    .close-button {
+        z-index: 1;
+        position: absolute;
+        top: layout.$gutter * 2;
+        right: layout.$gutter * 2;
+    }
+}

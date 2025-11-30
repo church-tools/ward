@@ -95,10 +95,12 @@ button, .button {
         &:not(:disabled):not(.disabled) {
             color: font.$color;
             &:focus, &:hover {
-                background-color: font.$color-alpha-10;
+                background-color: card.$hover-background-transparent-color;
+                @include card.vibrant(300%);
             }
             &:active {
-                background-color: font.$color-alpha-20;
+                background-color: card.$active-background-transparent-color;
+                @include card.vibrant(400%);
             }
         }
         &.invert {

@@ -26,10 +26,9 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     readonly shortcut = input<string | null>(null);
     readonly shortcutNeedsCtrl = input(true);
     
-    protected readonly _type = signal<ButtonType | null>(null);
-    protected readonly classes = xcomputed([this._type, this.type, this.size, this.color, this.disabled, this.iconColored],
-        (_type, type, size, color, disabled, iconColored) =>
-            `${_type ?? type} ${size} ${color}-btn ${disabled ? 'disabled' : ''} ${iconColored ? 'icon-colored' : ''}`);
+    protected readonly classes = xcomputed([this.type, this.size, this.color, this.disabled, this.iconColored],
+        (type, size, color, disabled, iconColored) =>
+            `${type} ${size} ${color}-btn ${disabled ? 'disabled' : ''} ${iconColored ? 'icon-colored' : ''}`);
     
     protected readonly windowService = inject(WindowService);
     private hotkeySubscription: Subscription | undefined;

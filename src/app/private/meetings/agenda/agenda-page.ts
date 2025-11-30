@@ -19,7 +19,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         <app-router-outlet-drawer
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
-            <div class="page narrow">
+            <div class="page narrow gap-4">
                 @if (adminService.editMode()) {
                     <div class="d-flex">
                         <app-icon-picker class="ms--12" [iconOptions]="[]"/>
@@ -49,7 +49,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
     `,
     imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent,
         SyncedFieldDirective, IconComponent, IconPickerComponent],
-    host: { class: 'full-width' }
+    host: { class: 'full-width' },
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     

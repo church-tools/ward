@@ -1,14 +1,29 @@
 import { Component } from "@angular/core";
 import { Member } from "../../../modules/member/member";
+import FileButtonComponent from "../../../shared/form/button/file/file-button";
+import { extractTextFromPdf } from "../../../shared/utils/pdf-utils";
 
 @Component({
     selector: 'app-members-import',
     template: `
+        <h1>Mitglieder aus LCR importieren</h1>
+        <app-file-button type="secondary"
+            (onUpload)="showPdfImport($event)">
+            PDF aus LCR importieren
+        </app-file-button>
     `,
+    imports: [FileButtonComponent],
+    host: { class: 'page wide' },
 })
 export class MembersImportComponent {
 
 
+    protected async showPdfImport(file: File) {
+        
+        const text = await extractTextFromPdf(file);
+        console.log("Extracted text:", text);
+        // Further processing of the extracted text can be done here
+    }
 
     private extractNames(pdfText: string): Pick<Member.Insert, 'first_name' | 'last_name'>[] {
         if (!pdfText?.trim()) {

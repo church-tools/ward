@@ -36,7 +36,8 @@
   },
   "MEMBERS_PAGE": {
     "TITLE": "Mitglieder",
-    "LCR_MEMBER_PAGE": "LCR Mitgliederverzeichnis"
+    "LCR_MEMBER_LIST": "LCR Mitgliederverzeichnis",
+    "IMPORT_FROM_LCR": "Aus LCR importieren"
   },
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE.TITLE": "Sitzungen",

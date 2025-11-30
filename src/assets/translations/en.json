@@ -36,7 +36,8 @@
   },
   "MEMBERS_PAGE": {
     "TITLE": "Members",
-    "LCR_MEMBER_PAGE": "LCR Member List"
+    "LCR_MEMBER_LIST": "LCR Member List",
+    "IMPORT_FROM_LCR": "Import from LCR"
   },
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",
