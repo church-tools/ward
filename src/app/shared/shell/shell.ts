@@ -5,7 +5,7 @@ import { WindowService } from '../service/window.service';
     selector: 'app-shell',
     template: '',
     host: {
-        '[class.focused]': 'windowService.focused()',
+        '[class.focused]': 'windowService.focused() || windowService.mobileOS',
         '[class.dense]': '!windowService.isLarge()',
         '[class.narrow]': 'windowService.isSmall()',
     }
