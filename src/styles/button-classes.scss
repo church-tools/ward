@@ -13,7 +13,11 @@ button, .button {
     width: 100%;
     min-height: 2.25rem;
     box-sizing: border-box;
-    transition: all animation.$duration ease;
+    transition: background-color animation.$duration ease,
+        color animation.$duration ease,
+        box-shadow animation.$duration ease,
+        border-color animation.$duration ease,
+        opacity animation.$duration ease;
     flex-wrap: nowrap;
     text-wrap: nowrap;
     white-space: nowrap;
@@ -24,6 +28,7 @@ button, .button {
     gap: 0.5rem;
     border-radius: $border-radius;
     border: none;
+    background-color: transparent;
     padding: 0.125rem 0.75rem;
     display: flex;
     align-items: center;
