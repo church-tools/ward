@@ -11,7 +11,7 @@ import InputLabelComponent from '../shared/input-label';
     template: `
         <div class="column">
             <label class="row reverse no-wrap items-center"
-                [class.reverse]="labelSide() === 'left'">
+                [class.reverse]="labelSide() === 'right'">
                 <app-input-label class="full-width"/>
                 <div class="checkbox {{color()}}-text" [class.checked]="viewValue()">
                     <input title="{{label()}}" type="checkbox"

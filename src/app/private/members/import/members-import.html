@@ -1,0 +1,42 @@
+<div class="column gap-4">
+    <h1 class="me-12">
+        <app-icon icon="archive_arrow_back" size="lg"/>
+        {{ 'MEMBERS_IMPORT.TITLE' | translate }}
+    </h1>
+    <p>
+        {{ 'MEMBERS_IMPORT.INSTRUCTIONS_1' | translate }}
+    </p>
+    <div class="row gap-4 center-content">
+        <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
+            icon="open" size="large"
+            [outside]="true" [newTab]="true" type="secondary">
+            <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | translate }}</span>
+        </app-link-button>
+        <app-file-button type="secondary" size="large"
+            [accept]="FileType.pdf"
+            (onUpload)="importPdf($event)">
+            {{ 'MEMBERS_IMPORT.UPLOAD_BUTTON' | translate }}
+        </app-file-button>
+    </div>
+    <app-collapse [show]="importedNames().length > 0">
+        <div class="row">
+            <app-tag [options]="[]" [value]=""/>
+        </div>
+        <div class="column gap-4">
+            <div class="names-container card canvas-background-card gap-0 overflow-scroll">
+                @for (name of importedNames(); track name) {
+                    <div class="row items-center gap-1">
+                        <app-checkbox label="{{ name.first_name }} {{ name.last_name }}"
+                            [disabled]="name.duplicate ?? false"
+                            [value]="name.import() || name.duplicate === true" (valueChange)="name.import.set($event)"/>
+                    </div>
+                }
+            </div>
+            <div class="row center-content">
+                <app-async-button icon="save" type="primary" [onClick]="save">
+                    {{ 'MEMBERS_IMPORT.IMPORT_BUTTON' | translate }}
+                </app-async-button>
+            </div>
+        </div>
+    </app-collapse>
+</div>

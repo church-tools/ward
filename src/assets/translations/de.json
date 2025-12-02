@@ -42,7 +42,8 @@
   "MEMBERS_IMPORT": {
     "TITLE": "Mitglieder aus LCR importieren",
     "INSTRUCTIONS_1": "Drucken Sie das Mitgliederverzeichnis von LCR als PDF-Datei und laden Sie es hier hoch.",
-    "UPLOAD_BUTTON": "PDF hochladen"
+    "UPLOAD_BUTTON": "PDF hochladen",
+    "IMPORT_BUTTON": "Mitglieder importieren"
   },
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE.TITLE": "Sitzungen",

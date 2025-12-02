@@ -57,7 +57,7 @@
 
 :host:not(.disabled) {
     input {
-        cursor: pointer;
+        cursor: pointer !important;
     }
 
     &.is-invalid, &.ng-invalid.ng-touched {
@@ -66,6 +66,8 @@
         }
     }
     &:hover .checkbox {
-        border-color: input.$hover-strong-border-color;
+        &:not(.checked) {
+            border-color: input.$hover-strong-border-color;
+        }
     }
 }
