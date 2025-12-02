@@ -56,4 +56,7 @@
             border-color: color.get-variant(color.$danger, 'active');
         }
     }
+    &:hover .switch {
+        color: input.$hover-strong-border-color;
+    }
 }

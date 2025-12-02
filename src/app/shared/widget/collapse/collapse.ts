@@ -1,23 +1,10 @@
 import { Component, ElementRef, Signal, inject, input, output, signal, viewChild } from '@angular/core';
-import { wait } from '../utils/flow-control-utils';
+import { wait } from '../../utils/flow-control-utils';
 
 @Component({
     selector: 'app-collapse',
     template: `<div #measuring class="measuring"><ng-content/></div>`,
-    styles: [`
-        :host {
-            height: 0;
-            opacity: 0;
-            display: block;
-            overflow: hidden;
-            &:not(.instantly) {
-                transition: all 0.3s ease;
-            }
-            .measuring {
-                box-sizing: content-box;
-            }
-        }
-    `],
+    styleUrl: './collapse.scss',
 })
 export default class CollapseComponent {
 
@@ -29,8 +16,8 @@ export default class CollapseComponent {
     readonly collapsed = this._collapsed.asReadonly();
 
     private _show = false;
-    protected readonly show = input<boolean, boolean>(false, { transform: v => { this.setExpanded(v); return v; } });
-    protected readonly onChange = output<boolean>();
+    readonly show = input<boolean, boolean>(false, { transform: v => { this.setExpanded(v); return v; } });
+    readonly onChange = output<boolean>();
 
     async toggle() {
         this.setExpanded(!this._show);

@@ -1,31 +1,64 @@
-import { Component } from "@angular/core";
+import { Component, signal } from "@angular/core";
+import { TranslateModule } from "@ngx-translate/core";
 import { Member } from "../../../modules/member/member";
 import FileButtonComponent from "../../../shared/form/button/file/file-button";
+import LinkButtonComponent from "../../../shared/form/button/link/link-button";
+import CheckboxComponent from "../../../shared/form/checkbox/checkbox";
+import { IconComponent } from "../../../shared/icon/icon";
 import { extractTextFromPdf } from "../../../shared/utils/pdf-utils";
+import CollapseComponent from "../../../shared/widget/collapse/collapse";
+
+type ImportName = Pick<Member.Insert, 'first_name' | 'last_name'>;
 
 @Component({
     selector: 'app-members-import',
     template: `
-        <h1>Mitglieder aus LCR importieren</h1>
-        <app-file-button type="secondary"
-            (onUpload)="showPdfImport($event)">
-            PDF aus LCR importieren
-        </app-file-button>
+        <div class="column gap-4">
+            <h1 class="me-12">
+                <app-icon icon="archive_arrow_back" size="lg"/>
+                {{ 'MEMBERS_IMPORT.TITLE' | translate }}
+            </h1>
+            <p>
+                {{ 'MEMBERS_IMPORT.INSTRUCTIONS_1' | translate }}
+            </p>
+            <div class="row gap-4 center-content">
+                <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
+                    icon="open"
+                    [outside]="true" [newTab]="true" type="secondary">
+                    <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | translate }}</span>
+                </app-link-button>
+                <app-file-button type="secondary"
+                    (onUpload)="importPdf($event)">
+                    {{ 'MEMBERS_IMPORT.UPLOAD_BUTTON' | translate }}
+                </app-file-button>
+            </div>
+            <app-collapse [show]="importedNames().length > 0">
+                <div class="column gap-1">
+                    @for (name of importedNames(); track name) {
+                        <div class="row items-center gap-1">
+                            <app-checkbox label="{{ name.first_name }} {{ name.last_name }}"/>
+                        </div>
+                    }
+                </div>
+            </app-collapse>
+        </div>
     `,
-    imports: [FileButtonComponent],
-    host: { class: 'page wide' },
+    imports: [TranslateModule, FileButtonComponent, LinkButtonComponent,
+        IconComponent, CheckboxComponent, CollapseComponent],
+    host: { class: 'page' },
 })
 export class MembersImportComponent {
 
+    protected readonly importedNames = signal<ImportName[]>([]);
 
-    protected async showPdfImport(file: File) {
+    protected async importPdf(file: File) {
         
         const text = await extractTextFromPdf(file);
-        console.log("Extracted text:", text);
-        // Further processing of the extracted text can be done here
+        const names = this.extractNames(text);
+        this.importedNames.set(names);
     }
 
-    private extractNames(pdfText: string): Pick<Member.Insert, 'first_name' | 'last_name'>[] {
+    private extractNames(pdfText: string): ImportName[] {
         if (!pdfText?.trim()) {
             return [];
         }

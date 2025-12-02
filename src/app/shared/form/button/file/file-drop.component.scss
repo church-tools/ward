@@ -1,5 +1,6 @@
-@use "color";
 @use "card";
+@use "button";
+@use "animation";
 
 input {
     cursor: pointer;
@@ -10,13 +11,14 @@ input {
 }
 
 :host {
-    @include card.outlined;
     position: absolute;
-    opacity: 0;
-    transition: all 0.15s ease;
-    border-radius: card.$border-radius-sm * 1.5;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    transition: all animation.$duration-sm ease;
+    border-radius: button.$border-radius;
     &.drag-hovered {
-        border-width: 3px;
-        opacity: 1;
+        @include card.outlined(button.$border-radius);
     }
 }

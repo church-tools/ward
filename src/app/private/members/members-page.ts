@@ -47,7 +47,6 @@ export class MembersPageComponent extends PrivatePageComponent {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
-    private readonly popoverService = inject(PopoverService);
 
     protected readonly activeMemberId = signal<number | null>(null);
 

@@ -1,16 +1,17 @@
-import { Component, model, output, viewChild } from "@angular/core";
-import { xeffect } from "../../utils/signal-utils";
+import { Component, ComponentRef, createComponent, EnvironmentInjector, output, signal, Type, viewChild, ViewContainerRef } from "@angular/core";
 import ButtonComponent from "../../form/button/button";
+import { animationDurationMs } from "../../utils/style";
+import { wait } from "../../utils/flow-control-utils";
 
 @Component({
     selector: 'app-popover',
     template: `
-        <dialog #dialog animate.leave="popover-disappear">
-            <app-button type="subtle" icon="dismiss"
+        <dialog #dialog class="card large acrylic-card no-shadow" [class.disappearing]="disappearing()">
+            <app-button type="subtle" icon="dismiss" size="large"
                 class="close-button icon-only"
                 shortcut="Escape" [shortcutNeedsCtrl]="false"
-                (onClick)="close()"/>
-            <ng-content/>
+                (onClick)="onClose.emit()"/>
+            <ng-container #contentContainer/>
         </dialog>
     `,
     imports: [ButtonComponent],
@@ -18,22 +19,28 @@ import ButtonComponent from "../../form/button/button";
 })
 export class PopoverComponent {
 
-    readonly show = model<boolean>(false);
     readonly onClose = output<void>();
 
     private readonly dialog = viewChild.required<{ nativeElement: HTMLDialogElement }>('dialog');
+    private readonly contentContainer = viewChild.required('contentContainer', { read: ViewContainerRef });
 
-    constructor() {
-        xeffect([this.show, this.dialog], (show, dialogElement) => {
-            const dialog = dialogElement.nativeElement;
-            if (show === dialog.open) return;
-            if (show) dialog.showModal();
-            else dialog.close();
+    protected readonly disappearing = signal(false);
+
+    loadComponent<T>(component: Type<T>, injector: EnvironmentInjector): ComponentRef<T> {
+        const container = this.contentContainer();
+        container.clear();
+        const componentRef = createComponent(component, {
+            environmentInjector: injector,
+            elementInjector: container.injector,
         });
+        container.insert(componentRef.hostView);
+        this.dialog().nativeElement.showModal();
+        return componentRef;
     }
-    
-    protected close() {
-        this.show.set(false);
-        this.onClose.emit();
+
+    async close() {
+        this.disappearing.set(true);
+        await wait(animationDurationMs);
+        this.contentContainer().clear();
     }
 }

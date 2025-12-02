@@ -1,6 +1,6 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
-import CollapseComponent from '../collapse.component';
+import CollapseComponent from '../collapse/collapse';
 
 @Component({
     selector: 'app-error-message',

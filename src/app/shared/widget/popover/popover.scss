@@ -1,18 +1,42 @@
+@use 'animation';
 @use 'layout';
+@use 'shadow';
 
 dialog {
     margin: auto;
+    transition: opacity animation.$duration animation.$ease-out,
+        transform animation.$duration animation.$ease-out;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    @include shadow.box(32);
 
-    transition: opacity 150ms ease-in, transform 150ms ease-in;
-
-    @starting-styles {
+    @starting-style {
+        opacity: 0;
+        transform: scale(0.99) translateY(animation.$page-up-slide-distance);
+    }
+    
+    &::backdrop {
+        transition: opacity animation.$duration animation.$ease-out;
+        background-color: rgba(0, 0, 0, 0.25);
+        -webkit-backdrop-filter: blur(4px) saturate(150%);
+        backdrop-filter: blur(4px) saturate(150%);
         opacity: 1;
-        transform: scale(1);
+
+        @starting-style {
+            opacity: 0;
+        }
     }
 
-    &.popover-disappear {
+    &.disappearing {
+        transition: opacity animation.$duration ease,
+            transform animation.$duration ease;
         opacity: 0;
-        transform: scale(0.9);
+        transform: scale(0.99) translateY(animation.$page-up-slide-distance);
+
+        &::backdrop {
+            transition: opacity animation.$duration animation.$ease-in;
+            opacity: 0;
+        }
     }
 
     .close-button {

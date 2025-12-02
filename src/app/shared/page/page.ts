@@ -12,4 +12,6 @@ export const LEAVE_ANIMATION = 'page-leave-animation';
 export abstract class PageComponent {
 
     readonly el = inject(ElementRef).nativeElement as HTMLElement;
+
+    public onLeaving() {}
 }

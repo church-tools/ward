@@ -139,6 +139,10 @@ ul {
 .row {
     @include row;
     flex-wrap: wrap;
+
+    &.reverse {
+        flex-flow: row-reverse;
+    }
 }
 
 .column {

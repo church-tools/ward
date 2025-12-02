@@ -36,8 +36,13 @@
   },
   "MEMBERS_PAGE": {
     "TITLE": "Members",
-    "LCR_MEMBER_LIST": "LCR Member List",
+    "LCR_MEMBER_LIST": "LCR Member Directory",
     "IMPORT_FROM_LCR": "Import from LCR"
+  },
+  "MEMBERS_IMPORT": {
+    "TITLE": "Import Members from LCR",
+    "INSTRUCTIONS_1": "Print the member directory from LCR as a PDF file and upload it here.",
+    "UPLOAD_BUTTON": "Upload PDF"
   },
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",

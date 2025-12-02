@@ -1,5 +1,6 @@
 import { ApplicationRef, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, signal, Type } from "@angular/core";
-import { PopoverHostComponent } from "./popover-host";
+import { PopoverComponent } from "./popover";
+import { xcomputed } from "../../utils/signal-utils";
 
 @Injectable({
     providedIn: 'root',
@@ -9,37 +10,26 @@ export class PopoverService {
     private readonly appRef = inject(ApplicationRef);
     private readonly injector = inject(EnvironmentInjector);
 
-    private hostRef: ComponentRef<PopoverHostComponent> | null = null;
-    private readonly _isOpen = signal(false);
-    readonly isOpen = this._isOpen.asReadonly();
+    private readonly hostRef = signal<ComponentRef<PopoverComponent> | null>(null);
+    readonly isOpen = xcomputed([this.hostRef], hostRef => hostRef !== null);
 
-    open<T>(component: Type<T>): ComponentRef<T> {
-        this.close();
-        if (!this.hostRef) {
-            this.hostRef = createComponent(PopoverHostComponent, {
-                environmentInjector: this.injector,
-            });
-            document.body.appendChild(this.hostRef.location.nativeElement);
-            this.appRef.attachView(this.hostRef.hostView);
-            this.hostRef.instance.onClose.subscribe(() => this.close());
-        }
-        const contentRef = this.hostRef.instance.loadComponent(component, this.injector);
-        this._isOpen.set(true);
-
+    async open<T>(component: Type<T>): Promise<ComponentRef<T>> {
+        await this.close();
+        const hostRef = createComponent(PopoverComponent, { environmentInjector: this.injector });
+        document.body.appendChild(hostRef.location.nativeElement);
+        this.appRef.attachView(hostRef.hostView);
+        hostRef.instance.onClose.subscribe(() => this.close());
+        const contentRef = hostRef.instance.loadComponent(component, this.injector);
+        this.hostRef.set(hostRef);
         return contentRef;
     }
 
-    close() {
-        if (!this.hostRef) return;
-        this.hostRef.instance.clear();
-        this._isOpen.set(false);
-    }
-
-    destroy() {
-        if (!this.hostRef) return;
-        this.appRef.detachView(this.hostRef.hostView);
-        this.hostRef.destroy();
-        this.hostRef = null;
-        this._isOpen.set(false);
+    async close() {
+        const hostRef = this.hostRef();
+        if (!hostRef) return;
+        await hostRef.instance.close();
+        this.appRef.detachView(hostRef.hostView);
+        hostRef.destroy();
+        this.hostRef.set(null);
     }
 }

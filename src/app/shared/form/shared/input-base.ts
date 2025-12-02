@@ -50,11 +50,11 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
 
     constructor() {
         super();
-        xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label!));
+        xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label));
         xeffect([this.labelView, this.labelIcon], (labelView, icon) => labelView?.icon.set(icon));
         xeffect([this.labelView, this.info], (labelView, info) => labelView?.info.set(info));
         xeffect([this.labelView, this.required, this.indicateRequired, this.disabled],
-            (labelView, required, indicateRequired, disabledState) => labelView?.required.set(!!required && !!indicateRequired && !disabledState));
+            (labelView, required, indicateRequired, disabledState) => labelView?.required.set(required && indicateRequired && !disabledState));
         xeffect([this.value], (modelValue) => {
             if (this.suppressModelSync)
                 return;

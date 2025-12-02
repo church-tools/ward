@@ -16,7 +16,7 @@
         &.fade {
             transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
             opacity: 1;
-            @starting-style { opacity: 0; transform: translateY(100px); }
+            @starting-style { opacity: 0; transform: translateY($page-up-slide-distance); }
         }
         &.right, &.left {
             transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;

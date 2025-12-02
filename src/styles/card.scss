@@ -80,7 +80,7 @@ $canvas-background-color: color-mix(
     }
 }
 
-@mixin outlined {
+@mixin outlined($border-radius: $border-radius) {
     &::after {
         content: "";
         transition: opacity animation.$duration ease;
