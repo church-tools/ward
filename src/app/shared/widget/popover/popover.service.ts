@@ -1,5 +1,5 @@
 import { ApplicationRef, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, signal, Type } from "@angular/core";
-import { PopoverComponent } from "./popover";
+import { PopoverComponent, PopoverPage } from "./popover";
 import { xcomputed } from "../../utils/signal-utils";
 
 @Injectable({
@@ -13,7 +13,7 @@ export class PopoverService {
     private readonly hostRef = signal<ComponentRef<PopoverComponent> | null>(null);
     readonly isOpen = xcomputed([this.hostRef], hostRef => hostRef !== null);
 
-    async open<T>(component: Type<T>): Promise<ComponentRef<T>> {
+    async open<T extends PopoverPage>(component: Type<T>): Promise<ComponentRef<T>> {
         await this.close();
         const hostRef = createComponent(PopoverComponent, { environmentInjector: this.injector });
         document.body.appendChild(hostRef.location.nativeElement);

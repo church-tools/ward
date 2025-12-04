@@ -13,6 +13,7 @@ import InputLabelComponent from '../shared/input-label';
             <label class="row reverse no-wrap items-center"
                 [class.reverse]="labelSide() === 'right'">
                 <app-input-label class="full-width"/>
+                <ng-content/>
                 <div class="checkbox {{color()}}-text" [class.checked]="viewValue()">
                     <input title="{{label()}}" type="checkbox"
                         [checked]="viewValue()" (click)="onClick($event)"

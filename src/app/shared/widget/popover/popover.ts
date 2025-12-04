@@ -3,10 +3,16 @@ import ButtonComponent from "../../form/button/button";
 import { animationDurationMs } from "../../utils/style";
 import { wait } from "../../utils/flow-control-utils";
 
+export class PopoverPage {
+    closePopup!: () => Promise<void>;
+}
+
 @Component({
     selector: 'app-popover',
     template: `
-        <dialog #dialog class="card large acrylic-card no-shadow" [class.disappearing]="disappearing()">
+        <dialog #dialog class="card large acrylic-card no-shadow"
+            [class.disappearing]="disappearing()"
+            (cancel)="$event.preventDefault(); onClose.emit()">
             <app-button type="subtle" icon="dismiss" size="large"
                 class="close-button icon-only"
                 shortcut="Escape" [shortcutNeedsCtrl]="false"
@@ -26,7 +32,7 @@ export class PopoverComponent {
 
     protected readonly disappearing = signal(false);
 
-    loadComponent<T>(component: Type<T>, injector: EnvironmentInjector): ComponentRef<T> {
+    loadComponent<T extends PopoverPage>(component: Type<T>, injector: EnvironmentInjector): ComponentRef<T> {
         const container = this.contentContainer();
         container.clear();
         const componentRef = createComponent(component, {
@@ -34,6 +40,7 @@ export class PopoverComponent {
             elementInjector: container.injector,
         });
         container.insert(componentRef.hostView);
+        componentRef.instance.closePopup = this.close.bind(this);
         this.dialog().nativeElement.showModal();
         return componentRef;
     }
@@ -41,6 +48,7 @@ export class PopoverComponent {
     async close() {
         this.disappearing.set(true);
         await wait(animationDurationMs);
+        this.dialog().nativeElement.close();
         this.contentContainer().clear();
     }
 }

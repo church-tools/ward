@@ -12,7 +12,7 @@ dialog {
 
     @starting-style {
         opacity: 0;
-        transform: scale(0.99) translateY(animation.$page-up-slide-distance);
+        transform: scale(0.975) translateY(animation.$page-up-slide-distance);
     }
     
     &::backdrop {
@@ -28,13 +28,13 @@ dialog {
     }
 
     &.disappearing {
-        transition: opacity animation.$duration ease,
-            transform animation.$duration ease;
+        transition: opacity animation.$duration-smaller ease,
+            transform animation.$duration-sm ease;
         opacity: 0;
-        transform: scale(0.99) translateY(animation.$page-up-slide-distance);
+        transform: scale(0.95) translateY(calc(animation.$page-up-slide-distance / 2));
 
         &::backdrop {
-            transition: opacity animation.$duration animation.$ease-in;
+            transition: opacity animation.$duration-sm ease;
             opacity: 0;
         }
     }

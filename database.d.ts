@@ -286,6 +286,7 @@ export type Database = {
           agenda_permissions: number[] | null
           created_at: string
           first_name: string
+          gender: Database["public"]["Enums"]["gender"] | null
           id: number
           last_name: string | null
           nick_name: string | null
@@ -299,6 +300,7 @@ export type Database = {
           agenda_permissions?: number[] | null
           created_at?: string
           first_name: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           id: number
           last_name?: string | null
           nick_name?: string | null
@@ -312,6 +314,7 @@ export type Database = {
           agenda_permissions?: number[] | null
           created_at?: string
           first_name?: string
+          gender?: Database["public"]["Enums"]["gender"] | null
           id?: number
           last_name?: string | null
           nick_name?: string | null

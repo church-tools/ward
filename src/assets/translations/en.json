@@ -45,6 +45,9 @@
     "UPLOAD_BUTTON": "Upload PDF",
     "IMPORT_BUTTON": "Import Members"
   },
+  "SELECT_ALL": "Select All",
+  "BROTHER_SHORT": "Bro.",
+  "SISTER_SHORT": "Sis.",
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
   "MEETINGS_PAGE.TITLE": "Meetings",
   "CALLINGS_PAGE.TITLE": "Callings",

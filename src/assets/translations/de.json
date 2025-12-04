@@ -45,6 +45,9 @@
     "UPLOAD_BUTTON": "PDF hochladen",
     "IMPORT_BUTTON": "Mitglieder importieren"
   },
+  "SELECT_ALL": "Alle auswählen",
+  "BROTHER_SHORT": "Br.",
+  "SISTER_SHORT": "Schw.",
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE.TITLE": "Sitzungen",
   "CALLINGS_PAGE.TITLE": "Berufungen",

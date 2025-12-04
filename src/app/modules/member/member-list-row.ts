@@ -4,15 +4,12 @@ import { ListRowComponent } from '../shared/list-row';
 @Component({
     selector: 'app-member-list-row',
     template: `
-        <div class="row no-wrap full-width items-center m-6-8">
-            <h3 class="grow-1">
-                <span class="overflow-ellipsis">{{ row().first_name }}</span>
-            </h3>
+        <div class="column m-4">
+            <h4>
+                {{ row().nick_name || row().first_name }} {{ row().last_name }}
+            </h4>
         </div>
     `,
-    host: {
-        class: 'full-width row items-center',
-    }
 })
 export class MemberListRowComponent extends ListRowComponent<'member'> {
 

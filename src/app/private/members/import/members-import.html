@@ -18,20 +18,31 @@
             {{ 'MEMBERS_IMPORT.UPLOAD_BUTTON' | translate }}
         </app-file-button>
     </div>
-    <app-collapse [show]="importedNames().length > 0">
+    <app-collapse [show]="importedMember().length > 0">
         <div class="row">
+            <app-checkbox [value]="selectAll()" (valueChange)="selectAll.set($event);">
+                <span class="no-text-wrap">{{ 'SELECT_ALL' | translate }}</span>
+            </app-checkbox>
             <app-tag [options]="[]" [value]=""/>
         </div>
         <div class="column gap-4">
             <div class="names-container card canvas-background-card gap-0 overflow-scroll">
-                @for (name of importedNames(); track name) {
+                @for (member of importedMember(); track $index) {
                     <div class="row items-center gap-1">
-                        <app-checkbox label="{{ name.first_name }} {{ name.last_name }}"
-                            [disabled]="name.duplicate ?? false"
-                            [value]="name.import() || name.duplicate === true" (valueChange)="name.import.set($event)"/>
+                        <app-checkbox
+                            [disabled]="member.duplicate ?? false"
+                            [value]="member.import() || member.duplicate === true" (valueChange)="member.import.set($event)">
+                            <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
+                                <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
+                                    {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | translate }}
+                                </span>
+                                {{ member.first_name }} {{ member.last_name }}
+                            </span>
+                        </app-checkbox>
                     </div>
                 }
             </div>
+            {{ count() }}
             <div class="row center-content">
                 <app-async-button icon="save" type="primary" [onClick]="save">
                     {{ 'MEMBERS_IMPORT.IMPORT_BUTTON' | translate }}

@@ -22,7 +22,11 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     },
     members: {
         translateId: 'MEMBERS', icon: 'people_community',
-        loadComponent: () => import('./members/members-page').then(m => m.MembersPageComponent)
+        loadComponent: () => import('./members/members-page').then(m => m.MembersPageComponent),
+        childrenInside: true,
+        ':member': {
+            loadComponent: () => import('./members/member-page').then(m => m.MemberPageComponent),
+        }
     },
     callings: {
         translateId: 'CALLINGS', icon: 'briefcase',
