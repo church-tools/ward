@@ -14,7 +14,7 @@
     padding-bottom: layout.$canvas-margin-y;
     &.enter {
         &.fade {
-            transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
+            transition: opacity $duration-lg $ease-out $duration-xs, transform $duration-lg $ease-out $duration-xs;
             opacity: 1;
             @starting-style { opacity: 0; transform: translateY($page-up-slide-distance); }
         }
@@ -46,7 +46,7 @@
         pointer-events: none;
         opacity: 0;
         &.fade {
-            transition: opacity $duration-smaller ease;
+            transition: opacity $duration-smaller $ease-in;
         }
         &.right, &.left {
             transition: opacity $duration-lg $ease-out, transform $duration-lg $ease-out;
