@@ -1,6 +1,8 @@
-import { Component, inject, signal, WritableSignal } from "@angular/core";
+import { Component, inject, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { Member } from "../../../modules/member/member";
+import { MemberViewService } from "../../../modules/member/member-view.service";
+import { ProfileService } from "../../../modules/profile/profile.service";
 import AsyncButtonComponent from "../../../shared/form/button/async/async-button";
 import FileButtonComponent from "../../../shared/form/button/file/file-button";
 import LinkButtonComponent from "../../../shared/form/button/link/link-button";
@@ -9,15 +11,13 @@ import { IconComponent } from "../../../shared/icon/icon";
 import { SupabaseService } from "../../../shared/service/supabase.service";
 import { FileType } from "../../../shared/utils/file-utils";
 import { extractTextFromPdf } from "../../../shared/utils/pdf-utils";
+import { xeffect } from "../../../shared/utils/signal-utils";
 import CollapseComponent from "../../../shared/widget/collapse/collapse";
-import { TagComponent } from "../../../shared/widget/tag/tag";
-import { MemberViewService } from "../../../modules/member/member-view.service";
-import { xcomputed,xeffect, } from "../../../shared/utils/signal-utils";
-import { ProfileService } from "../../../modules/profile/profile.service";
 import { PopoverPage } from "../../../shared/widget/popover/popover";
+import { TagComponent } from "../../../shared/widget/tag/tag";
 
 type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
-    & { duplicate?: boolean, import: WritableSignal<boolean | null> };
+    & { duplicate?: boolean, import: boolean };
 
 @Component({
     selector: 'app-members-import',
@@ -33,7 +33,7 @@ export class MembersImportComponent extends PopoverPage {
     protected readonly memberView = inject(MemberViewService);
     protected readonly profileService = inject(ProfileService);
 
-    protected readonly selectAll = signal<boolean | null>(null);
+    protected readonly selectAll = signal<boolean>(false);
     protected readonly importedMember = signal<ImportInfo[]>([]);
     protected readonly FileType = FileType;
 
@@ -42,16 +42,15 @@ export class MembersImportComponent extends PopoverPage {
         { value: 'existing', view: 'Existing', color: 'blue' },
         { value: 'duplicate', view: 'Duplicate', color: 'red' },
     ];
-    
-    protected readonly count = xcomputed([this.importedMember],
-        members => members.filter(m => m.import()).length);
 
+    protected readonly count = signal(0);
 
     constructor() {
         super();
         xeffect([this.selectAll], selectAll => {
             for (const member of this.importedMember())
-                member.import.set(selectAll);
+                member.import = selectAll;
+            this.onImportChange();
         });
     }
 
@@ -67,8 +66,13 @@ export class MembersImportComponent extends PopoverPage {
         this.importedMember.set(members);
     }
 
+    protected onImportChange() {
+        const count = this.importedMember().filter(m => m.import && !m.duplicate).length;
+        this.count.set(count);
+    }
+
     protected save = async () => {
-        const selected = this.importedMember().filter(m => m.import() && !m.duplicate);
+        const selected = this.importedMember().filter(m => m.import && !m.duplicate);
         const unit = (await this.profileService.own.asPromise()).unit;
         const nextId = await this.supabase.sync.from('member').findLargestId() ?? 0;
         await this.supabase.sync.from('member')
@@ -101,7 +105,7 @@ export class MembersImportComponent extends PopoverPage {
                 first_name,
                 last_name,
                 gender,
-                import: signal(null)
+                import: false,
             });
             i++;
         }

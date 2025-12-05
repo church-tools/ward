@@ -20,7 +20,7 @@
     </div>
     <app-collapse [show]="importedMember().length > 0">
         <div class="row">
-            <app-checkbox [value]="selectAll()" (valueChange)="selectAll.set($event);">
+            <app-checkbox [value]="selectAll()" (valueChange)="selectAll.set($event!);">
                 <span class="no-text-wrap">{{ 'SELECT_ALL' | translate }}</span>
             </app-checkbox>
             <app-tag [options]="[]" [value]=""/>
@@ -31,7 +31,7 @@
                     <div class="row items-center gap-1">
                         <app-checkbox
                             [disabled]="member.duplicate ?? false"
-                            [value]="member.import() || member.duplicate === true" (valueChange)="member.import.set($event)">
+                            [value]="member.import || member.duplicate === true" (valueChange)="member.import = $event!; onImportChange()">
                             <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
                                 <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
                                     {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | translate }}
