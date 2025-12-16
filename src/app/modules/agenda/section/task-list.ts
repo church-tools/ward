@@ -27,10 +27,9 @@ export class TaskListComponent {
     readonly stages = input.required<Task.Stage[]>();
 
     protected readonly getTaskQuery = xcomputed([this.agendaId, this.stages],
-        (agenda, stages) => (table: Table<'task'>) =>
-            table.find()
-                .eq('agenda', agenda)
-                .in('stage', stages));
+        (agenda, stages) => (table: Table<'task'>) => table.find()
+            .eq('agenda', agenda)
+            .in('stage', stages));
     protected readonly taskFilter = xcomputed([this.agendaId, this.stages],
         ((agenda, stages) => (task: Task.Row) => task.agenda === agenda && stages.includes(task.stage)));
     protected readonly activeTaskId = xcomputed([this.rowPageService.openRows],

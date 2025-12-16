@@ -12,7 +12,7 @@ import { TaskListComponent } from '../task-list';
     `,
     imports: [TaskListComponent, AsyncPipe],
 })
-export class AgendaSectionTasksComponent {
+export class AgendaSectionTopicsComponent {
 
     protected readonly taskView = inject(TaskViewService);
     

@@ -4,7 +4,7 @@ import { ListRowComponent } from '../../shared/list-row';
 import { AgendaSectionFollowupComponent } from "./variants/agenda-section-followup";
 import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
 import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
-import { AgendaSectionTasksComponent } from "./variants/agenda-section-tasks";
+import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
 import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
 import ButtonComponent from '../../../shared/form/button/button';
 
@@ -37,7 +37,7 @@ import ButtonComponent from '../../../shared/form/button/button';
         </div>
     `,
     host: { class: 'full-width' },
-    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTasksComponent,
+    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTopicsComponent,
         AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent, ButtonComponent],
 })
 export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {

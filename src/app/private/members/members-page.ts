@@ -6,7 +6,6 @@ import { RowCardListComponent } from "../../modules/shared/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import ButtonComponent from '../../shared/form/button/button';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
-import { PopoverService } from '../../shared/widget/popover/popover.service';
 import { PrivatePageComponent } from '../shared/private-page';
 import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/router-outlet-drawer";
 

@@ -21,7 +21,7 @@
     "@angular/service-worker": "^21.0.5",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
-    "@supabase/supabase-js": "^2.87.1",
+    "@supabase/supabase-js": "^2.88.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "rxjs": "^7.8.2",
@@ -33,7 +33,7 @@
     "@angular/compiler": "^21.0.5",
     "@angular/compiler-cli": "^21.0.5",
     "@angular/language-service": "^21.0.5",
-    "supabase": "^2.66.0",
+    "supabase": "^2.67.1",
     "typescript": "^5.9.3"
   }
 }

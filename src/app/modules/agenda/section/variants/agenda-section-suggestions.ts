@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component } from '@angular/core';
-import { AgendaSectionTasksComponent } from './agenda-section-tasks';
+import { AgendaSectionTopicsComponent } from './agenda-section-topics';
 import { TaskListComponent } from '../task-list';
 
 @Component({
@@ -11,6 +11,6 @@ import { TaskListComponent } from '../task-list';
     `,
     imports: [TaskListComponent, AsyncPipe],
 })
-export class AgendaSectionSuggestionsComponent extends AgendaSectionTasksComponent {
+export class AgendaSectionSuggestionsComponent extends AgendaSectionTopicsComponent {
 
 }

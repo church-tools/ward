@@ -89,6 +89,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             await this.writePending(rows);
             return isArray ? rows : rows[0];
         } else {
+            if (rows.some(r => r[this.idKey] == null)) {
+                let largestId = await this.findLargestId() ?? 0;
+                for (const row of rows)
+                    if (row[this.idKey] == null)
+                        row[this.idKey] = ++largestId;
+            }
             const { data } = await this.supabaseClient.from(this.tableName)
                 .insert(rows)
                 .select("*")
