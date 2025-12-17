@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnDestroy, signal, WritableSignal } from "@angular/core";
+import { Component, DOCUMENT, ElementRef, inject, input, OnDestroy, signal, WritableSignal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { Icon, IconComponent, IconPath } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
@@ -22,12 +22,13 @@ export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuBut
 export default class MenuButtonComponent extends ButtonBaseComponent implements OnDestroy {
 
     private readonly elementRef = inject(ElementRef);
+    private readonly document = inject<Document>(DOCUMENT);
 
     override readonly icon = input(<any>'more_vertical');
     readonly items = input.required<MenuButtonItem[]>();
     readonly position = input<MenuPosition>('bottom');
     readonly alignment = input<MenuAlignment>('right');
-    readonly leaveTimeout = input<number>(500);
+    readonly leaveTimeout = input<number>(2000);
     
     protected readonly visible = signal(false);
     protected readonly style = xcomputed([this.position, this.alignment], (position, alignment) => {
@@ -45,6 +46,23 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
 
     private shouldBeVisible = 0;
     private timeout: ReturnType<typeof setTimeout> | undefined;
+
+    private readonly onDocumentPointerDown = (event: PointerEvent) => {
+        if (!this.visible()) return;
+        const host: HTMLElement = this.elementRef.nativeElement;
+        const target = event.target as Node | null;
+        if (target && host.contains(target)) return;
+        this.setVisibility(false);
+    };
+
+    override ngOnDestroy() {
+        super.ngOnDestroy();
+        if (this.timeout) {
+            clearTimeout(this.timeout);
+            this.timeout = undefined;
+        }
+        this.removeEventListeners();
+    }
 
     execute() {
         this.toggle();
@@ -83,9 +101,16 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         this.visible.set(visible);
         if (!visible) {
             this.shouldBeVisible = 0;
-            const elem: HTMLElement = this.elementRef.nativeElement;
-            elem.removeEventListener('mouseenter', this.show);
-            elem.removeEventListener('mouseleave', this.hide);
+            this.removeEventListeners();
+        } else {
+            this.document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
         }
+    }
+
+    private removeEventListeners() {   
+        const elem: HTMLElement = this.elementRef.nativeElement;
+        elem.removeEventListener('mouseenter', this.show);
+        elem.removeEventListener('mouseleave', this.hide);
+        this.document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
     }
 }

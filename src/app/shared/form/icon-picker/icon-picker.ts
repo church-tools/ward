@@ -10,8 +10,7 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
         <app-menu-button type="subtle"
             class="icon-only"
             [items]="[]"
-            icon=""
-            [leaveTimeout]="3000">
+            icon="">
             <app-icon button-text [icon]="viewValue() ?? 'question_circle'" [filled]="filled()" class="{{color() + '-active'}}"/>
             <div menu-content class="column gap-4">
                 <div class="grid gap-2 columns-6 p-2">
