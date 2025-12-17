@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { markdownToQuillHtml, quillHtmlToMarkdown } from '../shared/form/rich-text/markdown-utils';
 import { RichTextComponent } from '../shared/form/rich-text/rich-text';
 import { PageComponent } from '../shared/page/page';
-import { COLOR_NAMES } from '../shared/utils/color-utils';
+import { PALETTE_COLORS } from '../shared/utils/color-utils';
 import { xcomputed } from '../shared/utils/signal-utils';
 
 @Component({
@@ -45,7 +45,7 @@ export class TestComponent extends PageComponent {
 
     protected readonly richTextContent = signal('Hier könnte Ihre Werbung stehen!');
 
-    protected readonly colorNames = COLOR_NAMES.slice(4);
+    protected readonly colorNames = PALETTE_COLORS;
 
     protected readonly markdownContent = xcomputed([this.richTextContent], content => quillHtmlToMarkdown(content));
     protected readonly htmlContent = xcomputed([this.markdownContent], content => markdownToQuillHtml(content));

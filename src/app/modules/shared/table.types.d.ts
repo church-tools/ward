@@ -1,4 +1,4 @@
-import { Database } from "../../../../database";
+import type { Database } from "../../../../database";
 import { IDBQueryBase } from "../../shared/utils/supa-sync/idb/idb-query-base";
 import { SupaSyncTable } from "../../shared/utils/supa-sync/supa-sync-table";
 import { SupaSyncTableInfo } from "../../shared/utils/supa-sync/supa-sync.types";

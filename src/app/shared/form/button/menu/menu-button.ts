@@ -27,6 +27,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     readonly items = input.required<MenuButtonItem[]>();
     readonly position = input<MenuPosition>('bottom');
     readonly alignment = input<MenuAlignment>('right');
+    readonly leaveTimeout = input<number>(500);
     
     protected readonly visible = signal(false);
     protected readonly style = xcomputed([this.position, this.alignment], (position, alignment) => {
@@ -74,7 +75,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     private setVisibilityFromMouse(show: boolean) {
         this.shouldBeVisible += show ? 1 : -1;
         if (this.timeout) clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => this.setVisibility(this.shouldBeVisible > 0), 500);
+        this.timeout = setTimeout(() => this.setVisibility(this.shouldBeVisible > 0), this.leaveTimeout());
     }
 
     private setVisibility(visible: boolean) {

@@ -1,27 +1,31 @@
 import { Component, input, model } from "@angular/core";
 import { Icon, IconComponent } from "../../icon/icon";
-import { COLOR_NAMES, ColorName } from "../../utils/color-utils";
+import { PALETTE_COLORS, PaletteColor } from "../../utils/color-utils";
 import MenuButtonComponent from "../button/menu/menu-button";
 import { getProviders, InputBaseComponent } from "../shared/input-base";
 
 @Component({
     selector: 'app-icon-picker',
     template: `
-        <app-menu-button type="subtle" [icon]="viewValue()" [items]="[]" class="icon-only">
-            <div>
-                @for (option of iconOptions(); track option) {
-                    <div class="icon-picker-option p-2 cursor-pointer hover-bg-light"
-                        [class.bg-light]="option === viewValue()"
-                        (click)="setViewValue(option); $event.stopPropagation();">
-                        <app-icon [icon]="option" [filled]="filled()" [class]="color() ? color() + '-active' : ''"/>
-                    </div>
-                }
-                @for (c of colors; track c) {
-                    <div class="icon-picker-option p-2 cursor-pointer hover-bg-light"
-                        (click)="color.set(c); $event.stopPropagation();">
-                        <span class="color-swatch" [class]="color + '-active'"></span>
-                    </div>
-                }
+        <app-menu-button type="subtle"
+            class="icon-only"
+            [items]="[]"
+            icon=""
+            [leaveTimeout]="3000">
+            <app-icon button-text [icon]="viewValue() ?? 'question_circle'" [filled]="filled()" class="{{color() + '-active'}}"/>
+            <div menu-content class="column gap-4">
+                <div class="grid gap-2 columns-6 p-2">
+                    @for (option of iconOptions(); track option) {
+                        <app-icon [icon]="option" [filled]="value() === option" class="cursor-pointer"
+                            (click)="setViewValue(option); $event.stopPropagation();"/>
+                    }
+                </div>
+                <div class="grid gap-2 columns-6 p-2">
+                    @for (c of colors; track c) {
+                        <app-icon icon="circle"  [filled]="color() === c" class="{{c}}-active cursor-pointer"
+                            (click)="color.set(c); $event.stopPropagation();"/>
+                    }
+                </div>
             </div>
         </app-menu-button>
     `,
@@ -30,9 +34,9 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
 })
 export class IconPickerComponent extends InputBaseComponent<Icon> {
 
-    readonly iconOptions = input.required<Icon[]>();
-    readonly color = model<ColorName>();
+    readonly iconOptions = input.required<readonly Icon[]>();
+    readonly color = model<PaletteColor | null>();
     readonly filled = input<boolean>(false);
 
-    protected readonly colors = COLOR_NAMES;
+    protected readonly colors = PALETTE_COLORS;
 }

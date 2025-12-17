@@ -1,4 +1,5 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
+import { DbConstants } from '../../../shared/db-constants';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
@@ -21,16 +22,19 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
                 @if (adminService.editMode()) {
-                    <div class="d-flex">
-                        <app-icon-picker class="ms--12" [iconOptions]="[]"/>
-                        <app-text-input [syncedRow]="syncedRow" column="name" [subtle]="true" textClass="h0"/>
+                    <div class="row full-width no-wrap">
+                        <app-icon-picker [iconOptions]="iconOptions" [filled]="true"
+                            [syncedRow]="syncedRow" column="shape"
+                            [color]="syncedRow.value()?.color" (colorChange)="syncedRow.write({ color: $event })"
+                            class="position-absolute ms--12 mt-3"/>
+                        <app-text-input [syncedRow]="syncedRow" column="name" [subtle]="true" textClass="h0" class="full-width"/>
                     </div>
                 } @else {
                     <span class="h0">
                         @let row = syncedRow.value();
                         @if (row && row.shape && windowService.isLarge()) {
                             <app-icon [icon]="row.shape" [filled]="true" size="xl"
-                                class="{{row.color}}-active ms--12"></app-icon>
+                                class="{{syncedRow.value()?.color}}-active ms--12"></app-icon>
                         }
                         {{title()}}
                     </span>
@@ -63,6 +67,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
 
     protected readonly sectionList = viewChild.required<RowCardListComponent<'task'>>('sectionList');
     
+    protected readonly iconOptions = DbConstants.public.Enums.shape;
     protected readonly activeTaskId = signal<number | null>(null);
     protected readonly tableName = 'agenda';
     protected readonly dragData = signal<Task.Row | null>(null);

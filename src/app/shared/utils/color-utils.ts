@@ -1,9 +1,12 @@
 
-export const COLOR_NAMES = [
+export const SEMANTIC_COLORS = [
     "accent",
     "success",
     "warning",
     "danger",
+] as const;
+
+export const PALETTE_COLORS = [
     "palevioletred",
     "red",
     "tomato",
@@ -30,4 +33,5 @@ export const COLOR_NAMES = [
     "deeppink",
 ] as const;
 
-export type ColorName = typeof COLOR_NAMES[number];
+export type PaletteColor = typeof PALETTE_COLORS[number];
+export type ColorName = typeof SEMANTIC_COLORS[number] | PaletteColor;
