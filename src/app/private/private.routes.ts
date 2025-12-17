@@ -1,5 +1,5 @@
-import { Routes } from "@angular/router";
 import { Icon } from "../shared/icon/icon";
+import { Session } from "../shared/service/supabase.service";
 import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
 import { PrivatePageComponent } from "./shared/private-page";
 
@@ -36,10 +36,17 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
         loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent)
     },
+    unitApproval: {
+        admin: true,
+        translateId: 'UNIT_APPROVAL', icon: 'checkmark_circle',
+        loadComponent: () => import('./unit-approval/unit-approval').then(m => m.UnitApprovalPageComponent)
+    }
 };
 
-export const privateRoutes: Routes = [{
-    path: '', 
-    loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
-    children: mapRouteObject(privateTabs),
-}];
+export async function getPrivateRoutes(session?: Session) {
+    return [{
+        path: '',
+        loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
+        children: mapRouteObject(privateTabs, session?.is_admin),
+    }];
+}

@@ -14,8 +14,24 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin: {
+        Row: {
+          id: number
+          user_id: string
+        }
+        Insert: {
+          id?: number
+          user_id: string
+        }
+        Update: {
+          id?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
       agenda: {
         Row: {
+          abbreviation: string
           color: Database["public"]["Enums"]["color"] | null
           deleted: boolean
           id: number
@@ -29,6 +45,7 @@ export type Database = {
           week_interval: number
         }
         Insert: {
+          abbreviation?: string
           color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id: number
@@ -42,6 +59,7 @@ export type Database = {
           week_interval?: number
         }
         Update: {
+          abbreviation?: string
           color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id?: number
@@ -688,6 +706,7 @@ export type Database = {
       }
       unit: {
         Row: {
+          approved: boolean
           created_by: string
           id: number
           name: string
@@ -695,6 +714,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          approved?: boolean
           created_by: string
           id?: number
           name: string
@@ -702,6 +722,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          approved?: boolean
           created_by?: string
           id?: number
           name?: string

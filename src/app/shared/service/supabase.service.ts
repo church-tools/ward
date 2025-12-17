@@ -11,6 +11,8 @@ type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
 export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
+export type Session = { user: User; unit: string, is_admin: boolean };
+
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
@@ -35,7 +37,7 @@ export class SupabaseService {
                 case 'TOKEN_REFRESHED':
                 {
                     this._user.set(session.user);
-                    const { unit } = this.getDataFromAccessToken(session.access_token);
+                    const { unit } = this.decodeAccessToken(session.access_token);
                     this.sync.init(session, `${environment.appId}-${unit}`);
                     break;
                 }
@@ -73,13 +75,19 @@ export class SupabaseService {
         return await this.client.auth.signOut();
     }
 
-    async getSession() {
+    async getSessionToken() {
         const { data, error } = await this.client.auth.getSession();
         if (error) throw error;
         return data.session;
     }
 
-    getDataFromAccessToken(token: string) {
+    async getSession(): Promise<Session | null> {
+        const token = await this.getSessionToken();
+        if (!token) return null;
+        return this.decodeAccessToken(token.access_token);
+    }
+
+    private decodeAccessToken(token: string) {
         const payload = token.split('.')[1];
         return JSON.parse(atob(payload));
     }

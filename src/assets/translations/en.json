@@ -5,6 +5,9 @@
   "ENABLE_EDIT_MODE": "Edit",
   "EDIT_MODE": "Edit Mode",
   "SIGN_OUT": "Sign Out",
+  "UNIT_APPROVAL_PAGE": {
+    "TITLE": "Unit Approval"
+  },
   "REGISTER": {
     "TITLE": "Create Account"
   },
@@ -30,7 +33,8 @@
     "MEETINGS": "Meetings",
     "MEMBERS": "Members",
     "CALLINGS": "Callings",
-    "CHURCH_SERVICE": "Service"
+    "CHURCH_SERVICE": "Service",
+    "UNIT_APPROVAL": "Unit Approval"
   },
   "VIEW": {
     "TASK": "Task",

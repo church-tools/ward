@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Session } from '@supabase/supabase-js';
+import { AppComponent } from '../../app.component';
 import { ProfileService } from '../../modules/profile/profile.service';
 import { UnitService } from '../../modules/unit/unit.service';
 import MenuButtonComponent, { MenuButtonActionItem, MenuButtonItem } from '../../shared/form/button/menu/menu-button';
@@ -15,7 +15,6 @@ import { AdminService } from '../shared/admin.service';
 import { BackButtonComponent } from "./back-button/back-button";
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
-import { AppComponent } from '../../app.component';
 
 @Component({
     selector: 'app-private-shell',
@@ -32,7 +31,6 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     protected readonly tabs = signal<NavBarTab[]>([]);
     protected readonly editMode = signal(false);
     private readonly supabase = inject(SupabaseService);
-    private readonly unitService = inject(UnitService);
     private readonly router = inject(Router);
 
     protected readonly additionalItems = xcomputed([this.profileService.own], profile => {
@@ -74,37 +72,22 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     constructor() {
         super();
         xeffect([this.editMode], editMode => this.adminService.editMode.set(editMode));
-        this.authenticate()
-        .then(async session => {
-            if (!session || this.windowService.currentRoute() != '/') return;
-            const startRoute = await this.getStartRoute(session);
+        if (this.windowService.currentRoute() != '/') return;
+        this.getStartRoute().then(startRoute => {
             this.router.navigate([startRoute]);
-        });
+        })
     }
     
     async ngOnInit() {
-        this.tabs.set(Object.entries(privateTabs).map(([path, { translateId, icon }]) =>
-            <NavBarTab>{ path, translateId, icon }));
-    }
-
-    private async authenticate() {
         const session = await this.supabase.getSession();
-        if (!session) {
-            this.router.navigate(['/login']);
-            return;
-        }
-        const unit = await this.unitService.getUnit();
-        if (!unit) {
-            this.router.navigate(['/setup']);
-            return;
-        }
-        return session;
+        this.tabs.set(Object.entries(privateTabs)
+            .filter(([_, { admin }]) => !admin || session?.is_admin)
+            .map(([path, { translateId, icon }]) => ({ path, translateId, icon })));
     }
 
-    private async getStartRoute(session: Session) {
-        const token = this.supabase.getDataFromAccessToken(session.access_token);
+    private async getStartRoute() {
         const [unit, agendas] = await Promise.all([
-            this.supabase.sync.from('unit').read(token.unit).get(),
+            (inject(UnitService)).getUnit(),
             this.supabase.sync.from('agenda').readAll().get(),
         ]);
         const now = Date.now();
