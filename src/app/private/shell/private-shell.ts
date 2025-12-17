@@ -58,11 +58,13 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     protected readonly languageItems: MenuButtonActionItem[] = ['de', 'en'].map(lang => ({
         img: `assets/img/flags/${lang}.svg`,
-        label: (function() { switch (lang) {
-            case 'de': return 'Deutsch';
-            case 'en': return 'English';
-            default: return lang;
-        }})(),
+        label: (() => {
+            switch (lang) {
+                case 'de': return 'Deutsch';
+                case 'en': return 'English';
+                default: return lang;
+            }
+        })(),
         action: () => {
             this.translateService.use(lang);
             AppComponent.saveLanguage(lang);

@@ -44,7 +44,6 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         return style;
     });
 
-    private shouldBeVisible = 0;
     private timeout: ReturnType<typeof setTimeout> | undefined;
 
     private readonly onDocumentPointerDown = (event: PointerEvent) => {
@@ -57,10 +56,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
 
     override ngOnDestroy() {
         super.ngOnDestroy();
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = undefined;
-        }
+        this.clearTimeout();
         this.removeEventListeners();
     }
 
@@ -69,10 +65,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     }
 
     protected toggle() {
-        if (this.timeout) {
-            clearTimeout(this.timeout);
-            this.timeout = undefined;
-        }
+        this.clearTimeout();
         this.setVisibility(!this.visible());
         if (this.visible()) {
             const elem: HTMLElement = this.elementRef.nativeElement;
@@ -87,20 +80,24 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         this.toggle();
     }
 
-    private show = () => this.setVisibilityFromMouse(true);
-    private hide = () => this.setVisibilityFromMouse(false);
+    private show = () => {
+        this.clearTimeout();
+        this.setVisibility(true);
+    };
 
-    private setVisibilityFromMouse(show: boolean) {
-        this.shouldBeVisible += show ? 1 : -1;
-        if (this.timeout) clearTimeout(this.timeout);
-        this.timeout = setTimeout(() => this.setVisibility(this.shouldBeVisible > 0), this.leaveTimeout());
-    }
+    private hide = () => {
+        this.clearTimeout();
+        this.timeout = setTimeout(() => {
+            this.timeout = undefined;
+            this.setVisibility(false);
+        }, this.leaveTimeout());
+    };
 
     private setVisibility(visible: boolean) {
         if (this.visible() === visible) return;
+        this.clearTimeout();
         this.visible.set(visible);
         if (!visible) {
-            this.shouldBeVisible = 0;
             this.removeEventListeners();
         } else {
             this.document.addEventListener('pointerdown', this.onDocumentPointerDown, true);
@@ -112,5 +109,11 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
         elem.removeEventListener('mouseenter', this.show);
         elem.removeEventListener('mouseleave', this.hide);
         this.document.removeEventListener('pointerdown', this.onDocumentPointerDown, true);
+    }
+
+    private clearTimeout() {
+        if (!this.timeout) return;
+        clearTimeout(this.timeout);
+        this.timeout = undefined;
     }
 }
