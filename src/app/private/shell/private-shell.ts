@@ -15,6 +15,7 @@ import { AdminService } from '../shared/admin.service';
 import { BackButtonComponent } from "./back-button/back-button";
 import { NavBarComponent, NavBarTab } from './nav-bar/nav-bar';
 import { OmniSearchComponent } from './omni-search/omni-search';
+import { AppComponent } from '../../app.component';
 
 @Component({
     selector: 'app-private-shell',
@@ -62,7 +63,10 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
             case 'en': return 'English';
             default: return lang;
         }})(),
-        action: () => this.translateService.use(lang)
+        action: () => {
+            this.translateService.use(lang);
+            AppComponent.saveLanguage(lang);
+        }
     }));
 
     constructor() {
