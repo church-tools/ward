@@ -5,6 +5,27 @@
   "ENABLE_EDIT_MODE": "Bearbeiten",
   "EDIT_MODE": "Bearbeitungsmodus",
   "SIGN_OUT": "Abmelden",
+  "REGISTER": {
+    "TITLE": "Konto erstellen"
+  },
+  "LOGIN": {
+    "TITLE": "Anmelden",
+    "EMAIL": "E-Mail",
+    "PASSWORD": "Passwort",
+    "ERROR_MSG": {
+      "INVALID_INPUT": "Bitte geben Sie eine gültige E-Mail und ein Passwort ein.",
+      "INVALID_CREDENTIALS": "Ungültige E-Mail oder ungültiges Passwort.",
+      "EMAIL_NOT_CONFIRMED": "Bitte bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden."
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Passwort vergessen"
+  },
+  "NOT_FOUND": {
+    "TITLE": "404 Nicht gefunden",
+    "MESSAGE": "Diese Seite existiert (noch?) nicht",
+    "GO_HOME": "Zur Startseite"
+  },
   "NAV_BAR_TAB": {
     "MEETINGS": "Sitzungen",
     "MEMBERS": "Mitglieder",
@@ -55,6 +76,9 @@
     "UPDATE_AVAILABLE": "Eine neue Version der Anwendung ist verfügbar. Möchten Sie jetzt aktualisieren?",
     "ERROR_REFRESH": "Die Anwendung ist auf einen Fehler gestoßen. Möchten Sie die Seite neu laden?"
   },
+  "ERROR": {
+    "FAILED": "Fehlgeschlagen"
+  },
   "HISTORY": {
     "CREATED_BY": "Erstellt von",
     "CREATED_AT": "am",
@@ -63,6 +87,7 @@
     "UPDATED_AT": "am",
     "FULL_UPDATED_AT": "Aktualisiert am"
   },
+  "OR": "oder",
   "B": "F",
   "I": "K",
   "U": "U",

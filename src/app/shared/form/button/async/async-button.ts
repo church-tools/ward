@@ -73,7 +73,7 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
             setTimeout(() => this.success.set(null), 3000);
         })
         .catch(err => {
-            this.errorMessage().setError("Fehlgeschlagen");
+            this.errorMessage().setError(typeof err === 'string' ? err : "ERROR.FAILED");
             console.error(err);
             this.inProgress.set(false);
             this.success.set(false);
@@ -84,5 +84,9 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
 
     execute() {
         this.press();
+    }
+
+    setError(message: string) {
+        this.errorMessage().setError(message);
     }
 }

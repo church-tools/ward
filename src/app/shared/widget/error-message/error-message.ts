@@ -1,15 +1,16 @@
 import { Component, signal, viewChild } from '@angular/core';
 import { IconComponent } from '../../icon/icon';
 import CollapseComponent from '../collapse/collapse';
+import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-error-message',
-    imports: [CollapseComponent, IconComponent],
+    imports: [TranslateModule, CollapseComponent, IconComponent],
     template: `
         <app-collapse>
             <div class="row no-wrap danger-text">
                 <app-icon icon="error_circle" [filled]="true" size="xs"/>
-                {{error()}}
+                {{ error() | translate }}
             </div>
         </app-collapse>
     `,

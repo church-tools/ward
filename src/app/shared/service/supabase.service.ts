@@ -52,7 +52,9 @@ export class SupabaseService {
     }
 
     async signIn(email: string, password: string) {
-        return await this.client.auth.signInWithPassword({ email, password });
+        const { error } = await this.client.auth.signInWithPassword({ email, password });
+        if (error) return { errorCode: error.code };
+        return {};
     }
 
     async signInWithOAuth(provider: 'google' | 'azure') {

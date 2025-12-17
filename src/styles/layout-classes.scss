@@ -1,4 +1,5 @@
 @use "layout" as *;
+@use "card";
 
 .position-relative { position: relative !important; }
 .position-absolute { position: absolute !important; }
@@ -175,10 +176,12 @@ ul {
     .full-#{$direction} { #{$direction}: 100% !important; }
     .three-quarter-#{$direction} { #{$direction}: 75%; }
     .half-#{$direction} { #{$direction}: 50%; }
+    .third-#{$direction} { #{$direction}: 33.3333%; }
+    .quarter-#{$direction} { #{$direction}: 25%; }
     .min-content-#{$direction} { #{$direction}: min-content; }
     .fit-content-#{$direction} {
-        #{$direction}: fit-content;
         #{$direction}: -moz-fit-content;
+        #{$direction}: fit-content;
     }
 }
 .fullscreen {
@@ -226,7 +229,24 @@ ul {
     width: 100%;
     &:not(.full-width) { max-width: $page-width; }
     &.narrow { max-width: $page-width-narrow; }
+    &.portrait { max-width: $page-width-portrait; }
     &.wide { max-width: $page-width-wide; }
+}
+
+.horizontal-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1rem 0;
+    width: 100%;
+    // color: card.$divider-color;
+    &::before,
+    &::after {
+        content: '';
+        flex: 1;
+        border-top: card.$divider;
+        opacity: 0.5;
+    }
 }
 
 dialog {

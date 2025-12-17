@@ -18,6 +18,7 @@ $canvas-height: calc(100vh - 3.5rem - 2 * $canvas-margin-y);
 
 $page-width: 800px;
 $page-width-narrow: 600px;
+$page-width-portrait: 400px;
 $page-width-wide: 1200px;
 
 @mixin larger-than($breakpoint) {

@@ -5,6 +5,27 @@
   "ENABLE_EDIT_MODE": "Edit",
   "EDIT_MODE": "Edit Mode",
   "SIGN_OUT": "Sign Out",
+  "REGISTER": {
+    "TITLE": "Create Account"
+  },
+  "LOGIN": {
+    "TITLE": "Login",
+    "EMAIL": "Email",
+    "PASSWORD": "Password",
+    "ERROR_MSG": {
+      "INVALID_INPUT": "Please provide a valid email and password.",
+      "INVALID_CREDENTIALS": "Invalid email or password.",
+      "EMAIL_NOT_CONFIRMED": "Please confirm your email before logging in."
+    }
+  },
+  "FORGOT_PASSWORD": {
+    "TITLE": "Forgot Password"
+  },
+  "NOT_FOUND": {
+    "TITLE": "404 Not Found",
+    "MESSAGE": "This Page does not exist (yet?)",
+    "GO_HOME": "Go back Home"
+  },
   "NAV_BAR_TAB": {
     "MEETINGS": "Meetings",
     "MEMBERS": "Members",
@@ -55,6 +76,9 @@
     "UPDATE_AVAILABLE": "A new version of the application is available. Would you like to update now?",
     "ERROR_REFRESH": "The application encountered an error. Would you like to refresh the page?"
   },
+  "ERROR": {
+    "FAILED": "Failed"
+  },
   "HISTORY": {
     "CREATED_BY": "Created by",
     "CREATED_AT": "at",
@@ -63,6 +87,7 @@
     "UPDATED_AT": "at",
     "FULL_UPDATED_AT": "Updated at"
   },
+  "OR": "or",
   "B": "B",
   "I": "I",
   "U": "U",

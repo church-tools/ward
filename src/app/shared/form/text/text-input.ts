@@ -11,7 +11,7 @@ import { xcomputed } from '../../utils/signal-utils';
         <label class="column">
             <app-input-label/>
             <div class="form-input">
-                <input #input [required]="true" type="text"
+                <input #input [required]="required()" [type]="type()"
                     [class]="textClass()"
                     [value]="viewValue() ?? ''" (input)="onInput($event)"
                     [disabled]="disabled()"
@@ -38,6 +38,7 @@ export class TextInputComponent extends InputBaseComponent<string> {
     readonly trim = input<boolean>(false);
     readonly copyable = input(false);
     readonly textClass = input<string | undefined>();
+    readonly type = input<'text' | 'email' | 'password'>('text');
 
     protected readonly copied = signal(false);
 

@@ -13,7 +13,7 @@ import ButtonComponent from '../../../shared/form/button/button';
     template: `
         <div class="column" [class.m-6-8]="adminService.editMode()">
             @if (adminService.editMode()) {
-                <app-button icon="dismiss" type="subtle" size="large"
+                <app-button icon="delete" type="subtle" size="large"
                     class="z-1 icon-only position-absolute right-1 top-1"
                     (onClick)="remove()"/>
             }

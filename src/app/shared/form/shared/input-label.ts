@@ -8,16 +8,25 @@ import { Icon, IconComponent } from '../../icon/icon';
     template: `
         @if (label()) {
             @if (icon()) { <app-icon [icon]="icon()!" [filled]="true" size="sm"/> }
-            <span class="label color-text">{{label()}}</span>
-            @if (required()) { <span class="required-indicator">*</span>}
+            <span class="label color-text">
+                {{label()}}
+                @if (required()) { <span class="required-indicator">*</span> }
+            </span>
         }
         @if (info()) { <app-tooltip>{{info()}}</app-tooltip> }
     `,
     styles: [`
         :host {
             display: flex;
+            align-items: center;
             max-width: 100%;
             gap: 0.25rem;
+        }
+        .required-indicator {
+            margin-left: 0.125rem;
+        }
+        app-tooltip {
+            margin-left: auto;
         }
         app-icon {
             margin-right: 0.0625rem;
