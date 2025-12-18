@@ -5,6 +5,7 @@ import { SelectComponent, SelectOption } from "../../shared/form/select/select";
 import { TextInputComponent } from "../../shared/form/text/text-input";
 import { PageComponent } from '../../shared/page/page';
 import { SupabaseService } from '../../shared/service/supabase.service';
+import { asyncComputed } from '../../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-setup-page',
@@ -14,12 +15,16 @@ import { SupabaseService } from '../../shared/service/supabase.service';
 })
 export class SetupPageComponent extends PageComponent {
 
-    private readonly supabaseService = inject(SupabaseService);
+    private readonly supabase = inject(SupabaseService);
 
     protected readonly unitName = model<string>('');
     protected readonly selectedUnit = model<number | null>(null);
 
-    protected readonly unitOptions = signal<SelectOption<number>[]>([{ value: 18, view: 'Gemeinde Hamburg', color: 'red' }, { value: 19, view: 'Gemeinde Test', color: 'blue' }]);
+    // protected readonly unitOptions = signal<SelectOption<number>[]>([{ value: 18, view: 'Gemeinde Hamburg', color: 'red' }, { value: 19, view: 'Gemeinde Test', color: 'blue' }]);
+    protected readonly unitOptions = asyncComputed<SelectOption<number>[]>([], async () => {
+        const { units } = await this.supabase.callEdgeFunction('list-units') as { units: { id: number, name: string }[] };
+        return units.map(({ id, name }) => ({ value: id, view: name }) as SelectOption<number>);
+    }, []);
 
     constructor() {
         super();
@@ -28,8 +33,8 @@ export class SetupPageComponent extends PageComponent {
     protected createUnit = async () => {
         const unitName = this.unitName();
         if (!unitName) return;
-        const session = await this.supabaseService.getSessionToken();
-        const data = await this.supabaseService.callEdgeFunction('create-unit', { name: unitName });
+        const session = await this.supabase.getSessionToken();
+        const data = await this.supabase.callEdgeFunction('create-unit', { name: unitName });
         const user = await this.assureProfileExists(data);
 
         // const { data: unit } = await this.supabaseService.client
@@ -51,16 +56,16 @@ export class SetupPageComponent extends PageComponent {
     }
 
     private async assureProfileExists(unit: { id: number }): Promise<Profile.Row> {
-        const session = await this.supabaseService.getSessionToken();
+        const session = await this.supabase.getSessionToken();
         const uid = session?.user.id;
         if (!uid) throw new Error('Login fehlgeschlagen');
-        const { data: existing } = await this.supabaseService.client
+        const { data: existing } = await this.supabase.client
             .from('profile')
             .select('*')
             .eq('uid', uid)
             .single();
         if (existing) return existing;
-        const { data: created } = await this.supabaseService.client
+        const { data: created } = await this.supabase.client
             .from('profile')
             .insert({ uid, unit: unit.id })
             .select('*')

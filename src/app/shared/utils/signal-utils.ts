@@ -69,62 +69,62 @@ export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     });
 }
 
-export function asyncComputed<T>(
+export function asyncComputed<T, Default = T>(
     dependencies: [],
     computation: () => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, Default = T>(
     dependencies: [Signal<D1>],
     computation: (value1: StrictUnwrap<Signal<D1>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5, D6>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9, Default = T>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => Promise<T>,
-    defaultValue?: T | null
-): AwaitableSignal<T | null>;
-export function asyncComputed<T>(
+    defaultValue?: T | Default
+): AwaitableSignal<T | Default>;
+export function asyncComputed<T, Default = T>(
     dependencies: (Signal<any> | undefined)[],
     computation: (...values: any[]) => Promise<T>,
-    defaultValue: T | null = null
-): AwaitableSignal<T | null> {
-    const s = signal<T | null>(defaultValue);
+    defaultValue: T | Default = null as any
+): AwaitableSignal<T | Default> {
+    const s = signal<T | Default>(defaultValue);
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;
     const initPromise = new Promise<Exclude<T, null>>(resolve => initialized = resolve);
     effect(() => {
@@ -135,7 +135,7 @@ export function asyncComputed<T>(
                 initialized?.(result as Exclude<T, null>);
         });
     });
-    const rs = s.asReadonly() as AwaitableSignal<T | null>;
+    const rs = s.asReadonly() as AwaitableSignal<T | Default>;
     rs.asPromise = () => initPromise;
     return rs;
 }

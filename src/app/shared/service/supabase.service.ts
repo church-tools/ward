@@ -13,7 +13,7 @@ export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
 export type Session = { user: User; unit: string, is_admin: boolean };
 
-export type EdgeFunction = 'create-unit' | 'fetch-unapproved-units';
+export type EdgeFunction = 'list-units' | 'create-unit' | 'fetch-unapproved-units';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
