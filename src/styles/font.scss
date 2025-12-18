@@ -26,6 +26,7 @@ $color-muted: light-dark(#bbc0c4, #6c757d);
 $color-inverse: light-dark(white, #242424);
 $color-inverse-alpha-10: light-dark(rgba(white, 0.1), rgba(#242424, 0.1));
 $color-inverse-alpha-20: light-dark(rgba(white, 0.2), rgba(#242424, 0.2));
+$color-inverse-alpha-80: light-dark(rgba(white, 0.8), rgba(#242424, 0.8));
 
 @mixin small {
     font-size: $size-sm;

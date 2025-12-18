@@ -29,14 +29,7 @@ export class SetupPageComponent extends PageComponent {
         const unitName = this.unitName();
         if (!unitName) return;
         const session = await this.supabaseService.getSessionToken();
-        const functions = this.supabaseService.client.functions;
-        functions.setAuth(session?.access_token || '');
-        const { data, error } = await functions
-            .invoke('create-unit', {
-                method: 'POST',
-                body: { name: unitName },
-            });
-        if (error) throw error;
+        const data = await this.supabaseService.callEdgeFunction('create-unit', { name: unitName });
         const user = await this.assureProfileExists(data);
 
         // const { data: unit } = await this.supabaseService.client

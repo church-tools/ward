@@ -1,0 +1,11 @@
+{
+  "/supabase/functions/v1": {
+    "target": "https://bfozbjjsbwakbucgdpao.supabase.co",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "info",
+    "pathRewrite": {
+      "^/supabase": ""
+    }
+  }
+}

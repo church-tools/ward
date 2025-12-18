@@ -21,8 +21,13 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
                 </div>
                 <div class="grid gap-2 columns-6 p-2">
                     @for (c of colors; track c) {
-                        <app-icon icon="circle"  [filled]="color() === c" class="{{c}}-active cursor-pointer"
-                            (click)="color.set(c); $event.stopPropagation();"/>
+                        <div class="position-relative display-flex center-content items-center">
+                            <app-icon icon="circle"  [filled]="true" class="{{c}}-active cursor-pointer"
+                                (click)="color.set(c); $event.stopPropagation();"/>
+                            @if (color() === c) {
+                                <div class="active-dot"></div>
+                            }
+                        </div>
                     }
                 </div>
             </div>
@@ -30,6 +35,7 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
     `,
     providers: getProviders(() => IconPickerComponent),
     imports: [MenuButtonComponent, IconComponent],
+    styleUrl: './icon-picker.scss',
 })
 export class IconPickerComponent extends InputBaseComponent<Icon> {
 

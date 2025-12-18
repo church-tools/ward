@@ -1,5 +1,5 @@
+import { AppComponent } from "../app.component";
 import { Icon } from "../shared/icon/icon";
-import { Session } from "../shared/service/supabase.service";
 import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
 import { PrivatePageComponent } from "./shared/private-page";
 
@@ -43,7 +43,8 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     }
 };
 
-export async function getPrivateRoutes(session?: Session) {
+export async function getPrivateRoutes() {
+    const session = await AppComponent.supabase?.getSession();
     return [{
         path: '',
         loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
