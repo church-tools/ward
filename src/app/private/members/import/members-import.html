@@ -42,7 +42,7 @@
                     </div>
                 }
             </div>
-            {{ count() }}
+            <div class="ms-auto mt--2 subtle-text">{{ count() }} {{ 'MEMBERS_IMPORT.SELECTED' | translate }}</div>
             <div class="row center-content">
                 <app-async-button icon="save" type="primary" [onClick]="save">
                     {{ 'MEMBERS_IMPORT.IMPORT_BUTTON' | translate }}

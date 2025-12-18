@@ -68,7 +68,8 @@
     "TITLE": "Import Members from LCR",
     "INSTRUCTIONS_1": "Print the member directory from LCR as a PDF file and upload it here.",
     "UPLOAD_BUTTON": "Upload PDF",
-    "IMPORT_BUTTON": "Import Members"
+    "IMPORT_BUTTON": "Import Members",
+    "SELECTED": "selected"
   },
   "SELECT_ALL": "Select All",
   "BROTHER_SHORT": "Bro.",
