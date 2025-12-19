@@ -39,6 +39,7 @@
     .tab-title {
         font-size: 7.5pt;
         line-height: 13pt;
+        white-space: nowrap;
     }
     &:hover {
         background-color: color.$navbar-tab-hover-background;

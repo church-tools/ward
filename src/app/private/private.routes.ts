@@ -6,6 +6,7 @@ import { PrivatePageComponent } from "./shared/private-page";
 export type PrivateTab = RouteObject<PrivatePageComponent> & {
     translateId: string;
     icon: Icon;
+    onBottom?: boolean;
 };
 
 export const privateTabs: { [path: string]: PrivateTab } = {
@@ -36,10 +37,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
         loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent)
     },
-    unitApproval: {
-        admin: true,
-        translateId: 'UNIT_APPROVAL', icon: 'checkmark_circle',
-        loadComponent: () => import('./unit-approval/unit-approval').then(m => m.UnitApprovalPageComponent)
+    newUnits: {
+        admin: true, onBottom: true,
+        translateId: 'NEW_UNITS', icon: 'checkmark_circle',
+        loadComponent: () => import('./new-units/new-units').then(m => m.NewUnitsPageComponent)
     }
 };
 

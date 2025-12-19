@@ -172,3 +172,7 @@ hr {
     opacity: 1;
     border-top: $divider;
 }
+
+.card-appear {
+    @include card-appear;
+}

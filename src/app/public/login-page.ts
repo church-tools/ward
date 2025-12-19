@@ -10,8 +10,8 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
 @Component({
     selector: 'app-login-page',
     template: `
-        <span class="display-text">{{ 'LOGIN.TITLE' | translate }}</span>
         <div class="column gap-8 items-center">
+            <span class="display-text">{{ 'LOGIN.TITLE' | translate }}</span>
             <app-credentials #credentials class="full-width"/>
             <app-async-button type="primary" size="large" class="third-width"
                 [onClick]="loginWithCredentials">

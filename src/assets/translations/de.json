@@ -5,8 +5,8 @@
   "ENABLE_EDIT_MODE": "Bearbeiten",
   "EDIT_MODE": "Bearbeitungsmodus",
   "SIGN_OUT": "Abmelden",
-  "UNIT_APPROVAL_PAGE": {
-    "TITLE": "Einheitsgenehmigung"
+  "NEW_UNITS_PAGE": {
+    "TITLE": "Neue Einheiten"
   },
   "REGISTER": {
     "TITLE": "Konto erstellen"
@@ -34,7 +34,7 @@
     "MEMBERS": "Mitglieder",
     "CALLINGS": "Berufungen",
     "CHURCH_SERVICE": "Gottesdienst",
-    "UNIT_APPROVAL": "Einheitsgen."
+    "NEW_UNITS": "Neue Einheit."
   },
   "VIEW": {
     "TASK": "Aufgabe",
