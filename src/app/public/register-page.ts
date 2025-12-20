@@ -8,7 +8,7 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { WindowService } from '../shared/service/window.service';
-import { ensurePreconnect, ensureScript } from '../shared/utils/dom-utils';
+import { ensureScript } from '../shared/utils/dom-utils';
 import { CredentialsComponent } from './shared/credentials';
 
 @Component({
@@ -68,13 +68,11 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     private readonly credentials = viewChild.required(CredentialsComponent);
     private readonly document = inject(DOCUMENT);
 
-    private cleanupCloudflarePreconnect?: () => void;
     private cleanupCloudflareTurnstileScript?: () => void;
 
     private turnstileToken: string | null = null;
 
     public ngOnInit(): void {
-        this.cleanupCloudflarePreconnect = ensurePreconnect(this.document, 'https://challenges.cloudflare.com').cleanup;
         this.cleanupCloudflareTurnstileScript = ensureScript(
             this.document,
             'https://challenges.cloudflare.com/turnstile/v0/api.js',
@@ -84,7 +82,6 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     }
 
     public ngOnDestroy(): void {
-        this.cleanupCloudflarePreconnect?.();
         this.cleanupCloudflareTurnstileScript?.();
         delete (this.document as any)['onCaptchaSolved'];
     }
@@ -92,10 +89,10 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     protected readonly registerWithCredentials = async () => {
         if (!this.credentials().valid())
             throw 'ERROR.FAILED';
-
+        if (!this.turnstileToken)
+            throw 'REGISTER.ERROR_MSG.CAPTCHA_REQUIRED';
         const { email, password } = this.credentials().getCredentials();
-        const { data, error } = await this.supabase.signUp(email, password, this.turnstileToken ?? undefined);
-
+        const { data, error } = await this.supabase.signUp(email, password, this.turnstileToken);
         if (error) {
             switch (error.code) {
                 case 'user_already_exists':

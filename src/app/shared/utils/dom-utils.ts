@@ -35,16 +35,6 @@ export type EnsureHeadElementResult<T extends HTMLElement> = {
     cleanup: () => void;
 };
 
-export function ensurePreconnect(document: Document, href: string): EnsureHeadElementResult<HTMLLinkElement> {
-    const selector = `link[rel="preconnect"][href="${href}"]`;
-    return ensureHeadElement(document, selector, () => {
-        const link = document.createElement('link');
-        link.rel = 'preconnect';
-        link.href = href;
-        return link;
-    });
-}
-
 export function ensureScript(document: Document, src: string, options?: { async?: boolean; defer?: boolean }): EnsureHeadElementResult<HTMLScriptElement> {
     const selector = `script[src="${src}"]`;
     return ensureHeadElement(document, selector, () => {

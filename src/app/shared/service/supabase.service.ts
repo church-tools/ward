@@ -53,11 +53,11 @@ export class SupabaseService {
         });
     }
 
-    async signUp(email: string, password: string, captchaToken?: string) {
+    async signUp(email: string, password: string, captchaToken: string) {
         return await this.client.auth.signUp({
             email,
             password,
-            options: captchaToken ? { captchaToken } : undefined,
+            options: { captchaToken },
         });
     }
 

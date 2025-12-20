@@ -31,6 +31,7 @@
     "ERROR_MSG": {
       "INVALID_INPUT": "Bitte geben Sie eine gültige E-Mail und ein Passwort ein.",
       "INVALID_EMAIL": "Bitte geben Sie eine gültige E-Mail-Adresse ein.",
+      "CAPTCHA_REQUIRED": "Bitte schließen Sie die CAPTCHA-Herausforderung ab.",
       "USER_ALREADY_EXISTS": "Es existiert bereits ein Konto mit dieser E-Mail-Adresse.",
       "SIGNUP_DISABLED": "Die Registrierung ist derzeit deaktiviert.",
       "EMAIL_CONFIRMATION_REQUIRED": "Bitte überprüfen Sie Ihren Posteingang und bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden."
