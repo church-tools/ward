@@ -21,7 +21,7 @@ import { CredentialsComponent } from './shared/credentials';
                 data-sitekey="0x4AAAAAACHykwNwn2RY_xJa"
                 [attr.data-theme]="windowService.darkColorScheme() ? 'dark' : 'light'"
                 data-size="normal"
-                data-callback="onSuccess">
+                data-callback="onCaptchaSolved">
             </div>
             <app-async-button type="primary" size="large" class="half-width"
                 [onClick]="registerWithCredentials">
@@ -54,6 +54,9 @@ import { CredentialsComponent } from './shared/credentials';
             width: 64px;
             height: 16px;
         }
+        .cf-turnstile {
+            min-height: 69.5px;
+        }
     `],
     host: { class: 'portrait' },
 })
@@ -68,6 +71,8 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     private cleanupCloudflarePreconnect?: () => void;
     private cleanupCloudflareTurnstileScript?: () => void;
 
+    private turnstileToken: string | null = null;
+
     public ngOnInit(): void {
         this.cleanupCloudflarePreconnect = ensurePreconnect(this.document, 'https://challenges.cloudflare.com').cleanup;
         this.cleanupCloudflareTurnstileScript = ensureScript(
@@ -75,11 +80,13 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
             'https://challenges.cloudflare.com/turnstile/v0/api.js',
             { async: true, defer: true },
         ).cleanup;
+        (this.document as any)['onCaptchaSolved'] = (token: string) => { this.turnstileToken = token; };
     }
 
     public ngOnDestroy(): void {
         this.cleanupCloudflarePreconnect?.();
         this.cleanupCloudflareTurnstileScript?.();
+        delete (this.document as any)['onCaptchaSolved'];
     }
 
     protected readonly registerWithCredentials = async () => {
@@ -87,7 +94,7 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
             throw 'ERROR.FAILED';
 
         const { email, password } = this.credentials().getCredentials();
-        const { data, error } = await this.supabase.signUp(email, password);
+        const { data, error } = await this.supabase.signUp(email, password, this.turnstileToken ?? undefined);
 
         if (error) {
             switch (error.code) {
