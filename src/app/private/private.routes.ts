@@ -33,11 +33,11 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         translateId: 'CALLINGS', icon: 'briefcase',
         loadComponent: () => import('./callings-page').then(m => m.CallingsPageComponent)
     },
-    churchService: {
+    'church-service': {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
         loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent)
     },
-    newUnits: {
+    'new-units': {
         admin: true, onBottom: true,
         translateId: 'NEW_UNITS', icon: 'checkmark_circle',
         loadComponent: () => import('./new-units/new-units').then(m => m.NewUnitsPageComponent)

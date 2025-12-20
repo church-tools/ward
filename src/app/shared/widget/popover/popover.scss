@@ -4,19 +4,19 @@
 
 dialog {
     margin: auto;
-    transition: opacity animation.$duration animation.$ease-out,
-        transform animation.$duration animation.$ease-out;
+    transition: opacity animation.$duration-sm animation.$ease-out,
+        transform animation.$duration-sm animation.$ease-out;
     opacity: 1;
-    transform: scale(1) translateY(0);
+    transform: scale(1);
     @include shadow.box(32);
 
     @starting-style {
         opacity: 0;
-        transform: scale(0.975) translateY(animation.$page-up-slide-distance);
+        transform: scale(1.1);
     }
     
     &::backdrop {
-        transition: opacity animation.$duration animation.$ease-out;
+        transition: opacity animation.$duration-sm animation.$ease-out;
         background-color: rgba(0, 0, 0, 0.25);
         -webkit-backdrop-filter: blur(4px) saturate(150%);
         backdrop-filter: blur(4px) saturate(150%);
@@ -31,7 +31,7 @@ dialog {
         transition: opacity animation.$duration-smaller ease,
             transform animation.$duration-sm ease;
         opacity: 0;
-        transform: scale(0.95) translateY(calc(animation.$page-up-slide-distance / 2));
+        transform: scale(1.1);
 
         &::backdrop {
             transition: opacity animation.$duration-sm ease;

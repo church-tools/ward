@@ -1,9 +1,10 @@
 import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
 import { copyToClipboard } from '../../utils/clipboard-utils';
+import { xcomputed } from '../../utils/signal-utils';
+import ErrorMessageComponent from '../../widget/error-message/error-message';
 import ButtonComponent from "../button/button";
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
-import { xcomputed } from '../../utils/signal-utils';
 
 @Component({
     selector: 'app-text-input',
@@ -24,10 +25,11 @@ import { xcomputed } from '../../utils/signal-utils';
                         class="icon-only input-btn" (onClick)="copy()"/>
                 }
             </div>
+            <app-error-message/>
         </label>
     `,
     providers: getProviders(() => TextInputComponent),
-    imports: [InputLabelComponent, ButtonComponent]
+    imports: [InputLabelComponent, ButtonComponent, ErrorMessageComponent]
 })
 export class TextInputComponent extends InputBaseComponent<string> {
     

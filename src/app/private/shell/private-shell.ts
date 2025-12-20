@@ -93,7 +93,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         const now = Date.now();
         const sacramentServiceStart = blockInWeekToTime(unit!.sacrament_service_time).getTime();
         if (sacramentServiceStart <= now && now <= sacramentServiceStart + HOUR) {
-            return '/churchService';
+            return '/church-service';
         }
         for (const agenda of agendas) {
             const startTime = blockInWeekToTime(agenda.start_time).getTime();

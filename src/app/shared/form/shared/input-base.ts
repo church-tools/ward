@@ -1,4 +1,5 @@
 import { Component, ForwardRefFn, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
+import { ValidationError } from "@angular/forms/signals";
 import { Icon } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
 import { xeffect } from "../../utils/signal-utils";
@@ -40,6 +41,8 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
     readonly value = model<TOut | null>(null);
     readonly disabled = model(false);
     readonly touched = model(false);
+    readonly dirty = input(false);
+    readonly errors = model<ValidationError[]>([]);
     
     readonly debounceTime: number | undefined;
 
@@ -59,6 +62,10 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
             if (this.suppressModelSync)
                 return;
             this.updateViewFromModel(modelValue);
+        });
+        xeffect([this.errorView, this.errors, this.touched, this.disabled], (errorView, errors, touched, disabled) => {
+            if (!errorView || disabled) return;
+            errorView.setError(touched ? (errors[0]?.message ?? null) : null);
         });
     }
 

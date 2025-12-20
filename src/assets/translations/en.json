@@ -8,9 +8,6 @@
   "NEW_UNITS_PAGE": {
     "TITLE": "New Units"
   },
-  "REGISTER": {
-    "TITLE": "Create Account"
-  },
   "LOGIN": {
     "TITLE": "Login",
     "EMAIL": "Email",
@@ -21,8 +18,30 @@
       "EMAIL_NOT_CONFIRMED": "Please confirm your email before logging in."
     }
   },
+  "CREDENTIALS": {
+    "ERROR_MSG": {
+      "EMAIL_REQUIRED": "Please enter an email address.",
+      "INVALID_EMAIL": "Please provide a valid email address.",
+      "PASSWORD_REQUIRED": "Please enter a password.",
+      "PASSWORD_REQUIREMENTS": "Password must be at least 8 characters and include a lowercase letter, an uppercase letter, a number, and a symbol."
+    }
+  },
+  "REGISTER": {
+    "TITLE": "Create Account",
+    "ERROR_MSG": {
+      "INVALID_INPUT": "Please provide a valid email and password.",
+      "INVALID_EMAIL": "Please provide a valid email address.",
+      "USER_ALREADY_EXISTS": "An account with this email already exists.",
+      "SIGNUP_DISABLED": "Account creation is currently disabled.",
+      "EMAIL_CONFIRMATION_REQUIRED": "Please check your inbox and confirm your email before logging in."
+    }
+  },
   "FORGOT_PASSWORD": {
     "TITLE": "Forgot Password"
+  },
+  "CONFIRM_EMAIL": {
+    "TITLE": "Confirm Email",
+    "MESSAGE": "Please check your inbox and confirm your email address."
   },
   "NOT_FOUND": {
     "TITLE": "404 Not Found",
