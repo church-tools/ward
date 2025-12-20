@@ -8,7 +8,7 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { WindowService } from '../shared/service/window.service';
-import { ensureScript } from '../shared/utils/dom-utils';
+import { attachScript } from '../shared/utils/dom-utils';
 import { CredentialsComponent } from './shared/credentials';
 
 @Component({
@@ -68,21 +68,14 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     private readonly credentials = viewChild.required(CredentialsComponent);
     private readonly document = inject(DOCUMENT);
 
-    private cleanupCloudflareTurnstileScript?: () => void;
-
     private turnstileToken: string | null = null;
 
     public ngOnInit(): void {
-        this.cleanupCloudflareTurnstileScript = ensureScript(
-            this.document,
-            'https://challenges.cloudflare.com/turnstile/v0/api.js',
-            { async: true, defer: true },
-        ).cleanup;
+        attachScript(this.document, 'https://challenges.cloudflare.com/turnstile/v0/api.js', { async: true, defer: true });
         (this.document as any)['onCaptchaSolved'] = (token: string) => { this.turnstileToken = token; };
     }
 
     public ngOnDestroy(): void {
-        this.cleanupCloudflareTurnstileScript?.();
         delete (this.document as any)['onCaptchaSolved'];
     }
 

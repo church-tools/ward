@@ -1,6 +1,5 @@
 import { wait } from "./flow-control-utils";
 
-
 export function getChildInputElement(element: HTMLElement | null): HTMLInputElement | null {
     if (!element) return null;
     const input = element.querySelector('input, textarea, select');
@@ -29,28 +28,12 @@ export async function transitionStyle(element: HTMLElement,
             (element.style as any)[prop] = '';
 }
 
-export type EnsureHeadElementResult<T extends HTMLElement> = {
-    element: T;
-    created: boolean;
-    cleanup: () => void;
-};
-
-export function ensureScript(document: Document, src: string, options?: { async?: boolean; defer?: boolean }): EnsureHeadElementResult<HTMLScriptElement> {
-    const selector = `script[src="${src}"]`;
-    return ensureHeadElement(document, selector, () => {
-        const script = document.createElement('script');
-        script.src = src;
-        script.async = options?.async ?? false;
-        script.defer = options?.defer ?? false;
-        return script;
-    });
-}
-
-function ensureHeadElement<T extends HTMLElement>(document: Document, selector: string, create: () => T): EnsureHeadElementResult<T> {
-    const existing = document.head.querySelector(selector);
-    if (existing instanceof HTMLElement)
-        return { element: existing as T, created: false, cleanup: () => { } };
-    const element = create();
-    document.head.appendChild(element);
-    return { element, created: true, cleanup: () => element.remove() };
+export function attachScript(document: Document, src: string, options?: { async?: boolean; defer?: boolean }) {
+    const existing = document.querySelector(`script[src="${src}"]`);
+    if (existing) return;
+    const script = document.createElement('script');
+    script.src = src;
+    script.async = options?.async ?? false;
+    script.defer = options?.defer ?? false;
+    document.head.appendChild(script);
 }
