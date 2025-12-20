@@ -1,4 +1,5 @@
-import { Component, inject, viewChild } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../shared/form/button/async/async-button';
@@ -6,6 +7,8 @@ import ButtonComponent from "../shared/form/button/button";
 import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
+import { WindowService } from '../shared/service/window.service';
+import { ensurePreconnect, ensureScript } from '../shared/utils/dom-utils';
 import { CredentialsComponent } from './shared/credentials';
 
 @Component({
@@ -14,6 +17,12 @@ import { CredentialsComponent } from './shared/credentials';
         <div class="column gap-8 items-center">
             <span class="display-text">{{ 'REGISTER.TITLE' | translate }}</span>
             <app-credentials #credentials class="full-width"/>
+            <div class="cf-turnstile"
+                data-sitekey="0x4AAAAAACHykwNwn2RY_xJa"
+                [attr.data-theme]="windowService.darkColorScheme() ? 'dark' : 'light'"
+                data-size="normal"
+                data-callback="onSuccess">
+            </div>
             <app-async-button type="primary" size="large" class="half-width"
                 [onClick]="registerWithCredentials">
                 {{ 'REGISTER.TITLE' | translate }}
@@ -48,18 +57,37 @@ import { CredentialsComponent } from './shared/credentials';
     `],
     host: { class: 'portrait' },
 })
-export class RegisterPageComponent extends PageComponent {
+export class RegisterPageComponent extends PageComponent implements OnInit, OnDestroy {
 
-    private readonly supabaseService = inject(SupabaseService);
+    protected readonly windowService = inject(WindowService);
+    private readonly supabase = inject(SupabaseService);
     private readonly router = inject(Router);
     private readonly credentials = viewChild.required(CredentialsComponent);
+    private readonly document = inject(DOCUMENT);
+
+    private cleanupCloudflarePreconnect?: () => void;
+    private cleanupCloudflareTurnstileScript?: () => void;
+
+    public ngOnInit(): void {
+        this.cleanupCloudflarePreconnect = ensurePreconnect(this.document, 'https://challenges.cloudflare.com').cleanup;
+        this.cleanupCloudflareTurnstileScript = ensureScript(
+            this.document,
+            'https://challenges.cloudflare.com/turnstile/v0/api.js',
+            { async: true, defer: true },
+        ).cleanup;
+    }
+
+    public ngOnDestroy(): void {
+        this.cleanupCloudflarePreconnect?.();
+        this.cleanupCloudflareTurnstileScript?.();
+    }
 
     protected readonly registerWithCredentials = async () => {
         if (!this.credentials().valid())
             throw 'ERROR.FAILED';
 
         const { email, password } = this.credentials().getCredentials();
-        const { data, error } = await this.supabaseService.signUp(email, password);
+        const { data, error } = await this.supabase.signUp(email, password);
 
         if (error) {
             switch (error.code) {
@@ -79,6 +107,6 @@ export class RegisterPageComponent extends PageComponent {
     };
 
     protected loginWithProvider(provider: 'google' | 'azure') {
-        this.supabaseService.signInWithOAuth(provider);
+        this.supabase.signInWithOAuth(provider);
     }
 }

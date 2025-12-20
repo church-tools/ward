@@ -28,3 +28,39 @@ export async function transitionStyle(element: HTMLElement,
         for (const prop in to)
             (element.style as any)[prop] = '';
 }
+
+export type EnsureHeadElementResult<T extends HTMLElement> = {
+    element: T;
+    created: boolean;
+    cleanup: () => void;
+};
+
+export function ensurePreconnect(document: Document, href: string): EnsureHeadElementResult<HTMLLinkElement> {
+    const selector = `link[rel="preconnect"][href="${href}"]`;
+    return ensureHeadElement(document, selector, () => {
+        const link = document.createElement('link');
+        link.rel = 'preconnect';
+        link.href = href;
+        return link;
+    });
+}
+
+export function ensureScript(document: Document, src: string, options?: { async?: boolean; defer?: boolean }): EnsureHeadElementResult<HTMLScriptElement> {
+    const selector = `script[src="${src}"]`;
+    return ensureHeadElement(document, selector, () => {
+        const script = document.createElement('script');
+        script.src = src;
+        script.async = options?.async ?? false;
+        script.defer = options?.defer ?? false;
+        return script;
+    });
+}
+
+function ensureHeadElement<T extends HTMLElement>(document: Document, selector: string, create: () => T): EnsureHeadElementResult<T> {
+    const existing = document.head.querySelector(selector);
+    if (existing instanceof HTMLElement)
+        return { element: existing as T, created: false, cleanup: () => { } };
+    const element = create();
+    document.head.appendChild(element);
+    return { element, created: true, cleanup: () => element.remove() };
+}
