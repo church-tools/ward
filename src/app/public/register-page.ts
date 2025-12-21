@@ -71,12 +71,12 @@ export class RegisterPageComponent extends PageComponent implements OnInit, OnDe
     private turnstileToken: string | null = null;
 
     public ngOnInit(): void {
+        (this.document.defaultView as any)['onCaptchaSolved'] = (token: string) => { this.turnstileToken = token; };
         attachScript(this.document, 'https://challenges.cloudflare.com/turnstile/v0/api.js', { async: true, defer: true });
-        (this.document as any)['onCaptchaSolved'] = (token: string) => { this.turnstileToken = token; };
     }
 
     public ngOnDestroy(): void {
-        delete (this.document as any)['onCaptchaSolved'];
+        delete (this.document.defaultView as any)['onCaptchaSolved'];
     }
 
     protected readonly registerWithCredentials = async () => {
