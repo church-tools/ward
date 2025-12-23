@@ -26,10 +26,6 @@ export class SetupPageComponent extends PageComponent {
         return units.map(({ id, name }) => ({ value: id, view: name }) as SelectOption<number>);
     }, []);
 
-    constructor() {
-        super();
-    }
-
     protected createUnit = async () => {
         const unitName = this.unitName();
         if (!unitName) return;

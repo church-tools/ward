@@ -1,4 +1,10 @@
 {
+  "rewrites": [
+    {
+      "source": "/supabase/functions/v1/(.*)",
+      "destination": "https://bfozbjjsbwakbucgdpao.supabase.co/functions/v1/$1"
+    }
+  ],
   "headers": [
     {
       "source": "/assets/fonts/(.*)",

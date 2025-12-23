@@ -1,11 +1,12 @@
 import { Component, inject, viewChild } from '@angular/core';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../shared/form/button/async/async-button';
 import ButtonComponent from "../shared/form/button/button";
+import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { CredentialsComponent } from './shared/credentials';
-import LinkButtonComponent from '../shared/form/button/link/link-button';
 
 @Component({
     selector: 'app-login-page',
@@ -49,22 +50,31 @@ import LinkButtonComponent from '../shared/form/button/link/link-button';
 })
 export class LoginPageComponent extends PageComponent {
 
-    private readonly supabaseService = inject(SupabaseService);
+    private readonly router = inject(Router);
+    private readonly supabase = inject(SupabaseService);
     private readonly credentials = viewChild.required(CredentialsComponent);
 
     protected readonly loginWithCredentials = async () => {
-        if (!this.credentials().valid()) {
+        if (!this.credentials().valid())
             throw 'LOGIN.ERROR_MSG.INVALID_INPUT';
-        }
         const { email, password } = this.credentials().getCredentials();
-        const { errorCode } = await this.supabaseService.signIn(email, password);
-        switch (errorCode) {
-            case 'invalid_credentials': throw 'LOGIN.ERROR_MSG.INVALID_CREDENTIALS';
-            case 'email_not_confirmed': throw 'LOGIN.ERROR_MSG.EMAIL_NOT_CONFIRMED';
-        };
+        const { session, error } = await this.supabase.callEdgeFunction('login-with-password', { email, password });
+        if (error) {
+            console.error('Login failed:', error.message);
+            switch (error.code) {
+                case 'invalid_credentials': throw 'LOGIN.ERROR_MSG.INVALID_CREDENTIALS';
+                case 'email_not_confirmed': throw 'LOGIN.ERROR_MSG.EMAIL_NOT_CONFIRMED';
+                default: throw 'ERROR.FAILED';
+            };
+        }
+        if (!session) {
+            throw 'LOGIN.ERROR_MSG.INVALID_CREDENTIALS';
+        }
+        await this.supabase.client.auth.setSession(session);
+        await this.router.navigate(['/']);
     };
 
     protected loginWithProvider(provider: 'google' | 'azure') {
-        this.supabaseService.signInWithOAuth(provider);
+        this.supabase.signInWithOAuth(provider);
     }
 }

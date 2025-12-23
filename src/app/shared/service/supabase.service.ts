@@ -13,7 +13,7 @@ export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
 export type Session = { user: User; unit: string, is_admin: boolean };
 
-export type EdgeFunction = 'list-units' | 'create-unit' | 'fetch-unapproved-units'
+export type EdgeFunction = 'login-with-password' | 'list-units' | 'create-unit' | 'fetch-unapproved-units'
     | 'set-unit-approved';
 
 @Injectable({ providedIn: 'root' })
@@ -61,12 +61,6 @@ export class SupabaseService {
         });
     }
 
-    async signIn(email: string, password: string) {
-        const { error } = await this.client.auth.signInWithPassword({ email, password });
-        if (error) return { errorCode: error.code };
-        return {};
-    }
-
     async signInWithOAuth(provider: 'google' | 'azure') {
         const { data, error } = await this.client.auth.signInWithOAuth({
             provider,
@@ -96,23 +90,19 @@ export class SupabaseService {
     }
 
     async callEdgeFunction(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
-        if (!environment.production)
-            return await this.callEdgeFunctionViaDevProxy(fn, body);
-        const { data, error, response } = await this.client.functions.invoke(fn, { method: 'POST', body });
-        if (error) {
-            console.error('Error calling edge function:', error, response);
-            throw error;
-        }
-        return data;
+        // Always call via same-origin proxy path (dev proxy locally, Vercel rewrite in prod)
+        // to avoid browser CORS preflight issues against the Supabase Functions endpoint.
+        return await this.callEdgeFunctionViaProxy(fn, body);
     }
 
-    private async callEdgeFunctionViaDevProxy(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
+    private async callEdgeFunctionViaProxy(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
         const { data, error } = await this.client.auth.getSession();
         if (error) throw error;
 
         const accessToken = data.session?.access_token;
         const headers: Record<string, string> = { apikey: environment.supabaseKey };
-        if (accessToken) headers['Authorization'] = `Bearer ${accessToken}`;
+        // Supabase expects an Authorization header; use user token when available, else anon key.
+        headers['Authorization'] = `Bearer ${accessToken ?? environment.supabaseKey}`;
         const url = `/supabase/functions/v1/${fn}`;
         const requestBody = body === undefined ? undefined : (typeof body === 'string' ? body : JSON.stringify(body));
         if (requestBody !== undefined) headers['Content-Type'] = 'application/json';
