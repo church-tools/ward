@@ -77,9 +77,6 @@ export class RegisterPageComponent extends PageComponent {
                     throw 'ERROR.FAILED';
             }
         }
-        if (!data.session) {
-            throw 'REGISTER.ERROR_MSG.EMAIL_CONFIRMATION_REQUIRED';
-        }
         await this.router.navigate(['/confirm-email']);
     };
 
