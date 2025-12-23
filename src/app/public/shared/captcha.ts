@@ -1,55 +1,53 @@
-import { Component, DOCUMENT, inject, OnDestroy, OnInit, output, signal } from '@angular/core';
+import { AfterViewInit, Component, DOCUMENT, ElementRef, inject, OnDestroy, output, Signal, viewChild } from '@angular/core';
 import { environment } from '../../../environments/environment';
 import { WindowService } from '../../shared/service/window.service';
 import { attachScript } from '../../shared/utils/dom-utils';
-import CollapseComponent from '../../shared/widget/collapse/collapse';
-
-export type Credentials = {
-	email: string;
-	password: string;
-};
 
 @Component({
 	selector: 'app-captcha',
 	template: `
-        <app-collapse [show]="visible()">
-            <div class="cf-turnstile"
-                [attr.data-sitekey]="siteKey"
-                [attr.data-theme]="windowService.darkColorScheme() ? 'dark' : 'light'"
-                data-size="normal"
-                data-callback="onCaptchaSolved"
-                data-error-callback="onCaptchaError">
-            </div>
-        </app-collapse>
+        <div #turnstile class="cf-turnstile"></div>
 	`,
-	imports: [CollapseComponent],
     styles: [`
         .cf-turnstile {
             min-height: 69.5px;
         }
     `],
 })
-export class CaptchaComponent implements OnInit, OnDestroy {
+export class CaptchaComponent implements AfterViewInit, OnDestroy {
     
     private readonly document = inject(DOCUMENT);
     protected readonly windowService = inject(WindowService);
     protected readonly siteKey = environment.turnstileSiteKey;
+	protected readonly turnstileContainer: Signal<ElementRef<HTMLDivElement>> = viewChild.required('turnstile', { read: ElementRef });
+
+	private widgetId: string | null = null;
 
     readonly onSolved = output<string>();
 
-    protected readonly visible = signal(false);
-    
-    public ngOnInit(): void {
-        (this.document.defaultView as any)['onCaptchaSolved'] = this.onSolved.emit;
-        (this.document.defaultView as any)['onCaptchaError'] = (err: string) => {
-            this.visible.set(true);
-            console.error('Captcha error:', err);
-        };
-        attachScript(this.document, 'https://challenges.cloudflare.com/turnstile/v0/api.js', { async: true, defer: true });
+    async ngAfterViewInit(): Promise<void> {
+        await attachScript(this.document, 'https://challenges.cloudflare.com/turnstile/v0/api.js', { async: true, defer: true });
+        const win = this.document.defaultView as any;
+        const api = win?.turnstile;
+        if (!api?.render) throw new Error('Turnstile API not available');
+
+        const container = this.turnstileContainer().nativeElement;
+        container.innerHTML = '';
+        if (this.widgetId && api.remove) api.remove(this.widgetId);
+
+        this.widgetId = api.render(container, {
+            sitekey: this.siteKey,
+            theme: this.windowService.darkColorScheme() ? 'dark' : 'light',
+            size: 'normal',
+            callback: (token: string) => this.onSolved.emit(token),
+            'error-callback': (err: unknown) => console.error('Captcha error:', err),
+        });
     }
 
     public ngOnDestroy(): void {
-        delete (this.document.defaultView as any)['onCaptchaSolved'];
+        const win = this.document.defaultView as any;
+        try { if (this.widgetId && win?.turnstile?.remove) win.turnstile.remove(this.widgetId); } catch { }
+        this.widgetId = null;
     }
 
 }

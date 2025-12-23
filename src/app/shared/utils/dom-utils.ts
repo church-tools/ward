@@ -29,11 +29,29 @@ export async function transitionStyle(element: HTMLElement,
 }
 
 export function attachScript(document: Document, src: string, options?: { async?: boolean; defer?: boolean }) {
-    const existing = document.querySelector(`script[src="${src}"]`);
-    if (existing) return;
+    const existing = document.querySelector(`script[src="${src}"]`) as HTMLScriptElement | null;
+    if (existing) {
+        const alreadyLoaded = existing.dataset['loaded'] === 'true' || (existing as any).readyState === 'complete';
+        if (alreadyLoaded) return Promise.resolve(existing);
+        return new Promise((resolve, reject) => {
+            existing.addEventListener('load', () => {
+                existing.dataset['loaded'] = 'true';
+                resolve(existing);
+            }, { once: true });
+            existing.addEventListener('error', () => reject(new Error(`Failed to load script: ${src}`)), { once: true });
+        });
+    }
+
     const script = document.createElement('script');
     script.src = src;
     script.async = options?.async ?? false;
     script.defer = options?.defer ?? false;
-    document.head.appendChild(script);
+    return new Promise((resolve, reject) => {
+        script.addEventListener('load', () => {
+            script.dataset['loaded'] = 'true';
+            resolve(script);
+        }, { once: true });
+        script.addEventListener('error', () => reject(new Error(`Failed to load script: ${src}`)), { once: true });
+        document.head.appendChild(script);
+    });
 }
