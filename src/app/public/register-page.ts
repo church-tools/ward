@@ -1,5 +1,4 @@
-import { DOCUMENT } from '@angular/common';
-import { Component, OnDestroy, OnInit, inject, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../shared/form/button/async/async-button';
@@ -7,8 +6,7 @@ import ButtonComponent from "../shared/form/button/button";
 import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
-import { WindowService } from '../shared/service/window.service';
-import { attachScript } from '../shared/utils/dom-utils';
+import { CaptchaComponent } from './shared/captcha';
 import { CredentialsComponent } from './shared/credentials';
 
 @Component({
@@ -17,12 +15,7 @@ import { CredentialsComponent } from './shared/credentials';
         <div class="column gap-8 items-center">
             <span class="display-text">{{ 'REGISTER.TITLE' | translate }}</span>
             <app-credentials #credentials class="full-width"/>
-            <div class="cf-turnstile"
-                data-sitekey="0x4AAAAAACHykwNwn2RY_xJa"
-                [attr.data-theme]="windowService.darkColorScheme() ? 'dark' : 'light'"
-                data-size="normal"
-                data-callback="onCaptchaSolved">
-            </div>
+            <app-captcha (onSolved)="turnstileToken = $event"/>
             <app-async-button type="primary" size="large" class="half-width"
                 [onClick]="registerWithCredentials">
                 {{ 'REGISTER.TITLE' | translate }}
@@ -48,36 +41,23 @@ import { CredentialsComponent } from './shared/credentials';
             </div>
         </div>
     `,
-    imports: [TranslateModule, ButtonComponent, LinkButtonComponent, AsyncButtonComponent, CredentialsComponent],
+    imports: [TranslateModule, ButtonComponent, LinkButtonComponent, AsyncButtonComponent,
+        CredentialsComponent, CaptchaComponent],
     styles: [`
         .provider-icon {
             width: 64px;
             height: 16px;
         }
-        .cf-turnstile {
-            min-height: 69.5px;
-        }
     `],
     host: { class: 'portrait' },
 })
-export class RegisterPageComponent extends PageComponent implements OnInit, OnDestroy {
+export class RegisterPageComponent extends PageComponent {
 
-    protected readonly windowService = inject(WindowService);
     private readonly supabase = inject(SupabaseService);
     private readonly router = inject(Router);
-    private readonly credentials = viewChild.required(CredentialsComponent);
-    private readonly document = inject(DOCUMENT);
+    private readonly credentials = viewChild.required(CredentialsComponent); 
 
-    private turnstileToken: string | null = null;
-
-    public ngOnInit(): void {
-        (this.document.defaultView as any)['onCaptchaSolved'] = (token: string) => { this.turnstileToken = token; };
-        attachScript(this.document, 'https://challenges.cloudflare.com/turnstile/v0/api.js', { async: true, defer: true });
-    }
-
-    public ngOnDestroy(): void {
-        delete (this.document.defaultView as any)['onCaptchaSolved'];
-    }
+    protected turnstileToken: string | null = null;
 
     protected readonly registerWithCredentials = async () => {
         if (!this.credentials().valid())
