@@ -1,4 +1,4 @@
-import { Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import { Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
@@ -44,6 +44,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
     private keySubscriptions: Subscription[] = [];
     private optionsViewRef: EmbeddedViewRef<any> | null = null;
+    private readonly blurSubscription: OutputRefSubscription;
     private focusedIndex = -1;
 
     constructor() {
@@ -51,6 +52,14 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         xeffect([this.viewValue, this.options], (value, options) => {
             this.syncSelectedOption(value, options);
         });
+        this.blurSubscription = this.onBlur.subscribe(() => {
+            this.closeOptions();
+        });
+    }
+
+    ngOnDestroy() {
+        this.blurSubscription.unsubscribe();
+        this.closeOptions();
     }
 
     protected onFocus() {
@@ -179,9 +188,5 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         const allOptions = Array.isArray(options) ? options : await options('');
         const match = allOptions.find(option => option.value === value) ?? null;
         this.selectedOption.set(match);
-    }
-
-    ngOnDestroy() {
-        this.closeOptions();
     }
 }

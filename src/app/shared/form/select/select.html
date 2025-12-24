@@ -26,14 +26,15 @@
     <div class="bottom-anchor"><ng-container #bottomContainer/></div>
 </label>
 <ng-template #optionsTemplate>
-    <div class="options-card input-acrylic-card">
+    <div class="options-card input-acrylic-card" animate.leave="leave">
         @if (optionsLoading()) {
             <div>
                 <app-icon icon="throbber" size="xs" class="loading-icon"/>
             </div>
         }
         @for (option of visibleOptions(); track option.value) {
-            <div #option class="option {{option.color}}-text" (click)="selectOption(option, $event)">
+            <div #option class="option {{option.color}}-text"
+                (click)="selectOption(option, $event)">
                 @for (label of option.highlights; track $index) {
                     <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{label[0]}}</span>
                 }
