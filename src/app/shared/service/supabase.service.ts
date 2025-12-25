@@ -11,10 +11,10 @@ type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
 export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
-export type Session = { user: User; unit: string, is_admin: boolean };
+export type Session = { user: User; unit?: string, unit_approved?: boolean | null, is_admin: boolean };
 
 export type EdgeFunction = 'login-with-password' | 'list-units' | 'create-unit' | 'fetch-unapproved-units'
-    | 'set-unit-approved';
+    | 'set-unit-approved' | 'join-unit';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -46,6 +46,7 @@ export class SupabaseService {
                     break;
                 }
                 case 'SIGNED_OUT': {
+                    this._user.set(null);
                     this.sync.cleanup();
                     break;
                 }
@@ -89,9 +90,13 @@ export class SupabaseService {
         return this.decodeAccessToken(token.access_token);
     }
 
+    async refreshSession() {
+        const { data, error } = await this.client.auth.refreshSession();
+        if (error) throw error;
+        return data.session;
+    }
+
     async callEdgeFunction(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
-        // Always call via same-origin proxy path (dev proxy locally, Vercel rewrite in prod)
-        // to avoid browser CORS preflight issues against the Supabase Functions endpoint.
         return await this.callEdgeFunctionViaProxy(fn, body);
     }
 

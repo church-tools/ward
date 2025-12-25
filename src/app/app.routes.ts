@@ -13,9 +13,19 @@ async function hasUnit(route: ActivatedRouteSnapshot, state: RouterStateSnapshot
         window.location.href = '/login';
         return false;
     }
-    if (!session.unit) {
+    if (!('unit' in session || 'unit_approved' in session)) {
         window.location.href = '/setup';
         return false;
     }
-    return true;
+    if (session.unit) {
+        return true;
+    }
+    if ('unit_approved' in session) {
+        if (session.unit_approved === false)
+            window.location.href = '/setup/rejected';
+        if (session.unit_approved === null)
+            window.location.href = '/setup/pending';
+        return false;
+    }
+    return false;
 }

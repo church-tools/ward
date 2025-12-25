@@ -4,6 +4,7 @@
   "SEARCH": "Suchen",
   "ENABLE_EDIT_MODE": "Bearbeiten",
   "EDIT_MODE": "Bearbeitungsmodus",
+  "SIGN_IN": "Anmelden",
   "SIGN_OUT": "Abmelden",
   "NEW_UNITS_PAGE": {
     "TITLE": "Neue Einheiten"
@@ -43,6 +44,16 @@
   "CONFIRM_EMAIL": {
     "TITLE": "E-Mail bestätigen",
     "MESSAGE": "Bitte überprüfen Sie Ihren Posteingang und bestätigen Sie Ihre E-Mail-Adresse."
+  },
+  "SETUP_PENDING": {
+    "TITLE": "Anfrage ausstehend",
+    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Einheit steht noch zur Genehmigung aus.",
+    "RECHECK": "Erneut prüfen",
+    "STILL_PENDING": "Steht noch aus"
+  },
+  "SETUP_REJECTED": {
+    "TITLE": "Anfrage abgelehnt",
+    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Einheit wurde abgelehnt."
   },
   "NOT_FOUND": {
     "TITLE": "404 Nicht gefunden",

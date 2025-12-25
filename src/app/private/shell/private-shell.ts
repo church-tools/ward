@@ -1,12 +1,9 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppComponent } from '../../app.component';
-import { ProfileService } from '../../modules/profile/profile.service';
+import { TranslateModule } from '@ngx-translate/core';
 import { UnitService } from '../../modules/unit/unit.service';
-import MenuButtonComponent, { MenuButtonActionItem, MenuButtonItem } from '../../shared/form/button/menu/menu-button';
+import MenuButtonComponent, { MenuButtonItem } from '../../shared/form/button/menu/menu-button';
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
-import { SupabaseService } from '../../shared/service/supabase.service';
 import { ShellComponent } from '../../shared/shell/shell';
 import { blockInWeekToTime, HOUR } from '../../shared/utils/date-utils';
 import { xcomputed, xeffect } from '../../shared/utils/signal-utils';
@@ -24,16 +21,13 @@ import { OmniSearchComponent } from './omni-search/omni-search';
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
-    private readonly translateService = inject(TranslateService);
-    private readonly profileService = inject(ProfileService);
     private readonly adminService = inject(AdminService);
 
     protected readonly tabs = signal<NavBarTab[]>([]);
     protected readonly editMode = signal(false);
-    private readonly supabase = inject(SupabaseService);
     private readonly router = inject(Router);
 
-    protected readonly additionalItems = xcomputed([this.profileService.own], profile => {
+    protected readonly menuItems = xcomputed([this.profileService.own], profile => {
         const items: MenuButtonItem[] = [];
         if (!profile) return items;
         items.push({
@@ -53,21 +47,6 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         }
         return items;
     });
-
-    protected readonly languageItems: MenuButtonActionItem[] = ['de', 'en'].map(lang => ({
-        img: `assets/img/flags/${lang}.svg`,
-        label: (() => {
-            switch (lang) {
-                case 'de': return 'Deutsch';
-                case 'en': return 'English';
-                default: return lang;
-            }
-        })(),
-        action: () => {
-            this.translateService.use(lang);
-            AppComponent.saveLanguage(lang);
-        }
-    }));
 
     constructor() {
         super();

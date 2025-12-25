@@ -1,10 +1,23 @@
-<div class="header row no-wrap items-center gap-3 m-4-2">
+<div class="header row no-wrap items-center gap-3 m-2-2">
     <div class="handle row items-center gap-5 ms-3">
         <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
         <div class="app-name display-when-not-small small-text"
             [class.subtle-text]="!windowService.focused()">{{ 'APP_NAME' | translate }}</div>
     </div>
     <div class="handle grow-1"></div>
+    <div class="row no-wrap items-center gap-1">
+        <div class="handle full-width full-height items-center"></div>
+        @if (menuItems().length) {
+            <app-menu-button type="subtle" class="icon-only title-bar-margin"
+                [items]="menuItems()" alignment="left">
+                <app-menu-button menu-content type="subtle"
+                    icon="translate"
+                    [items]="languageItems">
+                    <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
+                </app-menu-button>
+            </app-menu-button>
+        }
+    </div>
 </div>
 <div class="canvas-container">
     <div class="canvas">

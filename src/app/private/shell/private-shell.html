@@ -15,22 +15,20 @@
         <div class="handle height-2"></div>
         <app-omni-search class="pb-2"/>
     </div>
-    <div class="row full-width full-height row no-wrap items-center gap-1">
+    <div class="row full-width full-height no-wrap items-center gap-1">
         <div class="handle full-width full-height items-center">
             @if (editMode()) {
                 <span class="overflow-ellipsis text-right">{{ 'EDIT_MODE' | translate }}</span>
             }
         </div>
-        @if (additionalItems().length) {
-            <app-menu-button type="subtle" class="icon-only title-bar-margin"
-                [items]="additionalItems()" alignment="left">
-                <app-menu-button menu-content type="subtle"
-                    icon="translate"
-                    [items]="languageItems">
-                    <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
-                </app-menu-button>
+        <app-menu-button type="subtle" class="icon-only title-bar-margin"
+            [items]="menuItems()" alignment="left">
+            <app-menu-button menu-content type="subtle"
+                icon="translate"
+                [items]="languageItems">
+                <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
             </app-menu-button>
-        }
+        </app-menu-button>
     </div>
 </div>
 <div class="nav-and-canvas">

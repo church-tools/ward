@@ -14,21 +14,6 @@ export type Database = {
   }
   public: {
     Tables: {
-      admin: {
-        Row: {
-          id: number
-          user_id: string
-        }
-        Insert: {
-          id?: number
-          user_id: string
-        }
-        Update: {
-          id?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
       agenda: {
         Row: {
           abbreviation: string
@@ -527,27 +512,33 @@ export type Database = {
           created_at: string
           deleted: boolean
           id: number
+          is_admin: boolean
           is_unit_admin: boolean
           uid: string
           unit: number
+          unit_approved: boolean | null
           updated_at: string
         }
         Insert: {
           created_at?: string
           deleted?: boolean
           id?: number
+          is_admin?: boolean
           is_unit_admin?: boolean
           uid: string
           unit: number
+          unit_approved?: boolean | null
           updated_at?: string
         }
         Update: {
           created_at?: string
           deleted?: boolean
           id?: number
+          is_admin?: boolean
           is_unit_admin?: boolean
           uid?: string
           unit?: number
+          unit_approved?: boolean | null
           updated_at?: string
         }
         Relationships: [
@@ -706,7 +697,7 @@ export type Database = {
       }
       unit: {
         Row: {
-          approved: boolean
+          approved: boolean | null
           created_by: string
           id: number
           name: string
@@ -714,7 +705,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
-          approved?: boolean
+          approved?: boolean | null
           created_by: string
           id?: number
           name: string
@@ -722,7 +713,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
-          approved?: boolean
+          approved?: boolean | null
           created_by?: string
           id?: number
           name?: string

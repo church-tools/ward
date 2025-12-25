@@ -1,4 +1,5 @@
-import { Component, inject, model, signal } from '@angular/core';
+import { Component, inject, model } from '@angular/core';
+import { Router } from '@angular/router';
 import { Profile } from '../../modules/profile/profile';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { SelectComponent, SelectOption } from "../../shared/form/select/select";
@@ -15,6 +16,7 @@ import { asyncComputed } from '../../shared/utils/signal-utils';
 })
 export class SetupPageComponent extends PageComponent {
 
+    private readonly router = inject(Router);
     private readonly supabase = inject(SupabaseService);
 
     protected readonly unitName = model<string>('');
@@ -48,7 +50,9 @@ export class SetupPageComponent extends PageComponent {
     }
 
     protected joinUnit = async () => {
-
+        const { profile } = await this.supabase.callEdgeFunction('join-unit', { unit_id: this.selectedUnit() });
+        await this.supabase.refreshSession();
+        this.router.navigateByUrl('/');
     }
 
     private async assureProfileExists(unit: { id: number }): Promise<Profile.Row> {

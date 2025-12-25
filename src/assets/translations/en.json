@@ -4,6 +4,7 @@
   "SEARCH": "Search",
   "ENABLE_EDIT_MODE": "Edit",
   "EDIT_MODE": "Edit Mode",
+  "SIGN_IN": "Sign In",
   "SIGN_OUT": "Sign Out",
   "NEW_UNITS_PAGE": {
     "TITLE": "New Units"
@@ -43,6 +44,16 @@
   "CONFIRM_EMAIL": {
     "TITLE": "Confirm Email",
     "MESSAGE": "Please check your inbox and confirm your email address."
+  },
+  "SETUP_PENDING": {
+    "TITLE": "Request Pending",
+    "MESSAGE": "Your request to join or create a unit is currently pending approval.",
+    "RECHECK": "Check Again",
+    "STILL_PENDING": "Still Pending"
+  },
+  "SETUP_REJECTED": {
+    "TITLE": "Request Rejected",
+    "MESSAGE": "Your request to join or create a unit has been rejected."
   },
   "NOT_FOUND": {
     "TITLE": "404 Not Found",

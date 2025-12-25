@@ -9,7 +9,7 @@
                 [options]="unitOptions()"
                 placeholder="Gemeinde suchen..."
                 [value]="selectedUnit()" (valueChange)="selectedUnit.set($event)"/>
-            <app-async-button icon="home"
+            <app-async-button icon="home_person"
                 [disabled]="!selectedUnit()"
                 [needsInternet]="true"
                 [onClick]="joinUnit">Gemeinde beitreten</app-async-button>
