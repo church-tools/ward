@@ -3,14 +3,14 @@ import { AsyncState } from "../async-state";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { Change, Column, Database, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import type { Change, Column, Database, IndexInfo, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 
-function serializeIndex(index: string[] | undefined) {
-    return (index ?? []).join(',');
+function serializeIndex<D extends Database, T extends TableName<D>>(index: IndexInfo<D, T>[] | undefined) {
+    return (index ?? []).map(i => typeof i === 'string' ? i : `${i.column}_${i.boolean ? 'b' : ''}`).join(',');
 }
 
 const INDEX_PREFIX = "idx_";

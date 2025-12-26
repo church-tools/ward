@@ -43,15 +43,16 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
                     const { name, idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
+                    const indexedKeys = indexed?.map(index => typeof index === 'string' ? index : index.column);
                     const keyPath = idPath ?? 'id';
                     const store = idb.objectStoreNames.contains(name)
                         ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
                         : idb.createObjectStore(name, { keyPath, autoIncrement: true });
                     const existingIndexSet = new Set(store.indexNames);
-                    for (const indexName of [keyPath, ...(indexed ?? [])])
-                        if (!existingIndexSet.has(indexName))
-                            store.createIndex(indexName, indexName);
-                    const expectedIndexSet = new Set(indexed ?? []);
+                    for (const indexKey of [keyPath, ...(indexedKeys ?? [])])
+                        if (!existingIndexSet.has(indexKey))
+                            store.createIndex(indexKey, indexKey);
+                    const expectedIndexSet = new Set(indexedKeys ?? []);
                     expectedIndexSet.add(keyPath);
                     for (const indexName of store.indexNames)
                         if (!expectedIndexSet.has(indexName))

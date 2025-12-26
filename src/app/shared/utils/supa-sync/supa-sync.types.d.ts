@@ -9,12 +9,16 @@ export type Column<D extends Database, T extends TableName<D>> = keyof Row<D, T>
 export type Insert<D extends Database, T extends TableName<D>> = Table<D, T>["Insert"];
 export type Update<D extends Database, T extends TableName<D>> = Table<D, T>["Update"];
 
+export type IndexInfo<D extends Database, T extends TableName<D>> =
+    | Column<D, T>
+    | { column: Column<D, T>, boolean: boolean };
+
 export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     name: T;
     idPath?: Column<D, T>; // default: 'id'
     createOffline?: boolean; // default: true
     updateOffline?: boolean; // default: true
-    indexed?: Column<D, T>[];
+    indexed?: IndexInfo<D, T>[];
     autoIncrement?: boolean;
 }
 

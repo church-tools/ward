@@ -51,17 +51,16 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
             return await queryCondition<R, T>(this.conditions[0], keysOnly
                 ? index.getAllKeys.bind(index)
                 : index.getAll.bind(index));
-        } else {
-            let keys: Set<IDBValidKey>;
-            await Promise.all(this.conditions.map(async condition => {
-                const index = await this.store.getIndex(condition.field);
-                const result = await queryCondition<IDBValidKey, T>(condition, index.getAllKeys.bind(index));
-                keys = keys?.intersection(new Set(result)) ?? new Set(result);
-            }));
-            const keyArray = Array.from(keys!);
-            if (keysOnly) return keyArray as R[];
-            return await this.store.readMany(keyArray, this.abortSignal) as R[];
         }
+        let keys: Set<IDBValidKey>;
+        await Promise.all(this.conditions.map(async condition => {
+            const index = await this.store.getIndex(condition.field);
+            const result = await queryCondition<IDBValidKey, T>(condition, index.getAllKeys.bind(index));
+            keys = keys?.intersection(new Set(result)) ?? new Set(result);
+        }));
+        const keyArray = Array.from(keys!);
+        if (keysOnly) return keyArray as R[];
+        return await this.store.readMany(keyArray, this.abortSignal) as R[];
     }
 
     protected filterRow(row: Row<D, T>): boolean {
