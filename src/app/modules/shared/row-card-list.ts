@@ -19,11 +19,12 @@ import { getViewService } from "./view.service";
         @let table = this.table();
         @let rowComponent = this.rowComponent();
         @let insertComponent = this.insertComponent();
-        @if (table && rowComponent && insertComponent) {
+        @let editable = this.editable();
+        @if (table && rowComponent && (insertComponent || !editable)) {
             <app-card-list
                 [cardClasses]="cardsVisible() ? cardClasses() : ''"
-                [reorderable]="editable() && !!table.info.orderKey"
-                [editable]="editable()"
+                [reorderable]="editable && !!table.info.orderKey"
+                [editable]="editable"
                 [activeId]="activeId()"
                 [gap]="gap()"
                 [idKey]="table.idKey"
@@ -76,12 +77,15 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly page = input<PageComponent>();
     readonly rowClicked = output<Row<T>>();
 
+    protected readonly cardListView = viewChild(CardListComponent);
+
     protected readonly table = xcomputed([this.tableName], t => this.supabase.sync.from(t));
     protected readonly viewService = asyncComputed([this.tableName], t => getViewService(this.injector, t), null);
     protected readonly rowComponent = asyncComputed([this.tableName], t => getListRowComponent(t), null);
-    protected readonly insertComponent = asyncComputed([this.tableName], t => getListInsertComponent(t), null);
+    protected readonly insertComponent = asyncComputed([this.tableName, this.editable],
+        async (t, e) => e ? await getListInsertComponent(t) : null, null);
+    readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount() ?? 0);
 
-    protected readonly cardListView = viewChild(CardListComponent);
     private subscription: Subscription | undefined;
 
     constructor() {

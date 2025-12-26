@@ -47,13 +47,13 @@
   },
   "SETUP_PENDING": {
     "TITLE": "Anfrage ausstehend",
-    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Einheit steht noch zur Genehmigung aus.",
+    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Gemeinde steht noch zur Genehmigung aus.",
     "RECHECK": "Erneut prüfen",
     "STILL_PENDING": "Steht noch aus"
   },
   "SETUP_REJECTED": {
     "TITLE": "Anfrage abgelehnt",
-    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Einheit wurde abgelehnt."
+    "MESSAGE": "Ihre Anfrage zum Beitritt oder zur Erstellung einer Gemeinde wurde abgelehnt."
   },
   "NOT_FOUND": {
     "TITLE": "404 Nicht gefunden",
@@ -92,6 +92,7 @@
   },
   "MEMBERS_PAGE": {
     "TITLE": "Mitglieder",
+    "JOIN_REQUESTS": "Beitrittsanfragen",
     "LCR_MEMBER_LIST": "LCR Mitgliederverzeichnis",
     "IMPORT_FROM_LCR": "Aus LCR importieren"
   },

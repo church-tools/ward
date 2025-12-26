@@ -47,13 +47,13 @@
   },
   "SETUP_PENDING": {
     "TITLE": "Request Pending",
-    "MESSAGE": "Your request to join or create a unit is currently pending approval.",
+    "MESSAGE": "Your request to join or create a ward is currently pending approval.",
     "RECHECK": "Check Again",
     "STILL_PENDING": "Still Pending"
   },
   "SETUP_REJECTED": {
     "TITLE": "Request Rejected",
-    "MESSAGE": "Your request to join or create a unit has been rejected."
+    "MESSAGE": "Your request to join or create a ward has been rejected."
   },
   "NOT_FOUND": {
     "TITLE": "404 Not Found",
@@ -92,6 +92,7 @@
   },
   "MEMBERS_PAGE": {
     "TITLE": "Members",
+    "JOIN_REQUESTS": "Join Requests",
     "LCR_MEMBER_LIST": "LCR Member Directory",
     "IMPORT_FROM_LCR": "Import from LCR"
   },

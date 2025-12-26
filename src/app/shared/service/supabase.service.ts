@@ -22,7 +22,7 @@ export class SupabaseService {
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
         { name: 'unit', createOffline: false },
-        { name: 'profile', createOffline: false, indexed: ['uid'] },
+        { name: 'profile', createOffline: false, indexed: ['uid', 'unit_approved'] },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda', 'type'] },
         { name: 'task', orderKey: 'position', indexed: ['agenda', 'stage'] },
@@ -42,7 +42,7 @@ export class SupabaseService {
                     this.client.functions.setAuth(session.access_token);
                     this._user.set(session.user);
                     const { unit } = this.decodeAccessToken(session.access_token);
-                    this.sync.init(session, `${environment.appId}-${unit}`);
+                    if (unit) this.sync.init(session, `${environment.appId}-${unit}`);
                     break;
                 }
                 case 'SIGNED_OUT': {

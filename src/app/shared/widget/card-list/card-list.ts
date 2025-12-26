@@ -72,6 +72,7 @@ export class CardListComponent<T> {
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
+    readonly cardCount = xcomputed([this.itemCards], cards => cards.length);
 
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
