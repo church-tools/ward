@@ -22,12 +22,12 @@ export class SupabaseService {
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
         { name: 'unit', createOffline: false },
-        { name: 'profile', createOffline: false, indexed: ['uid', { column: 'unit_approved', boolean: true }] },
+        { name: 'profile', createOffline: false, indexed: { uid: 'number', unit_approved: 'boolean' } },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
-        { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: ['agenda', 'type'] },
-        { name: 'task', orderKey: 'position', indexed: ['agenda', 'stage'] },
-        { name: 'calling', orderKey: 'position', indexed: [] },
-        { name: 'member', createOffline: false, indexed: ['unit', 'profile'] }
+        { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: 'number', type: 'string' } },
+        { name: 'task', orderKey: 'position', indexed: { agenda: 'number', stage: 'string' } },
+        { name: 'calling', orderKey: 'position', indexed: {} },
+        { name: 'member', createOffline: false, indexed: { unit: 'number', profile: 'number' } }
     ]);
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();

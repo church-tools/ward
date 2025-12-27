@@ -2,15 +2,17 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
-import { IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { Change, Column, Database, IndexInfo, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import { idbBoolToNumber, IDBStoreAdapter } from "./idb/idb-store-adapter";
+import type { Change, Column, Database, Indexed, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 
-function serializeIndex<D extends Database, T extends TableName<D>>(index: IndexInfo<D, T>[] | undefined) {
-    return (index ?? []).map(i => typeof i === 'string' ? i : `${i.column}_${i.boolean ? 'b' : ''}`).join(',');
+function serializeIndex<D extends Database, T extends TableName<D>>(index?: Indexed<D, T>) {
+    return (index ? Object.entries(index) : [])
+        .map(([key, type]) => `${key}_${type}`)
+        .join(',');
 }
 
 const INDEX_PREFIX = "idx_";
@@ -40,6 +42,17 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.pendingAdapter = new IDBStoreAdapter<any>(tableName + PENDING_SUFFIX);
         const currentIndex = localStorage.getItem(INDEX_PREFIX + tableName);
         this.needsUpgrade = currentIndex !== serializeIndex(info.indexed);
+        const boolKeys = Object.entries(info.indexed ?? {})
+            .filter(([_, type]) => type === 'boolean')
+            .map(([key, _]) => key);
+        this.storeAdapter.mappingFunction = boolKeys.length
+            ? (row: Row<D, T>) => {
+                for (const key of boolKeys)
+                    if (key in row)
+                        row[key] = idbBoolToNumber(row[key])
+                return row;
+            }
+            : undefined;
         this.sendPending();
     }
 
@@ -65,15 +78,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     }
 
     public find() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows);
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows, this.info.indexed!);
     }
     
     public findKeys() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows);
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows, this.info.indexed!);
     }
 
     public findOne() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows.length ? rows[0] : null);
+        return new IDBFilterBuilder(this.storeAdapter, rows => rows.length ? rows[0] : null, this.info.indexed!);
     }
 
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(row: I): Promise<I extends Insert<D, T>[] ? Row<D, T>[] : Row<D, T>> {

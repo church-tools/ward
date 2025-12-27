@@ -2,11 +2,20 @@ import { AsyncState } from "../../async-state";
 import { EventEmitter } from "../event-emitter";
 import { Change } from "../supa-sync.types";
 
+export function idbBoolToNumber(value: boolean | null) {
+    switch (value) {
+        case true: return 1;
+        case false: return -1;
+        default: return 0;
+    }
+}
+
 export class IDBStoreAdapter<T> {
 
     public readonly onChangeReceived = new EventEmitter<Change<T>[]>();
     public writeSubscriptions = 0;
     public readonly initialized = new AsyncState<boolean>();
+    public mappingFunction: ((item: T) => T) | undefined;
     
     private idbSet: (idb: IDBDatabase) => void = null!;
     private readonly idb = new Promise<IDBDatabase>(resolve => this.idbSet = resolve);
@@ -22,6 +31,8 @@ export class IDBStoreAdapter<T> {
 
     public async write(item: T) {
         const idb = await this.idb;
+        if (this.mappingFunction)
+            item = this.mappingFunction(item);
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => store.put(item));
     }
@@ -29,6 +40,9 @@ export class IDBStoreAdapter<T> {
     public async writeMany(items: T[]): Promise<undefined> {
         if (items.length === 0) return;
         const idb = await this.idb;
+        
+        if (this.mappingFunction)
+            items = items.map(item => this.mappingFunction!(item));
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => items.forEach(item => store.put(item)));
     }
@@ -36,6 +50,8 @@ export class IDBStoreAdapter<T> {
     public async writeAndGet(items: T[]) {
         if (items.length === 0) return [];
         const idb = await this.idb;
+        if (this.mappingFunction)
+            items = items.map(item => this.mappingFunction!(item));
         return await idb.transaction(this.storeName, 'readwrite')
             .toPromise(store => Promise.all(items.map(item => Promise.all([
                 store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>(),

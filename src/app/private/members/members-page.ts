@@ -68,8 +68,6 @@ export class MembersPageComponent extends PrivatePageComponent {
 
     protected joinRequestQuery = (table: Table<'profile'>) =>
         table.find().eq('unit_approved', null);
-    // protected getProfileApprovalQuery = (table: Table<'profile'>) =>
-    //     table.readAll();
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route });
