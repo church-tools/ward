@@ -1,19 +1,17 @@
-
-import { Component, inject, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
-import { SupabaseService } from '../../shared/service/supabase.service';
-import { PrivatePageComponent } from '../shared/private-page';
+import { Component, inject, OnInit, signal } from "@angular/core";
+import { TranslateModule } from "@ngx-translate/core";
+import AsyncButtonComponent from "../../shared/form/button/async/async-button";
 import { IconComponent } from "../../shared/icon/icon";
-import AsyncButtonComponent from '../../shared/form/button/async/async-button';
+import { SupabaseService } from "../../shared/service/supabase.service";
 
-type UnitInfo = { id: number; name: string, created_by: string }
+type UnitInfo = { id: number; name: string, created_by: string };
 
 @Component({
-    selector: 'app-unit-approval-page',
+    selector: 'app-new-units',
     template: `
-        <span class="h0">{{ 'NEW_UNITS_PAGE.TITLE' | translate }}</span>
+        <h1 class="mt-8">{{ 'USERS_PAGE.NEW_UNITS' | translate }}</h1>
         @if (units() == null) {
-            <div class="column items-center center-content height-64">
+            <div class="column mt-4 items-center center-content">
                 <app-icon icon="throbber"/>
             </div>
         } @else {
@@ -37,18 +35,17 @@ type UnitInfo = { id: number; name: string, created_by: string }
                     </div>
                 }
             } @else {
-                <div class="column gap-4 items-center center-content height-64 card-appear">
+                <div class="column mt-4 gap-4 items-center center-content card-appear">
                     <app-icon icon="checkmark_circle" size="xxxxl" class="accent-text"/>
                     Alles erledigt!
                 </div>
             }
         }
     `,
-    imports: [TranslateModule, IconComponent, AsyncButtonComponent],
-    host: { class: 'page narrow' },
+    imports: [TranslateModule, AsyncButtonComponent, IconComponent],
 })
-export class NewUnitsPageComponent extends PrivatePageComponent {
-
+export class NewUnitsComponent implements OnInit {
+    
     private readonly supabase = inject(SupabaseService);
 
     protected readonly units = signal<UnitInfo[] | null>(null);
@@ -64,4 +61,5 @@ export class NewUnitsPageComponent extends PrivatePageComponent {
             this.units.update(units => units?.filter(u => u.id !== unit_id) ?? null);
         }
     }
+
 }

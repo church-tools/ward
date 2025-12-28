@@ -5,7 +5,7 @@ import { RowHistoryComponent } from "../shared/row-history";
 import { RowPageComponent } from '../shared/row-page';
 
 @Component({
-    selector: 'app-task-page',
+    selector: 'app-member-page',
     template: `
         <app-text-input [syncedRow]="syncedRow" column="first_name" name="title" textClass="h1"
             [subtle]="true"/>

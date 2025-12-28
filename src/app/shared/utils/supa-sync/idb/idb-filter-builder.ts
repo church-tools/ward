@@ -7,7 +7,7 @@ type FieldCondition<T> = { field: keyof T & string };
 type EqCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "eq"; value: ConditionValue<T, C> };
 type GtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "gt"; value: ConditionValue<T, C> };
 type LtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "lt"; value: ConditionValue<T, C> };
-type NotCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "not"; value: ConditionValue<T, C>[] };
+type NotCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "not"; value: ConditionValue<T, C> };
 type InCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "in"; value: ConditionValue<T, C>[] };
 type Condition<T, C extends keyof T> = EqCondition<T, C> | NotCondition<T, C> | InCondition<T, C> | GtCondition<T, C> | LtCondition<T, C>;
 
@@ -86,16 +86,20 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
             const { operator, value } = condition;
             switch (operator) {
                 case 'eq':
-                    if (this.indexed[condition.field] === 'boolean')
-                        return fetchFn(idbBoolToNumber(value as boolean | null));
-                    return fetchFn(value);
+                    const val = this.indexed[condition.field] === 'boolean'
+                        ? idbBoolToNumber(value as boolean | null) : value;
+                    return fetchFn(val);
                 case 'in': return value.map(val => fetchFn(val));
                 case 'gt': return fetchFn(IDBKeyRange.lowerBound(value));
                 case 'lt': return fetchFn(IDBKeyRange.upperBound(value));
-                case 'not': return [
-                    fetchFn(IDBKeyRange.lowerBound(value, true)),
-                    fetchFn(IDBKeyRange.upperBound(value, true)),
-                ];
+                case 'not':  {
+                    const val = this.indexed[condition.field] === 'boolean'
+                        ? idbBoolToNumber(value as boolean | null) : value;
+                    return [
+                        fetchFn(IDBKeyRange.lowerBound(val, true)),
+                        fetchFn(IDBKeyRange.upperBound(val, true)),
+                    ];
+                }
             }
         })()].flat();
         return Promise.all(requests.map(req => req.toPromise<R[]>())).then(results => results.flat());

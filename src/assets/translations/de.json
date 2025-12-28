@@ -6,9 +6,6 @@
   "EDIT_MODE": "Bearbeitungsmodus",
   "SIGN_IN": "Anmelden",
   "SIGN_OUT": "Abmelden",
-  "NEW_UNITS_PAGE": {
-    "TITLE": "Neue Einheiten"
-  },
   "LOGIN": {
     "TITLE": "Anmelden",
     "EMAIL": "E-Mail",
@@ -65,7 +62,7 @@
     "MEMBERS": "Mitglieder",
     "CALLINGS": "Berufungen",
     "CHURCH_SERVICE": "Gottesdienst",
-    "NEW_UNITS": "Neue Einheit."
+    "USERS": "Benutzer"
   },
   "VIEW": {
     "TASK": "Aufgabe",
@@ -102,6 +99,15 @@
     "UPLOAD_BUTTON": "PDF hochladen",
     "IMPORT_BUTTON": "Mitglieder importieren",
     "SELECTED": "ausgewählt"
+  },
+  "USERS_PAGE": {
+    "TITLE": "Benutzer",
+    "NEW_UNITS": "Neue Gemeinden"
+  },
+  "USER_PAGE": {
+    "IS_ADMIN": "Administrator",
+    "APPROVE": "Annehmen",
+    "REJECT": "Ablehnen"
   },
   "SELECT_ALL": "Alle auswählen",
   "BROTHER_SHORT": "Br.",

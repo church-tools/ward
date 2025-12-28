@@ -19,7 +19,7 @@ export class ProfileService implements OnDestroy {
             if (!user) return;
             this.ownSubscription = this.supabase.sync.from('profile')
                 .findOne()
-                .eq('uid', user.id)
+                .eq('email', user.email!)
                 .subscribe(({ result: own }) => {
                     if (own) this.own.set(own);
                 });

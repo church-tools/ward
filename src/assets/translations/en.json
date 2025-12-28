@@ -6,9 +6,6 @@
   "EDIT_MODE": "Edit Mode",
   "SIGN_IN": "Sign In",
   "SIGN_OUT": "Sign Out",
-  "NEW_UNITS_PAGE": {
-    "TITLE": "New Units"
-  },
   "LOGIN": {
     "TITLE": "Login",
     "EMAIL": "Email",
@@ -65,7 +62,7 @@
     "MEMBERS": "Members",
     "CALLINGS": "Callings",
     "CHURCH_SERVICE": "Service",
-    "NEW_UNITS": "New Units"
+    "USERS": "Users"
   },
   "VIEW": {
     "TASK": "Task",
@@ -102,6 +99,15 @@
     "UPLOAD_BUTTON": "Upload PDF",
     "IMPORT_BUTTON": "Import Members",
     "SELECTED": "selected"
+  },
+  "USERS_PAGE": {
+    "TITLE": "Users",
+    "NEW_UNITS": "New Wards"
+  },
+  "USER_PAGE": {
+    "IS_ADMIN": "Administrator",
+    "APPROVE": "Approve",
+    "REJECT": "Reject"
   },
   "SELECT_ALL": "Select All",
   "BROTHER_SHORT": "Bro.",

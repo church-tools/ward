@@ -31,9 +31,9 @@ export class SetupPageComponent extends PageComponent {
     protected createUnit = async () => {
         const unitName = this.unitName();
         if (!unitName) return;
-        const session = await this.supabase.getSessionToken();
+        // const session = await this.supabase.getSessionToken();
         const data = await this.supabase.callEdgeFunction('create-unit', { name: unitName });
-        const user = await this.assureProfileExists(data);
+        // const user = await this.assureProfileExists(data);
 
         // const { data: unit } = await this.supabaseService.client
         //     .from('unit')
@@ -53,24 +53,5 @@ export class SetupPageComponent extends PageComponent {
         const { profile } = await this.supabase.callEdgeFunction('join-unit', { unit_id: this.selectedUnit() });
         await this.supabase.refreshSession();
         this.router.navigateByUrl('/');
-    }
-
-    private async assureProfileExists(unit: { id: number }): Promise<Profile.Row> {
-        const session = await this.supabase.getSessionToken();
-        const uid = session?.user.id;
-        if (!uid) throw new Error('Login fehlgeschlagen');
-        const { data: existing } = await this.supabase.client
-            .from('profile')
-            .select('*')
-            .eq('uid', uid)
-            .single();
-        if (existing) return existing;
-        const { data: created } = await this.supabase.client
-            .from('profile')
-            .insert({ uid, unit: unit.id })
-            .select('*')
-            .single()
-            .throwOnError();
-        return created;
     }
 }

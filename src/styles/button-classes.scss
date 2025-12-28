@@ -36,7 +36,11 @@ button, .button {
     position: relative;
     cursor: pointer;
 
-    &.accent-btn { @extend .#{"" + color.$accent}-btn; }
+    
+    @each $name, $color in color.$semantic-colors {
+        &.#{"" + $name}-btn { @extend .#{"" + $color}-btn; }
+    }
+
 
     &:disabled, &.disabled {
         cursor: not-allowed;

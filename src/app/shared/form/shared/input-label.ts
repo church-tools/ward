@@ -9,7 +9,7 @@ import { Icon, IconComponent } from '../../icon/icon';
         @if (label()) {
             @if (icon()) { <app-icon [icon]="icon()!" [filled]="true" size="sm"/> }
             <span class="label color-text">
-                {{label()}}
+                {{ label() }}
                 @if (required()) { <span class="required-indicator">*</span> }
             </span>
         }

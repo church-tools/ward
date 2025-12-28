@@ -59,8 +59,9 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
     
     async ngOnInit() {
         const session = await this.supabase.getSession();
+        const isUnitAdmin = this.adminService.isUnitAdmin();
         this.tabs.set(Object.entries(privateTabs)
-            .filter(([_, { admin }]) => !admin || session?.is_admin)
+            .filter(([_, { admin }]) => !admin || session?.is_admin || isUnitAdmin)
             .map(([path, { translateId, icon }]) => ({ path, translateId, icon })));
     }
 

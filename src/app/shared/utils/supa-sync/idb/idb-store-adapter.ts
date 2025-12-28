@@ -40,7 +40,6 @@ export class IDBStoreAdapter<T> {
     public async writeMany(items: T[]): Promise<undefined> {
         if (items.length === 0) return;
         const idb = await this.idb;
-        
         if (this.mappingFunction)
             items = items.map(item => this.mappingFunction!(item));
         await idb.transaction(this.storeName, "readwrite")

@@ -511,35 +511,38 @@ export type Database = {
         Row: {
           created_at: string
           deleted: boolean
+          email: string
           id: number
           is_admin: boolean
           is_unit_admin: boolean
-          uid: string
           unit: number
           unit_approved: boolean | null
           updated_at: string
+          user: string
         }
         Insert: {
           created_at?: string
           deleted?: boolean
+          email: string
           id?: number
           is_admin?: boolean
           is_unit_admin?: boolean
-          uid: string
           unit: number
           unit_approved?: boolean | null
           updated_at?: string
+          user: string
         }
         Update: {
           created_at?: string
           deleted?: boolean
+          email?: string
           id?: number
           is_admin?: boolean
           is_unit_admin?: boolean
-          uid?: string
           unit?: number
           unit_approved?: boolean | null
           updated_at?: string
+          user?: string
         }
         Relationships: [
           {

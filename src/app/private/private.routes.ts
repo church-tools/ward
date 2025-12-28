@@ -37,11 +37,15 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
         loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent)
     },
-    'new-units': {
+    users: {
         admin: true, onBottom: true,
-        translateId: 'NEW_UNITS', icon: 'checkmark_circle',
-        loadComponent: () => import('./new-units/new-units').then(m => m.NewUnitsPageComponent)
-    }
+        translateId: 'USERS', icon: 'person',
+        loadComponent: () => import('./users/users-page').then(m => m.UsersPageComponent),
+        childrenInside: true,
+        ':profile': {
+            loadComponent: () => import('./users/user-page').then(m => m.UserPageComponent),
+        }
+    },
 };
 
 export async function getPrivateRoutes() {
