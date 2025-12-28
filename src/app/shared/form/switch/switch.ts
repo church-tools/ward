@@ -10,10 +10,11 @@ import InputLabelComponent from '../shared/input-label';
     imports: [InputLabelComponent, ErrorMessageComponent],
     template: `
         <div class="column">
-            <label class="row items-center"
-                [class.no-wrap]="forceLabelOnSide()"
-                [class.reverse]="forceLabelOnTop()"
-                [class.min-content-width]="forceLabelOnTop()">
+            <label class="items-center"
+                [class.row]="!forceLabelOnTop()"
+                [class.column]="forceLabelOnTop()"
+                [class.no-wrap]="forceLabelOnSide() && !forceLabelOnTop()"
+                [class.reverse]="labelSide() === 'right' && !forceLabelOnTop()">
                 <app-input-label/>
                 <div class="switch {{color()}}-fg" [class.checked]="viewValue()">
                     <input title="{{label()}}" type="checkbox"

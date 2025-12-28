@@ -165,6 +165,10 @@ h6, .h6 {
     white-space-collapse: preserve-breaks;
 }
 
+.wrap-anywhere {
+    overflow-wrap: anywhere;
+}
+
 .no-text-wrap {
     white-space: nowrap;
 }

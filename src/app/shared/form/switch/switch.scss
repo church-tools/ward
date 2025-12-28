@@ -3,6 +3,21 @@
 @use "color";
 @use "animation";
 
+:host {
+    label.row app-input-label {
+        flex: 1 1 auto;
+        min-width: 0;
+    }
+
+    label.column {
+        align-items: stretch;
+    }
+
+    label.column app-input-label {
+        width: 100%;
+    }
+}
+
 .switch {
     position: relative;
     display: inline-flex;

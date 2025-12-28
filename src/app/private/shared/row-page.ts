@@ -13,14 +13,14 @@ import { PrivatePageComponent } from './private-page';
     selector: 'app-row-page',
     template: ``,
     host: {
-        class: "column gap-3",
+        class: "column gap-4",
     },
 })
 export abstract class RowPageComponent<T extends TableName> extends PrivatePageComponent implements OnInit, OnDestroy {
     
     private readonly rowPageService = inject(RowPageService);
-    private readonly route = inject(ActivatedRoute);
-    private readonly router = inject(Router);
+    protected readonly route = inject(ActivatedRoute);
+    protected readonly router = inject(Router);
     protected readonly injector = inject(Injector);
     protected readonly supabase = inject(SupabaseService);
     
@@ -36,7 +36,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     private subscription?: Subscription;
 
     async ngOnInit() {
-        this.subscription = this.route.paramMap.subscribe(async (params) => {
+        this.subscription = this.route.paramMap.subscribe(async params => {
             const rowId = params.get(this.tableName);
             if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
             this.rowPageService.pageOpened(this.tableName, +rowId);

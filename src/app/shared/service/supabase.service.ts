@@ -14,7 +14,7 @@ export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 export type Session = { user: User; unit?: string, unit_approved?: boolean | null, is_admin: boolean };
 
 export type EdgeFunction = 'login-with-password' | 'list-units' | 'create-unit' | 'fetch-unapproved-units'
-    | 'set-unit-approved' | 'join-unit';
+    | 'set-unit-approved' | 'join-unit' | 'approve-user';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {

@@ -102,12 +102,17 @@
   },
   "USERS_PAGE": {
     "TITLE": "Users",
-    "NEW_UNITS": "New Wards"
+    "NEW_UNITS": {
+      "TITLE": "New Wards",
+      "ALL_DONE": "All done!"
+    }
   },
   "USER_PAGE": {
     "IS_ADMIN": "Administrator",
     "APPROVE": "Approve",
-    "REJECT": "Reject"
+    "REJECT": "Reject",
+    "MAKE_ADMIN": "Make Administrator",
+    "REMOVE_ADMIN": "Remove Administrator"
   },
   "SELECT_ALL": "Select All",
   "BROTHER_SHORT": "Bro.",

@@ -9,7 +9,7 @@ type UnitInfo = { id: number; name: string, created_by: string };
 @Component({
     selector: 'app-new-units',
     template: `
-        <h1 class="mt-8">{{ 'USERS_PAGE.NEW_UNITS' | translate }}</h1>
+        <h1 class="mt-8">{{ 'USERS_PAGE.NEW_UNITS.TITLE' | translate }}</h1>
         @if (units() == null) {
             <div class="column mt-4 items-center center-content">
                 <app-icon icon="throbber"/>
@@ -36,8 +36,8 @@ type UnitInfo = { id: number; name: string, created_by: string };
                 }
             } @else {
                 <div class="column mt-4 gap-4 items-center center-content card-appear">
-                    <app-icon icon="checkmark_circle" size="xxxxl" class="accent-text"/>
-                    Alles erledigt!
+                    <app-icon icon="checkmark_circle" size="xxxxl" class="subtle-text"/>
+                    {{ 'USERS_PAGE.NEW_UNITS.ALL_DONE' | translate }}
                 </div>
             }
         }

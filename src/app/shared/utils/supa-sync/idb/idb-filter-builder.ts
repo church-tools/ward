@@ -76,7 +76,11 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                 case 'in': return condition.value.includes(value);
                 case 'gt': return value > condition.value;
                 case 'lt': return value < condition.value;
-                case 'not': return !condition.value == value;
+                case 'not': {
+                    if (this.indexed[condition.field] === 'boolean')
+                        return !(value === idbBoolToNumber(condition.value));
+                    return !(value === condition.value);
+                }
             }
         });
     }

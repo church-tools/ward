@@ -1,34 +1,27 @@
 import { Component } from '@angular/core';
-import { ListRowComponent } from '../shared/list-row';
 import { IconComponent } from '../../shared/icon/icon';
-import { xcomputed } from '../../shared/utils/signal-utils';
+import { ListRowComponent } from '../shared/list-row';
 
 @Component({
     selector: 'app-profile-list-row',
     template: `
-        <div class="row m-4">
+        <div class="row m-4 gap-2">
+            @if (!row().unit_approved) {
+                <app-icon class="accent-text"
+                    icon="question_circle"
+                    [filled]="true"/>
+            }
             <h4>
-                @if (awaitsApproval()) {
-                    <app-icon class="accent-text"
-                        icon="question_circle"
-                        [filled]="true"/>
-                }
                 {{ row().email }}
             </h4>
+            @if (row().is_admin) {
+                <app-icon class="accent-text"
+                    icon="shield_person"/>
+            }
         </div>
     `,
     imports: [IconComponent],
 })
 export class ProfileListRowComponent extends ListRowComponent<'profile'> {
-
-    protected readonly awaitsApproval = xcomputed([this.row],
-        row => !row.unit_approved);
     
-    protected accept = async () => {
-
-    }
-
-    protected reject = async () => {
-
-    }
 }

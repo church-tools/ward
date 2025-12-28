@@ -102,12 +102,17 @@
   },
   "USERS_PAGE": {
     "TITLE": "Benutzer",
-    "NEW_UNITS": "Neue Gemeinden"
+    "NEW_UNITS": {
+      "TITLE": "Neue Gemeinden",
+      "ALL_DONE": "Alles erledigt!"
+    }
   },
   "USER_PAGE": {
     "IS_ADMIN": "Administrator",
     "APPROVE": "Annehmen",
-    "REJECT": "Ablehnen"
+    "REJECT": "Ablehnen",
+    "MAKE_ADMIN": "Zum Administrator machen",
+    "REMOVE_ADMIN": "Als Administrator entfernen"
   },
   "SELECT_ALL": "Alle auswählen",
   "BROTHER_SHORT": "Br.",
