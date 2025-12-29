@@ -99,40 +99,39 @@
             .count-dot { opacity: 1; }
         }
     }
-    &.pill-mode {
-        .btn {
-            &:hover {
-                background: none;
-                .icon, .tab-title {
-                    color: font.$color;
-                }
-                .active-icon, .icon, .tab-title {
-                    color: color.get-variant(color.$accent, 'high-contrast');
-                }
+    &.pill-mode .btn {
+        &:hover {
+            background: none;
+            .icon, .tab-title {
+                color: font.$color;
             }
-            .icon-area, .tab-title {
-                transform: translateY(0.125rem);
+            .active-icon, .icon, .tab-title {
+                color: color.get-variant(color.$accent, 'high-contrast');
             }
+        }
+        .icon-area, .tab-title {
+            transform: translateY(0.125rem);
+            font-weight: font.$weight-semibold;
+        }
+        .icon-area {
+            min-width: 28px;
+            min-height: 28px;
+            padding: 0.25rem 0.25rem;
+            border-radius: card.$border-radius-round;
+        }
+        .tab-title {
+            font-size: 8pt;
+        }
+        &.active {
+            background: none;
             .icon-area {
-                min-width: 28px;
-                min-height: 28px;
-                padding: 0.25rem 0.25rem;
-                border-radius: card.$border-radius-round;
+                transform: translateY(0.125rem);
+                padding: 0.25rem 1.25rem;
+                background-color: color-mix(in srgb, color.get-variant(color.$accent, 'mute') 100%, transparent);
             }
             .tab-title {
-                font-size: 8pt;
-            }
-            &.active {
-                background: none;
-                .icon-area {
-                    transform: translateY(0.125rem);
-                    padding: 0.25rem 1.5rem;
-                    background-color: color-mix(in srgb, color.get-variant(color.$accent, 'mute') 100%, transparent);
-                }
-                .tab-title {
-                    opacity: 1;
-                    color: color.get-variant(color.$accent, 'high-contrast');
-                }
+                opacity: 1;
+                color: color.get-variant(color.$accent, 'high-contrast');
             }
         }
     }

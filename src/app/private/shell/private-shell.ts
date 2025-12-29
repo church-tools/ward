@@ -62,7 +62,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         const isUnitAdmin = this.adminService.isUnitAdmin();
         this.tabs.set(Object.entries(privateTabs)
             .filter(([_, { admin }]) => !admin || session?.is_admin || isUnitAdmin)
-            .map(([path, { translateId, icon }]) => ({ path, translateId, icon })));
+            .map(([path, { translateId, icon, onBottom }]) => ({ path, translateId, icon, bottom: onBottom })));
     }
 
     private async getStartRoute() {

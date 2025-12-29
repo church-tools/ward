@@ -8,11 +8,36 @@
     padding: 0.5rem 0.25rem * 1.5;
     padding-top: 1px;
 
+    .tabs {
+        align-items: center;
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+        &.top {
+            flex-grow: 1;
+        }
+    }
+
     &.horizontal {
         min-height: 5rem;
         width: 100%;
         flex-direction: row;
         justify-content: space-evenly;
+        .tabs {
+            width: 100%;
+            flex-direction: row;
+            justify-content: space-evenly;
+        }
+    }
+    &:not(.horizontal) {
+        &.pill-mode {
+            min-width: 6rem;
+            padding-bottom: 1rem;
+            .tabs {
+                gap: 1rem;
+                justify-content: center;
+            }
+        }
     }
 }
 
@@ -36,33 +61,23 @@
         transition: opacity animation.$duration-sm animation.$ease-out,
                     height animation.$duration-sm animation.$ease-out;
     }
-    &.bottom {
-        animation: fade-to-bottom animation.$duration-sm ease;
-        @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-            &.tab-#{$tab} {
-                transform: translateY(calc(100vh - 6.75rem - 4.25rem * #{$tab}));
+    @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
+        &.tab-#{$tab} {
+            &.bottom {
+                transform: translateY(calc(100vh - 92px - 4.25rem * #{$tab}));
             }
-        }
-    }
-    &:not(.bottom) {
-        animation: fade-to-top animation.$duration-sm ease;
-        @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
-            &.tab-#{$tab} {
+            &:not(.bottom) {
                 transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));
             }
         }
     }
+    &.bottom:not(.prev-bottom), &.prev-bottom:not(.bottom) {
+        animation: fade-out-and-in animation.$duration animation.$ease-out;
+    }
 }
 
-@keyframes fade-to-top {
-    0% { opacity: 100%; }
-    33% { opacity: 0%; }
-    67% { opacity: 0%; }
-    100% { opacity: 100%; }
-}
-@keyframes fade-to-bottom {
-    0% { opacity: 100%; }
-    33% { opacity: 0%; }
-    67% { opacity: 0%; }
+@keyframes fade-out-and-in {
+    0% { opacity: 0%; }
+    50% { opacity: 0%; }
     100% { opacity: 100%; }
 }
