@@ -121,8 +121,18 @@
   "MEETINGS_PAGE.TITLE": "Sitzungen",
   "CALLINGS_PAGE.TITLE": "Berufungen",
   "SERVICE_WORKER": {
-    "UPDATE_AVAILABLE": "Eine neue Version der Anwendung ist verfügbar. Möchten Sie jetzt aktualisieren?",
-    "ERROR_REFRESH": "Die Anwendung ist auf einen Fehler gestoßen. Möchten Sie die Seite neu laden?"
+    "UPDATE_AVAILABLE": {
+      "TITLE": "Update verfügbar",
+      "MESSAGE": "Eine neue Version der Anwendung ist verfügbar. Möchten Sie jetzt aktualisieren?",
+      "CONFIRM": "Aktualisieren",
+      "CANCEL": "Später"
+    },
+    "ERROR_REFRESH": {
+      "TITLE": "Fehler",
+      "MESSAGE": "Die Anwendung ist auf einen Fehler gestoßen. Möchten Sie die Seite neu laden?",
+      "CONFIRM": "Neu laden",
+      "CANCEL": "Abbrechen"
+    }
   },
   "ERROR": {
     "FAILED": "Fehlgeschlagen"

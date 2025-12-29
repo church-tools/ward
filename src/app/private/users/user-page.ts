@@ -56,7 +56,7 @@ export class UserPageComponent extends RowPageComponent<'profile'> {
     }
 
     protected makeAdmin = async () => {
-
+        
     }
 
     protected removeAdmin = async () => {

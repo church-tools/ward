@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
 import { filter, map } from 'rxjs/operators';
-import { TranslateService } from '@ngx-translate/core';
+import { PopoverService } from '../widget/popover/popover.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,7 +9,6 @@ import { TranslateService } from '@ngx-translate/core';
 export class ServiceWorkerService {
     
     private readonly swUpdate = inject(SwUpdate);
-    private readonly translate = inject(TranslateService);
 
     constructor() {
         if (!this.swUpdate.isEnabled) {
@@ -38,10 +37,7 @@ export class ServiceWorkerService {
         ).subscribe(({ current, available }) => {
             console.log(`Current version: ${current.hash}`);
             console.log(`Available version: ${available.hash}`);
-            if (this.shouldPromptForUpdate())
-                this.promptUserForUpdate();
-            else
-                this.activateUpdate();
+            this.promptUserForUpdate();
         });
     }
 
@@ -52,15 +48,11 @@ export class ServiceWorkerService {
         });
     }
 
-    private shouldPromptForUpdate(): boolean {
-        // You can add your own logic here to determine when to prompt
-        // For example, check if user is idle, or based on app criticality
-        return true;
-    }
-
-    private promptUserForUpdate(): void {
-        if (confirm(this.translate.instant('SERVICE_WORKER.UPDATE_AVAILABLE')))
-            this.activateUpdate();
+    promptUserForUpdate(): void {
+        const namespace = 'SERVICE_WORKER.UPDATE_AVAILABLE';
+        inject(PopoverService).confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`,
+            `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
+            .then(confirmed => confirmed ? this.activateUpdate() : null);
     }
 
     private activateUpdate(): void {
@@ -72,10 +64,10 @@ export class ServiceWorkerService {
 
     private notifyUserOfError(): void {
         console.error('Application is in an unrecoverable state. Please refresh the page.');
-        // You might want to show a user-friendly error message here
-        if (confirm(this.translate.instant('SERVICE_WORKER.ERROR_REFRESH'))) {
-            window.location.reload();
-        }
+        const namespace = 'SERVICE_WORKER.ERROR_REFRESH';
+        inject(PopoverService).confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`,
+            `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
+            .then(confirmed => confirmed ? window.location.reload() : null);
     }
 
     /**

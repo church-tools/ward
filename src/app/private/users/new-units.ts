@@ -36,7 +36,7 @@ type UnitInfo = { id: number; name: string, created_by: string };
                 }
             } @else {
                 <div class="column mt-4 gap-4 items-center center-content card-appear">
-                    <app-icon icon="checkmark_circle" size="xxxxl" class="subtle-text"/>
+                    <app-icon icon="checkmark_circle" size="xxxxl" class="opacity-10"/>
                     {{ 'USERS_PAGE.NEW_UNITS.ALL_DONE' | translate }}
                 </div>
             }
