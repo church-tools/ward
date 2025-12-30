@@ -23,6 +23,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly storeAdapter: IDBStoreAdapter<Row<D, T>>;
     public readonly pendingAdapter: IDBStoreAdapter<Update<D, T>>;
     public readonly idKey: Column<D, T>;
+    public readonly deletedKey: Column<D, T>;
     public readonly needsUpgrade: boolean;
     private readonly createOffline: boolean;
     private readonly updateOffline: boolean;
@@ -35,6 +36,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         public readonly info: SupaSyncTableInfo<D, T> & IA
     ) {
         this.idKey = info.idPath ?? 'id';
+        this.deletedKey = info.deletedPath ?? 'deleted';
         this.createOffline = info.createOffline ?? true;
         this.updateOffline = info.updateOffline ?? true;
         this.onlineState = onlineState;
@@ -152,12 +154,13 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
 
     public async delete(row: Row<D, T> | number | string) {
         const id = typeof row === 'object' ? row[this.idKey] : row as any;
-        if (this.updateOffline) {
-            await this.supabaseClient.from(this.tableName).delete()
-                .eq(this.idKey, id)
-                .throwOnError();
-        }
-        return this.storeAdapter.delete(id);
+        await Promise.all([
+            this.storeAdapter.delete(id),
+            (this.updateOffline
+                ? this.supabaseClient.from(this.tableName).update({ [this.deletedKey]: true } as any)
+                : this.supabaseClient.from(this.tableName).delete()
+            ).eq(this.idKey, id).throwOnError()
+        ]);
     }
     
     public async findLargestId() {

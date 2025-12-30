@@ -55,11 +55,10 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
             const deletions: number[] = [];
             for (const change of changes) {
                 const { old, new: cur } = change;
-                if (cur && this.filterRow(cur)) {
+                if (cur && this.filterRow(cur))
                     items.push(cur);
-                } else if (old && this.filterRow(old)) {
+                else if (old && (!cur || this.filterRow(old)))
                     deletions.push(old.id);
-                }
             }
             if (!items.length && !deletions.length) return;
             const result = items.length ? this.resultMapping(items) : undefined;

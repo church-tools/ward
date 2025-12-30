@@ -17,6 +17,7 @@ export type Indexed<D extends Database, T extends TableName<D>> = Partial<{
 export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     name: T;
     idPath?: Column<D, T>; // default: 'id'
+    deletedPath?: Column<D, T>; // default: 'deleted'
     createOffline?: boolean; // default: true
     updateOffline?: boolean; // default: true
     indexed?: Indexed<D, T>;
@@ -31,6 +32,6 @@ export type SupaSyncPayload<D extends Database> = {
     old: Row<D, TableName<D>> | undefined
 };
 
-export type Change<T> = { old: T | undefined, new: T | undefined };
+export type Change<T> = { old?: T, new?: T };
 
 export type QueryResult<R> = { result?: R, deletions?: number[] }

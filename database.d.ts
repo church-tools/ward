@@ -71,6 +71,7 @@ export type Database = {
         Row: {
           agenda: number
           content: string | null
+          deleted: boolean
           id: number
           position: number
           type: Database["public"]["Enums"]["agenda_section_type"]
@@ -80,6 +81,7 @@ export type Database = {
         Insert: {
           agenda: number
           content?: string | null
+          deleted?: boolean
           id?: number
           position: number
           type?: Database["public"]["Enums"]["agenda_section_type"]
@@ -89,6 +91,7 @@ export type Database = {
         Update: {
           agenda?: number
           content?: string | null
+          deleted?: boolean
           id?: number
           position?: number
           type?: Database["public"]["Enums"]["agenda_section_type"]
@@ -109,6 +112,7 @@ export type Database = {
         Row: {
           caller: Database["public"]["Enums"]["calling_caller"]
           created_at: string
+          deleted: boolean
           full_name: string
           id: number
           is_temporary: boolean
@@ -123,6 +127,7 @@ export type Database = {
         Insert: {
           caller?: Database["public"]["Enums"]["calling_caller"]
           created_at?: string
+          deleted?: boolean
           full_name: string
           id: number
           is_temporary?: boolean
@@ -137,6 +142,7 @@ export type Database = {
         Update: {
           caller?: Database["public"]["Enums"]["calling_caller"]
           created_at?: string
+          deleted?: boolean
           full_name?: string
           id?: number
           is_temporary?: boolean
@@ -169,26 +175,29 @@ export type Database = {
         Row: {
           calling: number | null
           created_at: string
+          deleted: boolean
           id: number
           member: number | null
-          modified_at: string
           unit: number
+          updated_at: string
         }
         Insert: {
           calling?: number | null
           created_at?: string
+          deleted?: boolean
           id: number
           member?: number | null
-          modified_at?: string
           unit: number
+          updated_at?: string
         }
         Update: {
           calling?: number | null
           created_at?: string
+          deleted?: boolean
           id?: number
           member?: number | null
-          modified_at?: string
           unit?: number
+          updated_at?: string
         }
         Relationships: [
           {
@@ -288,6 +297,7 @@ export type Database = {
         Row: {
           agenda_permissions: number[] | null
           created_at: string
+          deleted: boolean
           first_name: string
           gender: Database["public"]["Enums"]["gender"] | null
           id: number
@@ -302,6 +312,7 @@ export type Database = {
         Insert: {
           agenda_permissions?: number[] | null
           created_at?: string
+          deleted?: boolean
           first_name: string
           gender?: Database["public"]["Enums"]["gender"] | null
           id: number
@@ -316,6 +327,7 @@ export type Database = {
         Update: {
           agenda_permissions?: number[] | null
           created_at?: string
+          deleted?: boolean
           first_name?: string
           gender?: Database["public"]["Enums"]["gender"] | null
           id?: number
@@ -381,23 +393,26 @@ export type Database = {
         Row: {
           calling: number
           created_at: string
+          deleted: boolean
           member: number
-          modified_at: string
           unit: number
+          updated_at: string
         }
         Insert: {
           calling: number
           created_at?: string
+          deleted?: boolean
           member: number
-          modified_at?: string
           unit: number
+          updated_at?: string
         }
         Update: {
           calling?: number
           created_at?: string
+          deleted?: boolean
           member?: number
-          modified_at?: string
           unit?: number
+          updated_at?: string
         }
         Relationships: [
           {

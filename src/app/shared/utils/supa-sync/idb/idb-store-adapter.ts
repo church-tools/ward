@@ -37,25 +37,35 @@ export class IDBStoreAdapter<T> {
             .toPromise(store => store.put(item));
     }
 
-    public async writeMany(items: T[]): Promise<undefined> {
+    public async writeMany(items: T[], deleteIds?: number[]): Promise<undefined> {
         if (items.length === 0) return;
         const idb = await this.idb;
         if (this.mappingFunction)
             items = items.map(item => this.mappingFunction!(item));
         await idb.transaction(this.storeName, "readwrite")
-            .toPromise(store => items.forEach(item => store.put(item)));
+            .toPromise(store => {
+                for (const item of items) store.put(item);
+                for (const id of deleteIds ?? []) store.delete(id);
+            });
     }
 
-    public async writeAndGet(items: T[]) {
+    public async writeAndGet(items: T[], deletes?: T[]): Promise<Change<T>[]> {
         if (items.length === 0) return [];
         const idb = await this.idb;
         if (this.mappingFunction)
             items = items.map(item => this.mappingFunction!(item));
         return await idb.transaction(this.storeName, 'readwrite')
-            .toPromise(store => Promise.all(items.map(item => Promise.all([
-                store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>(),
-                store.put(item).toPromise()
-            ]).then(([old]) => ({ old, new: item })))));
+            .toPromise(store => {
+                const itemUpdateProm = Promise.all(items.map(item => Promise.all([
+                    store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>(),
+                    store.put(item).toPromise(),
+                ]).then(([old]) => ({ old, new: item }))))
+                const deleteProm = Promise.all((deletes ?? []).map(item => Promise.all([
+                    store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>(),
+                    store.delete(item[store.keyPath as keyof T] as IDBValidKey).toPromise(),
+                ]).then(([old]) => ({ old, new: undefined }))));
+                return Promise.all([itemUpdateProm, deleteProm]);
+            }).then(([items, deletions]) => [...items, ...deletions]);
     }
 
     public abort() {

@@ -92,9 +92,13 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                 .throwOnError();
             const adapter = table.storeAdapter;
             if (data.length) {
-                const changes = await (adapter.onChangeReceived.hasSubscriptions
-                    ? adapter.writeAndGet(data)
-                    : adapter.writeMany(data));
+                const [deleteIds, updates] = table.info.updateOffline
+                    ? [data.filter(row => row[table.deletedKey]).map(row => row[table.idKey] as number),
+                        data.filter(row => !row[table.deletedKey])]
+                    : [[], data];
+                const changes = adapter.onChangeReceived.hasSubscriptions
+                    ? await adapter.writeAndGet(updates, deleteIds)
+                    : await adapter.writeMany(updates, deleteIds);
                 if (changes) adapter.onChangeReceived.emit(changes);
             }
             adapter.initialized.set(true);
@@ -112,11 +116,14 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                         { event: '*', schema: 'public' },
                         async (payload: SupaSyncPayload<D>) => {
                             await this.eventLock.lock(async () => {
-                                const adapter = this.tablesByName[payload.table].storeAdapter;
+                                const table = this.tablesByName[payload.table];
+                                const adapter = table.storeAdapter;
                                 switch (payload.eventType) {
                                     case 'INSERT':
                                     case 'UPDATE':
                                         payload.old = (await adapter.writeAndGet([payload.new]))[0].old;
+                                        if (payload.new?.[table.deletedKey])
+                                            payload.new = undefined;
                                         adapter.onChangeReceived.emit([payload]);
                                         break;
                                     case 'DELETE':
