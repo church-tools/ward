@@ -1,7 +1,7 @@
 import { Injectable, inject } from '@angular/core';
 import { SwUpdate, VersionReadyEvent } from '@angular/service-worker';
+import { Subject } from 'rxjs';
 import { filter, map } from 'rxjs/operators';
-import { PopoverService } from '../widget/popover/popover.service';
 
 @Injectable({
   providedIn: 'root'
@@ -9,6 +9,12 @@ import { PopoverService } from '../widget/popover/popover.service';
 export class ServiceWorkerService {
     
     private readonly swUpdate = inject(SwUpdate);
+
+    private readonly updateAvailableSubject = new Subject<void>();
+    readonly updateAvailable$ = this.updateAvailableSubject.asObservable();
+
+    private readonly unrecoverableSubject = new Subject<string>();
+    readonly unrecoverable$ = this.unrecoverableSubject.asObservable();
 
     constructor() {
         if (!this.swUpdate.isEnabled) {
@@ -34,40 +40,19 @@ export class ServiceWorkerService {
                 current: event.currentVersion,
                 available: event.latestVersion
             }))
-        ).subscribe(({ current, available }) => {
+        ).subscribe(async ({ current, available }) => {
             console.log(`Current version: ${current.hash}`);
             console.log(`Available version: ${available.hash}`);
-            this.promptUserForUpdate();
+            await this.swUpdate.activateUpdate();
+            this.updateAvailableSubject.next();
         });
     }
 
     private handleUnrecoverableState(): void {
         this.swUpdate.unrecoverable.subscribe(event => {
             console.error('Service worker in unrecoverable state:', event.reason);
-            this.notifyUserOfError();
+            this.unrecoverableSubject.next(event.reason);
         });
-    }
-
-    promptUserForUpdate(): void {
-        const namespace = 'SERVICE_WORKER.UPDATE_AVAILABLE';
-        inject(PopoverService).confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`,
-            `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
-            .then(confirmed => confirmed ? this.activateUpdate() : null);
-    }
-
-    private activateUpdate(): void {
-        this.swUpdate.activateUpdate().then(() => {
-            console.log('Service worker update activated');
-            window.location.reload();
-        });
-    }
-
-    private notifyUserOfError(): void {
-        console.error('Application is in an unrecoverable state. Please refresh the page.');
-        const namespace = 'SERVICE_WORKER.ERROR_REFRESH';
-        inject(PopoverService).confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`,
-            `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
-            .then(confirmed => confirmed ? window.location.reload() : null);
     }
 
     /**

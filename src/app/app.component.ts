@@ -2,8 +2,9 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ServiceWorkerService } from './shared/service/service-worker.service';
-import { trimPastedStrings } from './shared/utils/clipboard-utils';
 import { SupabaseService } from './shared/service/supabase.service';
+import { trimPastedStrings } from './shared/utils/clipboard-utils';
+import { PopoverService } from './shared/widget/popover/popover.service';
 
 const LANGUAGE_STORAGE_KEY = 'language';
 
@@ -17,12 +18,32 @@ export class AppComponent {
     public static supabase: SupabaseService | undefined;
     private readonly translate = inject(TranslateService);
     private readonly serviceWorkerService = inject(ServiceWorkerService);
+    private readonly popoverService = inject(PopoverService);
     
     constructor() {
         const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
         this.translate.use(browserLang);
         trimPastedStrings();
         AppComponent.supabase = inject(SupabaseService);
+
+        this.serviceWorkerService.updateAvailable$.subscribe(() => {
+            const namespace = 'SERVICE_WORKER.UPDATE_AVAILABLE';
+            this.popoverService
+                .confirm(
+                    `${namespace}.TITLE`,
+                    `${namespace}.MESSAGE`,
+                    `${namespace}.CONFIRM`,
+                    `${namespace}.CANCEL`
+                )
+                .then(confirmed => (confirmed ? window.location.reload() : null));
+        });
+
+        this.serviceWorkerService.unrecoverable$.subscribe(() => {
+            const namespace = 'SERVICE_WORKER.ERROR_REFRESH';
+            this.popoverService
+                .confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`, `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
+                .then(confirmed => (confirmed ? window.location.reload() : null));
+        });
     }
 
     static saveLanguage(language: string) {
