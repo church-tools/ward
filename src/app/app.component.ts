@@ -27,21 +27,16 @@ export class AppComponent {
         AppComponent.supabase = inject(SupabaseService);
 
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
-            const namespace = 'SERVICE_WORKER.UPDATE_AVAILABLE';
+            const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';
             this.popoverService
-                .confirm(
-                    `${namespace}.TITLE`,
-                    `${namespace}.MESSAGE`,
-                    `${namespace}.CONFIRM`,
-                    `${namespace}.CANCEL`
-                )
+                .confirm(`${ns}.TITLE`, `${ns}.MESSAGE`, `${ns}.CONFIRM`, `${ns}.CANCEL`)
                 .then(confirmed => (confirmed ? window.location.reload() : null));
         });
 
         this.serviceWorkerService.unrecoverable$.subscribe(() => {
-            const namespace = 'SERVICE_WORKER.ERROR_REFRESH';
+            const ns = 'SERVICE_WORKER.ERROR_REFRESH';
             this.popoverService
-                .confirm(`${namespace}.TITLE`, `${namespace}.MESSAGE`, `${namespace}.CONFIRM`, `${namespace}.CANCEL`)
+                .confirm(`${ns}.TITLE`, `${ns}.MESSAGE`, `${ns}.CONFIRM`, `${ns}.CANCEL`)
                 .then(confirmed => (confirmed ? window.location.reload() : null));
         });
     }
