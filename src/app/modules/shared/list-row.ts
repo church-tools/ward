@@ -20,6 +20,7 @@ export function getListRowComponent<T extends TableName>(tableName: T) {
 @Component({
     selector: 'app-list-row',
     template: '',
+    host: { 'class': 'full-width' }
 })
 export abstract class ListRowComponent<T extends TableName> {
     

@@ -5,7 +5,7 @@ import { ListRowComponent } from '../shared/list-row';
     selector: 'app-task-list-row',
     template: `
         <div class="column m-4">
-            <h4>{{ row().title }}</h4>
+            <h4><span class="overflow-ellipsis">{{ row().title }}</span></h4>
         </div>
     `,
 })
