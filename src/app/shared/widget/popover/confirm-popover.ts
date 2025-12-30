@@ -6,7 +6,7 @@ import { PopoverPage } from "./popover";
 @Component({
     selector: 'app-popover',
     template: `
-        <div class="column gap-2 max-width-96">
+        <div class="column gap-4 max-width-96">
             <h2>{{ title() | translate }}</h2>
             <p>{{ message() | translate }}</p>
             <div class="row center-content gap-2">

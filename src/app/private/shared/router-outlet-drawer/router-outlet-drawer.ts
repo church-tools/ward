@@ -105,7 +105,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
         if (this.onBottom()) {
-            (element as any).showModal();
             card.style.minWidth = ``;
             return;
         }
@@ -139,7 +138,6 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             await wait(animationDurationMs);
             card.style.minHeight = '';
             element.style.minHeight = '';
-            (element as any).close();
         } else {
             const width = element.offsetWidth;
             card.style.minWidth = `${width}px`;

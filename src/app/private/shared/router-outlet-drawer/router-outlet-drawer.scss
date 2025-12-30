@@ -114,10 +114,7 @@
     background: none;
     padding: 0;
     position: fixed;
-    height: min-content;
-    margin: 0;
-    margin-top: auto;
-    max-width: none;
+    bottom: 0;
     transition: transform animation.$duration animation.$ease-out;
     &::backdrop {
         display: none;

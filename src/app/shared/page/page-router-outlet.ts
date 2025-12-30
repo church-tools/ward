@@ -27,9 +27,10 @@ export class PageRouterOutlet extends RouterOutlet {
         if (!oldPageRef) return;
         const oldPage = oldPageRef.instance as PageComponent;
         oldPage.el.classList.remove('enter', 'fade', 'left', 'right');
-        oldPage.el.classList.add('leave', animation);
+        oldPage.el.classList.add('page-transitioning', 'leave', animation);
         oldPage.onLeaving();
         setTimeout(() => {
+            newPage.el.classList.remove('page-transitioning');
             location.detach(location.indexOf(oldPageRef.hostView));
             oldPageRef.destroy();
             this.detachEvents.emit(oldPage);
