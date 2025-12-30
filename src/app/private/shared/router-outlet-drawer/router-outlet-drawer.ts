@@ -60,8 +60,10 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         document.addEventListener('touchmove', this.handleDrag.bind(this), { passive: false, signal });
         document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
         xeffect([this.drawerView], drawer => {
-            drawer?.nativeElement.addEventListener('mousedown', this.onDragStart.bind(this), { passive: true });
-            drawer?.nativeElement.addEventListener('touchstart', this.onDragStart.bind(this), { passive: true });
+            if (!drawer) return;
+            const elem = drawer.nativeElement;
+            elem.addEventListener('mousedown', this.onDragStart.bind(this), { passive: true });
+            elem.addEventListener('touchstart', this.onDragStart.bind(this), { passive: true });
         });
     }
 
@@ -103,6 +105,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
         if (this.onBottom()) {
+            (element as any).showModal();
             card.style.minWidth = ``;
             return;
         }
@@ -136,6 +139,7 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             await wait(animationDurationMs);
             card.style.minHeight = '';
             element.style.minHeight = '';
+            (element as any).close();
         } else {
             const width = element.offsetWidth;
             card.style.minWidth = `${width}px`;
