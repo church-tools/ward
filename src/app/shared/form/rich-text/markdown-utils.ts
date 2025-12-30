@@ -33,6 +33,17 @@ export function quillHtmlToMarkdown(html: string): string {
     return cleanupMarkdown(processNode(temp));
 }
 
+export function markdownToPlainText(markdown: string | null): string {
+    if (!markdown) return '';
+    return markdown.replace(/(\*\*|__)(.*?)\1/g, '$2') // bold
+        .replace(/(\*|_)(.*?)\1/g, '$2') // italic
+        .replace(/~~(.*?)~~/g, '$1') // strikethrough
+        .replace(/`(.*?)`/g, '$1') // inline code
+        .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // links
+        .replace(/#+ (.*)/g, '$1') // headers
+        .trim();
+}
+
 function convertLinesToHtml(html: string): string {
     const lines = html.split('\n');
     const result: string[] = [];

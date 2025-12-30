@@ -20,9 +20,8 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     readonly column = input.required<C>();
     
     private subscription?: Subscription;
-    private lastValue: Row<D, T>[C] | undefined;
+    private readonly sentValues = new Set<Row<D, T>[C]>();
     private timeout: ReturnType<typeof setTimeout> | undefined;
-    private applyingRemoteValue = false;
 
     constructor() {
         effect(() => {
@@ -32,16 +31,14 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             if (!row) return;
             const column = this.column();
             const value = row[column];
-            if (value == null || this.lastValue === value) return;
+            if (value == null || this.sentValues.has(value)) return;
             this.applyRemoteValue(row[column]);
         });
         effect(() => {
             const currentValue = this.inputBase.value();
-            if (this.applyingRemoteValue) return;
             const columnValue = currentValue as Row<D, T>[C] | null;
             if (columnValue == null) return;
-            if (this.lastValue === columnValue) return;
-            this.lastValue = columnValue;
+            this.sentValues.add(columnValue);
             this.sendUpdate(columnValue);
         });
     }
@@ -51,27 +48,26 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     }
 
     private applyRemoteValue(value: Row<D, T>[C] | null | undefined) {
-        this.applyingRemoteValue = true;
-        try {
-            if (value == null) return;
-            this.lastValue = value;
-            this.inputBase.value.set(value);
-        } finally {
-            Promise.resolve().then(() => this.applyingRemoteValue = false);
+        if (value == null) return;
+        if (this.inputBase.debounceTime && this.sentValues.has(value)) {
+            this.sentValues.delete(value);
+            return;
         }
+        this.inputBase.value.set(value);
     }
 
     private sendUpdate(value: Row<D, T>[C] | null) {
         const syncedRow = this.syncedRow(), column = this.column();
-        if (!this.inputBase.debounceTime) {
-            this.lastValue = value;
-            syncedRow.write({ [column]: value });
-        } else {
+        if (this.inputBase.debounceTime) {
             if (this.timeout) clearTimeout(this.timeout);
             this.timeout = setTimeout(() => {
-                this.lastValue = value;
+                this.sentValues.add(value);
                 syncedRow.write({ [column]: value });
+                setTimeout(() => this.sentValues.delete(value), 5000);
             }, this.inputBase.debounceTime);
+        } else {
+            this.sentValues.add(value);
+            syncedRow.write({ [column]: value });
         }
     }
 }

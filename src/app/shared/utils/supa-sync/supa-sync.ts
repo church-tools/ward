@@ -1,11 +1,12 @@
 import { RealtimeChannel, Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
-import { Lock } from "../flow-control-utils";
+import { Lock, wait } from "../flow-control-utils";
 import { SupaSyncTable } from "./supa-sync-table";
 import type { Database, SupaSyncPayload, SupaSyncTableInfo, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
+const RECONNECT_DELAY_MS = 2000;
 
 export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any } = {}> {
 
@@ -81,36 +82,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
 
     private async startSyncing(tables: SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[]) {
         await this.onlineState.get();
-        this.channel = this.client.channel(`schema-db-changes`)
-            .on('postgres_changes',
-                { event: '*', schema: 'public' },
-                async (payload: SupaSyncPayload<D>) => {
-                    await this.eventLock.lock(async () => {
-                        const adapter = this.tablesByName[payload.table].storeAdapter;
-                        switch (payload.eventType) {
-                            case 'INSERT':
-                            case 'UPDATE':
-                                payload.old = (await adapter.writeAndGet([payload.new]))[0].old;
-                                adapter.onChangeReceived.emit([payload]);
-                                break;
-                            case 'DELETE':
-                                await adapter.delete(payload.old!.id);
-                                adapter.onChangeReceived.emit([payload]);
-                                break;
-                        }
-                        this.setLastSync(payload.commit_timestamp);
-                    });
-                })
-            .subscribe((status: string) => {
-                switch (status) {
-                    case 'CHANNEL_ERROR':
-                        console.error('Failed to subscribe to realtime channel');
-                        break;
-                    case 'TIMED_OUT':
-                        console.error('Realtime subscription timed out');
-                        break;
-                }
-            });
+        this.assureConnection();
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
@@ -128,6 +100,53 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             adapter.initialized.set(true);
         }));
         this.setLastSync(now);
+    }
+
+    private async assureConnection() {
+        let failed = false;
+        while (true) {
+            await new Promise<void>(resolve => {
+                this.channel?.unsubscribe();
+                this.channel = this.client.channel(`schema-db-changes`)
+                    .on('postgres_changes',
+                        { event: '*', schema: 'public' },
+                        async (payload: SupaSyncPayload<D>) => {
+                            await this.eventLock.lock(async () => {
+                                const adapter = this.tablesByName[payload.table].storeAdapter;
+                                switch (payload.eventType) {
+                                    case 'INSERT':
+                                    case 'UPDATE':
+                                        payload.old = (await adapter.writeAndGet([payload.new]))[0].old;
+                                        adapter.onChangeReceived.emit([payload]);
+                                        break;
+                                    case 'DELETE':
+                                        await adapter.delete(payload.old!.id);
+                                        adapter.onChangeReceived.emit([payload]);
+                                        break;
+                                }
+                                this.setLastSync(payload.commit_timestamp);
+                            });
+                        })
+                    .subscribe(async (status: string) => {
+                        switch (status) {
+                            case 'SUBSCRIBED':
+                                if (failed) console.log('... reconnected to realtime channel.');
+                                break;
+                            case 'CHANNEL_ERROR':
+                                console.warn('Failed to subscribe to realtime channel, retrying...');
+                                resolve();
+                                break;
+                            case 'TIMED_OUT':
+                                console.warn('Realtime subscription timed out, retrying...');
+                                resolve();
+                                break;
+                        }
+                    });
+            });
+            await wait(RECONNECT_DELAY_MS);
+            await this.onlineState.get();
+            failed = true;
+        }
     }
 
     public cleanup() {
