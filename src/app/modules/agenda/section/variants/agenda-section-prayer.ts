@@ -8,8 +8,10 @@ import { AgendaSection } from '../agenda-section';
 @Component({
     selector: 'app-agenda-section-prayer',
     template: `
-        <h1>{{ title() | translate }}</h1>
-        <app-row-select table="member" />
+        <div class="column-grid items-center">
+            <h3 class="col-md-5 overflow-ellipsis">{{ title() | translate }}</h3>
+            <app-row-select class="col-md-7" table="member"/>
+        </div>
     `,
     imports: [TranslateModule, RowSelectComponent],
 })

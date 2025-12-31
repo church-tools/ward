@@ -17,12 +17,13 @@
     </div>
     <div class="row full-width full-height no-wrap items-center gap-1">
         <div class="handle full-width full-height items-center">
-            @if (editMode()) {
-                <span class="overflow-ellipsis text-right">{{ 'EDIT_MODE' | translate }}</span>
-            }
         </div>
-        <app-menu-button type="subtle" class="icon-only title-bar-margin"
+        <app-menu-button class="title-bar-margin" [class.icon-only]="!adminService.editMode()"
+            [type]="adminService.editMode() ? 'primary' : 'subtle'" 
             [items]="menuItems()" alignment="left">
+            @if (adminService.editMode()) {
+                <span button-text>{{ 'EDIT_MODE' | translate }}</span>
+            }
             <app-menu-button menu-content type="subtle"
                 icon="translate"
                 [items]="languageItems">

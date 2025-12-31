@@ -1,12 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { AdminService } from '../../../private/shared/admin.service';
+import ButtonComponent from '../../../shared/form/button/button';
 import { ListRowComponent } from '../../shared/list-row';
 import { AgendaSectionFollowupComponent } from "./variants/agenda-section-followup";
 import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
+import { AgendaSectionSpiritualThoughtComponent } from "./variants/agenda-section-spiritual-thought";
 import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
-import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
 import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
-import ButtonComponent from '../../../shared/form/button/button';
+import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
 
 @Component({
     selector: 'app-agenda-section-list-row',
@@ -24,6 +25,9 @@ import ButtonComponent from '../../../shared/form/button/button';
                 @case ('prayer') {
                     <app-agenda-section-prayer [section]="row()"/>
                 }
+                @case ('spiritual_thought') {
+                    <app-agenda-section-spiritual-thought [section]="row()"/>
+                }
                 @case ('task_suggestions') {
                     <app-agenda-section-suggestions [section]="row()"/>
                 }
@@ -38,7 +42,8 @@ import ButtonComponent from '../../../shared/form/button/button';
     `,
     host: { class: 'full-width' },
     imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTopicsComponent,
-        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent, ButtonComponent],
+        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent, ButtonComponent,
+        AgendaSectionSpiritualThoughtComponent],
 })
 export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {
 

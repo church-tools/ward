@@ -110,7 +110,7 @@ h3, .h3 {
     }
 }
 h4, .h4 {
-    font-size: 1.2rem;
+    font-size: 18px;
     font-weight: $weight-semibold;
 
     app-icon {
@@ -178,6 +178,7 @@ h6, .h6 {
 }
 
 .overflow-ellipsis {
+    display: block;
     @include overflow-ellipsis;
 }
 

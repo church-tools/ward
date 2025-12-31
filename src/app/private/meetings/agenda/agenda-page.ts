@@ -1,9 +1,12 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { DbConstants } from '../../../shared/db-constants';
+import { TranslateModule } from '@ngx-translate/core';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
+import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
 import { Task } from '../../../modules/task/task';
+import { DbConstants } from '../../../shared/db-constants';
+import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
 import { TextInputComponent } from "../../../shared/form/text/text-input";
 import { IconComponent } from "../../../shared/icon/icon";
@@ -47,17 +50,26 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [insertContext]="syncedRow"
                     [prepareInsert]="prepareSectionInsert"
                     [page]="this"/>
+                @if (adminService.isUnitAdmin() && !adminService.editMode() && sectionList.initialized() && sectionList.rowCount() === 0) {
+                    <div class="card canvas-card large card-appear row p-4">
+                        <app-async-button icon="edit" size="large"
+                            [onClick]="enableEditMode">
+                            {{ 'ENABLE_EDIT_MODE' | translate }}
+                        </app-async-button>
+                    </div> 
+                }
             </div>
         </app-router-outlet-drawer>
         <app-agenda-drop-zone [draggedTask]="draggedTask()"/>
     `,
-    imports: [RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent, TextInputComponent,
-        SyncedFieldDirective, IconComponent, IconPickerComponent],
+    imports: [TranslateModule, RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent,
+        TextInputComponent, SyncedFieldDirective, IconComponent, IconPickerComponent, AsyncButtonComponent],
     host: { class: 'full-width' },
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     
     private readonly dragDrop = inject(DragDropService);
+    private readonly profileService = inject(ProfileService);
     private readonly taskDragDrop = this.dragDrop.ensureGroup('task');
 
     protected readonly sectionQuery = xcomputed([this.syncedRow.value],
@@ -82,5 +94,14 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
         const agenda = this.syncedRow.value();
         if (!agenda) throw new Error("Agenda row is not set");
         section.agenda = +agenda.id;
+    }
+
+    protected enableEditMode = async () => {
+        const profile = this.profileService.own();
+        const agenda = this.syncedRow.value();
+        const types: AgendaSection.Type[] = ['prayer', 'spiritual_thought', 'followups', 'tasks', 'prayer'];
+        await this.supabase.sync.from('agenda_section').insert(
+            types.map((type, position) => ({ type, position, unit: profile.unit, agenda: +agenda!.id })));
+        this.adminService.editMode.set(true);
     }
 }

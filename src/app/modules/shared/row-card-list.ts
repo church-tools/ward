@@ -85,6 +85,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     protected readonly insertComponent = asyncComputed([this.tableName, this.editable],
         async (t, e) => e ? await getListInsertComponent(t) : null, null);
     readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount() ?? 0);
+    readonly initialized = xcomputed([this.cardListView], clv => clv?.initialized() ?? false);
 
     private subscription: Subscription | undefined;
 
@@ -99,7 +100,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
             });
         });
     }
-
+    
     protected insertRow = async (row: Row<T>) => {
         const table = this.table();
         return await table.insert(row);

@@ -21,10 +21,9 @@ import { OmniSearchComponent } from './omni-search/omni-search';
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
-    private readonly adminService = inject(AdminService);
+    protected readonly adminService = inject(AdminService);
 
     protected readonly tabs = signal<NavBarTab[]>([]);
-    protected readonly editMode = signal(false);
     private readonly router = inject(Router);
 
     protected readonly menuItems = xcomputed([this.profileService.own], profile => {
@@ -42,7 +41,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
             items.push({
                 labelTranslateId: 'ENABLE_EDIT_MODE',
                 icon: 'edit',
-                toggle: this.editMode,
+                toggle: this.adminService.editMode,
             });
         }
         return items;
@@ -50,7 +49,6 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     constructor() {
         super();
-        xeffect([this.editMode], editMode => this.adminService.editMode.set(editMode));
         if (this.windowService.currentRoute() != '/') return;
         this.getStartRoute().then(startRoute => {
             this.router.navigate([startRoute]);

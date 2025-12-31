@@ -27,13 +27,5 @@ export class MeetingsPageComponent extends PrivatePageComponent {
 
     protected getQuery = (table: Table<'agenda'>) => table.readAll();
 
-    protected addAgenda = async () => {
-        await this.supabase.sync.from('agenda').insert({ name: "", unit: 18 } as Agenda.Insert);
-    }
-
-    protected async updateAgendas(agendas: Agenda.Row[]) {
-        await this.supabase.sync.from('agenda').update(agendas);
-    }
-
     protected getUrl = (agenda: Agenda.Row | null) => `/meetings/${agenda?.id ?? ""}`;
 }

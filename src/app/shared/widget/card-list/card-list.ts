@@ -67,6 +67,8 @@ export class CardListComponent<T> {
     protected readonly newEditCard = signal(false);
     protected readonly itemCards = signal<ItemCard<T>[]>([]);
     protected readonly dragStartDelay = { touch: this.windowService.mobileOS ? 500 : 300, mouse: 0 };
+    private readonly _initialized = signal(false);
+    public readonly initialized = this._initialized.asReadonly();
 
     protected readonly _dragDropGroup = xcomputed([this.dragDropGroup],
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
@@ -77,7 +79,7 @@ export class CardListComponent<T> {
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
     
-    private initialized = false;
+
     private insertSubscriptions: Subscription[] = [];
     private dropSubscription: Subscription | undefined;
     private dragStart: number | null = null;
@@ -107,7 +109,7 @@ export class CardListComponent<T> {
 
     async ngOnInit() {
         await wait(1000);
-        this.initialized = true;
+        this._initialized.set(true);
     }
 
     ngOnDestroy() {
@@ -256,7 +258,7 @@ export class CardListComponent<T> {
         const { items = [], deletions = [] } = update;
         if (!items.length && !deletions.length) return;
         let itemCards = [...this.itemCards()];
-        animateEntrance &&= this.initialized;
+        animateEntrance &&= this._initialized();
         const idKey = this.idKey();
         const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
         for (const item of items) {
@@ -276,7 +278,7 @@ export class CardListComponent<T> {
             });
             await wait(animationDurationMs);
         }
-        this.initialized = true;
+        this._initialized.set(true);
         this.itemCards.set(itemCards);
         if (this.orderIsCorrect(itemCards)) return;
         this.sort(itemCards);
