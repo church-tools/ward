@@ -14,7 +14,7 @@ export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 export type Session = { user: User; unit?: string, unit_approved?: boolean | null, is_admin: boolean };
 
 export type EdgeFunction = 'login-with-password' | 'list-units' | 'create-unit' | 'fetch-unapproved-units'
-    | 'set-unit-approved' | 'join-unit' | 'approve-user' | 'set-user-admin';
+    | 'set-unit-approved' | 'join-unit' | 'approve-user' | 'set-user-admin' | 'presign-file-access';
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
@@ -96,8 +96,8 @@ export class SupabaseService {
         return data.session;
     }
 
-    async callEdgeFunction(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
-        return await this.callEdgeFunctionViaProxy(fn, body);
+    async callEdgeFunction<T>(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
+        return await this.callEdgeFunctionViaProxy(fn, body) as T;
     }
 
     private async callEdgeFunctionViaProxy(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {

@@ -50,7 +50,7 @@ export class SetupPageComponent extends PageComponent {
     }
 
     protected joinUnit = async () => {
-        const { profile } = await this.supabase.callEdgeFunction('join-unit', { unit_id: this.selectedUnit() });
+        const { profile } = await this.supabase.callEdgeFunction<{ profile: any }>('join-unit', { unit_id: this.selectedUnit() });
         await this.supabase.refreshSession();
         this.router.navigateByUrl('/');
     }

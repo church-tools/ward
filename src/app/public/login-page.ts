@@ -58,7 +58,7 @@ export class LoginPageComponent extends PageComponent {
         if (!this.credentials().valid())
             throw 'LOGIN.ERROR_MSG.INVALID_INPUT';
         const { email, password } = this.credentials().getCredentials();
-        const { session, error } = await this.supabase.callEdgeFunction('login-with-password', { email, password });
+        const { session, error } = await this.supabase.callEdgeFunction<{ session: any; error: any }>('login-with-password', { email, password });
         if (error) {
             console.error('Login failed:', error.message);
             switch (error.code) {

@@ -51,8 +51,8 @@ export class NewUnitsComponent implements OnInit {
     protected readonly units = signal<UnitInfo[] | null>(null);
 
     async ngOnInit() {
-        const data = await this.supabase.callEdgeFunction('fetch-unapproved-units');
-        this.units.set(data.units);
+        const { units } = await this.supabase.callEdgeFunction<{ units: UnitInfo[] }>('fetch-unapproved-units');
+        this.units.set(units);
     }
 
     protected setUnitApproved(unit_id: number, approved: boolean) {
