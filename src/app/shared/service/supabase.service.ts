@@ -4,8 +4,8 @@ import type { Database } from '../../../../database';
 import { environment } from '../../../environments/environment';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
-import { getSiteOrigin } from '../utils/url-utils';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
+import { getSiteOrigin } from '../utils/url-utils';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
@@ -22,12 +22,12 @@ export class SupabaseService {
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
         { name: 'unit', createOffline: false },
-        { name: 'profile', createOffline: false, indexed: { 'email': 'string', unit_approved: 'boolean' } },
+        { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean } },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
-        { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: 'number', type: 'string' } },
-        { name: 'task', orderKey: 'position', indexed: { agenda: 'number', stage: 'string' } },
+        { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: Number, type: String } },
+        { name: 'task', orderKey: 'position', indexed: { agenda: Number, stage: String } },
         { name: 'calling', orderKey: 'position', indexed: {} },
-        { name: 'member', createOffline: false, indexed: { unit: 'number', profile: 'number' } }
+        { name: 'member', createOffline: false, indexed: { unit: Number, profile: Number } }
     ]);
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();

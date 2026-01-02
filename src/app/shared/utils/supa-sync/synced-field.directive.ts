@@ -22,6 +22,7 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     private subscription?: Subscription;
     private readonly sentValues = new Set<Row<D, T>[C]>();
     private timeout: ReturnType<typeof setTimeout> | undefined;
+    private applyingRemote = false;
 
     constructor() {
         effect(() => {
@@ -30,8 +31,7 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             const row = syncedRow.value();
             if (!row) return;
             const column = this.column();
-            const value = row[column];
-            if (value == null || this.sentValues.has(value)) return;
+            this.sentValues.clear();
             this.applyRemoteValue(row[column]);
         });
         effect(() => {
@@ -53,10 +53,15 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             this.sentValues.delete(value);
             return;
         }
+        this.applyingRemote = true;
         this.inputBase.value.set(value);
     }
 
     private sendUpdate(value: Row<D, T>[C] | null) {
+        if (this.applyingRemote) {
+            this.applyingRemote = false;
+            return;
+        }
         const syncedRow = this.syncedRow(), column = this.column();
         if (this.inputBase.debounceTime) {
             if (this.timeout) clearTimeout(this.timeout);

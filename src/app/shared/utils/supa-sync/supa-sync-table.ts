@@ -2,7 +2,7 @@ import { SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
-import { idbBoolToNumber, IDBStoreAdapter } from "./idb/idb-store-adapter";
+import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
 import type { Change, Column, Database, Indexed, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
 function getRandomId() {
@@ -45,16 +45,22 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         const currentIndex = localStorage.getItem(INDEX_PREFIX + tableName);
         this.needsUpgrade = currentIndex !== serializeIndex(info.indexed);
         const boolKeys = Object.entries(info.indexed ?? {})
-            .filter(([_, type]) => type === 'boolean')
+            .filter(([_, type]) => type === Boolean)
             .map(([key, _]) => key);
-        this.storeAdapter.mappingFunction = boolKeys.length
-            ? (row: Row<D, T>) => {
+        if (boolKeys.length) {
+            this.storeAdapter.mappingInFunction = (row: Row<D, T>) => {
                 for (const key of boolKeys)
                     if (key in row)
                         row[key] = idbBoolToNumber(row[key])
                 return row;
-            }
-            : undefined;
+            };
+            this.storeAdapter.mappingOutFunction = (row: Row<D, T>) => {
+                for (const key of boolKeys)
+                    if (key in row)
+                        row[key] = idbNumberToBool(row[key])
+                return row;
+            };
+        }
         this.sendPending();
     }
 

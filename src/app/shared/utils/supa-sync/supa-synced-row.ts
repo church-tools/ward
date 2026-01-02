@@ -29,6 +29,7 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
         const row = signal<Row<D, T> | null>(null); 
         const self = new SupaSyncedRow<D, T>(supaSync.from(getTableName()), idSignal, row, self => {
             const id = idSignal();
+            row.set(null);
             self.subscription?.unsubscribe();
             if (id == null) return;
             self._table ??= supaSync.from(getTableName());

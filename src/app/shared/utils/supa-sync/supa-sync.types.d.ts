@@ -9,7 +9,7 @@ export type Column<D extends Database, T extends TableName<D>> = keyof Row<D, T>
 export type Insert<D extends Database, T extends TableName<D>> = Table<D, T>["Insert"];
 export type Update<D extends Database, T extends TableName<D>> = Table<D, T>["Update"];
 
-export type IndexType = 'number' | 'string' | 'boolean';
+export type IndexType = typeof Number | typeof String | typeof Boolean;
 export type Indexed<D extends Database, T extends TableName<D>> = Partial<{
     [K in Column<D, T>]: IndexType;
 }>;

@@ -70,14 +70,14 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
             const value = row[condition.field];
             switch (condition.operator) {
                 case 'eq':
-                    if (this.indexed[condition.field] === 'boolean')
+                    if (this.indexed[condition.field] === Boolean)
                         return value === idbBoolToNumber(condition.value);
                     return value === condition.value;
                 case 'in': return condition.value.includes(value);
                 case 'gt': return value > condition.value;
                 case 'lt': return value < condition.value;
                 case 'not': {
-                    if (this.indexed[condition.field] === 'boolean')
+                    if (this.indexed[condition.field] === Boolean)
                         return !(value === idbBoolToNumber(condition.value));
                     return !(value === condition.value);
                 }
@@ -90,14 +90,14 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
             const { operator, value } = condition;
             switch (operator) {
                 case 'eq':
-                    const val = this.indexed[condition.field] === 'boolean'
+                    const val = this.indexed[condition.field] === Boolean
                         ? idbBoolToNumber(value as boolean | null) : value;
                     return fetchFn(val);
                 case 'in': return value.map(val => fetchFn(val));
                 case 'gt': return fetchFn(IDBKeyRange.lowerBound(value));
                 case 'lt': return fetchFn(IDBKeyRange.upperBound(value));
                 case 'not':  {
-                    const val = this.indexed[condition.field] === 'boolean'
+                    const val = this.indexed[condition.field] === Boolean
                         ? idbBoolToNumber(value as boolean | null) : value;
                     return [
                         fetchFn(IDBKeyRange.lowerBound(val, true)),
