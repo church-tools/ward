@@ -23,14 +23,14 @@ export class PageRouterOutlet extends RouterOutlet {
         this.attach(newPageRef, activatedRoute);
         const animation = this.getAnimationClass(previousPath, this.path);
         const newPage = newPageRef.instance;
-        newPage.el.classList.add('page-transitioning', 'enter', animation);
+        newPage.el.classList.add('page-router-child', 'page-transitioning', 'enter', animation);
         if (!oldPageRef) return;
         const oldPage = oldPageRef.instance as PageComponent;
         oldPage.el.classList.remove('enter', 'fade', 'left', 'right');
-        oldPage.el.classList.add('page-transitioning', 'leave', animation);
+        oldPage.el.classList.add('page-router-child', 'page-transitioning', 'leave', animation);
         oldPage.onLeaving();
         setTimeout(() => {
-            newPage.el.classList.remove('page-transitioning');
+            newPage.el.classList.remove('page-transitioning', 'enter', animation);
             location.detach(location.indexOf(oldPageRef.hostView));
             oldPageRef.destroy();
             this.detachEvents.emit(oldPage);

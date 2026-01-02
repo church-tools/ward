@@ -232,6 +232,11 @@ ul {
     &.narrow { max-width: $page-width-narrow; }
     &.portrait { max-width: $page-width-portrait; align-self: center; }
     &.wide { max-width: $page-width-wide; }
+    &.page-router-child {
+        @include larger-than($md) {
+            position: absolute;
+        }
+    }
 }
 
 .horizontal-divider {

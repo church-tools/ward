@@ -11,7 +11,7 @@ import { RowPageComponent } from '../shared/row-page';
 @Component({
     selector: 'app-user-page',
     template: `
-        <h1 class="wrap-anywhere">{{ syncedRow.value()?.email }}</h1>
+        <h3 class="wrap-anywhere mb-4">{{ syncedRow.value()?.email }}</h3>
         <app-switch label="{{ 'USER_PAGE.IS_ADMIN' | translate }}" [forceLabelOnTop]="true"
             [syncedRow]="syncedRow" column="is_admin" name="is_admin" [disabled]="true"/>
         <div class="row center-content gap-4">
