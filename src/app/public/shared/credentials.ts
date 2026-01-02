@@ -2,8 +2,6 @@ import { Component, computed, signal, viewChild } from '@angular/core';
 import { Field, email, form, minLength, pattern, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import { TextInputComponent } from '../../shared/form/text/text-input';
-import ErrorMessageComponent from '../../shared/widget/error-message/error-message';
-import { xeffect } from '../../shared/utils/signal-utils';
 
 export type Credentials = {
 	email: string;
@@ -54,7 +52,6 @@ export class CredentialsComponent {
 		pattern(credentials.password, /[A-Z]/, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 		pattern(credentials.password, /\d/, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 		pattern(credentials.password, CredentialsComponent.SUPABASE_SYMBOL_REGEX, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
-		
 	});
 
 	readonly valid = computed(() => this.credentialsForm().valid());

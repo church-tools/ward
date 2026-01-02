@@ -108,6 +108,7 @@
     }
   },
   "USER_PAGE": {
+    "EMAIL_TO_INVITE": "Email address to invite",
     "IS_ADMIN": "Administrator",
     "APPROVE": "Approve",
     "REJECT": "Reject",

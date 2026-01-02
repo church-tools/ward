@@ -65,6 +65,7 @@
         position: relative;
         height: 100%;
         overflow-y: auto;
+        max-height: 100vh;
         .drawer-body {
             margin: layout.$canvas-margin;
         }

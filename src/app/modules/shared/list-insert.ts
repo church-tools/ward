@@ -12,6 +12,7 @@ const listInsertComponentLoaders = {
     task: async () => (await import('../task/task-list-insert')).TaskListInsertComponent,
     member: async () => (await import('../member/member-list-insert')).MemberListInsertComponent,
     calling: async () => (await import('../calling/calling-list-insert')).CallingListInsertComponent,
+    profile: async () => (await import('../profile/profile-list-insert')).ProfileListInsertComponent,
 } as const;
 
 type ListInsertLoaders = typeof listInsertComponentLoaders;

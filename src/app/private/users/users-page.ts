@@ -18,6 +18,7 @@ import { NewUnitsComponent } from "./new-units";
                 <span class="h0">{{ 'USERS_PAGE.TITLE' | translate }}</span>
                 <app-row-card-list
                     tableName="profile"
+                    [editable]="true"
                     [getQuery]="getQuery"
                     [page]="this"
                     [getUrl]="getUrl"
