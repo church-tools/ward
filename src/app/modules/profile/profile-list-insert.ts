@@ -10,7 +10,8 @@ import { Profile } from './profile';
     selector: 'app-profile-list-row',
     template: `
         <div class="row no-wrap gap-2">
-            <app-text-input #email type="email" class="grow-1" placeholder="{{ 'USER_PAGE.EMAIL_TO_INVITE' | translate }}"
+            <app-text-input #email type="email" class="grow-1"
+                placeholder="{{ 'USER_PAGE.EMAIL_TO_INVITE' | translate }}"
                 [field]="emailForm"/>
             <app-async-button [onClick]="submit" icon="send" class="icon-only"
                 [type]="emailForm().valid() ? 'primary' : 'subtle'"/>
