@@ -96,26 +96,30 @@ export class SupabaseService {
         return data.session;
     }
 
-    async callEdgeFunction<T>(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
-        return await this.callEdgeFunctionViaProxy(fn, body) as T;
+    async callEdgeFunction<T>(fn: EdgeFunction, body?: FunctionInvokeOptions['body'], file?: File): Promise<T> {
+        return await this.callEdgeFunctionViaProxy(fn, body, file) as T;
     }
 
-    private async callEdgeFunctionViaProxy(fn: EdgeFunction, body?: FunctionInvokeOptions['body']) {
-        const { data, error } = await this.client.auth.getSession();
-        if (error) throw error;
-
+    private async callEdgeFunctionViaProxy(fn: EdgeFunction, body?: FunctionInvokeOptions['body'], file?: File) {
+        const { data } = await this.client.auth.getSession();
         const accessToken = data.session?.access_token;
-        const headers: Record<string, string> = { apikey: environment.supabaseKey };
-        // Supabase expects an Authorization header; use user token when available, else anon key.
-        headers['Authorization'] = `Bearer ${accessToken ?? environment.supabaseKey}`;
-        const url = `/supabase/functions/v1/${fn}`;
-        const requestBody = body === undefined ? undefined : (typeof body === 'string' ? body : JSON.stringify(body));
-        if (requestBody !== undefined) headers['Content-Type'] = 'application/json';
-        const res = await fetch(url, {
+        if (!accessToken) throw new Error('Not authenticated');
+        const init = {
             method: 'POST',
-            headers,
-            body: requestBody,
-        });
+            headers: { apikey: environment.supabaseKey, Authorization: `Bearer ${accessToken}` }
+        } as RequestInit & { headers: Record<string, string> };
+        const url = `/supabase/functions/v1/${fn}`;
+        if (file) {
+            const form = new FormData();
+            for (const [k, v] of Object.entries(body || {}))
+                form.append(k, String(v));
+            form.append('file', file, file.name);
+            init.body = form;
+        } else if (body) {
+            init.body = typeof body === 'string' ? body : JSON.stringify(body);
+            init.headers['Content-Type'] = 'application/json';
+        }
+        const res = await fetch(url, init);
         if (!res.ok) {
             const message = await res.text().catch(() => '');
             throw new Error(`Edge function ${fn} failed (${res.status}): ${message}`);

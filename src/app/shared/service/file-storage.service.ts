@@ -11,34 +11,20 @@ export class FileStorageService {
 
     async upload(file: File, onProgress?: (progress: number) => void): Promise<string> {
         const key = compressTimestamp(); 
-        const url = await this.getPresignedUrl(key, 'PUT');
-        await new Promise<void>((resolve, reject) => {
-            const xhr = new XMLHttpRequest();
-            xhr.upload.onprogress = (e) => e.lengthComputable && onProgress?.(Math.round((e.loaded / e.total) * 100));
-            xhr.onload = () => xhr.status >= 200 && xhr.status < 300 ? resolve() : reject(new Error(`Upload failed: ${xhr.status}`));
-            xhr.onerror = () => reject(new Error('Network error during upload'));
-            xhr.open('PUT', url);
-            xhr.setRequestHeader('Content-Type', file.type || 'application/octet-stream');
-            xhr.send(file);
-        });
+        await this.supabase.callEdgeFunction('presign-file-access', { key, method: 'PUT' }, file);
         return key;
     }
 
-    async read(key: string): Promise<string> {
-        const url = await this.getPresignedUrl(key, 'GET');
+    async read(key: string): Promise<Blob> {
+        const { url } = await this.supabase.callEdgeFunction<{ url: string }>('presign-file-access', { key, method: 'GET' });
         const response = await fetch(url);
         if (!response.ok) throw new Error(`Read failed: ${response.status}`);
-        return response.text();
+        return response.blob();
     }
 
-    async delete(key: string): Promise<void> {
-        const url = await this.getPresignedUrl(key, 'DELETE');
+    async delete(key: string): Promise<void> {  
+        const { url } = await this.supabase.callEdgeFunction<{ url: string }>('presign-file-access', { key, method: 'DELETE' });
         const response = await fetch(url, { method: 'DELETE' });
         if (!response.ok) throw new Error(`Delete failed: ${response.status}`);
-    }
-
-    private async getPresignedUrl(key: string, method: string): Promise<string> {
-        const { url } = await this.supabase.callEdgeFunction<{ url: string }>('presign-file-access', { key, method });
-        return url;
     }
 }
