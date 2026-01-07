@@ -171,6 +171,9 @@ ul {
 .items-end {
     align-items: end;
 }
+.align-content-center {
+    align-content: center;
+}
 
 @each $direction in ("height", "width") {
     .full-#{$direction} { #{$direction}: 100% !important; }

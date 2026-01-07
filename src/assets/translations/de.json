@@ -135,8 +135,10 @@
       "CANCEL": "Abbrechen"
     }
   },
-  "ERROR": {
-    "FAILED": "Fehlgeschlagen"
+  "FILE_INPUT": {
+    "FILE": "Datei",
+    "UPLOAD_DESCRIPTION": "{{description}} hochladen",
+    "TOO_LARGE": "Die Datei ist zu groß (max. {{size}} MB)"
   },
   "HISTORY": {
     "CREATED_BY": "Erstellt von",

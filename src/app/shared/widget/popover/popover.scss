@@ -7,6 +7,7 @@ dialog {
     transition: opacity animation.$duration-sm animation.$ease-out,
         transform animation.$duration-sm animation.$ease-out;
     opacity: 1;
+    padding: 0;
     transform: scale(1);
     @include shadow.box(32);
 

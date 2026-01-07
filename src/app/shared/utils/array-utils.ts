@@ -78,3 +78,8 @@ export function mapToSubObjects<T>(array: T[], ...keys: (keyof T)[]): Partial<T>
         return subObject;
     });
 }
+
+export function assureArray<T>(value: T | T[]): T[] {
+    if (value == null) return [];
+    return Array.isArray(value) ? value : [value];
+}

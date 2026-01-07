@@ -72,6 +72,7 @@ export type Database = {
           agenda: number
           content: string | null
           deleted: boolean
+          file_handles: string[] | null
           id: number
           position: number
           type: Database["public"]["Enums"]["agenda_section_type"]
@@ -82,6 +83,7 @@ export type Database = {
           agenda: number
           content?: string | null
           deleted?: boolean
+          file_handles?: string[] | null
           id?: number
           position: number
           type?: Database["public"]["Enums"]["agenda_section_type"]
@@ -92,6 +94,7 @@ export type Database = {
           agenda?: number
           content?: string | null
           deleted?: boolean
+          file_handles?: string[] | null
           id?: number
           position?: number
           type?: Database["public"]["Enums"]["agenda_section_type"]
@@ -655,6 +658,7 @@ export type Database = {
           content: string | null
           created_by: number
           deleted: boolean
+          files: string[] | null
           id: number
           position: number
           stage: Database["public"]["Enums"]["task_stage"]
@@ -668,6 +672,7 @@ export type Database = {
           content?: string | null
           created_by: number
           deleted?: boolean
+          files?: string[] | null
           id: number
           position: number
           stage?: Database["public"]["Enums"]["task_stage"]
@@ -681,6 +686,7 @@ export type Database = {
           content?: string | null
           created_by?: number
           deleted?: boolean
+          files?: string[] | null
           id?: number
           position?: number
           stage?: Database["public"]["Enums"]["task_stage"]

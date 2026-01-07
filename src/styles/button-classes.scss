@@ -232,7 +232,6 @@ button, .button {
     
 }
 
-
 .active > button, .active > .button {
     background-color: font.$color-alpha-5;
 }
@@ -242,6 +241,7 @@ button, .button {
     padding: 0.125rem 0.3rem;
     &.large {
         padding: 0.25rem 0.75rem;
+        min-width: 3.25rem;
         &.medium-icon {
             padding: 0.25rem 0.75rem;
         }

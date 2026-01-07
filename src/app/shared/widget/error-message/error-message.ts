@@ -1,16 +1,16 @@
-import { Component, signal, viewChild } from '@angular/core';
+import { Component, inject, signal, viewChild } from '@angular/core';
+import { InterpolationParameters, TranslateService } from '@ngx-translate/core';
 import { IconComponent } from '../../icon/icon';
 import CollapseComponent from '../collapse/collapse';
-import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-error-message',
-    imports: [TranslateModule, CollapseComponent, IconComponent],
+    imports: [CollapseComponent, IconComponent],
     template: `
         <app-collapse>
             <div class="row no-wrap danger-text">
                 <app-icon icon="error_circle" [filled]="true" size="xs"/>
-                {{ error() | translate }}
+                {{ error() }}
             </div>
         </app-collapse>
     `,
@@ -18,14 +18,19 @@ import { TranslateModule } from '@ngx-translate/core';
 })
 export default class ErrorMessageComponent {
 
+    protected readonly translateService = inject(TranslateService);
+
     private readonly collapse = viewChild.required(CollapseComponent);
     
     private hasError = false;
     protected readonly error = signal<string | null>(null);
 
-    setError(error: string | null) {
+    setError(error: string | null, params?: InterpolationParameters) {
         this.hasError = Boolean(error);
-        if (error) this.error.set(error);
+        if (error) {
+            const msg = this.translateService.instant(error, params);
+            this.error.set(msg);
+        }
         this.collapse().setExpanded(this.hasError);
     }
 

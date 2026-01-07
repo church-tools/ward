@@ -4,7 +4,7 @@ import ButtonComponent from "../../form/button/button";
 import { PopoverPage } from "./popover";
 
 @Component({
-    selector: 'app-popover',
+    selector: 'app-confirm-popover',
     template: `
         <div class="column gap-4 max-width-96">
             <h2>{{ title() | translate }}</h2>

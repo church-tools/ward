@@ -1,6 +1,6 @@
 <div title="{{title()}}" type="button" class="button {{classes()}}">
     @let icon = visibleIcon();
-    @if (icon) { <app-icon [icon]="icon" [filled]="iconFilled()"/> }
+    @if (icon) { <app-icon [icon]="icon" [filled]="iconFilled()" size="smaller"/> }
     <ng-content/>
     @if (!disabled()) {
         <app-file-drop [accept]="accept()" [capture]="capture()" [disabled]="disabled()"

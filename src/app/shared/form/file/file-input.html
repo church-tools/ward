@@ -1,0 +1,25 @@
+
+<div class="column">
+    <app-input-label/>
+    <div class="row gap-1">
+        @for (fileInfo of viewValue(); track $index) {
+            <app-async-button type="secondary" class="grow-1"
+                [icon]="fileInfo.icon"
+                [iconFilled]="true"
+                [iconColored]="true"
+                [title]="fileInfo.fullName"
+                [color]="fileInfo.color ?? 'accent'"
+                [onClick]="openFile(fileInfo)"
+                [showSuccess]="false">
+                {{ fileInfo.name }}
+            </app-async-button>
+        }
+        @if (uploadVisible()) {
+            <app-file-button type="secondary" class="grow-1"
+                (onUpload)="handleFileInput($event)">
+                <span>{{ 'FILE_INPUT.UPLOAD_DESCRIPTION' | translate:{ description: description() | translate } }}</span>
+            </app-file-button>
+        }
+    </div>
+    <app-error-message/>
+</div>
