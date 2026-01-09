@@ -47,7 +47,7 @@ export class IDBStoreAdapter<T> {
     }
 
     public async writeMany(items: T[], deleteIds?: number[]): Promise<undefined> {
-        if (items.length === 0) return;
+        if (!items.length && !deleteIds?.length) return;
         const idb = await this.idb;
         if (this.mappingInFunction)
             items = items.map(item => this.mappingInFunction!(item));
@@ -58,8 +58,8 @@ export class IDBStoreAdapter<T> {
             });
     }
 
-    public async writeAndGet(items: T[], deletes?: T[]): Promise<Change<T>[]> {
-        if (items.length === 0) return [];
+    public async writeAndGet(items: T[], deleteIds?: number[]): Promise<Change<T>[]> {
+        if (!items.length && !deleteIds?.length) return [];
         const idb = await this.idb;
         if (this.mappingInFunction)
             items = items.map(item => this.mappingInFunction!(item));
@@ -70,10 +70,10 @@ export class IDBStoreAdapter<T> {
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
                     store.put(item).toPromise(),
                 ]).then(([old]) => ({ old, new: item }))))
-                const deleteProm = Promise.all((deletes ?? []).map(item => Promise.all([
-                    store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
+                const deleteProm = Promise.all((deleteIds ?? []).map(id => Promise.all([
+                    store.get(id).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
-                    store.delete(item[store.keyPath as keyof T] as IDBValidKey).toPromise(),
+                    store.delete(id).toPromise(),
                 ]).then(([old]) => ({ old, new: undefined }))));
                 return Promise.all([itemUpdateProm, deleteProm]);
             }).then(([items, deletions]) => [...items, ...deletions]);

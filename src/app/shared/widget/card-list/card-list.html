@@ -61,7 +61,7 @@
             <app-swap-container [swap]="inserting()" animationDuration="xs">
                 <div main>
                     @if (insertedItem(); as insert) {
-                        <div class="row items-center fade-in">
+                        <div class="row no-wrap items-center fade-in">
                             @if (reorderable()) {
                                 <div class="drag-handle">
                                     <app-icon icon="re_order_dots_vertical"/>

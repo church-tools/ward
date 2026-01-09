@@ -29,7 +29,10 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             const syncedRow = this.syncedRow();
             this.subscription?.unsubscribe();
             const row = syncedRow.value();
-            if (!row) return;
+            if (!row) {
+                this.applyRemoteValue(null);
+                return;
+            }
             const column = this.column();
             this.sentValues.clear();
             this.applyRemoteValue(row[column]);
@@ -48,7 +51,6 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     }
 
     private applyRemoteValue(value: Row<D, T>[C] | null | undefined) {
-        if (value == null) return;
         if (this.inputBase.debounceTime && this.sentValues.has(value)) {
             this.sentValues.delete(value);
             return;

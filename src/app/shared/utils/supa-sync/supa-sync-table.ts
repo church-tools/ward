@@ -25,8 +25,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly idKey: Column<D, T>;
     public readonly deletedKey: Column<D, T>;
     public readonly needsUpgrade: boolean;
-    private readonly createOffline: boolean;
-    private readonly updateOffline: boolean;
+    public readonly createOffline: boolean;
+    public readonly updateOffline: boolean;
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
 
     constructor(
@@ -140,9 +140,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                             throw new Error(`Missing ID for update: ${JSON.stringify(update)}`);
                         Object.assign(existingRow ?? {}, updates[i]);
                     }
-                    changes = await (this.storeAdapter.onChangeReceived.hasSubscriptions
-                        ? this.storeAdapter.writeAndGet(rows)
-                        : this.storeAdapter.writeMany(rows));
+                    changes = await this.writeAndDelete(updates);
                 }),
                 this.writePending(updates, debounce),
             ]);
@@ -151,9 +149,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 .upsert(updates)
                 .select("*")
                 .throwOnError();
-            changes = await (this.storeAdapter.onChangeReceived.hasSubscriptions
-                ? this.storeAdapter.writeAndGet(data)
-                : this.storeAdapter.writeMany(data));
+            changes = await this.writeAndDelete(data);
         }
         if (changes) this.storeAdapter.onChangeReceived.emit(changes);
     }
@@ -171,6 +167,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     
     public async findLargestId() {
         return this.storeAdapter.findLargestId();
+    }
+
+    public writeAndDelete(rows: Update<D, T>[]) {
+        const updated = rows.filter(update => !update[this.deletedKey]);
+        const deletedIds = rows.filter(update => update[this.deletedKey]).map(update => update[this.idKey] as number);
+        return (this.storeAdapter.onChangeReceived.hasSubscriptions
+            ? this.storeAdapter.writeAndGet(updated, deletedIds)
+            : this.storeAdapter.writeMany(updated, deletedIds));
     }
 
     private async writePending(rows: Update<D, T>[], debounce = 0) {

@@ -21,7 +21,7 @@ export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
-        { name: 'unit', createOffline: false },
+        { name: 'unit', createOffline: false, deletable: false },
         { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean } },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: Number, type: String } },

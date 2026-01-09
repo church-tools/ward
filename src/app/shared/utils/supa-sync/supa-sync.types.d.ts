@@ -17,6 +17,7 @@ export type Indexed<D extends Database, T extends TableName<D>> = Partial<{
 export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     name: T;
     idPath?: Column<D, T>; // default: 'id'
+    deletable?: boolean; // default: true
     deletedPath?: Column<D, T>; // default: 'deleted'
     createOffline?: boolean; // default: true
     updateOffline?: boolean; // default: true

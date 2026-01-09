@@ -86,19 +86,13 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
-            const { data } = await this.client.from(table.info.name)
-                .select('*')
-                .gt('updated_at', lastUpdatedAt)
-                .throwOnError();
+            let query = this.client.from(table.info.name).select('*').gt('updated_at', lastUpdatedAt);
+            if (lastUpdatedAt.startsWith('1970-') && table.info.deletable)
+                query = query.eq(table.deletedKey, false as any);
+            const { data } = await query.throwOnError();
             const adapter = table.storeAdapter;
             if (data.length) {
-                const [deleteIds, updates] = table.info.updateOffline
-                    ? [data.filter(row => row[table.deletedKey]).map(row => row[table.idKey] as number),
-                        data.filter(row => !row[table.deletedKey])]
-                    : [[], data];
-                const changes = adapter.onChangeReceived.hasSubscriptions
-                    ? await adapter.writeAndGet(updates, deleteIds)
-                    : await adapter.writeMany(updates, deleteIds);
+                const changes = await table.writeAndDelete(data);
                 if (changes) adapter.onChangeReceived.emit(changes);
             }
             adapter.initialized.set(true);
@@ -121,7 +115,11 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                                 switch (payload.eventType) {
                                     case 'INSERT':
                                     case 'UPDATE':
-                                        payload.old = (await adapter.writeAndGet([payload.new]))[0].old;
+                                        const deleted = payload.new?.[table.deletedKey];
+                                        const input = deleted
+                                            ? { update: [], delete: [payload.new![table.idKey] as number] }
+                                            : { update: [payload.new], delete: [] };
+                                        payload.old = (await adapter.writeAndGet(input.update, input.delete))[0].old;
                                         if (payload.new?.[table.deletedKey])
                                             payload.new = undefined;
                                         adapter.onChangeReceived.emit([payload]);
