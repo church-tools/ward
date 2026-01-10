@@ -25,7 +25,8 @@
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "rxjs": "^7.8.2",
-    "tslib": "^2.8.1"
+    "tslib": "^2.8.1",
+    "y-supabase": "^0.0.4-7-alpha"
   },
   "devDependencies": {
     "@angular/build": "^21.0.5",
@@ -33,7 +34,7 @@
     "@angular/compiler": "^21.0.8",
     "@angular/compiler-cli": "^21.0.8",
     "@angular/language-service": "^21.0.8",
-    "supabase": "^2.72.2",
+    "supabase": "^2.72.3",
     "typescript": "^5.9.3"
   }
 }

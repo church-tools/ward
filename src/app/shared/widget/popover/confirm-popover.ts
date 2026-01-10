@@ -6,12 +6,12 @@ import { PopoverPage } from "./popover";
 @Component({
     selector: 'app-confirm-popover',
     template: `
-        <div class="column gap-4 max-width-96">
+        <div class="m-4-6 column gap-4 max-width-96">
             <h2>{{ title() | translate }}</h2>
             <p>{{ message() | translate }}</p>
             <div class="row center-content gap-2">
-                <app-button type="primary" (onClick)="callback(true)">{{ confirmText() | translate }}</app-button>
-                <app-button type="secondary" (onClick)="callback(false)">{{ cancelText() | translate }}</app-button>
+                <app-button type="primary" size="large" (onClick)="callback(true)">{{ confirmText() | translate }}</app-button>
+                <app-button type="secondary" size="large" (onClick)="callback(false)">{{ cancelText() | translate }}</app-button>
             </div>
         <div>
     `,

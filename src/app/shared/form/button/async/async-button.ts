@@ -13,9 +13,10 @@ export type ProgressCallback = (progress: number) => void;
         <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"
             [title]="windowService.isOnline() ? title() : 'Server kann nicht erreicht werden'"
             title="{{title()}}" type="button"
-            [class]="classes()">
-            @if (progressIcon()) {
-                <app-icon [icon]="progressIcon()!" [filled]="iconFilled()" [size]="iconSize()"
+            class="button {{classes()}}">
+            @let icon = progressIcon();
+            @if (icon) {
+                <app-icon [icon]="icon" [filled]="iconFilled()" [size]="iconSize()"
                     [class.bounce]="success() !== null"
                     [class.wiggle]="connectionLost()"/>
             }

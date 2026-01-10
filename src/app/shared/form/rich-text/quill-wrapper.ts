@@ -2,6 +2,7 @@ import { ElementRef, EventEmitter, Signal, signal } from "@angular/core";
 import Quill, { Range } from "quill";
 import { AsyncState } from "../../utils/async-state";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
+import { HTMLString } from "./markdown-utils";
 
 export type Format = 'bold' | 'italic' | 'underline' | 'strike';
 export type Heading = 1 | 2 | 3 | false;
@@ -12,7 +13,7 @@ const HALF_TOOLBAR_WIDTH = TOOLBAR_WIDTH / 2;
 
 export class QuillWrapper {
 
-    public onChange = new EventEmitter<string>();
+    public onChange = new EventEmitter<HTMLString>();
 
     private readonly selectionPosition = signal<[number, number] | null>(null);
     private readonly hasFocus = signal(false);
@@ -196,12 +197,12 @@ export class QuillWrapper {
 
     private async updateValue() {
         const quill = await this.quill.get();
-        const html = quill.root.innerHTML;
+        const html = quill.root.innerHTML as HTMLString;
 
         if (this.characterLimit()) {
             const textLength = quill.getText().length;
             if (textLength > this.characterLimit()) {
-                this.ignoreNextUpdate = true;
+                // this.ignoreNextUpdate = true;
                 return;
             }
         }

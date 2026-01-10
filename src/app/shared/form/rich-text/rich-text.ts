@@ -2,7 +2,7 @@ import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
-import { markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
+import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
 
@@ -16,7 +16,7 @@ import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-tex
         class: 'column'
     }
 })
-export class RichTextComponent extends InputBaseComponent<string> {
+export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
     
     readonly characterLimit = input<number>(0);
     readonly minLines = input<number>(3);
@@ -69,7 +69,7 @@ export class RichTextComponent extends InputBaseComponent<string> {
         return html;
     }
 
-    protected override mapOut(value: string | null) {
-        return quillHtmlToMarkdown(value ?? '');
+    protected override mapOut(value: HTMLString | null) {
+        return quillHtmlToMarkdown(value);
     }
 }

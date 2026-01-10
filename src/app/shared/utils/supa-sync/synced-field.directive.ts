@@ -1,6 +1,5 @@
-import { Directive, effect, inject, input, ModelSignal, OnDestroy } from "@angular/core";
+import { Directive, effect, inject, input, ModelSignal } from "@angular/core";
 import { FormValueControl } from "@angular/forms/signals";
-import { Subscription } from "rxjs";
 import type { Column, Database, Row, TableName } from "./supa-sync.types";
 import { SupaSyncedRow } from "./supa-synced-row";
 
@@ -12,69 +11,62 @@ export abstract class HasFormValueControl<T> implements FormValueControl<T> {
 @Directive({
     selector: '[syncedRow][column]',
 })
-export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C extends Column<D, T>> implements OnDestroy {
+export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C extends Column<D, T>> {
 
     private readonly inputBase = inject(HasFormValueControl);
 
     readonly syncedRow = input.required<SupaSyncedRow<D, T>>();
     readonly column = input.required<C>();
-    
-    private subscription?: Subscription;
-    private readonly sentValues = new Set<Row<D, T>[C]>();
-    private timeout: ReturnType<typeof setTimeout> | undefined;
+
+    private rowId: number | null = null;
+    private readonly ignoreNextUpdates = new Set<Row<D, T>[C]>();
     private applyingRemote = false;
 
     constructor() {
+        // syncedRow -> form control
         effect(() => {
             const syncedRow = this.syncedRow();
-            this.subscription?.unsubscribe();
             const row = syncedRow.value();
             if (!row) {
                 this.applyRemoteValue(null);
                 return;
             }
             const column = this.column();
-            this.sentValues.clear();
+            const rowId = row[syncedRow.table.idKey];
+            if (this.rowId !== rowId) {
+                this.rowId = rowId;
+                this.ignoreNextUpdates.clear();
+            } else if (!(column in row)) return;
             this.applyRemoteValue(row[column]);
         });
+        // form control -> syncedRow
         effect(() => {
-            const currentValue = this.inputBase.value();
-            const columnValue = currentValue as Row<D, T>[C] | null;
+            const columnValue = this.inputBase.value() as Row<D, T>[C] | null;
             if (columnValue == null) return;
-            this.sentValues.add(columnValue);
+            this.ignoreNextUpdates.add(columnValue);
             this.sendUpdate(columnValue);
         });
     }
 
-    ngOnDestroy() {
-        this.subscription?.unsubscribe();
-    }
-
     private applyRemoteValue(value: Row<D, T>[C] | null | undefined) {
-        if (this.inputBase.debounceTime && this.sentValues.has(value)) {
-            this.sentValues.delete(value);
+        // if (value === this.inputBase.value()) return;
+        if (this.inputBase.debounceTime && this.ignoreNextUpdates.has(value)) {
+            this.ignoreNextUpdates.delete(value);
             return;
         }
         this.applyingRemote = true;
         this.inputBase.value.set(value);
     }
 
-    private sendUpdate(value: Row<D, T>[C] | null) {
+    private async sendUpdate(value: Row<D, T>[C] | null) {
         if (this.applyingRemote) {
             this.applyingRemote = false;
             return;
         }
         const syncedRow = this.syncedRow(), column = this.column();
-        if (this.inputBase.debounceTime) {
-            if (this.timeout) clearTimeout(this.timeout);
-            this.timeout = setTimeout(() => {
-                this.sentValues.add(value);
-                syncedRow.write({ [column]: value });
-                setTimeout(() => this.sentValues.delete(value), 5000);
-            }, this.inputBase.debounceTime);
-        } else {
-            this.sentValues.add(value);
-            syncedRow.write({ [column]: value });
-        }
+        this.ignoreNextUpdates.add(value);
+        console.log('Sending:', value)
+        await syncedRow.write({ [column]: value }, this.inputBase.debounceTime);
+        setTimeout(() => this.ignoreNextUpdates.delete(value), 5000);
     }
 }

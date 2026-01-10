@@ -1,6 +1,8 @@
 
-export function markdownToQuillHtml(markdown: string): string {
-    if (!markdown || typeof markdown !== 'string') return '';
+export type HTMLString = string & { __htmlStringBrand: never };
+
+export function markdownToQuillHtml(markdown: string): HTMLString {
+    if (!markdown || typeof markdown !== 'string') return '' as HTMLString;
     
     let html = markdown;
     
@@ -21,7 +23,7 @@ export function markdownToQuillHtml(markdown: string): string {
     return convertLinesToHtml(html);
 }
 
-export function quillHtmlToMarkdown(html: string): string {
+export function quillHtmlToMarkdown(html: HTMLString | null): string {
     if (!html || typeof html !== 'string') return '';
     
     const sanitized = sanitizeHtml(html);
@@ -44,7 +46,7 @@ export function markdownToPlainText(markdown: string | null): string {
         .trim();
 }
 
-function convertLinesToHtml(html: string): string {
+function convertLinesToHtml(html: string): HTMLString {
     const lines = html.split('\n');
     const result: string[] = [];
     
@@ -65,7 +67,7 @@ function convertLinesToHtml(html: string): string {
     return result.join('')
         .replace(/<\/ul><p><\/p><ul>/gim, '')
         .replace(/<\/ol><p><\/p><ol>/gim, '')
-        .replace(/<p><\/p>/gim, '');
+        .replace(/<p><\/p>/gim, '') as HTMLString;
 }
 
 function isBlockElement(line: string): boolean {
@@ -73,7 +75,7 @@ function isBlockElement(line: string): boolean {
            line.match(/^<(h[1-6]|ul|ol|li|div|p)(\s|>)/) !== null;
 }
 
-function sanitizeHtml(html: string): string {
+function sanitizeHtml(html: HTMLString): string {
     return html
         .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
         .replace(/<iframe\b[^>]*>/gi, '')

@@ -125,21 +125,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         }
     }
 
-    public async update(update: Update<D, T> | Update<D, T>[], debounce = 0) {
+    public async update(update: Update<D, T> | Update<D, T>[], debounce?: number) {
         await this.storeAdapter.initialized.get();
         const updates = Array.isArray(update) ? update : [update];
+        const missingIds = updates.filter(u => !u[this.idKey]);
+        if (missingIds.length) throw new Error(`Missing IDs for updates: ${JSON.stringify(missingIds)}`);
         let changes: Change<T>[] | undefined;
         if (this.updateOffline) {
             await Promise.all([
                 this.storeAdapter.lock(async () => {
-                    const rows = await this.storeAdapter.readMany(updates.map(update => update[this.idKey]));
-                    for (let i = 0; i < updates.length; i++) {
-                        const existingRow = rows[i];
-                        const update = updates[i];
-                        if (!update[this.idKey])
-                            throw new Error(`Missing ID for update: ${JSON.stringify(update)}`);
-                        Object.assign(existingRow ?? {}, updates[i]);
-                    }
                     changes = await this.writeAndDelete(updates);
                 }),
                 this.writePending(updates, debounce),

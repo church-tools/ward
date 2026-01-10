@@ -59,7 +59,7 @@ export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
     computation: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => T
 ): Signal<T>;
-export function xcomputed<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
+export function xcomputed<T>(
     dependencies: (Signal<any> | undefined)[],
     computation: (...values: any[]) => T
 ): Signal<T> {

@@ -1,4 +1,4 @@
-<div class="column gap-4">
+<div class="m-4-6 column gap-4">
     <h1 class="me-12">
         <app-icon icon="archive_arrow_back" size="lg"/>
         {{ 'MEMBERS_IMPORT.TITLE' | translate }}
@@ -44,7 +44,7 @@
             </div>
             <div class="ms-auto mt--2 subtle-text">{{ count() }} {{ 'MEMBERS_IMPORT.SELECTED' | translate }}</div>
             <div class="row center-content">
-                <app-async-button icon="save" type="primary" [onClick]="save">
+                <app-async-button icon="save" type="primary" size="large" [onClick]="save">
                     {{ 'MEMBERS_IMPORT.IMPORT_BUTTON' | translate }}
                 </app-async-button>
             </div>
