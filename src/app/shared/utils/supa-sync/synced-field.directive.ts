@@ -19,8 +19,7 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     readonly column = input.required<C>();
 
     private rowId: number | null = null;
-    private ignoreUpdate: Row<D, T>[C] | null = null;
-    private applyingRemote = false;
+    private ignoreUpdate: Row<D, T>[C] | undefined;
 
     constructor() {
         // syncedRow -> form control
@@ -35,35 +34,31 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             const rowId = row[syncedRow.table.idKey];
             if (this.rowId !== rowId) {
                 this.rowId = rowId;
-                this.ignoreUpdate = null;
             } else if (!(column in row)) return;
-            this.applyRemoteValue(row[column]);
+            const value = row[column];
+            if ('ignoreUpdate' in this && value === this.ignoreUpdate) return;
+            this.applyRemoteValue(value);
         });
         // form control -> syncedRow
         effect(() => {
-            const columnValue = this.inputBase.value() as Row<D, T>[C] | null;
-            if (columnValue == null) return;
-            if (this.ignoreUpdate === columnValue) {
-                this.ignoreUpdate = null;
-                return;
-            }
-            this.sendUpdate(columnValue);
+            const value = this.inputBase.value() as Row<D, T>[C] | null;
+            if ('ignoreUpdate' in this && value === this.ignoreUpdate) return;
+            this.sendUpdate(value);
         });
     }
 
     private applyRemoteValue(value: Row<D, T>[C] | null | undefined) {
-        if (value === this.ignoreUpdate) return;
-        this.applyingRemote = true;
+        if (!this.inputBase.value() === value) return;
+        this.ignoreUpdate = value;
         this.inputBase.value.set(value);
     }
 
     private async sendUpdate(value: Row<D, T>[C] | null) {
-        if (this.applyingRemote) {
-            this.applyingRemote = false;
-            return;
-        }
+        console.log('sending', value);
         this.ignoreUpdate = value;
         const syncedRow = this.syncedRow(), column = this.column();
         await syncedRow.write({ [column]: value }, this.inputBase.debounceTime);
+        if (this.ignoreUpdate === value)
+            delete this.ignoreUpdate;
     }
 }

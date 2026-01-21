@@ -5,7 +5,7 @@ import { IDBRead } from "./idb/idb-read";
 import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
 import type { Change, Column, Database, Indexed, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
-const SENT_CACHE_SIZE = 4;
+const SENT_CACHE_SIZE = 8;
 
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);

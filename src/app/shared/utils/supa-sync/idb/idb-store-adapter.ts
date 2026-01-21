@@ -6,7 +6,7 @@ export function idbBoolToNumber(value: boolean | null) {
     switch (value) {
         case true: return 1;
         case false: return -1;
-        default: return 0;        
+        default: return 0;
     }
 }
 

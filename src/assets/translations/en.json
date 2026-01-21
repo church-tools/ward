@@ -153,6 +153,7 @@
   },
   "OR": "or",
   "DELETE": "Delete",
+  "CONFIRM_DELETE": "Confirm Delete?",
   "B": "B",
   "I": "I",
   "U": "U",
