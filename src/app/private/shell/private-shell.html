@@ -18,6 +18,7 @@
     <div class="row full-width full-height no-wrap items-center gap-1">
         <div class="handle full-width full-height items-center">
         </div>
+        <app-presences class="me-2"/>
         <app-menu-button class="title-bar-margin" [class.icon-only]="!adminService.editMode()"
             [type]="adminService.editMode() ? 'primary' : 'subtle'" 
             [items]="menuItems()" alignment="left">

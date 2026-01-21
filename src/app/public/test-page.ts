@@ -1,9 +1,7 @@
 import { Component, signal } from '@angular/core';
-import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from '../shared/form/rich-text/markdown-utils';
 import { RichTextComponent } from '../shared/form/rich-text/rich-text';
 import { PageComponent } from '../shared/page/page';
 import { PALETTE_COLORS } from '../shared/utils/color-utils';
-import { xcomputed } from '../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-not-found-page',
@@ -24,17 +22,10 @@ import { xcomputed } from '../shared/utils/signal-utils';
             }
         </div>
 
-        <app-rich-text [value]="richTextContent()" (valueChange)="richTextContent.set($event ?? '')" name="test"/>
-        <app-rich-text [value]="htmlContent()" name="test-out"/>
-        <p>Aktueller Inhalt:</p>
-        {{ richTextContent() }}
-        <p>Markdown:</p>
+        <app-rich-text [value]="markdownContent()" (valueChange)="markdownContent.set($event ?? '')" name="test"/>
+        <p>Markdown Inhalt:</p>
         <p class="text-pre-wrap">
             {{ markdownContent() }}
-        </p>
-        <p>Converted:</p>
-        <p class="text-pre-wrap">
-            {{ htmlContent() }}
         </p>
             
     `,
@@ -43,10 +34,7 @@ import { xcomputed } from '../shared/utils/signal-utils';
 })
 export class TestComponent extends PageComponent {
 
-    protected readonly richTextContent = signal('Hier könnte Ihre Werbung stehen!');
+    protected readonly markdownContent = signal('**Bold text** and _italic text_\n\n## Heading 2\n\n- List item 1\n- List item 2');
 
     protected readonly colorNames = PALETTE_COLORS;
-
-    protected readonly markdownContent = xcomputed([this.richTextContent], content => quillHtmlToMarkdown(content as HTMLString));
-    protected readonly htmlContent = xcomputed([this.markdownContent], content => markdownToQuillHtml(content));
 }

@@ -48,14 +48,14 @@ body {
     @each $color2 in $names {
         .bg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
+                background: radial-gradient(circle at top left,
                     get-variant($color, 'background'),
                     get-variant($color2, 'active'));
             }
         }
         .fg-gradient {
             &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: linear-gradient(135deg,
+                background: radial-gradient(circle at top left,
                     get-variant($color, 'active'),
                     get-variant($color2, 'foreground'));
             }

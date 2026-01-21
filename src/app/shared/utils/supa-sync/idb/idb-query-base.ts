@@ -50,7 +50,7 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
     }
 
     public listenToChanges(callback: (result: QueryResult<R>) => void) {
-        return this.store.onChangeReceived.subscribe(changes => {
+        return this.store.onChange.subscribe(changes => {
             const items: Row<D, T>[] = [];
             const deletions: number[] = [];
             for (const change of changes) {

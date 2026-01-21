@@ -1,16 +1,17 @@
-import { RealtimeChannel, Session, SupabaseClient } from "@supabase/supabase-js";
+import { Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
-import { Lock, wait } from "../flow-control-utils";
+import { Lock } from "../flow-control-utils";
+import { ChannelConnection } from "./channel-connection";
 import { SupaSyncTable } from "./supa-sync-table";
 import type { Database, SupaSyncPayload, SupaSyncTableInfo, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
-const RECONNECT_DELAY_MS = 2000;
 
 export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any } = {}> {
 
-    private channel: RealtimeChannel | undefined;
+    private changesConnection: ChannelConnection | undefined;
+    private presenceChannel: ChannelConnection | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
     private readonly client: SupabaseClient<D>;
@@ -65,15 +66,9 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                 }
                 localStorage.setItem(VERSION_KEY, version.toString());
             };
-            openRequest.onsuccess = (event) => {
-                resolve((event.target as IDBOpenDBRequest).result);
-            };
-            openRequest.onerror = (event) => {
-                reject((event.target as IDBOpenDBRequest).error);
-            };
-            openRequest.onblocked = () => {
-                reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
-            };
+            openRequest.onsuccess = event => resolve((event.target as IDBOpenDBRequest).result);
+            openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
+            openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
         });
         for (const table of tables)
             table.init(this.idb);
@@ -82,7 +77,11 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
 
     private async startSyncing(tables: SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[]) {
         await this.onlineState.get();
-        this.assureConnection();
+        this.changesConnection = new ChannelConnection(
+            () => this.client.channel(`schema-db-changes`)
+                .on('postgres_changes', { event: '*', schema: 'public' }, this.processChanges.bind(this)),
+            this.onlineState
+        );
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
@@ -92,78 +91,48 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             const { data } = await query.throwOnError();
             const adapter = table.storeAdapter;
             if (data.length) {
-                const changes = await table.writeAndDelete(data);
-                if (changes) adapter.onChangeReceived.emit(changes);
+                const changes = await table['writeAndDelete'](data);
+                if (changes) adapter.onChange.emit(changes);
             }
             adapter.initialized.set(true);
         }));
         this.setLastSync(now);
     }
 
-    private async assureConnection() {
-        let failed = false;
-        while (true) {
-            await new Promise<void>(resolve => {
-                this.channel?.unsubscribe();
-                this.channel = this.client.channel(`schema-db-changes`)
-                    .on('postgres_changes',
-                        { event: '*', schema: 'public' },
-                        async (payload: SupaSyncPayload<D>) => {
-                            await this.eventLock.lock(async () => {
-                                const table = this.tablesByName[payload.table];
-                                const adapter = table.storeAdapter;
-                                switch (payload.eventType) {
-                                    case 'INSERT':
-                                    case 'UPDATE':
-                                        const deleted = payload.new?.[table.deletedKey];
-                                        const input = deleted
-                                            ? { update: [], delete: [payload.new![table.idKey] as number] }
-                                            : { update: [payload.new], delete: [] };
-                                        payload.old = (await adapter.writeAndGet(input.update, input.delete))[0].old;
-                                        if (payload.new?.[table.deletedKey])
-                                            payload.new = undefined;
-                                        adapter.onChangeReceived.emit([payload]);
-                                        break;
-                                    case 'DELETE':
-                                        await adapter.delete(payload.old!.id);
-                                        adapter.onChangeReceived.emit([payload]);
-                                        break;
-                                }
-                                this.setLastSync(payload.commit_timestamp);
-                            });
-                        })
-                    .subscribe(async (status: string) => {
-                        switch (status) {
-                            case 'SUBSCRIBED':
-                                if (failed) console.log('... reconnected to realtime channel.');
-                                break;
-                            case 'CHANNEL_ERROR':
-                                console.warn('Failed to subscribe to realtime channel, retrying...');
-                                resolve();
-                                break;
-                            case 'TIMED_OUT':
-                                console.warn('Realtime subscription timed out, retrying...');
-                                resolve();
-                                break;
-                        }
-                    });
-            });
-            await wait(RECONNECT_DELAY_MS);
-            await this.onlineState.get();
-            failed = true;
-        }
-    }
-
     public cleanup() {
-        if (this.channel) {
-            this.client.removeChannel(this.channel);
-            this.channel = undefined;
-        }
+        this.changesConnection?.close(this.client);
         this.idb?.then(idb => idb.close());
     }
 
     public from<T extends TableName<D>>(tableName: T) {
         return this.tablesByName[tableName];
+    }
+
+    private async processChanges(payload: SupaSyncPayload<D>) {
+        await this.eventLock.lock(async () => {
+            const table = this.tablesByName[payload.table];
+            const adapter = table.storeAdapter;
+            switch (payload.eventType) {
+                case 'INSERT':
+                case 'UPDATE':
+                    if (payload.new && table.wasSentLately(payload.new))
+                        return;
+                    const deleted = payload.new?.[table.deletedKey];
+                    const input = deleted
+                        ? { update: [], delete: [payload.new![table.idKey] as number] }
+                        : { update: [payload.new], delete: [] };
+                    payload.old = (await adapter.writeAndGet(input.update, input.delete))[0].old;
+                    if (payload.new?.[table.deletedKey])
+                        payload.new = undefined;
+                    adapter.onChange.emit([payload]);
+                    break;
+                case 'DELETE':
+                    await adapter.delete(payload.old![table.idKey]);
+                    adapter.onChange.emit([payload]);
+                    break;
+            }
+            this.setLastSync(payload.commit_timestamp);
+        });
     }
 
     private async getLastSync() {

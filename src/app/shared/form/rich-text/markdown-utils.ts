@@ -43,6 +43,7 @@ export function markdownToPlainText(markdown: string | null): string {
         .replace(/`(.*?)`/g, '$1') // inline code
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // links
         .replace(/#+ (.*)/g, '$1') // headers
+        .replaceAll('- ', '• ') // unordered list items
         .trim();
 }
 

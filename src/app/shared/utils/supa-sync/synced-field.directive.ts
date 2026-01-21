@@ -19,7 +19,7 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     readonly column = input.required<C>();
 
     private rowId: number | null = null;
-    private readonly ignoreNextUpdates = new Set<Row<D, T>[C]>();
+    private ignoreUpdate: Row<D, T>[C] | null = null;
     private applyingRemote = false;
 
     constructor() {
@@ -35,7 +35,7 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             const rowId = row[syncedRow.table.idKey];
             if (this.rowId !== rowId) {
                 this.rowId = rowId;
-                this.ignoreNextUpdates.clear();
+                this.ignoreUpdate = null;
             } else if (!(column in row)) return;
             this.applyRemoteValue(row[column]);
         });
@@ -43,17 +43,16 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
         effect(() => {
             const columnValue = this.inputBase.value() as Row<D, T>[C] | null;
             if (columnValue == null) return;
-            this.ignoreNextUpdates.add(columnValue);
+            if (this.ignoreUpdate === columnValue) {
+                this.ignoreUpdate = null;
+                return;
+            }
             this.sendUpdate(columnValue);
         });
     }
 
     private applyRemoteValue(value: Row<D, T>[C] | null | undefined) {
-        // if (value === this.inputBase.value()) return;
-        if (this.inputBase.debounceTime && this.ignoreNextUpdates.has(value)) {
-            this.ignoreNextUpdates.delete(value);
-            return;
-        }
+        if (value === this.ignoreUpdate) return;
         this.applyingRemote = true;
         this.inputBase.value.set(value);
     }
@@ -63,10 +62,8 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
             this.applyingRemote = false;
             return;
         }
+        this.ignoreUpdate = value;
         const syncedRow = this.syncedRow(), column = this.column();
-        this.ignoreNextUpdates.add(value);
-        console.log('Sending:', value)
         await syncedRow.write({ [column]: value }, this.inputBase.debounceTime);
-        setTimeout(() => this.ignoreNextUpdates.delete(value), 5000);
     }
 }

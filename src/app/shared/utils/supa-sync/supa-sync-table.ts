@@ -5,6 +5,8 @@ import { IDBRead } from "./idb/idb-read";
 import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
 import type { Change, Column, Database, Indexed, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
 
+const SENT_CACHE_SIZE = 4;
+
 function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
@@ -27,6 +29,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly needsUpgrade: boolean;
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
+
+    private readonly latestSents: Row<D, T>[] = [];
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
 
     constructor(
@@ -145,7 +149,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 .throwOnError();
             changes = await this.writeAndDelete(data);
         }
-        if (changes) this.storeAdapter.onChangeReceived.emit(changes);
+        if (changes) this.storeAdapter.onChange.emit(changes);
     }
 
     public async delete(row: Row<D, T> | number | string) {
@@ -163,10 +167,19 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         return this.storeAdapter.findLargestId();
     }
 
-    public writeAndDelete(rows: Update<D, T>[]) {
+    public wasSentLately(row: Row<D, T>) {
+        const sentRow = this.latestSents.find(r => r[this.idKey] === row[this.idKey]);
+        if (!sentRow) return false;
+        for (const key in sentRow)
+            if (row[key] !== sentRow[key]) return false;
+        this.latestSents.splice(this.latestSents.indexOf(sentRow), 1);
+        return true;
+    }
+
+    private writeAndDelete(rows: Update<D, T>[]) {
         const updated = rows.filter(update => !update[this.deletedKey]);
         const deletedIds = rows.filter(update => update[this.deletedKey]).map(update => update[this.idKey] as number);
-        return (this.storeAdapter.onChangeReceived.hasSubscriptions
+        return (this.storeAdapter.onChange.hasSubscriptions
             ? this.storeAdapter.writeAndGet(updated, deletedIds)
             : this.storeAdapter.writeMany(updated, deletedIds));
     }
@@ -217,6 +230,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                         .eq(this.idKey, row[this.idKey])
                         .throwOnError();
                 }
+                this.latestSents.unshift(row as Row<D, T>);
+                if (this.latestSents.length > SENT_CACHE_SIZE)
+                    this.latestSents.pop();
             }));
             return true;
         } catch (error) {

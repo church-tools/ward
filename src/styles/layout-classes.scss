@@ -216,7 +216,10 @@ ul {
 @each $size in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16, 32, 64, 96, 128) {
     .max-height-#{$size} { max-height: $size * $gutter; }
     .max-width-#{$size} { max-width: $size * $gutter; }
+    .min-height-#{$size} { min-height: $size * $gutter; }
+    .min-width-#{$size} { min-width: $size * $gutter; }
     .height-#{$size} { height: $size * $gutter; }
+    .width-#{$size} { width: $size * $gutter; }
 }
 .click-through {
     pointer-events: none;

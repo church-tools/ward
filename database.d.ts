@@ -527,6 +527,8 @@ export type Database = {
       }
       profile: {
         Row: {
+          color_1: Database["public"]["Enums"]["color"] | null
+          color_2: Database["public"]["Enums"]["color"] | null
           created_at: string
           deleted: boolean
           email: string
@@ -539,6 +541,8 @@ export type Database = {
           user: string
         }
         Insert: {
+          color_1?: Database["public"]["Enums"]["color"] | null
+          color_2?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           deleted?: boolean
           email: string
@@ -551,6 +555,8 @@ export type Database = {
           user: string
         }
         Update: {
+          color_1?: Database["public"]["Enums"]["color"] | null
+          color_2?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           deleted?: boolean
           email?: string
@@ -724,6 +730,8 @@ export type Database = {
           approved: boolean | null
           created_by: string
           id: number
+          invitation_issue_date: string | null
+          invitation_token: string | null
           name: string
           sacrament_service_time: number
           updated_at: string
@@ -732,6 +740,8 @@ export type Database = {
           approved?: boolean | null
           created_by: string
           id?: number
+          invitation_issue_date?: string | null
+          invitation_token?: string | null
           name: string
           sacrament_service_time?: number
           updated_at?: string
@@ -740,6 +750,8 @@ export type Database = {
           approved?: boolean | null
           created_by?: string
           id?: number
+          invitation_issue_date?: string | null
+          invitation_token?: string | null
           name?: string
           sacrament_service_time?: number
           updated_at?: string

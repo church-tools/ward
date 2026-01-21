@@ -6,7 +6,7 @@ import { IconComponent } from "../../../shared/icon/icon";
 @Component({
     selector: 'app-omni-search',
     template: `
-        <app-select class="omni-search-select" [options]="options()" placeholder="{{ 'SEARCH' | translate }} ...">
+        <app-select class="omni-search-select" [options]="options()" placeholder="{{ 'SEARCH' | translate }}">
             <app-icon icon="search" size="sm"/>
         </app-select>
     `,

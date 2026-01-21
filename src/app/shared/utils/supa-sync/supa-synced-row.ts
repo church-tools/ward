@@ -56,8 +56,8 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
     }
 
     public async write(update: Update<D, T>, debounce?: number) {
-        update[this._table.idKey] = this.id();
-        await this._table.update(update, debounce);
+        const newRow = { ...(this.value() ?? {}), ...update };
+        await this._table.update(newRow, debounce);
     }
 
     public destroy() {

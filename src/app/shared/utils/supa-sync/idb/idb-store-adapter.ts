@@ -20,7 +20,7 @@ export function idbNumberToBool(value: number | null) {
 
 export class IDBStoreAdapter<T> {
 
-    public readonly onChangeReceived = new EventEmitter<Change<T>[]>();
+    public readonly onChange = new EventEmitter<Change<T>[]>();
     public writeSubscriptions = 0;
     public readonly initialized = new AsyncState<boolean>();
     public mappingInFunction?: ((item: T) => T);
@@ -69,7 +69,7 @@ export class IDBStoreAdapter<T> {
                     store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
                     store.put(item).toPromise(),
-                ]).then(([old]) => ({ old, new: { ...old, ...item } }))));
+                ]).then(([old]) => ({ old, new: item }))));
                 const deleteProm = Promise.all((deleteIds ?? []).map(id => Promise.all([
                     store.get(id).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),

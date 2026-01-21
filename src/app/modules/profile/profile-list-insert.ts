@@ -1,5 +1,5 @@
-import { Component, signal, viewChild } from '@angular/core';
-import { email, Field, form, required } from '@angular/forms/signals';
+import { Component, signal } from '@angular/core';
+import { email, form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { TextInputComponent } from '../../shared/form/text/text-input';
@@ -12,12 +12,12 @@ import { Profile } from './profile';
         <div class="row no-wrap gap-2">
             <app-text-input #email type="email" class="grow-1"
                 placeholder="{{ 'USER_PAGE.EMAIL_TO_INVITE' | translate }}"
-                [field]="emailForm"/>
+                [formField]="emailForm"/>
             <app-async-button [onClick]="submit" icon="send" class="icon-only"
                 [type]="emailForm().valid() ? 'primary' : 'subtle'"/>
         </div>
     `,
-    imports: [Field, TranslateModule, TextInputComponent, AsyncButtonComponent],
+    imports: [FormField, TranslateModule, TextInputComponent, AsyncButtonComponent],
 })
 export class ProfileListInsertComponent extends ListInsertComponent<'profile'> {
 
