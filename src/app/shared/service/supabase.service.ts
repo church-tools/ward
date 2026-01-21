@@ -25,7 +25,7 @@ export class SupabaseService {
         { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean } },
         { name: 'agenda', createOffline: false, orderKey: 'position' },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: Number, type: String } },
-        { name: 'agenda_item', orderKey: 'position', indexed: { agenda: Number, type: String } },
+        { name: 'agenda_item', orderKey: 'position', indexed: { agenda: Number, type: String, assigned_to: Number } },
         { name: 'calling', orderKey: 'position', indexed: {} },
         { name: 'member', createOffline: false, indexed: { unit: Number, profile: Number } }
     ]);

@@ -45,7 +45,7 @@
 
 .toolbar {
     position: absolute;
-    overflow: visible;
+    z-index: 1;
     transform: translateX(-50%) translateY(0) scale(1);
     opacity: 1;
     transition: transform animation.$duration-sm animation.$ease-out, opacity animation.$duration-sm animation.$ease-out;

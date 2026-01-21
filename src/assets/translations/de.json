@@ -121,7 +121,10 @@
   "BROTHER_SHORT": "Br.",
   "SISTER_SHORT": "Schw.",
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
-  "MEETINGS_PAGE.TITLE": "Sitzungen",
+  "MEETINGS_PAGE": {
+    "TITLE": "Sitzungen",
+    "MY_TASKS": "Meine Aufgaben"
+  },
   "CALLINGS_PAGE.TITLE": "Berufungen",
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {

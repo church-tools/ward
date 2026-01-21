@@ -243,6 +243,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
                     this.onClose();
                 else
                     this.snapBackDrawer(element, delta, isBottom);
+            } else {
+                element.style.transform = '';
+                element.style.opacity = '';
             }
         }
         element.style.userSelect = '';

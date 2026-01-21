@@ -121,7 +121,10 @@
   "BROTHER_SHORT": "Bro.",
   "SISTER_SHORT": "Sis.",
   "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
-  "MEETINGS_PAGE.TITLE": "Meetings",
+  "MEETINGS_PAGE": {
+    "TITLE": "Meetings",
+    "MY_TASKS": "My Tasks"
+  },
   "CALLINGS_PAGE.TITLE": "Callings",
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {

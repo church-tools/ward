@@ -65,7 +65,6 @@
         position: relative;
         height: 100%;
         overflow-y: auto;
-        max-height: 100vh;
         .drawer-body {
             margin: layout.$canvas-margin;
         }
@@ -121,6 +120,7 @@
         display: none;
     }
     .drawer-card {
+        max-height: 100vh;
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
         border-bottom: none;

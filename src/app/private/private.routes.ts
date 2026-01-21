@@ -11,8 +11,14 @@ export type PrivateTab = RouteObject<PrivatePageComponent> & {
 
 export const privateTabs: { [path: string]: PrivateTab } = {
     meetings: {
-        translateId: 'MEETINGS', icon: 'chat_multiple',
+        translateId: 'MEETINGS', icon: 'comment_checkmark',
         loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPageComponent),
+        // childrenInside: true,
+        task: {
+            ':agenda_item': {
+                loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
+            }
+        },
         ':agenda': {
             loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),
             childrenInside: true,
