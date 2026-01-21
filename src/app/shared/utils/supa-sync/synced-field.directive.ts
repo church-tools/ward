@@ -54,7 +54,6 @@ export class SyncedFieldDirective<D extends Database, T extends TableName<D>, C 
     }
 
     private async sendUpdate(value: Row<D, T>[C] | null) {
-        console.log('sending', value);
         this.ignoreUpdate = value;
         const syncedRow = this.syncedRow(), column = this.column();
         await syncedRow.write({ [column]: value }, this.inputBase.debounceTime);
