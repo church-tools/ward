@@ -1,16 +1,20 @@
 import { AsyncPipe } from '@angular/common';
-import { Component } from '@angular/core';
-import { AgendaSectionTopicsComponent } from './agenda-section-topics';
-import { TaskListComponent } from '../task-list';
+import { Component, inject, input } from '@angular/core';
+import { AgendaItemViewService } from '../../../item/agenda-item-view.service';
+import { AgendaItemListComponent } from '../agenda-item-list';
+import { AgendaSection } from '../agenda-section';
 
 @Component({
     selector: 'app-agenda-section-suggestions',
     template: `
-        <h1 class="mb-3">{{ taskView.suggestion.namePlural | async }}</h1>
-        <app-task-list [agendaId]="section().agenda" [stages]="['suggestion']"/>
+        <h1 class="mb-3">{{ agendaItemView.suggestion.namePlural | async }}</h1>
+        <app-agenda-item-list [agendaId]="section().agenda" [types]="['suggestion']"/>
     `,
-    imports: [TaskListComponent, AsyncPipe],
+    imports: [AgendaItemListComponent, AsyncPipe],
 })
-export class AgendaSectionSuggestionsComponent extends AgendaSectionTopicsComponent {
+export class AgendaSectionSuggestionsComponent {
 
+    protected readonly agendaItemView = inject(AgendaItemViewService);
+    
+    readonly section = input.required<AgendaSection.Row>();
 }

@@ -18,6 +18,7 @@ export class RowSelectComponent<T extends TableName> extends InputBaseComponent<
     readonly getQuery = input<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>(null);
 
     readonly allowCustom = input<boolean>(false);
+    readonly multiple = input<boolean>(false);
 
     protected getOptions = async (search: string) => {
         return [];

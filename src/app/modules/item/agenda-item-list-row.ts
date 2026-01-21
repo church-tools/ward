@@ -5,7 +5,7 @@ import { xcomputed } from '../../shared/utils/signal-utils';
 import { ListRowComponent } from '../shared/list-row';
 
 @Component({
-    selector: 'app-task-list-row',
+    selector: 'app-agenda-item-list-row',
     template: `
         <div class="column m-4 gap-1">
             <h4><span class="overflow-ellipsis">{{ row().title }}</span></h4>
@@ -19,7 +19,7 @@ import { ListRowComponent } from '../shared/list-row';
     `,
     imports: [IconComponent],
 })
-export class TaskListRowComponent extends ListRowComponent<'task'> {
+export class AgendaItemListRowComponent extends ListRowComponent<'agenda_item'> {
 
     protected readonly contentString = xcomputed([this.row],
         row => markdownToPlainText(row.content).replace(/\n+/gm, '; '));

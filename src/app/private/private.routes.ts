@@ -16,8 +16,8 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         ':agenda': {
             loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),
             childrenInside: true,
-            ':task': {
-                loadComponent: () => import('./meetings/agenda/task/task-page').then(m => m.TaskPageComponent),
+            ':agenda_item': {
+                loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
             }
         },
     },

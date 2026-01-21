@@ -36,9 +36,9 @@ export class AgendaSectionListInsertComponent extends ListInsertComponent<'agend
         const existingTypes = new Set(currentSections.map(section => section.type));
         return this.agendaSectionView.typeOptions.filter(option => {
             switch (option.type) {
-                case 'tasks':
-                case 'followups':
-                case 'task_suggestions':
+                case 'suggestions':
+                case 'topics':
+                case 'resolutions':
                 case 'callings':
                     return !existingTypes.has(option.type);
                 default:

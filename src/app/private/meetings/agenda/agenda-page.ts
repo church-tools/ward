@@ -4,7 +4,7 @@ import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
-import { Task } from '../../../modules/task/task';
+import { AgendaItem } from '../../../modules/item/agenda-item';
 import { DbConstants } from '../../../shared/db-constants';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
@@ -60,7 +60,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                 }
             </div>
         </app-router-outlet-drawer>
-        <app-agenda-drop-zone [draggedTask]="draggedTask()"/>
+        <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
     imports: [TranslateModule, RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent,
         TextInputComponent, SyncedFieldDirective, IconComponent, IconPickerComponent, AsyncButtonComponent],
@@ -70,25 +70,25 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     
     private readonly dragDrop = inject(DragDropService);
     private readonly profileService = inject(ProfileService);
-    private readonly taskDragDrop = this.dragDrop.ensureGroup('task');
+    private readonly itemDragDrop = this.dragDrop.ensureGroup('agenda_item');
 
     protected readonly sectionQuery = xcomputed([this.syncedRow.value],
         row => row ? (table: Table<'agenda_section'>) => table.find().eq('agenda', row.id) : null);
-    protected readonly draggedTask = xcomputed([this.taskDragDrop.dragged],
+    protected readonly draggedAgendaItem = xcomputed([this.itemDragDrop.dragged],
         drag => drag?.data && 'agenda' in drag.data ? drag : null);
 
-    protected readonly sectionList = viewChild.required<RowCardListComponent<'task'>>('sectionList');
+    protected readonly sectionList = viewChild.required<RowCardListComponent<'agenda_section'>>('sectionList');
     
     protected readonly iconOptions = DbConstants.public.Enums.shape;
-    protected readonly activeTaskId = signal<number | null>(null);
+    protected readonly activeItemId = signal<number | null>(null);
     protected readonly tableName = 'agenda';
-    protected readonly dragData = signal<Task.Row | null>(null);
+    protected readonly dragData = signal<AgendaItem.Row | null>(null);
 
     protected onActivate(id: string | null) {
-        this.activeTaskId.set(id ? +id : null);
+        this.activeItemId.set(id ? +id : null);
     }
 
-    protected getTaskUrl = (task: Task.Row) => `/meetings/${task.agenda}/${task.id}`;
+    protected getItemUrl = (item: AgendaItem.Row) => `/meetings/${item.agenda}/${item.id}`;
 
     protected prepareSectionInsert = (section: AgendaSection.Insert) => {
         const agenda = this.syncedRow.value();
@@ -99,7 +99,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     protected enableEditMode = async () => {
         const profile = this.profileService.own();
         const agenda = this.syncedRow.value();
-        const types: AgendaSection.Type[] = ['prayer', 'spiritual_thought', 'followups', 'tasks', 'prayer'];
+        const types: AgendaSection.Type[] = ['prayer', 'spiritual_thought', 'resolutions', 'topics', 'prayer'];
         await this.supabase.sync.from('agenda_section').insert(
             types.map((type, position) => ({ type, position, unit: profile.unit, agenda: +agenda!.id })));
         this.adminService.editMode.set(true);

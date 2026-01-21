@@ -10,7 +10,7 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
             case 'profile': return (await import('../profile/profile-view.service')).ProfileViewService;
             case 'agenda': return (await import('../agenda/agenda-view.service')).AgendaViewService;
             case 'agenda_section': return (await import('../agenda/section/agenda-section-view.service')).AgendaSectionViewService;
-            case 'task': return (await import('../task/task-view.service')).TaskViewService;
+            case 'agenda_item': return (await import('../item/agenda-item-view.service')).AgendaItemViewService;
             case 'calling': return (await import('../calling/calling-view.service')).CallingViewService;
             case 'member': return (await import('../member/member-view.service')).MemberViewService;
             default: throw new Error(`No view service found for table: ${tableName}`);

@@ -5,7 +5,7 @@ import { Row, TableName } from "./table.types";
 const rowComponentLoaders = {
     agenda: async () => (await import('../agenda/agenda-list-row')).AgendaListRowComponent,
     agenda_section: async () => (await import('../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent,
-    task: async () => (await import('../task/task-list-row')).TaskListRowComponent,
+    agenda_item: async () => (await import('../item/agenda-item-list-row')).AgendaItemListRowComponent,
     profile: async () => (await import('../profile/profile-list-row')).ProfileListRowComponent,
     member: async () => (await import('../member/member-list-row')).MemberListRowComponent,
 } as const;

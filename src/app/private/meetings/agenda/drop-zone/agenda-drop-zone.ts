@@ -1,7 +1,7 @@
 import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 import { Agenda } from '../../../../modules/agenda/agenda';
 import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
-import { Task } from '../../../../modules/task/task';
+import { AgendaItem } from '../../../../modules/item/agenda-item';
 import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
 import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
@@ -12,7 +12,7 @@ import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
     styleUrl: './agenda-drop-zone.scss',
     imports: [AgendaListRowComponent],
     host: {
-        '[class.visible]': 'draggedTask()',
+        '[class.visible]': 'draggedAgendaItem()',
     }
 })
 export class AgendaDropZoneComponent implements OnDestroy {
@@ -21,11 +21,11 @@ export class AgendaDropZoneComponent implements OnDestroy {
     private readonly dragDrop = inject(DragDropService);
     private readonly elementRef = inject(ElementRef);
     
-    readonly draggedTask = input.required<DragData<Task.Row> | null>();
+    readonly draggedAgendaItem = input.required<DragData<AgendaItem.Row> | null>();
 
     private readonly agendaCards = viewChildren('agendaCard', { read: ElementRef });
 
-    protected readonly lastDrag = signal<DragData<Task.Row> | null>(null);
+    protected readonly lastDrag = signal<DragData<AgendaItem.Row> | null>(null);
     protected readonly agendas = asyncComputed([],
         () => this.supabase.sync.from('agenda').readAll().get()
               .then(agendas => agendas.sort((a, b) => a.position - b.position)));
@@ -33,16 +33,16 @@ export class AgendaDropZoneComponent implements OnDestroy {
     protected readonly dragOver = signal(false);
     protected readonly hoveredAgenda = signal<Agenda.Row | null>(null);
 
-    private readonly dragDropGroup = this.dragDrop.ensureGroup('task');
+    private readonly dragDropGroup = this.dragDrop.ensureGroup('agenda_item');
     
     private dragMoveListener: ((e: MouseEvent | TouchEvent) => void) | null = null;
     private dragEndListener: ((e: MouseEvent | TouchEvent) => void) | null = null;
 
     constructor() {
-        xeffect([this.draggedTask], draggedTask => {
-            if (draggedTask) {
+        xeffect([this.draggedAgendaItem], draggedAgendaItem => {
+            if (draggedAgendaItem) {
                 this.startDragPositionMonitoring();
-                this.lastDrag.set(draggedTask);
+                this.lastDrag.set(draggedAgendaItem);
             } else {
                 this.stopDragPositionMonitoring();
                 this.dragOver.set(false);
@@ -97,7 +97,7 @@ export class AgendaDropZoneComponent implements OnDestroy {
                 }
                 const agenda = this.hoveredAgenda();
                 if (!agenda) return;
-                await this.supabase.sync.from('task').update({
+                await this.supabase.sync.from('agenda_item').update({
                     id: dragData.data.id,
                     agenda: agenda.id
                 });

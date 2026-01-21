@@ -7,17 +7,20 @@ import { TextareaComponent } from '../../../../shared/form/text/textarea';
 import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
 import { RowHistoryComponent } from "../../../shared/row-history";
 import { RowPageComponent } from '../../../shared/row-page';
+import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
 
 @Component({
-    selector: 'app-task-page',
+    selector: 'app-agenda-item-page',
     template: `
         <app-textarea [syncedRow]="syncedRow" column="title" name="title" textClass="h3"
             [subtle]="true"/>
         <app-rich-text [syncedRow]="syncedRow" column="content" name="content"/>
         <app-file-input [syncedRow]="syncedRow" column="files" name="files"/>
+        <!-- <app-row-select [syncedRow]="syncedRow" column="assigned_to" name="assigned_to"
+            table="profiles" [multiple]="true"/> -->
         <div class="row end-content mt-auto">
             <app-async-button type="secondary" icon="delete"
-                [onClick]="deleteTask">
+                [onClick]="deleteItem">
                 {{ 'DELETE' | translate }}
             </app-async-button>
         </div>
@@ -25,13 +28,13 @@ import { RowPageComponent } from '../../../shared/row-page';
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, TextareaComponent, RichTextComponent, RowHistoryComponent, SyncedFieldDirective,
-        FileInputComponent, AsyncButtonComponent],
+    FileInputComponent, AsyncButtonComponent, RowSelectComponent],
 })
-export class TaskPageComponent extends RowPageComponent<'task'> {
+export class AgendaItemPageComponent extends RowPageComponent<'agenda_item'> {
 
-    protected readonly tableName = 'task';
+    protected readonly tableName = 'agenda_item';
 
-    protected deleteTask = async () => {
+    protected deleteItem = async () => {
         await this.syncedRow.write({ deleted: true });
         this.router.navigate(['../'], { relativeTo: this.route });
     };

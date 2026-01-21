@@ -67,6 +67,76 @@ export type Database = {
           },
         ]
       }
+      agenda_item: {
+        Row: {
+          agenda: number
+          assigned_to: number[] | null
+          content: string | null
+          created_by: number
+          deleted: boolean
+          files: string[] | null
+          id: number
+          position: number
+          title: string | null
+          type: Database["public"]["Enums"]["agenda_item_type"]
+          unit: number
+          updated_at: string
+          updated_by: number | null
+        }
+        Insert: {
+          agenda: number
+          assigned_to?: number[] | null
+          content?: string | null
+          created_by: number
+          deleted?: boolean
+          files?: string[] | null
+          id: number
+          position: number
+          title?: string | null
+          type?: Database["public"]["Enums"]["agenda_item_type"]
+          unit: number
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Update: {
+          agenda?: number
+          assigned_to?: number[] | null
+          content?: string | null
+          created_by?: number
+          deleted?: boolean
+          files?: string[] | null
+          id?: number
+          position?: number
+          title?: string | null
+          type?: Database["public"]["Enums"]["agenda_item_type"]
+          unit?: number
+          updated_at?: string
+          updated_by?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agenda_item_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "task_agenda_unit_fkey"
+            columns: ["agenda", "unit"]
+            isOneToOne: false
+            referencedRelation: "agenda"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "task_created_by_unit_fkey"
+            columns: ["created_by", "unit"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id", "unit"]
+          },
+        ]
+      }
       agenda_section: {
         Row: {
           agenda: number
@@ -658,73 +728,6 @@ export type Database = {
           },
         ]
       }
-      task: {
-        Row: {
-          agenda: number
-          content: string | null
-          created_by: number
-          deleted: boolean
-          files: string[] | null
-          id: number
-          position: number
-          stage: Database["public"]["Enums"]["task_stage"]
-          title: string | null
-          unit: number
-          updated_at: string
-          updated_by: number | null
-        }
-        Insert: {
-          agenda: number
-          content?: string | null
-          created_by: number
-          deleted?: boolean
-          files?: string[] | null
-          id: number
-          position: number
-          stage?: Database["public"]["Enums"]["task_stage"]
-          title?: string | null
-          unit: number
-          updated_at?: string
-          updated_by?: number | null
-        }
-        Update: {
-          agenda?: number
-          content?: string | null
-          created_by?: number
-          deleted?: boolean
-          files?: string[] | null
-          id?: number
-          position?: number
-          stage?: Database["public"]["Enums"]["task_stage"]
-          title?: string | null
-          unit?: number
-          updated_at?: string
-          updated_by?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "agenda_item_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "task_agenda_unit_fkey"
-            columns: ["agenda", "unit"]
-            isOneToOne: false
-            referencedRelation: "agenda"
-            referencedColumns: ["id", "unit"]
-          },
-          {
-            foreignKeyName: "task_created_by_unit_fkey"
-            columns: ["created_by", "unit"]
-            isOneToOne: false
-            referencedRelation: "profile"
-            referencedColumns: ["id", "unit"]
-          },
-        ]
-      }
       unit: {
         Row: {
           approved: boolean | null
@@ -766,11 +769,18 @@ export type Database = {
       access_token_hook: { Args: { event: Json }; Returns: Json }
     }
     Enums: {
+      agenda_item_type:
+        | "suggestion"
+        | "topic"
+        | "task"
+        | "in_progress"
+        | "done"
+        | "acknowledged"
       agenda_section_type:
         | "text"
-        | "task_suggestions"
-        | "tasks"
-        | "followups"
+        | "suggestions"
+        | "topics"
+        | "resolutions"
         | "prayer"
         | "spiritual_thought"
         | "callings"
@@ -852,13 +862,6 @@ export type Database = {
         | "savings"
         | "people_audience"
         | "scales"
-      task_stage:
-        | "suggestion"
-        | "topic"
-        | "task"
-        | "in_progress"
-        | "done"
-        | "acknowledged"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -986,11 +989,19 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      agenda_item_type: [
+        "suggestion",
+        "topic",
+        "task",
+        "in_progress",
+        "done",
+        "acknowledged",
+      ],
       agenda_section_type: [
         "text",
-        "task_suggestions",
-        "tasks",
-        "followups",
+        "suggestions",
+        "topics",
+        "resolutions",
         "prayer",
         "spiritual_thought",
         "callings",
@@ -1076,14 +1087,6 @@ export const Constants = {
         "savings",
         "people_audience",
         "scales",
-      ],
-      task_stage: [
-        "suggestion",
-        "topic",
-        "task",
-        "in_progress",
-        "done",
-        "acknowledged",
       ],
     },
   },

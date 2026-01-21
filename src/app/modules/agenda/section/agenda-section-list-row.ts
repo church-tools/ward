@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { AdminService } from '../../../private/shared/admin.service';
 import ButtonComponent from '../../../shared/form/button/button';
 import { ListRowComponent } from '../../shared/list-row';
-import { AgendaSectionFollowupComponent } from "./variants/agenda-section-followup";
 import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
+import { AgendaSectionResolutionsComponent } from './variants/agenda-section-resolutions';
 import { AgendaSectionSpiritualThoughtComponent } from "./variants/agenda-section-spiritual-thought";
 import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
 import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
@@ -28,21 +28,21 @@ import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
                 @case ('spiritual_thought') {
                     <app-agenda-section-spiritual-thought [section]="row()"/>
                 }
-                @case ('task_suggestions') {
+                @case ('suggestions') {
                     <app-agenda-section-suggestions [section]="row()"/>
                 }
-                @case ('tasks') {
-                    <app-agenda-section-tasks [section]="row()"/>
+                @case ('topics') {
+                    <app-agenda-section-topics [section]="row()"/>
                 }
-                @case ('followups') {
-                    <app-agenda-section-followup [section]="row()"/>
+                @case ('resolutions') {
+                    <app-agenda-section-resolutions [section]="row()"/>
                 }
             }
         </div>
     `,
     host: { class: 'full-width' },
     imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTopicsComponent,
-        AgendaSectionFollowupComponent, AgendaSectionSuggestionsComponent, ButtonComponent,
+        AgendaSectionResolutionsComponent, AgendaSectionSuggestionsComponent, ButtonComponent,
         AgendaSectionSpiritualThoughtComponent],
 })
 export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {

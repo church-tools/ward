@@ -5,16 +5,18 @@ import { AgendaSection } from '../agenda-section';
 import { AgendaItemListComponent } from '../agenda-item-list';
 
 @Component({
-    selector: 'app-agenda-section-topics',
+    selector: 'app-agenda-section-resolutions',
     template: `
-        <h1 class="mb-3">{{ agendaItemView.topic.namePlural | async }}</h1>
-        <app-agenda-item-list [agendaId]="section().agenda" [types]="['topic']"/>
+        <h1 class="mb-3">{{ agendaItemView.resolution.namePlural | async }}</h1>
+        <app-agenda-item-list [agendaId]="section().agenda"
+            [types]="['task', 'in_progress', 'acknowledged']"/>
     `,
     imports: [AgendaItemListComponent, AsyncPipe],
 })
-export class AgendaSectionTopicsComponent {
+export class AgendaSectionResolutionsComponent {
 
     protected readonly agendaItemView = inject(AgendaItemViewService);
     
     readonly section = input.required<AgendaSection.Row>();
+
 }
