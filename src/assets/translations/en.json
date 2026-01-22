@@ -32,7 +32,7 @@
       "CAPTCHA_REQUIRED": "Please complete the CAPTCHA challenge.",
       "USER_ALREADY_EXISTS": "An account with this email already exists.",
       "SIGNUP_DISABLED": "Account creation is currently disabled.",
-      "EMAIL_CONFIRMATION_REQUIRED": "Please check your inbox and confirm your email before logging in."
+      "EMAIL_CONFIRMATION_REQUIRED": "Please check your inbox (and spam folder) and confirm your email before logging in."
     }
   },
   "FORGOT_PASSWORD": {
@@ -40,7 +40,7 @@
   },
   "CONFIRM_EMAIL": {
     "TITLE": "Confirm Email",
-    "MESSAGE": "Please check your inbox and confirm your email address."
+    "MESSAGE": "Please check your inbox (and spam folder) and confirm your email address."
   },
   "SETUP_PENDING": {
     "TITLE": "Request Pending",

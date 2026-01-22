@@ -25,6 +25,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly storeAdapter: IDBStoreAdapter<Row<D, T>>;
     public readonly pendingAdapter: IDBStoreAdapter<Update<D, T>>;
     public readonly idKey: Column<D, T>;
+    public readonly updatedAtKey: Column<D, T>;
     public readonly deletedKey: Column<D, T>;
     public readonly needsUpgrade: boolean;
     public readonly createOffline: boolean;
@@ -40,6 +41,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         public readonly info: SupaSyncTableInfo<D, T> & IA
     ) {
         this.idKey = info.idPath ?? 'id';
+        this.updatedAtKey = info.updatedAtPath ?? 'updated_at';
         this.deletedKey = info.deletedPath ?? 'deleted';
         this.createOffline = info.createOffline ?? true;
         this.updateOffline = info.updateOffline ?? true;
@@ -170,9 +172,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public wasSentLately(row: Row<D, T>) {
         const sentRow = this.latestSents.find(r => r[this.idKey] === row[this.idKey]);
         if (!sentRow) return false;
-        for (const key in sentRow)
-            if (row[key] !== sentRow[key]) return false;
-        this.latestSents.splice(this.latestSents.indexOf(sentRow), 1);
+        for (const key in sentRow) {
+            if (key === this.idKey) continue;
+            const received = row[key];
+            const sent = sentRow[key];
+            if (key === this.updatedAtKey && received > sent)
+                return false;
+            if (received !== sent) return false;
+        }
         return true;
     }
 
@@ -201,8 +208,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             const indexes = pendingUpdates.map(update => update.__index);
             const pendingById = new Map<number, Update<D, T>>();
             for (const pendingUpdate of pendingUpdates) {
-                const existing = pendingById.get(pendingUpdate.id);
-                pendingById.set(pendingUpdate.id, existing ? Object.assign(existing, pendingUpdate) : pendingUpdate);
+                const id = pendingUpdate[this.idKey] as number;
+                const existing = pendingById.get(id);
+                pendingById.set(id, existing ? Object.assign(existing, pendingUpdate) : pendingUpdate);
             }
             const sendUpdates = Array.from(pendingById.values());
             for (const update of sendUpdates) delete update.__index;
@@ -219,17 +227,17 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         if (!this.onlineState.unsafeGet()) return false;
         try {
             await Promise.all(rows.map(async row => {
-                if (row.__new) {
-                    delete row.__new;
-                    await this.supabaseClient.from(this.tableName)
-                        .insert(row)
-                        .throwOnError();
-                } else {
-                    await this.supabaseClient.from(this.tableName)
-                        .update(row)
-                        .eq(this.idKey, row[this.idKey])
-                        .throwOnError();
-                }
+                const isNew = '__new' in row;
+                if (isNew) delete row.__new;
+                const query = isNew
+                    ? this.supabaseClient.from(this.tableName).insert(row)
+                    : this.supabaseClient.from(this.tableName).update(row).eq(this.idKey, row[this.idKey]);
+                const { data } = await query
+                    .select(this.updatedAtKey)
+                    .single()
+                    .throwOnError();
+                if (this.updatedAtKey)
+                    row[this.updatedAtKey] = data[this.updatedAtKey];
                 this.latestSents.unshift(row as Row<D, T>);
                 if (this.latestSents.length > SENT_CACHE_SIZE)
                     this.latestSents.pop();

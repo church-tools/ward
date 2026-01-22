@@ -85,7 +85,9 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
-            let query = this.client.from(table.info.name).select('*').gt('updated_at', lastUpdatedAt);
+            let query = this.client.from(table.info.name)
+                .select('*')
+                .gt(table.updatedAtKey, lastUpdatedAt);
             if (lastUpdatedAt.startsWith('1970-') && table.info.deletable)
                 query = query.eq(table.deletedKey, false as any);
             const { data } = await query.throwOnError();
