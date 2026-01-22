@@ -125,6 +125,15 @@ export class CardListComponent<T> {
         await this.updateItemCards(update);
     }
 
+    async scrollToItem(id: number) {
+        const itemCards = this.itemCards();
+        const index = itemCards.findIndex(card => card.id === id);
+        if (index === -1) return;
+        const cardViews = this.cardViews();
+        const cardView = cardViews[index];
+        cardView.nativeElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
     getLast(): T | null {
         const itemCards = this.itemCards();
         if (!itemCards.length) return null;

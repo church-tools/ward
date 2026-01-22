@@ -1,18 +1,18 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, output, viewChild } from "@angular/core";
+import { Component, inject, Injector, input, OnDestroy, OnInit, output, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
+import { Icon } from "../../shared/icon/icon";
 import { PageComponent } from "../../shared/page/page";
 import { SupabaseService } from "../../shared/service/supabase.service";
 import { PromiseOrValue } from "../../shared/types";
 import { mapToSubObjects } from "../../shared/utils/array-utils";
-import { asyncComputed, xcomputed, xeffect } from "../../shared/utils/signal-utils";
+import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "../../shared/utils/signal-utils";
 import { Subscription } from "../../shared/utils/supa-sync/event-emitter";
 import { CardListComponent } from "../../shared/widget/card-list/card-list";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
 import { getViewService } from "./view.service";
-import { Icon } from "../../shared/icon/icon";
 
 @Component({
     selector: 'app-row-card-list',
@@ -60,7 +60,7 @@ import { Icon } from "../../shared/icon/icon";
     `,
     imports: [CommonModule, CardListComponent],
 })
-export class RowCardListComponent<T extends TableName> implements OnDestroy {
+export class RowCardListComponent<T extends TableName> implements OnInit, OnDestroy {
 
     readonly injector = inject(Injector);
     private readonly router = inject(Router);
@@ -102,6 +102,14 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
                 cardListView.updateItems({ items: update.result, deletions: update.deletions });
             });
         });
+    }
+
+    async ngOnInit() {
+        const activeId = this.activeId();
+        if (!activeId) return;
+        const initialized = await waitForNextChange(this.initialized, this.injector);
+        if (!initialized) return;
+        this.cardListView()?.scrollToItem(activeId);
     }
     
     protected insertRow = async (row: Row<T>) => {

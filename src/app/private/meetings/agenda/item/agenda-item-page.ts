@@ -7,7 +7,6 @@ import { TextareaComponent } from '../../../../shared/form/text/textarea';
 import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
 import { RowHistoryComponent } from "../../../shared/row-history";
 import { RowPageComponent } from '../../../shared/row-page';
-import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
 
 @Component({
     selector: 'app-agenda-item-page',
@@ -28,7 +27,7 @@ import { RowSelectComponent } from "../../../../shared/form/row-select/row-selec
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, TextareaComponent, RichTextComponent, RowHistoryComponent, SyncedFieldDirective,
-    FileInputComponent, AsyncButtonComponent, RowSelectComponent],
+    FileInputComponent, AsyncButtonComponent],
 })
 export class AgendaItemPageComponent extends RowPageComponent<'agenda_item'> {
 
