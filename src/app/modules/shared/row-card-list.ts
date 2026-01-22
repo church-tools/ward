@@ -12,6 +12,7 @@ import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
 import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
 import { getViewService } from "./view.service";
+import { Icon } from "../../shared/icon/icon";
 
 @Component({
     selector: 'app-row-card-list',
@@ -35,6 +36,7 @@ import { getViewService } from "./view.service";
                 (itemDropped)="onItemDropped($event)"
                 [insertRow]="insertRow"
                 [dragDropGroup]="tableName()"
+                [emptyIcon]="emptyIcon()"
                 (itemClick)="onRowClick($event)">
                 <ng-template #itemTemplate let-row>
                     <ng-container [ngComponentOutlet]="rowComponent" 
@@ -75,6 +77,7 @@ export class RowCardListComponent<T extends TableName> implements OnDestroy {
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
     readonly page = input<PageComponent>();
+    readonly emptyIcon = input<Icon | null>(null);
     readonly rowClicked = output<Row<T>>();
 
     protected readonly cardListView = viewChild(CardListComponent);

@@ -13,16 +13,14 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     meetings: {
         translateId: 'MEETINGS', icon: 'comment_checkmark',
         loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPageComponent),
-        // childrenInside: true,
-        task: {
-            ':agenda_item': {
-                loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
-            }
+        ':agenda_item': {
+            insideParent: true,
+            loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
         },
-        ':agenda': {
+        'agenda/:agenda': {
             loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),
-            childrenInside: true,
             ':agenda_item': {
+                insideParent: true,
                 loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
             }
         },
@@ -30,8 +28,8 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     members: {
         translateId: 'MEMBERS', icon: 'people_community',
         loadComponent: () => import('./members/members-page').then(m => m.MembersPageComponent),
-        childrenInside: true,
         ':member': {
+            insideParent: true,
             loadComponent: () => import('./members/member-page').then(m => m.MemberPageComponent),
         }
     },
@@ -47,8 +45,8 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         admin: true, onBottom: true,
         translateId: 'USERS', icon: 'person',
         loadComponent: () => import('./users/users-page').then(m => m.UsersPageComponent),
-        childrenInside: true,
         ':profile': {
+            insideParent: true,
             loadComponent: () => import('./users/user-page').then(m => m.UserPageComponent),
         }
     },

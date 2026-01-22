@@ -88,7 +88,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
         this.activeItemId.set(id ? +id : null);
     }
 
-    protected getItemUrl = (item: AgendaItem.Row) => `/meetings/${item.agenda}/${item.id}`;
+    protected getItemUrl = (item: AgendaItem.Row) => `/agenda/${item.agenda}/${item.id}`;
 
     protected prepareSectionInsert = (section: AgendaSection.Insert) => {
         const agenda = this.syncedRow.value();

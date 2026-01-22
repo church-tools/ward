@@ -43,15 +43,7 @@
     overflow-x: hidden;
     transition: transform animation.$duration-lg animation.$ease-out;
     @media screen and (min-width: layout.$page-width-narrow) {
-        // @starting-style {
-        //     transform: translate(250px, 250px);
-        // }
         scrollbar-gutter: stable;
-        // .canvas {
-        //     @starting-style {
-        //         transform: translate(-250px, -250px);
-        //     }
-        // }
     }
     .canvas {
         transition: margin animation.$duration-sm animation.$ease-out,

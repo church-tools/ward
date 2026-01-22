@@ -77,7 +77,7 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         for (const agenda of agendas) {
             const startTime = blockInWeekToTime(agenda.start_time).getTime();
             if (startTime <= now && now <= startTime + HOUR) {
-                return '/meetings/' + agenda.id;
+                return '/meetings/agenda/' + agenda.id;
             }
         }
         return '/members';

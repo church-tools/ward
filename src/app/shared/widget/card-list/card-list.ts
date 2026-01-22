@@ -3,7 +3,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { IconComponent } from '../../icon/icon';
+import { Icon, IconComponent } from '../../icon/icon';
 import { DragDropService, DropData } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
@@ -47,6 +47,7 @@ export class CardListComponent<T> {
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
+    readonly emptyIcon = input<Icon | null>(null);
 
     readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
@@ -256,7 +257,10 @@ export class CardListComponent<T> {
 
     private async updateItemCards(update: { items?: T[], deletions?: number[] }, animateEntrance = true) {
         const { items = [], deletions = [] } = update;
-        if (!items.length && !deletions.length) return;
+        if (!items.length && !deletions.length) {
+            this._initialized.set(true);
+            return;
+        }
         let itemCards = [...this.itemCards()];
         animateEntrance &&= this._initialized();
         const idKey = this.idKey();

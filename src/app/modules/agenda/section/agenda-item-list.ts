@@ -35,7 +35,7 @@ export class AgendaItemListComponent {
     protected readonly activeItemId = xcomputed([this.rowPageService.openRows],
         openRows => openRows['agenda_item'] ?? null);
 
-    protected getItemUrl = (item: AgendaItem.Row | null) => `/meetings/${this.agendaId()}/${item?.id ?? ""}`;
+    protected getItemUrl = (item: AgendaItem.Row | null) => `/meetings/agenda/${this.agendaId()}/${item?.id ?? ""}`;
     
     protected prepareItemInsert = async (item: AgendaItem.Insert) => {
         item.agenda = this.agendaId();

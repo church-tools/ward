@@ -241,6 +241,7 @@ ul {
     &.page-router-child {
         @include larger-than($md) {
             position: absolute;
+            padding-bottom: $canvas-margin-y;
         }
     }
 }
