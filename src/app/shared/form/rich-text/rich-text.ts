@@ -69,11 +69,14 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
                 element.classList.remove('popover-closing');
                 if (!element.matches(':popover-open'))
                     element.showPopover?.();
+                setTimeout(() => element.classList.add('popover-visible'), 1);
             } else {
                 element.classList.add('popover-closing');
                 setTimeout(() => {
-                    if (element.classList.contains('popover-closing'))
+                    if (element.classList.contains('popover-closing')) {
+                        element.classList.remove('popover-visible');
                         element.hidePopover?.();
+                    }
                 }, 200);
             }
         });

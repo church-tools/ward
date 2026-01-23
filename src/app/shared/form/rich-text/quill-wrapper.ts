@@ -8,6 +8,11 @@ export type Format = 'bold' | 'italic' | 'underline' | 'strike';
 export type Heading = 1 | 2 | 3 | false;
 export type List = 'bullet' | 'ordered';
 
+const TOOLBAR_WIDTH = 480;
+const TOOLBAR_HEIGHT = 48;
+const TOOLBAR_PADDING = 8;
+const HALF_TOOLBAR_WIDTH = TOOLBAR_WIDTH / 2;
+
 export class QuillWrapper {
 
     public onChange = new EventEmitter<HTMLString>();
@@ -69,10 +74,21 @@ export class QuillWrapper {
                     return;
                 }
                 this._hasSelection.set(true);
-                let left = bounds.left + (bounds.width / 2);
-                // const boxBounds = elem.nativeElement.getBoundingClientRect();
-                // left = this.clamp(left, HALF_TOOLBAR_WIDTH, boxBounds.width - HALF_TOOLBAR_WIDTH - 80);
-                const top = bounds.top;
+                const editorBounds = elem.nativeElement.getBoundingClientRect();
+                const anchorCenterX = editorBounds.left + (editorBounds.width / 2);
+                const clampWindow = (value: number, halfSize: number, padding: number, max: number) => {
+                    const min = halfSize + padding;
+                    return this.clamp(value, min, Math.max(min, max - halfSize - padding));
+                };
+
+                const desiredCenterX = editorBounds.left + bounds.left + (bounds.width / 2);
+                const clampedCenterX = clampWindow(desiredCenterX, HALF_TOOLBAR_WIDTH, TOOLBAR_PADDING, window.innerWidth);
+                const left = clampedCenterX - anchorCenterX;
+
+                const desiredTop = editorBounds.top + bounds.top;
+                const clampedTop = clampWindow(desiredTop, TOOLBAR_HEIGHT, TOOLBAR_PADDING, window.innerHeight);
+                const top = clampedTop - editorBounds.top;
+
                 this._popoverPosition.set([Math.round(left), Math.round(top)]);
             });
             // quill.editor.scroll.domNode.addEventListener('focus', () => queueMicrotask(() => this._hasSelection.set(true)));
