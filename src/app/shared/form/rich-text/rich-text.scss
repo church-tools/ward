@@ -6,6 +6,10 @@
     position: relative;
 }
 
+.editor-anchor {
+    anchor-name: --rich-text-editor;
+}
+
 ::ng-deep {
     .ql-editor {
         padding: input.$padding-y 0;
@@ -44,19 +48,28 @@
 }
 
 .toolbar {
-    position: absolute;
-    z-index: 1;
-    transform: translateX(-50%) translateY(0) scale(1);
-    opacity: 1;
+    position: fixed;
+    position-anchor: --rich-text-editor;
     transition: transform animation.$duration-sm animation.$ease-out, opacity animation.$duration-sm animation.$ease-out;
-    @starting-style {
-        transform: translateX(-50%) translateY(10px) scale(0.95);
-        opacity: 0;
+    transform: translate(-100%, -100%) translateY(10px) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+    visibility: hidden;
+    &:popover-open {
+        display: flex;
+        transform: translate(-100%, -100%) translateY(0px) scale(1);
+        opacity: 1;
+        pointer-events: auto;
+        visibility: visible;
+        &.popover-closing {
+            transform: translate(-100%, -100%) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+        }
     }
-    &.toolbar-disappear {
-        transition: transform animation.$duration-sm animation.$ease-out, opacity animation.$duration-sm animation.$ease-out;
-        opacity: 0;
-        transform: translateX(-50%) translateY(0) scale(1);
+    &:not(:popover-open) {
+        left: 0 !important;
+        max-width: none !important;
     }
     .divider {
         width: 1px;

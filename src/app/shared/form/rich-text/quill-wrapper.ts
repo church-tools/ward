@@ -1,24 +1,21 @@
 import { ElementRef, EventEmitter, Signal, signal } from "@angular/core";
 import Quill, { Range } from "quill";
 import { AsyncState } from "../../utils/async-state";
-import { xcomputed, xeffect } from "../../utils/signal-utils";
+import { xeffect } from "../../utils/signal-utils";
 import { HTMLString } from "./markdown-utils";
 
 export type Format = 'bold' | 'italic' | 'underline' | 'strike';
 export type Heading = 1 | 2 | 3 | false;
 export type List = 'bullet' | 'ordered';
 
-const TOOLBAR_WIDTH = 450;
-const HALF_TOOLBAR_WIDTH = TOOLBAR_WIDTH / 2;
-
 export class QuillWrapper {
 
     public onChange = new EventEmitter<HTMLString>();
 
-    private readonly selectionPosition = signal<[number, number] | null>(null);
-    private readonly hasFocus = signal(false);
-    readonly popoverPosition = xcomputed([this.selectionPosition, this.hasFocus],
-        (hasSelection, hasFocus) => hasFocus ? hasSelection : null);
+    private readonly _popoverPosition = signal<[number, number]>([0, 0]);
+    public readonly popoverPosition = this._popoverPosition.asReadonly();
+    private readonly _hasSelection = signal(false);
+    public readonly hasSelection = this._hasSelection.asReadonly();
 
     private readonly quill = new AsyncState<Quill>();
     private ignoreNextUpdate = false;
@@ -63,28 +60,26 @@ export class QuillWrapper {
 
             quill.on('selection-change', (selection: Range | null) => {
                 if (!selection?.length) {
-                    queueMicrotask(() => this.selectionPosition.set(null));
+                    queueMicrotask(() => this._hasSelection.set(false));
                     return;
                 }
                 const bounds = quill.getBounds(selection.index, selection.length);
                 if (!bounds) {
-                    queueMicrotask(() => this.selectionPosition.set(null));
+                    queueMicrotask(() => this._hasSelection.set(false));
                     return;
                 }
-                const boxBounds = elem.nativeElement.getBoundingClientRect();
-                const left = this.clamp(bounds.left + (bounds.width / 2),
-                    HALF_TOOLBAR_WIDTH, boxBounds.width - HALF_TOOLBAR_WIDTH);
-                const top = bounds.top - 60;
-                queueMicrotask(() => this.selectionPosition.set([Math.round(left), Math.round(top)]));
+                this._hasSelection.set(true);
+                let left = bounds.left + (bounds.width / 2);
+                // const boxBounds = elem.nativeElement.getBoundingClientRect();
+                // left = this.clamp(left, HALF_TOOLBAR_WIDTH, boxBounds.width - HALF_TOOLBAR_WIDTH - 80);
+                const top = bounds.top;
+                this._popoverPosition.set([Math.round(left), Math.round(top)]);
             });
-            quill.editor.scroll.domNode.addEventListener('focus', () => queueMicrotask(() => this.hasFocus.set(true)));
-            quill.editor.scroll.domNode.addEventListener('blur', () => {
-                quill.setSelection(null);
-                queueMicrotask(() => {
-                    this.selectionPosition.set(null);
-                    this.hasFocus.set(false);
-                });
-            });
+            // quill.editor.scroll.domNode.addEventListener('focus', () => queueMicrotask(() => this._hasSelection.set(true)));
+            // quill.editor.scroll.domNode.addEventListener('blur', () => {
+            //     quill.setSelection(null);
+                // queueMicrotask(() => this._hasSelection.set(false));
+            // });
         });
     }
 

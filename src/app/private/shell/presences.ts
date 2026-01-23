@@ -5,7 +5,7 @@ import { PaletteColor } from '../../shared/utils/color-utils';
     selector: 'app-presences',
     template: `
         @for (presence of presences(); track presence.path) {
-            <div class="presence card round center-content items-center inverse-font-color h5
+            <div class="presence card round center-content items-center inverse-font-color
                 fg-gradient from-{{presence.color1}} to-{{presence.color2}}">
                 {{ presence.initials }}
             </div>
@@ -17,8 +17,8 @@ import { PaletteColor } from '../../shared/utils/color-utils';
     },
     styles: [`
         .presence {
-            height: 2.25rem;
-            width: 2.25rem;
+            height: 2rem;
+            width: 2rem;
             &:not(:first-child) {
                 margin-right: -0.75rem;
             }

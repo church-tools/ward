@@ -1,7 +1,7 @@
 import { Component, viewChild } from '@angular/core';
 import { TextInputComponent } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';
-import { ListInsertComponent } from '../shared/list-insert';
+import { ListInsertComponent } from '../shared/row-card-list/list-insert';
 import { Calling } from './calling';
 
 @Component({

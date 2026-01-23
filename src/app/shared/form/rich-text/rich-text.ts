@@ -1,5 +1,6 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { xeffect } from '../../utils/signal-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
@@ -23,6 +24,7 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
     readonly autocomplete = input<string>('off');
 
     private readonly editor = viewChild.required('editor', { read: ElementRef });
+    private readonly toolbar = viewChild.required('toolbar', { read: ElementRef });
     
     override readonly debounceTime = 300;
 
@@ -60,6 +62,20 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
         super();
         this.quill.onChange.subscribe(html => {
             this.setViewValue(html);
+        });
+        xeffect([this.quill.hasSelection], hasSelection => {
+            const element = this.toolbar().nativeElement as Element & { showPopover?: () => void; hidePopover?: () => void; };
+            if (hasSelection) {
+                element.classList.remove('popover-closing');
+                if (!element.matches(':popover-open'))
+                    element.showPopover?.();
+            } else {
+                element.classList.add('popover-closing');
+                setTimeout(() => {
+                    if (element.classList.contains('popover-closing'))
+                        element.hidePopover?.();
+                }, 200);
+            }
         });
     }
 

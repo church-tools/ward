@@ -4,7 +4,7 @@ import ButtonComponent from '../../../shared/form/button/button';
 import { SupabaseRow, SupabaseService } from '../../../shared/service/supabase.service';
 import { asyncComputed } from '../../../shared/utils/signal-utils';
 import { Profile } from '../../profile/profile';
-import { ListInsertComponent } from '../../shared/list-insert';
+import { ListInsertComponent } from '../../shared/row-card-list/list-insert';
 import { AgendaSection } from './agenda-section';
 import { AgendaSectionViewService } from './agenda-section-view.service';
 

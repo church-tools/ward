@@ -4,7 +4,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Agenda } from '../../modules/agenda/agenda';
 import { AgendaItem } from '../../modules/item/agenda-item';
 import { ProfileService } from '../../modules/profile/profile.service';
-import { RowCardListComponent } from '../../modules/shared/row-card-list';
+import { RowCardListComponent } from '../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../modules/shared/table.types';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { PrivatePageComponent } from '../shared/private-page';

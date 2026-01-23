@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { IconComponent } from '../../shared/icon/icon';
-import { ListRowComponent } from '../shared/list-row';
+import { ListRowComponent } from '../shared/row-card-list/list-row';
 
 @Component({
     selector: 'app-profile-list-row',

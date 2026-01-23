@@ -1,63 +1,21 @@
 import { CommonModule } from "@angular/common";
 import { Component, inject, Injector, input, OnDestroy, OnInit, output, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { Icon } from "../../shared/icon/icon";
-import { PageComponent } from "../../shared/page/page";
-import { SupabaseService } from "../../shared/service/supabase.service";
-import { PromiseOrValue } from "../../shared/types";
-import { mapToSubObjects } from "../../shared/utils/array-utils";
-import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "../../shared/utils/signal-utils";
-import { Subscription } from "../../shared/utils/supa-sync/event-emitter";
-import { CardListComponent } from "../../shared/widget/card-list/card-list";
+import { Icon } from "../../../shared/icon/icon";
+import { PageComponent } from "../../../shared/page/page";
+import { SupabaseService } from "../../../shared/service/supabase.service";
+import { PromiseOrValue } from "../../../shared/types";
+import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "../../../shared/utils/signal-utils";
+import { Subscription } from "../../../shared/utils/supa-sync/event-emitter";
+import { CardListComponent } from "../../../shared/widget/card-list/card-list";
+import type { Insert, Row, Table, TableName, TableQuery } from "../table.types";
+import { getViewService } from "../view.service";
 import { getListInsertComponent } from "./list-insert";
 import { getListRowComponent } from "./list-row";
-import type { Column, Insert, Row, Table, TableName, TableQuery } from "./table.types";
-import { getViewService } from "./view.service";
 
 @Component({
     selector: 'app-row-card-list',
-    template: `
-        @let table = this.table();
-        @let rowComponent = this.rowComponent();
-        @let insertComponent = this.insertComponent();
-        @let editable = this.editable();
-        @if (table && rowComponent && (insertComponent || !editable)) {
-            <app-card-list
-                [cardClasses]="cardsVisible() ? cardClasses() : ''"
-                [reorderable]="editable && !!table.info.orderKey"
-                [editable]="editable"
-                [activeId]="activeId()"
-                [gap]="gap()"
-                [idKey]="table.idKey"
-                [orderByKey]="table.info.orderKey"
-                [getFilterText]="viewService()?.toString"
-                [getUrl]="getUrl()"
-                (orderChange)="onOrderChanged($event)"
-                (itemDropped)="onItemDropped($event)"
-                [insertRow]="insertRow"
-                [dragDropGroup]="tableName()"
-                [emptyIcon]="emptyIcon()"
-                (itemClick)="onRowClick($event)">
-                <ng-template #itemTemplate let-row>
-                    <ng-container [ngComponentOutlet]="rowComponent" 
-                        [ngComponentOutletInputs]="{
-                            row,
-                            page: this.page(),
-                            onRemove: this.removeRow.bind(this)
-                        }"/>
-                </ng-template>
-                <ng-template #insertTemplate let-functions>   
-                    <ng-container [ngComponentOutlet]="insertComponent"
-                        [ngComponentOutletInputs]="{
-                            insert: functions.insert,
-                            cancel: functions.cancel,
-                            prepareInsert: _prepareInsert.bind(this),
-                            context: insertContext()
-                        }"/>
-                </ng-template>
-            </app-card-list>
-        }
-    `,
+    templateUrl: './row-card-list.html',
     imports: [CommonModule, CardListComponent],
 })
 export class RowCardListComponent<T extends TableName> implements OnInit, OnDestroy {
@@ -127,11 +85,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     }
 
     protected async onOrderChanged(rows: Row<T>[]) {
-        const table = this.table();
-        const idKey = table.idKey, orderKey = table.info.orderKey;
-        if (!orderKey) return;
-        const updates = mapToSubObjects(rows, idKey, orderKey, 'unit' as Column<T>);
-        await this.table().update(updates);
+        await this.table().update(rows);
     }
 
     protected async onItemDropped(row: Row<T>) {

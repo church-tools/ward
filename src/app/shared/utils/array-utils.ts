@@ -69,16 +69,6 @@ export function getLowest<T>(array: T[], getValue: (item: T, i: number) => numbe
     return lowest;
 }
 
-
-export function mapToSubObjects<T>(array: T[], ...keys: (keyof T)[]): Partial<T>[] {
-    return array.map(item => {
-        const subObject: Partial<T> = {};
-        for (const key of keys)
-            subObject[key] = item[key];
-        return subObject;
-    });
-}
-
 export function assureArray<T>(value: T | T[]): T[] {
     if (value == null) return [];
     return Array.isArray(value) ? value : [value];

@@ -1,18 +1,18 @@
 import { Component, inject, input, type Type } from "@angular/core";
-import type { PromiseOrValue } from "../../shared/types";
-import { Profile } from "../profile/profile";
-import { ProfileService } from "../profile/profile.service";
-import { Insert, TableName } from "./table.types";
+import type { PromiseOrValue } from "../../../shared/types";
+import { Profile } from "../../profile/profile";
+import { ProfileService } from "../../profile/profile.service";
+import { Insert, TableName } from "../table.types";
 
 type ListInsertCtor<T extends TableName> = Type<ListInsertComponent<T>>;
 
 const listInsertComponentLoaders = {
-    agenda: async () => (await import('../agenda/agenda-list-insert')).AgendaListInsertComponent,
-    agenda_section: async () => (await import('../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent,
-    agenda_item: async () => (await import('../item/agenda-item-list-insert')).AgendaItemListInsertComponent,
-    member: async () => (await import('../member/member-list-insert')).MemberListInsertComponent,
-    calling: async () => (await import('../calling/calling-list-insert')).CallingListInsertComponent,
-    profile: async () => (await import('../profile/profile-list-insert')).ProfileListInsertComponent,
+    agenda: async () => (await import('../../agenda/agenda-list-insert')).AgendaListInsertComponent,
+    agenda_section: async () => (await import('../../agenda/section/agenda-section-list-insert')).AgendaSectionListInsertComponent,
+    agenda_item: async () => (await import('../../item/agenda-item-list-insert')).AgendaItemListInsertComponent,
+    member: async () => (await import('../../member/member-list-insert')).MemberListInsertComponent,
+    calling: async () => (await import('../../calling/calling-list-insert')).CallingListInsertComponent,
+    profile: async () => (await import('../../profile/profile-list-insert')).ProfileListInsertComponent,
 } as const;
 
 type ListInsertLoaders = typeof listInsertComponentLoaders;

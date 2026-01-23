@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ListRowComponent } from '../shared/list-row';
+import { ListRowComponent } from '../shared/row-card-list/list-row';
 import { Icon, IconComponent } from "../../shared/icon/icon";
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { MeetingsPageComponent } from '../../private/meetings/meetings-page';

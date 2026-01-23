@@ -2,7 +2,7 @@ import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { ProfileService } from '../../../modules/profile/profile.service';
-import { RowCardListComponent } from '../../../modules/shared/row-card-list';
+import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
 import { AgendaItem } from '../../../modules/item/agenda-item';
 import { DbConstants } from '../../../shared/db-constants';

@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { markdownToPlainText } from '../../shared/form/rich-text/markdown-utils';
 import { IconComponent } from '../../shared/icon/icon';
 import { xcomputed } from '../../shared/utils/signal-utils';
-import { ListRowComponent } from '../shared/list-row';
+import { ListRowComponent } from '../shared/row-card-list/list-row';
 
 @Component({
     selector: 'app-agenda-item-list-row',

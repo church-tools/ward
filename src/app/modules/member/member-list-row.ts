@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ListRowComponent } from '../shared/list-row';
+import { ListRowComponent } from '../shared/row-card-list/list-row';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 
 @Component({

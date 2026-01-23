@@ -27,7 +27,7 @@ import { RowPageComponent } from '../../../shared/row-page';
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, TextareaComponent, RichTextComponent, RowHistoryComponent, SyncedFieldDirective,
-    FileInputComponent, AsyncButtonComponent],
+        FileInputComponent, AsyncButtonComponent],
 })
 export class AgendaItemPageComponent extends RowPageComponent<'agenda_item'> {
 

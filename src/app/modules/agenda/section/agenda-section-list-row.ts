@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { AdminService } from '../../../private/shared/admin.service';
 import ButtonComponent from '../../../shared/form/button/button';
-import { ListRowComponent } from '../../shared/list-row';
+import { ListRowComponent } from '../../shared/row-card-list/list-row';
 import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
 import { AgendaSectionResolutionsComponent } from './variants/agenda-section-resolutions';
 import { AgendaSectionSpiritualThoughtComponent } from "./variants/agenda-section-spiritual-thought";

@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Profile } from '../../modules/profile/profile';
-import { RowCardListComponent } from "../../modules/shared/row-card-list";
+import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import { PrivatePageComponent } from '../shared/private-page';
 import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/router-outlet-drawer";

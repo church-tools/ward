@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Member } from '../../modules/member/member';
-import { RowCardListComponent } from "../../modules/shared/row-card-list";
+import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import ButtonComponent from '../../shared/form/button/button';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';

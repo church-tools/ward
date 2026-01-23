@@ -197,3 +197,8 @@ h6, .h6 {
 .strike-through {
     text-decoration: line-through;
 }
+
+::selection, ::-moz-selection {
+    background: color.get-variant(color.$accent, 'active');
+    color: white;
+}

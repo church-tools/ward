@@ -3,7 +3,7 @@ import { RowPageService } from '../../../private/row-page.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AgendaItem } from '../../item/agenda-item';
 import { ProfileService } from '../../profile/profile.service';
-import { RowCardListComponent } from '../../shared/row-card-list';
+import { RowCardListComponent } from '../../shared/row-card-list/row-card-list';
 import { Table } from '../../shared/table.types';
 
 @Component({

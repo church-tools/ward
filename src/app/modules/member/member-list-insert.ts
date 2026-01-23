@@ -2,7 +2,7 @@ import { Component, viewChild } from '@angular/core';
 import ButtonComponent from '../../shared/form/button/button';
 import { TextInputComponent } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';
-import { ListInsertComponent } from '../shared/list-insert';
+import { ListInsertComponent } from '../shared/row-card-list/list-insert';
 import { Member } from './member';
 
 @Component({

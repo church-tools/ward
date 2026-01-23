@@ -1,0 +1,40 @@
+@let table = this.table();
+@let rowComponent = this.rowComponent();
+@let insertComponent = this.insertComponent();
+@let editable = this.editable();
+@if (table && rowComponent && (insertComponent || !editable)) {
+    <app-card-list
+        [cardClasses]="cardsVisible() ? cardClasses() : ''"
+        [reorderable]="editable && !!table.info.orderKey"
+        [editable]="editable"
+        [activeId]="activeId()"
+        [gap]="gap()"
+        [idKey]="table.idKey"
+        [orderByKey]="table.info.orderKey"
+        [getFilterText]="viewService()?.toString"
+        [getUrl]="getUrl()"
+        (orderChange)="onOrderChanged($event)"
+        (itemDropped)="onItemDropped($event)"
+        [insertRow]="insertRow"
+        [dragDropGroup]="tableName()"
+        [emptyIcon]="emptyIcon()"
+        (itemClick)="onRowClick($event)">
+        <ng-template #itemTemplate let-row>
+            <ng-container [ngComponentOutlet]="rowComponent" 
+                [ngComponentOutletInputs]="{
+                    row,
+                    page: this.page(),
+                    onRemove: this.removeRow.bind(this)
+                }"/>
+        </ng-template>
+        <ng-template #insertTemplate let-functions>   
+            <ng-container [ngComponentOutlet]="insertComponent"
+                [ngComponentOutletInputs]="{
+                    insert: functions.insert,
+                    cancel: functions.cancel,
+                    prepareInsert: _prepareInsert.bind(this),
+                    context: insertContext()
+                }"/>
+        </ng-template>
+    </app-card-list>
+}

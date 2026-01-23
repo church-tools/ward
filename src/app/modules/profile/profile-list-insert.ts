@@ -3,7 +3,7 @@ import { email, form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import { TextInputComponent } from '../../shared/form/text/text-input';
-import { ListInsertComponent } from '../shared/list-insert';
+import { ListInsertComponent } from '../shared/row-card-list/list-insert';
 import { Profile } from './profile';
 
 @Component({

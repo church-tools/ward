@@ -1,13 +1,13 @@
 import { Component, input, Type } from "@angular/core";
-import { PageComponent } from "../../shared/page/page";
-import { Row, TableName } from "./table.types";
+import { PageComponent } from "../../../shared/page/page";
+import { Row, TableName } from "../table.types";
 
 const rowComponentLoaders = {
-    agenda: async () => (await import('../agenda/agenda-list-row')).AgendaListRowComponent,
-    agenda_section: async () => (await import('../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent,
-    agenda_item: async () => (await import('../item/agenda-item-list-row')).AgendaItemListRowComponent,
-    profile: async () => (await import('../profile/profile-list-row')).ProfileListRowComponent,
-    member: async () => (await import('../member/member-list-row')).MemberListRowComponent,
+    agenda: async () => (await import('../../agenda/agenda-list-row')).AgendaListRowComponent,
+    agenda_section: async () => (await import('../../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent,
+    agenda_item: async () => (await import('../../item/agenda-item-list-row')).AgendaItemListRowComponent,
+    profile: async () => (await import('../../profile/profile-list-row')).ProfileListRowComponent,
+    member: async () => (await import('../../member/member-list-row')).MemberListRowComponent,
 } as const;
 
 export function getListRowComponent<T extends TableName>(tableName: T) {
