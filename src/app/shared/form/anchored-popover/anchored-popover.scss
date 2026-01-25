@@ -1,0 +1,77 @@
+@use 'animation';
+
+.anchored-popover {
+    position: fixed;
+    transition: opacity animation.$duration-sm animation.$ease-out,
+        transform animation.$duration-sm animation.$ease-out;
+    transform: translateX(var(--popover-translate-x, 0%)) translateY(calc(var(--popover-translate-y, 0px) - 10px)) scale(0.95);
+    opacity: 0;
+    pointer-events: none;
+
+    // Vertical positioning
+    &.position-bottom { 
+        top: calc(anchor(bottom) + var(--popover-offset-y, 0px)); 
+    }
+    &.position-top { 
+        bottom: calc(anchor(top) - var(--popover-offset-y, 0px)); 
+    }
+    &.position-anchor {
+        top: calc(anchor(top) + var(--popover-offset-y, 0px));
+        left: calc(anchor(center) + var(--popover-offset-x, 0px));
+        transform: translate(-50%, -100%) translateY(10px) scale(0.95);
+    }
+
+    // Horizontal alignment (for non-anchor positions)
+    &:not(.position-anchor) {
+        &.align-left {
+            left: calc(anchor(right) + var(--popover-offset-x, 0px)); 
+            --popover-translate-x: -100%; 
+        }
+        &.align-right { 
+            left: calc(anchor(left) + var(--popover-offset-x, 0px)); 
+            --popover-translate-x: 0%;
+        }
+        &.align-center {
+            left: calc(anchor(center) + var(--popover-offset-x, 0px));
+            --popover-translate-x: -50%;
+        }
+    }
+
+    // When popover opens, keep hidden state initially to allow transition
+    &:popover-open {
+        // Visible state only when popover-visible class is added
+        &.popover-visible {
+            transform: translateX(var(--popover-translate-x, 0%)) translateY(var(--popover-translate-y, 0px)) scale(1);
+            opacity: 1;
+            pointer-events: auto;
+
+            &.position-anchor {
+                display: flex;
+                transform: translate(-50%, -100%) translateY(0px) scale(1);
+            }
+
+            // Enable smooth position transitions after initial appearance
+            &:not(.popover-closing) {
+                transition: transform animation.$duration-sm animation.$ease-out,
+                    opacity animation.$duration-sm animation.$ease-out,
+                    left animation.$duration-sm animation.$ease-out,
+                    top animation.$duration-sm animation.$ease-out;
+            }
+        }
+
+        &.popover-closing {
+            transform: translateX(var(--popover-translate-x, 0%)) translateY(calc(var(--popover-translate-y, 0px))) scale(0.95);
+            opacity: 0;
+            pointer-events: none;
+
+            &.position-anchor {
+                transform: translate(-50%, -100%) scale(0.95);
+            }
+        }
+    }
+
+    &:not(:popover-open) {
+        left: 0 !important;
+        max-width: none !important;
+    }
+}

@@ -18,7 +18,8 @@ import { PresencesComponent } from "./presences";
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent, PageRouterOutlet, BackButtonComponent, PresencesComponent],
+    imports: [TranslateModule, NavBarComponent, OmniSearchComponent, MenuButtonComponent,
+        PageRouterOutlet, BackButtonComponent, PresencesComponent],
 })
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
@@ -71,15 +72,14 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
         ]);
         const now = Date.now();
         const sacramentServiceStart = blockInWeekToTime(unit!.sacrament_service_time).getTime();
-        if (sacramentServiceStart <= now && now <= sacramentServiceStart + HOUR) {
+        if (sacramentServiceStart <= now && now <= sacramentServiceStart + HOUR)
             return '/church-service';
-        }
         for (const agenda of agendas) {
             const startTime = blockInWeekToTime(agenda.start_time).getTime();
             if (startTime <= now && now <= startTime + HOUR) {
                 return '/meetings/agenda/' + agenda.id;
             }
         }
-        return '/members';
+        return '/meetings';
     }
 }

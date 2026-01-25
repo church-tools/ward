@@ -1,32 +1,46 @@
-<button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" type="button" [class]="classes()">
-    @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
-    <ng-content select="[button-text]"/>
-</button>
-@if (visible()) {
-    <div class="menu-popup input-acrylic-card" animate.leave="leave" [style]="style()">
-        @for (item of items(); track item) {
-            @if ('link' in item) {
-                <a class="menu-item" [href]="item.link">
-                    @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
-                    @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                    {{ item.label || (item.labelTranslateId! | translate) }}
-                </a>
-            } @else if ('action' in item) {
-                <button class="menu-item subtle" (click)="item.action()">
-                    @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}" class="menu-img"/> }
-                    @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                    {{ item.label || (item.labelTranslateId! | translate) }}
-                </button>
-            } @else if ('toggle' in item) {
-                <div class="menu-item ms-3">
-                    @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
-                    @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                    <app-switch [value]="item.toggle()" (valueChange)="item.toggle.set($event ?? false)"
-                        class="ms--2" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
-                        [forceLabelOnSide]="true" labelSide="left"/>
-                </div>
-            }
-        }
-        <ng-content select="[menu-content]"/>
-    </div>
+@if (mainAction()) {
+    <button class="main-button" (click)="mainClick($event)" [disabled]="disabled()" title="{{title()}}" type="button"
+        [class]="classes()">
+        @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
+        <ng-content select="[main-button-text]"/>
+        <button class="menu-button small" (click)="click($event)" [disabled]="disabled()"
+            title="{{title()}}" type="button" [class]="classes()">
+            <app-icon icon="chevron_down" [filled]="true"/>
+        </button>
+    </button>
+} @else {
+    <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" type="button" [class]="classes()">
+        @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
+        <ng-content select="[button-text]"/>
+    </button>
 }
+<app-anchored-popover 
+    [position]="position()" 
+    [alignment]="alignment()"
+    [anchorElement]="hostElement"
+    (visibilityChange)="onVisibilityChange($event)">
+    @for (item of items(); track item) {
+        @if ('link' in item) {
+            <a class="menu-item" [href]="item.link">
+                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
+                @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
+                {{ item.label || (item.labelTranslateId! | translate) }}
+            </a>
+        } @else if ('action' in item) {
+            <button class="menu-item subtle" (click)="item.action()">
+                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}" class="menu-img"/> }
+                @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
+                {{ item.label || (item.labelTranslateId! | translate) }}
+            </button>
+        } @else if ('toggle' in item) {
+            <div class="menu-item ms-3">
+                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
+                @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
+                <app-switch [value]="item.toggle()" (valueChange)="item.toggle.set($event ?? false)"
+                    class="ms--2" label="{{ item.label || (item.labelTranslateId! | translate) }}" 
+                    [forceLabelOnSide]="true" labelSide="left"/>
+            </div>
+        }
+    }
+    <ng-content select="[menu-content]"/>
+</app-anchored-popover>

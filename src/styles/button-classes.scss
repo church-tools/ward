@@ -252,15 +252,6 @@ button, .button {
     &.tiny {
         padding: 0.075rem 0.25rem;
     }
-    &.narrow {
-        min-height: 1.9rem;
-        padding: 0.15rem 0.25rem;
-        app-icon {
-            font-size: 16px !important;
-            min-height: 16px !important;
-            min-width: 16px !important;
-        }
-    }
 }
 
 .round > button, .round > .button {

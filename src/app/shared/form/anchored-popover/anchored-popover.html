@@ -1,0 +1,14 @@
+<div #popover
+    class="anchored-popover input-acrylic-card"
+    popover="manual"
+    [style.position-anchor]="anchorNameCss"
+    [style.--popover-offset-x]="offsetX() + 'px'"
+    [style.--popover-offset-y]="offsetY() + 'px'"
+    [class.position-bottom]="position() === 'bottom'"
+    [class.position-top]="position() === 'top'"
+    [class.position-anchor]="position() === 'anchor'"
+    [class.align-left]="alignment() === 'left'"
+    [class.align-right]="alignment() === 'right'"
+    [class.align-center]="alignment() === 'center'">
+    <ng-content/>
+</div>

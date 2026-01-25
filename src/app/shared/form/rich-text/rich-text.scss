@@ -1,13 +1,8 @@
 @use "input";
 @use "font";
-@use "animation";
 
 :host {
     position: relative;
-}
-
-.editor-anchor {
-    anchor-name: --rich-text-editor;
 }
 
 ::ng-deep {
@@ -48,36 +43,6 @@
 }
 
 .toolbar {
-    position: fixed;
-    position-anchor: --rich-text-editor;
-    transition: transform animation.$duration-sm animation.$ease-out,
-        opacity animation.$duration-sm animation.$ease-out;
-    transform: translate(-50%, -100%) translateY(10px) scale(0.95);
-    opacity: 0;
-    pointer-events: none;
-    visibility: hidden;
-    &:popover-open {
-        display: flex;
-        transform: translate(-50%, -100%) translateY(0px) scale(1);
-        opacity: 1;
-        pointer-events: auto;
-        visibility: visible;
-        &.popover-closing {
-            transform: translate(-50%, -100%) scale(0.95);
-            opacity: 0;
-            pointer-events: none;
-        }
-        &.popover-visible {
-            transition: transform animation.$duration-sm animation.$ease-out,
-                opacity animation.$duration-sm animation.$ease-out,
-                left animation.$duration-sm animation.$ease-out,
-                top animation.$duration-sm animation.$ease-out;
-        }
-    }
-    &:not(:popover-open) {
-        left: 0 !important;
-        max-width: none !important;
-    }
     .divider {
         width: 1px;
         height: 24px;

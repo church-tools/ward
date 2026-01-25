@@ -1,20 +1,23 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { xeffect } from '../../utils/signal-utils';
+import { AnchoredPopoverComponent } from '../anchored-popover/anchored-popover';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
-import { Format, Heading, List, QuillWrapper } from './quill-wrapper';
+import { QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
+import MenuButtonComponent, { MenuButtonItem } from '../button/menu/menu-button';
 
 @Component({
     selector: 'app-rich-text',
     styleUrl: './rich-text.scss',
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichTextComponent),
-    imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent],
+    imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent, MenuButtonComponent, AnchoredPopoverComponent],
     host: {
-        class: 'column'
+        class: 'column',
+        '[style.anchor-name]': 'toolbar().anchorNameCss',
     }
 })
 export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
@@ -24,29 +27,29 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
     readonly autocomplete = input<string>('off');
 
     private readonly editor = viewChild.required('editor', { read: ElementRef });
-    private readonly toolbar = viewChild.required('toolbar', { read: ElementRef });
+    protected readonly toolbar = viewChild.required(AnchoredPopoverComponent);
     
     override readonly debounceTime = 300;
 
     protected readonly quill = new QuillWrapper(this.editor, this.characterLimit, this.minLines);
 
-    protected readonly formatButtons: RichTextToolbarButton<Format>[] = [
-        { icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)', shortcut: 'B' },
-        { icon: 'text_italic', action: 'italic', title: 'Italic (Ctrl+I)', shortcut: 'I' },
-        { icon: 'text_underline', action: 'underline', title: 'Underline (Ctrl+U)', shortcut: 'U' },
-        { icon: 'text_strikethrough', action: 'strike', title: 'Strikethrough' },
+    protected readonly formatMainAction = () => this.quill.toggleFormat('bold');
+    protected readonly formatMenuItems: MenuButtonItem[] = [
+        { icon: 'text_italic', label: 'Italic (Ctrl+I)', action: () => this.quill.toggleFormat('italic') },
+        { icon: 'text_underline', label: 'Underline (Ctrl+U)', action: () => this.quill.toggleFormat('underline') },
+        { icon: 'text_strikethrough', label: 'Strikethrough', action: () => this.quill.toggleFormat('strike') },
     ] as const;
 
-    protected readonly headingButtons: RichTextToolbarButton<Heading>[] = [
-        { icon: 'text_header_1', action: 1, title: 'Heading 1' },
-        { icon: 'text_header_2', action: 2, title: 'Heading 2' },
-        { icon: 'text_header_3', action: 3, title: 'Heading 3' },
-        { icon: 'text_t', action: false, title: 'Body Text' },
+    protected readonly headingMainAction = () => this.quill.formatHeading(1);
+    protected readonly headingMenuItems: MenuButtonItem[] = [
+        { icon: 'text_header_2', label: 'Heading 2', action: () => this.quill.formatHeading(2) },
+        { icon: 'text_header_3', label: 'Heading 3', action: () => this.quill.formatHeading(3) },
+        { icon: 'text_t', label: 'Body Text', action: () => this.quill.formatHeading(false) },
     ] as const;
 
-    protected readonly listButtons: RichTextToolbarButton<List>[] = [
-        { icon: 'text_bullet_list_ltr', action: 'bullet', title: 'Bullet List' },
-        { icon: 'text_number_list_ltr', action: 'ordered', title: 'Numbered List' },
+    protected readonly listMainAction = () => this.quill.toggleList('bullet');
+    protected readonly listMenuItems: MenuButtonItem[] = [
+        { icon: 'text_number_list_ltr', label: 'Numbered List', action: () => this.quill.toggleList('ordered') },
     ] as const;
 
     protected readonly indentButtons: RichTextToolbarButton<1 | -1>[] = [
@@ -64,21 +67,8 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
             this.setViewValue(html);
         });
         xeffect([this.quill.hasSelection], hasSelection => {
-            const element = this.toolbar().nativeElement as Element & { showPopover?: () => void; hidePopover?: () => void; };
-            if (hasSelection) {
-                element.classList.remove('popover-closing');
-                if (!element.matches(':popover-open'))
-                    element.showPopover?.();
-                setTimeout(() => element.classList.add('popover-visible'), 1);
-            } else {
-                element.classList.add('popover-closing');
-                setTimeout(() => {
-                    if (element.classList.contains('popover-closing')) {
-                        element.classList.remove('popover-visible');
-                        element.hidePopover?.();
-                    }
-                }, 200);
-            }
+            if (hasSelection) this.toolbar().show();
+            else this.toolbar().hide();
         });
     }
 
