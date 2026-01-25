@@ -12,23 +12,30 @@
     [offsetX]="popoverPosition[0]"
     [offsetY]="popoverPosition[1] - 3">
     <div class="toolbar row no-wrap items-center">
+        <app-rich-text-toolbar-group
+            [buttons]="[{ icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)' }]"
+            [isActiveCheck]="quill.isFormatActive"
+            (press)="boldAction()"/>
+        <app-rich-text-toolbar-group
+            [buttons]="[{ icon: 'text_italic', action: 'italic', title: 'Italic (Ctrl+I)' }]"
+            [isActiveCheck]="quill.isFormatActive"
+            (press)="italicAction()"/>
         <app-menu-button class="icon-only"
             type="subtle"
-            icon="text_bold"
-            title="Bold (Ctrl+B)"
-            [iconFilled]="quill.isFormatActive('bold')"
-            [iconColored]="quill.isFormatActive('bold')"
-            [mainAction]="formatMainAction"
-            [items]="formatMenuItems"/>
+            icon="text_underline"
+            title="Underline (Ctrl+U)"
+            [iconFilled]="quill.isFormatActive('underline')"
+            [iconColored]="quill.isFormatActive('underline')"
+            [mainAction]="underlineAction"
+            [items]="underlineMenuItems"/>
         <div class="divider"></div>
         <app-menu-button class="icon-only"
             type="subtle"
-            icon="text_header_1"
-            title="Heading 1"
-            [iconFilled]="quill.isHeadingActive(1)"
-            [iconColored]="quill.isHeadingActive(1)"
-            [mainAction]="headingMainAction"
-            [items]="headingMenuItems"/>
+            icon="text_font_size"
+            title="Text Style"
+            [showChevron]="true"
+            [items]="headingMenuItems">
+        </app-menu-button>
         <div class="divider"></div>
         <app-menu-button class="icon-only"
             type="subtle"

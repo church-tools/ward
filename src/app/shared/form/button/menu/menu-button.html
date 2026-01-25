@@ -12,6 +12,9 @@
     <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" type="button" [class]="classes()">
         @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
         <ng-content select="[button-text]"/>
+        @if (showChevron()) {
+            <app-icon class="me--1 ms--2" icon="chevron_down" size="ns" [filled]="true"/>
+        }
     </button>
 }
 <app-anchored-popover 
@@ -22,19 +25,27 @@
     @for (item of items(); track item) {
         @if ('link' in item) {
             <a class="menu-item" [href]="item.link">
-                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
+                @if (item.img) { <img [src]="item.img" alt="{{ item.labelTranslateId }}"/> }
                 @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
                 {{ item.label || (item.labelTranslateId! | translate) }}
             </a>
         } @else if ('action' in item) {
-            <button class="menu-item subtle" (click)="item.action()">
-                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}" class="menu-img"/> }
-                @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
-                {{ item.label || (item.labelTranslateId! | translate) }}
-            </button>
+            @if (item.active?.()) {
+                <div class="menu-item accent-text bold-text click-through">
+                    @if (item.icon) { <app-icon [icon]="item.icon" size="smaller" [filled]="true"/> }
+                    {{ item.label || (item.labelTranslateId! | translate) }}
+                    <div class="indicator"></div>
+                </div>
+            } @else {
+                <button class="menu-item subtle" (click)="item.action()" [disabled]="item.active?.()">
+                    @if (item.img) { <img [src]="item.img" alt="{{ item.labelTranslateId }}" class="menu-img"/> }
+                    @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
+                    {{ item.label || (item.labelTranslateId! | translate) }}
+                </button>
+            }
         } @else if ('toggle' in item) {
             <div class="menu-item ms-3">
-                @if (item.img) { <img [src]="item.img" alt="{{item.labelTranslateId}}"/> }
+                @if (item.img) { <img [src]="item.img" alt="{{ item.labelTranslateId }}"/> }
                 @if (item.icon) { <app-icon [icon]="item.icon" size="smaller"/> }
                 <app-switch [value]="item.toggle()" (valueChange)="item.toggle.set($event ?? false)"
                     class="ms--2" label="{{ item.label || (item.labelTranslateId! | translate) }}" 

@@ -1,4 +1,5 @@
 @use 'input';
+@use 'color';
 
 :host {
     position: relative;
@@ -26,5 +27,13 @@
         width: 1.5rem;
         height: 1.5rem;
         object-fit: cover;
+    }
+    .indicator {
+        position: absolute;
+    }
+    &.accent-text {
+        margin-left: 0.75rem;
+        margin-top: 0.25rem;
+        margin-bottom: 0.25rem;
     }
 }

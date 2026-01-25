@@ -2,12 +2,12 @@ import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { xeffect } from '../../utils/signal-utils';
 import { AnchoredPopoverComponent } from '../anchored-popover/anchored-popover';
+import MenuButtonComponent, { MenuButtonItem } from '../button/menu/menu-button';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
 import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 import { QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarButton, RichTextToolbarGroupComponent } from './rich-text-toolbar-group';
-import MenuButtonComponent, { MenuButtonItem } from '../button/menu/menu-button';
 
 @Component({
     selector: 'app-rich-text',
@@ -33,24 +33,24 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
 
     protected readonly quill = new QuillWrapper(this.editor, this.characterLimit, this.minLines);
 
-    protected readonly formatMainAction = () => this.quill.toggleFormat('bold');
-    protected readonly formatMenuItems: MenuButtonItem[] = [
-        { icon: 'text_italic', label: 'Italic (Ctrl+I)', action: () => this.quill.toggleFormat('italic') },
-        { icon: 'text_underline', label: 'Underline (Ctrl+U)', action: () => this.quill.toggleFormat('underline') },
-        { icon: 'text_strikethrough', label: 'Strikethrough', action: () => this.quill.toggleFormat('strike') },
-    ] as const;
+    protected readonly boldAction = () => this.quill.toggleFormat('bold');
+    protected readonly italicAction = () => this.quill.toggleFormat('italic');
+    protected readonly underlineAction = () => this.quill.toggleFormat('underline');
+    protected readonly underlineMenuItems: MenuButtonItem[] = [
+        { icon: 'text_strikethrough', label: 'Strikethrough', action: () => this.quill.toggleFormat('strike'), active: () => this.quill.isFormatActive('strike') },
+    ];
 
-    protected readonly headingMainAction = () => this.quill.formatHeading(1);
     protected readonly headingMenuItems: MenuButtonItem[] = [
-        { icon: 'text_header_2', label: 'Heading 2', action: () => this.quill.formatHeading(2) },
-        { icon: 'text_header_3', label: 'Heading 3', action: () => this.quill.formatHeading(3) },
-        { icon: 'text_t', label: 'Body Text', action: () => this.quill.formatHeading(false) },
-    ] as const;
+        { icon: 'text_header_1', label: 'Heading 1', action: () => this.quill.formatHeading(1), active: () => this.quill.isHeadingActive(1) },
+        { icon: 'text_header_2', label: 'Heading 2', action: () => this.quill.formatHeading(2), active: () => this.quill.isHeadingActive(2) },
+        { icon: 'text_header_3', label: 'Heading 3', action: () => this.quill.formatHeading(3), active: () => this.quill.isHeadingActive(3) },
+        { icon: 'text_t', label: 'Body Text', action: () => this.quill.formatHeading(false), active: () => this.quill.isHeadingActive(false) },
+    ];
 
     protected readonly listMainAction = () => this.quill.toggleList('bullet');
     protected readonly listMenuItems: MenuButtonItem[] = [
-        { icon: 'text_number_list_ltr', label: 'Numbered List', action: () => this.quill.toggleList('ordered') },
-    ] as const;
+        { icon: 'text_number_list_ltr', label: 'Numbered List', action: () => this.quill.toggleList('ordered'), active: () => this.quill.isFormatActive('ordered') },
+    ];
 
     protected readonly indentButtons: RichTextToolbarButton<1 | -1>[] = [
         { icon: 'text_indent_increase', action: 1, title: 'Increase Indent' },

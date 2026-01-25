@@ -4,7 +4,7 @@ import { iconCodes } from "./icon-codes";
 
 export type IconPath = keyof typeof IconPathMap;
 
-export type IconSize = 'xs' | 'sm' | 'smaller' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl' | 'xxxxl';
+export type IconSize = 'xs' | 'ns' | 'sm' | 'smaller' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl' | 'xxxxl';
 
 export enum IconPathMap {
     throbber = 'assets/img/throbber.svg',

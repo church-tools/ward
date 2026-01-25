@@ -7,7 +7,7 @@ import ButtonBaseComponent from "../shared/button-base";
 
 export type MenuButtonItemBase = { label?: string, labelTranslateId?: string; icon?: Icon | IconPath; img?: string }
 export type MenuButtonLinkItem = MenuButtonItemBase & { link: string; };
-export type MenuButtonActionItem = MenuButtonItemBase & { action: () => void; };
+export type MenuButtonActionItem = MenuButtonItemBase & { action: () => void; active?: () => boolean; };
 export type MenuButtonToggleItem = MenuButtonItemBase & { toggle: WritableSignal<boolean>; };
 export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuButtonToggleItem;
 
@@ -32,6 +32,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     readonly position = input<PopoverPosition>('bottom');
     readonly alignment = input<PopoverAlignment>('right');
     readonly leaveTimeout = input<number>(0);
+    readonly showChevron = input(false);
 
     private timeout: ReturnType<typeof setTimeout> | undefined;
 

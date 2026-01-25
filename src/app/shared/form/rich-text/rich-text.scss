@@ -49,4 +49,10 @@
         background: input.$border-color;
         margin: 0 4px;
     }
+    .heading-label {
+        font-size: font.$size-sm;
+        font-weight: font.$weight-md;
+        min-width: 2.5em;
+        text-align: center;
+    }
 }
