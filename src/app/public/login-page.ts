@@ -18,7 +18,7 @@ import { CredentialsComponent } from './shared/credentials';
                 [onClick]="loginWithCredentials">
                 {{ 'LOGIN.TITLE' | translate }}
             </app-async-button>
-            <div class="horizontal-divider" role="separator" aria-label="or">
+            <div class="horizontal-divider with-label" role="separator" aria-label="or">
                 {{ 'OR' | translate }}
             </div>
             <div class="row gap-4">
