@@ -12,6 +12,11 @@
     [offsetX]="popoverPosition[0]"
     [offsetY]="popoverPosition[1] - 3">
     <div class="toolbar row no-wrap items-center">
+        <app-rich-text-toolbar-group [showAll]="false"
+            icon="text_font_size" title="Heading"
+            [items]="headingMenuItems"
+            [isActiveCheck]="quill.isHeadingActive"
+            (press)="quill.formatHeading($event)"/>
         <app-rich-text-toolbar-group
             [items]="[{ icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)' }]"
             [isActiveCheck]="quill.isFormatActive"
@@ -26,11 +31,6 @@
             [isActiveCheck]="quill.isFormatActive"
             (press)="quill.toggleFormat($event)"/>
         <div class="divider"></div>
-        <app-rich-text-toolbar-group [showAll]="false"
-            icon="text_font_size" title="Heading"
-            [items]="headingMenuItems"
-            [isActiveCheck]="quill.isHeadingActive"
-            (press)="quill.formatHeading($event)"/>
         
         <app-menu-button class="icon-only"
             type="subtle"
@@ -38,54 +38,33 @@
             title="Color"
             [showChevron]="true">
             <div menu-content>
-                <div class="grid columns-8 gap-1">
+                <div class="grid columns-6 gap-1">
                     @for (color of paletteColors; track color) {
-                        <button class="subtle small medium-icon"
+                        <button class="subtle dense"
                             [title]="color"
                             (click)="quill.setTextColor(color)">
-                            <span class="{{color}}-active">A</span>
+                            <span class="{{color}}-active semibold-text xl-text">A</span>
                         </button>
                     }
+                </div>
+                <div class="horizontal-divider" role="separator"></div>
+                <div class="grid columns-6 gap-1">
                     @for (color of paletteColors; track color) {
-                        <button class="{{color}}-bg small medium-icon"
+                        <button class="{{color}}-bg dense"
                             [title]="color"
                             (click)="quill.setHighlightColor(color)">
-                            <span class="">A</span>
+                            <span class="xl-text">A</span>
                         </button>
                     }
                 </div>
             </div>
         </app-menu-button>
-        
-        <!-- <div class="grid">
-            @for (item of items(); track item) {
-                @if ('action' in item && item.colorSwatch) {
-                    <button class="grid-item" 
-                        [class.active]="item.active?.()"
-                        [style.background-color]="item.colorSwatch"
-                        [title]="item.label || ''"
-                        (click)="item.action()">
-                    </button>
-                } @else if ('action' in item && item.icon) {
-                    <button class="grid-item remove" 
-                        [title]="item.label || ''"
-                        (click)="item.action()">
-                        <app-icon [icon]="item.icon" size="smaller"/>
-                    </button>
-                }
-            }
-        </div> 
-
 
         <div class="divider"></div>
-        <app-menu-button class="icon-only"
-            type="subtle"
-            icon="text_bullet_list_ltr"
-            title="Bullet List"
-            [iconFilled]="quill.isFormatActive('bullet')"
-            [iconColored]="quill.isFormatActive('bullet')"
-            [mainAction]="listMainAction"
-            [items]="listMenuItems"/>-->
+        <app-rich-text-toolbar-group [showAll]="false"
+            [items]="listMenuItems"
+            [isActiveCheck]="quill.isFormatActive"
+            (press)="quill.toggleList($event)"/>
         <app-rich-text-toolbar-group
             [items]="indentButtons"
             (press)="quill.indent($event)"/>

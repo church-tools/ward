@@ -149,6 +149,10 @@ h6, .h6 {
     font-size: $size-lg;
     line-height: $line-height-lg;
 }
+.xl-text {
+    font-size: $size-xl;
+    line-height: $line-height-xl;
+}
 .small-text {
     @include small;
 }

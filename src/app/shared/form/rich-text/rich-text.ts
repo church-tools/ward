@@ -42,16 +42,13 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
         { icon: 'text_t', action: false, title: 'Body Text' },
     ];
 
-    protected readonly paletteColors = PALETTE_COLORS;
-
-    protected setFontSize = (size: Heading) => {
-        this.quill.formatHeading(size);
-    }
-
-    protected readonly listMainAction = () => this.quill.toggleList('bullet');
-    protected readonly listMenuItems = [
-        { icon: 'text_number_list_ltr', label: 'Numbered List', action: () => this.quill.toggleList('ordered'), active: () => this.quill.isFormatActive('ordered') },
+    protected readonly listMenuItems: RichTextToolbarItem<string>[] = [
+        { icon: 'text_number_list_ltr', action: 'ordered', title: 'Numbered List' },
+        { icon: 'text_bullet_list_ltr', action: 'bullet', title: 'Bullet List' },
+        { icon: 'task_list_ltr', action: 'check', title: 'Task List' },
     ];
+
+    protected readonly paletteColors = PALETTE_COLORS;
 
     // action: () => this.quill.setTextColor(`var(--${color}-fg)`),
     // active: () => this.quill.getActiveTextColor() === `var(--${color}-fg)`
