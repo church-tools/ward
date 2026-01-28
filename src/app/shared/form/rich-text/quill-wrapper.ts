@@ -24,6 +24,9 @@ export class QuillWrapper {
 
     private readonly quill = new AsyncState<Quill>();
     private ignoreNextUpdate = false;
+    private lastEmittedHtml: string = '';
+    private isUserEditing = false;
+    private editingTimeout: ReturnType<typeof setTimeout> | null = null;
 
     constructor(elemSignal: Signal<ElementRef<HTMLDivElement>>,
         private readonly characterLimit: Signal<number>,
@@ -44,7 +47,7 @@ export class QuillWrapper {
                         }
                     },
                 },
-                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'indent']
+                formats: ['bold', 'italic', 'underline', 'strike', 'header', 'list', 'link', 'indent', 'color', 'background']
             });
             this.quill.set(quill);
             
@@ -60,6 +63,17 @@ export class QuillWrapper {
                     this.ignoreNextUpdate = false;
                     return;
                 }
+                // Mark that user is actively editing to prevent external updates
+                this.isUserEditing = true;
+                if (this.editingTimeout) {
+                    clearTimeout(this.editingTimeout);
+                }
+                // Clear the editing flag after a delay to allow external updates
+                this.editingTimeout = setTimeout(() => {
+                    this.isUserEditing = false;
+                    this.editingTimeout = null;
+                }, 500);
+                
                 this.updateValue();
             });
 
@@ -101,6 +115,18 @@ export class QuillWrapper {
 
     async setContent(content: string) {
         const quill = await this.quill.get();
+        
+        // Skip if user is actively editing to prevent disruption
+        if (this.isUserEditing) {
+            return;
+        }
+        
+        // Compare normalized content to avoid unnecessary updates
+        const currentHtml = quill.root.innerHTML;
+        if (this.normalizeHtml(content) === this.normalizeHtml(currentHtml)) {
+            return;
+        }
+        
         const currentSelection = quill.getSelection();
         const hadFocus = quill.hasFocus();
         this.ignoreNextUpdate = true;
@@ -118,6 +144,19 @@ export class QuillWrapper {
             quill.setSelection(clampedIndex, clampedLength, 'silent');
         }
     }
+    
+    /**
+     * Normalize HTML for comparison purposes.
+     * This helps avoid unnecessary content resets when the HTML is semantically the same.
+     */
+    private normalizeHtml(html: string): string {
+        return html
+            .replace(/>\s+</g, '><')  // Remove whitespace between tags
+            .replace(/\s+/g, ' ')      // Normalize multiple spaces
+            .replace(/<br\s*\/?>/gi, '<br>') // Normalize br tags
+            .replace(/<p><br><\/p>/gi, '<p></p>') // Normalize empty paragraphs
+            .trim();
+    }
 
     async setPlaceholder(placeholder: string) {
         const quill = await this.quill.get();
@@ -133,7 +172,7 @@ export class QuillWrapper {
         this.updateValue();
     }
 
-    async formatHeading(level: number | false) {
+    async formatHeading(level: Heading) {
         const quill = await this.quill.get();
         const selection = quill.getSelection();
         if (!selection) return;
@@ -167,6 +206,40 @@ export class QuillWrapper {
         const isActive = formats['list'] === listType;
         quill.format('list', isActive ? null : listType);
         this.updateValue();
+    }
+
+    setTextColor = async (color: string | false) => {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        quill.format('color', color || false);
+        this.updateValue();
+    }
+
+    setHighlightColor = async (color: string | false) => {
+        const quill = await this.quill.get();
+        const selection = quill.getSelection();
+        if (!selection) return;
+        quill.format('background', color || false);
+        this.updateValue();
+    }
+
+    getActiveTextColor = (): string | false => {
+        const quill = this.quill.unsafeGet();
+        if (!quill) return false;
+        const selection = quill.getSelection();
+        if (!selection) return false;
+        const formats = quill.getFormat(selection);
+        return (formats['color'] as string) || false;
+    }
+
+    getActiveHighlightColor = (): string | false => {
+        const quill = this.quill.unsafeGet();
+        if (!quill) return false;
+        const selection = quill.getSelection();
+        if (!selection) return false;
+        const formats = quill.getFormat(selection);
+        return (formats['background'] as string) || false;
     }
 
     indent = async (direction: 1 | -1) => {
@@ -210,6 +283,11 @@ export class QuillWrapper {
         const quill = await this.quill.get();
         const html = quill.root.innerHTML as HTMLString;
 
+        // Skip if the HTML hasn't actually changed
+        if (html === this.lastEmittedHtml) {
+            return;
+        }
+
         if (this.characterLimit()) {
             const textLength = quill.getText().length;
             if (textLength > this.characterLimit()) {
@@ -217,6 +295,8 @@ export class QuillWrapper {
                 return;
             }
         }
+        
+        this.lastEmittedHtml = html;
         this.onChange.emit(html);
     }
 

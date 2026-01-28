@@ -9,7 +9,7 @@ export class ProfileService implements OnDestroy {
 
     private readonly supabase = inject(SupabaseService);
 
-    readonly own = xsignal<Profile.Row>();
+    readonly own = xsignal<Profile.Row | null>(null);
 
     private ownSubscription?: Subscription;
 

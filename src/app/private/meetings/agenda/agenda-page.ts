@@ -97,7 +97,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     }
 
     protected enableEditMode = async () => {
-        const profile = this.profileService.own();
+        const profile = await this.profileService.own.asPromise();
         const agenda = this.syncedRow.value();
         const types: AgendaSection.Type[] = ['prayer', 'spiritual_thought', 'resolutions', 'topics', 'prayer'];
         await this.supabase.sync.from('agenda_section').insert(

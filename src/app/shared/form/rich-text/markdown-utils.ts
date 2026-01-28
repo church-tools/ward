@@ -19,19 +19,19 @@ export function markdownToQuillHtml(markdown: string): HTMLString {
     html = html.replace(/`([^`\n]+?)`/g, '<code>$1</code>');
     html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2">$1</a>');
     
+    // Convert color and highlight (use non-greedy matching for nested content)
+    html = html.replace(/<color:([^>]+)>(.*?)<\/color>/gs, '<span style="color:$1">$2</span>');
+    html = html.replace(/<highlight:([^>]+)>(.*?)<\/highlight>/gs, '<span style="background-color:$1">$2</span>');
+    
     html = convertMarkdownLists(html);
     return convertLinesToHtml(html);
 }
 
 export function quillHtmlToMarkdown(html: HTMLString | null): string {
     if (!html || typeof html !== 'string') return '';
-    
     const sanitized = sanitizeHtml(html);
     const temp = document.createElement('div');
     temp.innerHTML = convertQuillLists(sanitized);
-    
-    joinInlineParagraphs(temp);
-    
     return cleanupMarkdown(processNode(temp));
 }
 
@@ -41,8 +41,11 @@ export function markdownToPlainText(markdown: string | null): string {
         .replace(/(\*|_)(.*?)\1/g, '$2') // italic
         .replace(/~~(.*?)~~/g, '$1') // strikethrough
         .replace(/`(.*?)`/g, '$1') // inline code
+        .replace(/<u>(.*?)<\/u>/g, '$1') // underline
         .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1') // links
         .replace(/#+ (.*)/g, '$1') // headers
+        .replace(/<color:[^>]+>(.*?)<\/color>/g, '$1') // color
+        .replace(/<highlight:[^>]+>(.*?)<\/highlight>/g, '$1') // highlight
         .replaceAll('- ', '• ') // unordered list items
         .trim();
 }
@@ -54,7 +57,8 @@ function convertLinesToHtml(html: string): HTMLString {
     for (const line of lines) {
         const trimmed = line.trim();
         if (!trimmed) {
-            result.push('');
+            // Preserve blank lines as empty paragraphs with a line break
+            result.push('<p><br></p>');
             continue;
         }
         
@@ -66,9 +70,8 @@ function convertLinesToHtml(html: string): HTMLString {
     }
     
     return result.join('')
-        .replace(/<\/ul><p><\/p><ul>/gim, '')
-        .replace(/<\/ol><p><\/p><ol>/gim, '')
-        .replace(/<p><\/p>/gim, '') as HTMLString;
+        .replace(/<\/ul><p><br><\/p><ul>/gim, '')
+        .replace(/<\/ol><p><br><\/p><ol>/gim, '') as HTMLString;
 }
 
 function isBlockElement(line: string): boolean {
@@ -85,25 +88,9 @@ function sanitizeHtml(html: HTMLString): string {
         .replace(/<span class="ql-ui"[^>]*><\/span>/gi, '');
 }
 
-function joinInlineParagraphs(temp: Element): void {
-    const paragraphs = temp.querySelectorAll('p');
-    const hasBlockElements = temp.querySelector('h1, h2, h3, h4, h5, h6, ul, ol, blockquote, div');
-    
-    if (paragraphs.length > 1 && !hasBlockElements) {
-        const hasOnlyInlineContent = Array.from(paragraphs).every(p => {
-            return p.querySelectorAll('div, p, h1, h2, h3, h4, h5, h6, ul, ol, li, blockquote').length === 0;
-        });
-        
-        if (hasOnlyInlineContent) {
-            const joinedContent = Array.from(paragraphs).map(p => p.innerHTML).join(' ');
-            temp.innerHTML = `<p>${joinedContent}</p>`;
-        }
-    }
-}
-
 function cleanupMarkdown(result: string): string {
     return result
-        .replace(/\n{3,}/g, '\n\n')
+        .replace(/\n{4,}/g, '\n\n\n') // Allow up to 2 blank lines (3 newlines), but no more
         .replace(/^# ([^\n]+)\n\n\n/gm, '# $1\n\n')
         .replace(/^\n+|\n+$/g, '')
         .trim();
@@ -256,8 +243,19 @@ function processElementTag(tag: string, content: string, element: Element, inden
             const href = (element as HTMLAnchorElement).href || '';
             return `[${content}](${href})`;
         case 'br': return '\n';
-        case 'p': return content.trim() ? content.trim() + '\n' : '';
-        case 'div': return content.trim() ? content.trim() + '\n' : '';
+        case 'p': return content.trim() ? content.trim() + '\n' : '\n'; // Empty p = blank line
+        case 'div': return content.trim() ? content.trim() + '\n' : '\n';
+        case 'span':
+            const style = element.getAttribute('style') || '';
+            const colorMatch = style.match(/(?:^|;)\s*color:\s*([^;]+)/i);
+            const bgMatch = style.match(/background-color:\s*([^;]+)/i);
+            if (colorMatch) {
+                return `<color:${colorMatch[1].trim()}>${content}</color>`;
+            }
+            if (bgMatch) {
+                return `<highlight:${bgMatch[1].trim()}>${content}</highlight>`;
+            }
+            return content;
         case 'ul':
             const ulItems = Array.from(element.children)
                 .map(li => processListItem(li, '- ', indent))

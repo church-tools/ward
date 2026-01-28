@@ -1,19 +1,12 @@
-import { Component, ElementRef, inject, input, OnDestroy, viewChild, WritableSignal } from "@angular/core";
+import { Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import { Icon, IconComponent, IconPath } from "../../../icon/icon";
+import { IconComponent } from "../../../icon/icon";
 import { AnchoredPopoverComponent, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
-import SwitchComponent from "../../switch/switch";
 import ButtonBaseComponent from "../shared/button-base";
-
-export type MenuButtonItemBase = { label?: string, labelTranslateId?: string; icon?: Icon | IconPath; img?: string }
-export type MenuButtonLinkItem = MenuButtonItemBase & { link: string; };
-export type MenuButtonActionItem = MenuButtonItemBase & { action: () => void; active?: () => boolean; };
-export type MenuButtonToggleItem = MenuButtonItemBase & { toggle: WritableSignal<boolean>; };
-export type MenuButtonItem = MenuButtonLinkItem | MenuButtonActionItem | MenuButtonToggleItem;
 
 @Component({
     selector: 'app-menu-button',
-    imports: [TranslateModule, IconComponent, SwitchComponent, AnchoredPopoverComponent],
+    imports: [TranslateModule, IconComponent, AnchoredPopoverComponent],
     templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
     host: {
@@ -28,7 +21,6 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
 
     override readonly icon = input(<any>'more_vertical');
     readonly mainAction = input<(() => void) | null>(null);
-    readonly items = input.required<MenuButtonItem[]>();
     readonly position = input<PopoverPosition>('bottom');
     readonly alignment = input<PopoverAlignment>('right');
     readonly leaveTimeout = input<number>(0);

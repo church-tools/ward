@@ -7,16 +7,17 @@
     <div class="handle grow-1"></div>
     <div class="row no-wrap items-center gap-1">
         <div class="handle full-width full-height items-center"></div>
-        @if (menuItems().length) {
-            <app-menu-button type="subtle" class="icon-only title-bar-margin"
-                [items]="menuItems()" alignment="left">
-                <app-menu-button menu-content type="subtle"
-                    icon="translate"
-                    [items]="languageItems">
-                    <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
-                </app-menu-button>
-            </app-menu-button>
-        }
+        <app-menu-button type="subtle" class="icon-only title-bar-margin" alignment="left">
+            <div menu-content>
+                @let loggedIn = this.supabase.user();
+                <app-async-button class="left-aligned"
+                    icon="sign_out" type="subtle" [showSuccess]="false"
+                    [onClick]="loggedIn ? signOut : signIn">
+                    {{ (loggedIn ? 'SIGN_OUT' : 'SIGN_IN') | translate }}
+                </app-async-button>
+                <app-language-select/>
+            </div>
+        </app-menu-button>
     </div>
 </div>
 <div class="canvas-container">

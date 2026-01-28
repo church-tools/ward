@@ -1,42 +1,22 @@
-import { Component, inject, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import MenuButtonComponent, { MenuButtonItem } from '../../shared/form/button/menu/menu-button';
+import AsyncButtonComponent from '../../shared/form/button/async/async-button';
+import MenuButtonComponent from '../../shared/form/button/menu/menu-button';
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import { ShellComponent } from '../../shared/shell/shell';
-import { xcomputed } from '../../shared/utils/signal-utils';
+import { LanguageSelectComponent } from "../../shared/shell/language-select";
 
 @Component({
     selector: 'app-public-shell',
     templateUrl: './public-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './public-shell.scss'],
-    imports: [TranslateModule, PageRouterOutlet, MenuButtonComponent],
+    imports: [TranslateModule, PageRouterOutlet, MenuButtonComponent,
+    AsyncButtonComponent, LanguageSelectComponent],
 })
 export class PublicShellComponent extends ShellComponent {
-
-    private readonly router = inject(Router);
-
-    private readonly menuButton = viewChild.required(MenuButtonComponent);
     
-    protected readonly menuItems = xcomputed([this.supabase.user], user => {
-        return [user
-            ? <MenuButtonItem>{
-                labelTranslateId: 'SIGN_OUT',
-                icon: 'sign_out',
-                action: async () => {
-                    this.menuButton().execute();
-                    await this.supabase.signOut();
-                    this.router.navigate(['/login']);
-                }
-            }
-            : <MenuButtonItem>{
-                labelTranslateId: 'SIGN_IN',
-                icon: 'door_arrow_right',
-                action: async () => {
-                    this.menuButton().execute();
-                    this.router.navigate(['/login']);
-                }
-            }];
-    });
-    
+    protected signIn = async () => {
+        this.menuButton().execute();
+        this.router.navigate(['/login']);
+    }
 }

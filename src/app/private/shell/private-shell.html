@@ -20,16 +20,24 @@
         </div>
         <app-presences class="me-2"/>
         <app-menu-button class="title-bar-margin" [class.icon-only]="!adminService.editMode()"
-            [type]="adminService.editMode() ? 'primary' : 'subtle'" 
-            [items]="menuItems()" alignment="left">
+            [type]="adminService.editMode() ? 'primary' : 'subtle'" alignment="left">
             @if (adminService.editMode()) {
                 <span button-text>{{ 'EDIT_MODE' | translate }}</span>
             }
-            <app-menu-button menu-content type="subtle"
-                icon="translate"
-                [items]="languageItems">
-                <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
-            </app-menu-button>
+            <div menu-content>
+                <app-async-button class="left-aligned" icon="sign_out" type="subtle" [onClick]="signOut" [showSuccess]="false">
+                    {{ 'SIGN_OUT' | translate }}
+                </app-async-button>
+                @if (this.profileService.own()?.is_unit_admin) {
+                    <div class="menu-item ms-3 gap-2 row no-wrap items-center">
+                        <app-icon icon="edit" size="smaller"/>
+                        <app-switch [value]="this.adminService.editMode()"
+                            (valueChange)="this.adminService.editMode.set($event ?? false)"
+                            class="ms--2" label="{{ 'ENABLE_EDIT_MODE' | translate }}"/>
+                    </div>
+                }
+                <app-language-select/>
+            </div>
         </app-menu-button>
     </div>
 </div>

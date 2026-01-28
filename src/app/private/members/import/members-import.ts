@@ -73,14 +73,14 @@ export class MembersImportComponent extends PopoverPage {
 
     protected save = async () => {
         const selected = this.importedMember().filter(m => m.import && !m.duplicate);
-        const unit = (await this.profileService.own.asPromise()).unit;
+        const profile = await this.profileService.own.asPromise();
         const nextId = await this.supabase.sync.from('member').findLargestId() ?? 0;
         await this.supabase.sync.from('member')
             .insert(selected.map((member, i) => ({
                 first_name: member.first_name,
                 last_name: member.last_name,
                 gender: member.gender,
-                unit,
+                unit: profile.unit,
                 id: nextId + i + 1
             })));
         this.closePopup();

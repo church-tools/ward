@@ -16,24 +16,3 @@
         height: 2.25rem;
     }
 }
-
-.menu-item {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    justify-content: flex-start;
-    gap: 0.5rem;
-    .menu-img {
-        width: 1.5rem;
-        height: 1.5rem;
-        object-fit: cover;
-    }
-    .indicator {
-        position: absolute;
-    }
-    &.accent-text {
-        margin-left: 0.75rem;
-        margin-top: 0.25rem;
-        margin-bottom: 0.25rem;
-    }
-}

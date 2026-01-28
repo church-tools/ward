@@ -13,29 +13,70 @@
     [offsetY]="popoverPosition[1] - 3">
     <div class="toolbar row no-wrap items-center">
         <app-rich-text-toolbar-group
-            [buttons]="[{ icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)' }]"
+            [items]="[{ icon: 'text_bold', action: 'bold', title: 'Bold (Ctrl+B)' }]"
             [isActiveCheck]="quill.isFormatActive"
-            (press)="boldAction()"/>
+            (press)="quill.toggleFormat($event)"/>
         <app-rich-text-toolbar-group
-            [buttons]="[{ icon: 'text_italic', action: 'italic', title: 'Italic (Ctrl+I)' }]"
+            [items]="[{ icon: 'text_italic', action: 'italic', title: 'Italic (Ctrl+I)' }]"
             [isActiveCheck]="quill.isFormatActive"
-            (press)="italicAction()"/>
-        <app-menu-button class="icon-only"
-            type="subtle"
-            icon="text_underline"
-            title="Underline (Ctrl+U)"
-            [iconFilled]="quill.isFormatActive('underline')"
-            [iconColored]="quill.isFormatActive('underline')"
-            [mainAction]="underlineAction"
-            [items]="underlineMenuItems"/>
+            (press)="quill.toggleFormat($event)"/>
+        <app-rich-text-toolbar-group [showAll]="false"
+            [items]="[{ icon: 'text_underline', action: 'underline', title: 'Underline (Ctrl+U)' },
+                { icon: 'text_strikethrough', action: 'strike', title: 'Strikethrough' }]"
+            [isActiveCheck]="quill.isFormatActive"
+            (press)="quill.toggleFormat($event)"/>
         <div class="divider"></div>
+        <app-rich-text-toolbar-group [showAll]="false"
+            icon="text_font_size" title="Heading"
+            [items]="headingMenuItems"
+            [isActiveCheck]="quill.isHeadingActive"
+            (press)="quill.formatHeading($event)"/>
+        
         <app-menu-button class="icon-only"
             type="subtle"
-            icon="text_font_size"
-            title="Text Style"
-            [showChevron]="true"
-            [items]="headingMenuItems">
+            icon="color"
+            title="Color"
+            [showChevron]="true">
+            <div menu-content>
+                <div class="grid columns-8 gap-1">
+                    @for (color of paletteColors; track color) {
+                        <button class="subtle small medium-icon"
+                            [title]="color"
+                            (click)="quill.setTextColor(color)">
+                            <span class="{{color}}-active">A</span>
+                        </button>
+                    }
+                    @for (color of paletteColors; track color) {
+                        <button class="{{color}}-bg small medium-icon"
+                            [title]="color"
+                            (click)="quill.setHighlightColor(color)">
+                            <span class="">A</span>
+                        </button>
+                    }
+                </div>
+            </div>
         </app-menu-button>
+        
+        <!-- <div class="grid">
+            @for (item of items(); track item) {
+                @if ('action' in item && item.colorSwatch) {
+                    <button class="grid-item" 
+                        [class.active]="item.active?.()"
+                        [style.background-color]="item.colorSwatch"
+                        [title]="item.label || ''"
+                        (click)="item.action()">
+                    </button>
+                } @else if ('action' in item && item.icon) {
+                    <button class="grid-item remove" 
+                        [title]="item.label || ''"
+                        (click)="item.action()">
+                        <app-icon [icon]="item.icon" size="smaller"/>
+                    </button>
+                }
+            }
+        </div> 
+
+
         <div class="divider"></div>
         <app-menu-button class="icon-only"
             type="subtle"
@@ -44,13 +85,13 @@
             [iconFilled]="quill.isFormatActive('bullet')"
             [iconColored]="quill.isFormatActive('bullet')"
             [mainAction]="listMainAction"
-            [items]="listMenuItems"/>
+            [items]="listMenuItems"/>-->
         <app-rich-text-toolbar-group
-            [buttons]="indentButtons"
+            [items]="indentButtons"
             (press)="quill.indent($event)"/>
         <div class="divider"></div>
         <app-rich-text-toolbar-group
-            [buttons]="linkButtons"
+            [items]="linkButtons"
             [isActiveCheck]="quill.isFormatActive"
             (press)="quill.insertLink()"/>
     </div>

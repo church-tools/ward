@@ -176,7 +176,7 @@ button, .button {
         @each $color in color.$names {
             &.#{"" + $color}-btn {
                 &:not(:disabled):not(.disabled) {
-                    app-icon {
+                    app-icon:not(.no-color) {
                         color: color.get-variant($color, 'foreground') !important;
                     }
                 }
@@ -250,6 +250,10 @@ button, .button {
     &.tiny {
         padding: 0.075rem 0.25rem;
     }
+}
+
+.left-aligned > button, .left-aligned > .button {
+    justify-content: flex-start;
 }
 
 .round > button, .round > .button {
