@@ -39,21 +39,29 @@
             [showChevron]="true">
             <div menu-content>
                 <div class="grid columns-6 gap-1">
+                    @let activeColor = quill.getActiveTextColor();
                     @for (color of paletteColors; track color) {
-                        <button class="subtle dense"
+                        <button type="button" class="subtle dense"
+                            [class.active]="activeColor === color"
                             [title]="color"
                             (click)="quill.setTextColor(color)">
-                            <span class="{{color}}-active semibold-text xl-text">A</span>
+                            <div class="{{color}}-active semibold-text xl-text text-color-preview">
+                                A
+                            </div>
                         </button>
                     }
                 </div>
                 <div class="horizontal-divider" role="separator"></div>
                 <div class="grid columns-6 gap-1">
+                    @let activeHighlight = quill.getActiveHighlightColor();
                     @for (color of paletteColors; track color) {
-                        <button class="{{color}}-bg dense"
+                        <button type="button" class="subtle dense"
+                            [class.active]="activeHighlight === color"
                             [title]="color"
                             (click)="quill.setHighlightColor(color)">
-                            <span class="xl-text">A</span>
+                            <div class="{{color}}-bg xl-text highlight-color-preview">
+                                A
+                            </div>
                         </button>
                     }
                 </div>

@@ -43,8 +43,8 @@ export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
     ];
 
     protected readonly listMenuItems: RichTextToolbarItem<string>[] = [
-        { icon: 'text_number_list_ltr', action: 'ordered', title: 'Numbered List' },
         { icon: 'text_bullet_list_ltr', action: 'bullet', title: 'Bullet List' },
+        { icon: 'text_number_list_ltr', action: 'ordered', title: 'Numbered List' },
         { icon: 'task_list_ltr', action: 'check', title: 'Task List' },
     ];
 

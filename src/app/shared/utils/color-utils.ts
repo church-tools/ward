@@ -1,6 +1,8 @@
 
 export const SEMANTIC_COLORS = [
     "accent",
+    "accent-variation-1",
+    "accent-variation-2",
     "success",
     "warning",
     "danger",

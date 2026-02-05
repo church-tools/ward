@@ -3,7 +3,6 @@ import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ServiceWorkerService } from './shared/service/service-worker.service';
 import { SupabaseService } from './shared/service/supabase.service';
-import { trimPastedStrings } from './shared/utils/clipboard-utils';
 import { PopoverService } from './shared/widget/popover/popover.service';
 
 const LANGUAGE_STORAGE_KEY = 'language';
@@ -23,7 +22,6 @@ export class AppComponent {
     constructor() {
         const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
         this.translate.use(browserLang);
-        trimPastedStrings();
         AppComponent.supabase = inject(SupabaseService);
 
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
