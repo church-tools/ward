@@ -1,1 +1,1 @@
-Hosted on Vercel: https://ward-tools.vercel.app/de
+Hosted on Cloudflare Pages: https://ward-tools.org
