@@ -19,7 +19,7 @@ export type EdgeFunction = 'login-with-password' | 'list-units' | 'create-unit' 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
-    readonly client = createClient<Database>(environment.supabaseUrl, environment.supabaseKey);
+    readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
         { name: 'unit', createOffline: false, deletable: false },
         { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean } },
@@ -106,7 +106,7 @@ export class SupabaseService {
         if (!accessToken) throw new Error('Not authenticated');
         const init = {
             method: 'POST',
-            headers: { apikey: environment.supabaseKey, Authorization: `Bearer ${accessToken}` }
+            headers: { apikey: environment.pubSupabaseKey, Authorization: `Bearer ${accessToken}` }
         } as RequestInit & { headers: Record<string, string> };
         const url = `/supabase/functions/v1/${fn}`;
         if (file) {
