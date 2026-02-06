@@ -20,7 +20,8 @@
             "assets": [
               "src/assets",
               "src/manifest.webmanifest",
-              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" }
+              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" },
+              { "glob": "**/*", "input": "functions", "output": "/functions" }
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -98,7 +99,8 @@
             "assets": [
               "src/assets",
               "src/manifest.webmanifest",
-              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" }
+              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" },
+              { "glob": "**/*", "input": "functions", "output": "/functions" }
             ],
             "styles": [
               "src/styles/styles.scss"
