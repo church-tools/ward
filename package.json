@@ -1,6 +1,6 @@
 {
   "name": "ward-tools",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "scripts": {
     "ng": "ng",
     "start": "bun --bun ng serve ward-tools --port 4201",
