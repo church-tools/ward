@@ -1,11 +1,7 @@
 {
-  "/supabase/functions/v1": {
-    "target": "https://bfozbjjsbwakbucgdpao.supabase.co",
-    "secure": true,
-    "changeOrigin": true,
-    "logLevel": "info",
-    "pathRewrite": {
-      "^/supabase": ""
-    }
+  "/api": {
+    "target": "http://localhost:8788",
+    "secure": false,
+    "logLevel": "info"
   }
 }

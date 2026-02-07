@@ -1,0 +1,8 @@
+name = "ward-tools-local"
+main = "functions/local-worker.ts"
+compatibility_date = "2025-01-01"
+
+[dev]
+port = 8788
+local_protocol = "http"
+inspector_port = 9229

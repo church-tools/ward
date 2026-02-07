@@ -3,6 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { ProfileService } from '../../modules/profile/profile.service';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import SwitchComponent from '../../shared/form/switch/switch';
+import { FunctionsService } from '../../shared/service/functions.service';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
 import { RowHistoryComponent } from "../shared/row-history";
@@ -55,20 +56,21 @@ export class UserPageComponent extends RowPageComponent<'profile'> {
     protected readonly tableName = 'profile';
 
     private readonly profileService = inject(ProfileService);
+    private readonly functions = inject(FunctionsService);
 
     protected readonly isSelf = xcomputed([this.profileService.own, this.syncedRow.id],
         (own, id) => own?.id === id);
 
     protected approve(approve: boolean) {
         return async () => {
-            await this.supabase.callEdgeFunction('approve-user', { profile_id: this.syncedRow.id(), approve });
+            await this.functions.approveUser(this.syncedRow.id()!, approve);
             this.router.navigate(['../'], { relativeTo: this.route });
         }
     }
 
     protected setAdmin(admin: boolean) {
         return async () => {
-            await this.supabase.callEdgeFunction('set-user-admin', { profile_id: this.syncedRow.id(), set_admin: admin });
+            await this.functions.setUserAdmin(this.syncedRow.id()!, admin);
         }
     }
 }

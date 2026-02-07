@@ -40,7 +40,11 @@ testem.log
 # Environment secrets
 .env
 .env.*
+.dev.vars
 
 # System files
 .DS_Store
 Thumbs.db
+
+# Wrangler
+.wrangler

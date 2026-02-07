@@ -2,9 +2,7 @@ import { Component, inject, OnInit, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import AsyncButtonComponent from "../../shared/form/button/async/async-button";
 import { IconComponent } from "../../shared/icon/icon";
-import { SupabaseService } from "../../shared/service/supabase.service";
-
-type UnitInfo = { id: number; name: string, created_by: string };
+import { FunctionsService, UnitInfo } from "../../shared/service/functions.service";
 
 @Component({
     selector: 'app-new-units',
@@ -43,21 +41,22 @@ type UnitInfo = { id: number; name: string, created_by: string };
         }
     `,
     imports: [TranslateModule, AsyncButtonComponent, IconComponent],
+    host: { class: 'column gap-2' },
 })
 export class NewUnitsComponent implements OnInit {
     
-    private readonly supabase = inject(SupabaseService);
+    private readonly functions = inject(FunctionsService);
 
     protected readonly units = signal<UnitInfo[] | null>(null);
 
     async ngOnInit() {
-        const { units } = await this.supabase.callEdgeFunction<{ units: UnitInfo[] }>('fetch-unapproved-units');
+        const { units } = await this.functions.listUnapprovedUnits();
         this.units.set(units);
     }
 
     protected setUnitApproved(unit_id: number, approved: boolean) {
         return async () => {
-            await this.supabase.callEdgeFunction('set-unit-approved', { unit_id, approved });
+            await this.functions.setUnitApproved(unit_id, approved);
             this.units.update(units => units?.filter(u => u.id !== unit_id) ?? null);
         }
     }

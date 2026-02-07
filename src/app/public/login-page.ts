@@ -5,6 +5,7 @@ import AsyncButtonComponent from '../shared/form/button/async/async-button';
 import ButtonComponent from "../shared/form/button/button";
 import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
+import { FunctionsService } from '../shared/service/functions.service';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { CredentialsComponent } from './shared/credentials';
 
@@ -52,13 +53,14 @@ export class LoginPageComponent extends PageComponent {
 
     private readonly router = inject(Router);
     private readonly supabase = inject(SupabaseService);
+    private readonly functions = inject(FunctionsService);
     private readonly credentials = viewChild.required(CredentialsComponent);
 
     protected readonly loginWithCredentials = async () => {
         if (!this.credentials().valid())
             throw 'LOGIN.ERROR_MSG.INVALID_INPUT';
         const { email, password } = this.credentials().getCredentials();
-        const { session, error } = await this.supabase.callEdgeFunction<{ session: any; error: any }>('login-with-password', { email, password });
+        const { session, error } = await this.functions.loginWithPassword(email, password);
         if (error) {
             console.error('Login failed:', error.message);
             switch (error.code) {

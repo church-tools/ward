@@ -1,23 +1,23 @@
 import { inject, Injectable } from '@angular/core';
-import { SupabaseService } from './supabase.service';
 import { Cache } from '../utils/cache';
 import { FileKey, FileUrl } from '../utils/file-utils';
+import { FunctionsService } from './functions.service';
 
 // bucket: https://dash.cloudflare.com/3c3155295fbc389206f88a353d79c3a1/r2/default/buckets/ward-tools
 
 @Injectable({ providedIn: 'root' })
 export class FileStorageService {
 
-    private readonly supabase = inject(SupabaseService);
+    private readonly functions = inject(FunctionsService);
     private readonly cache = new Cache<string, File>(64);
 
     async upload(file: File, key: FileKey): Promise<void> {
-        await this.supabase.callEdgeFunction('presign-file-access', { key, method: 'PUT' }, file);
+        await this.functions.uploadFile(key, file);
         this.cache.set(key, file);
     }
 
     async getUrl(key: FileKey, method: 'GET' | 'DELETE'): Promise<FileUrl> {
-        const { url } = await this.supabase.callEdgeFunction<{ url: FileUrl }>('presign-file-access', { key, method });
+        const { url } = await this.functions.presignFileAccess(key, method);
         return url;
     }
 
