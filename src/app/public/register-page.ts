@@ -69,8 +69,7 @@ export class RegisterPageComponent extends PageComponent {
         if (error) {
             switch (error.code) {
                 case 'user_already_exists':
-                    this.credentials().setEmailError('REGISTER.ERROR_MSG.EMAIL_IN_USE');
-                    throw 'ERROR.FAILED';
+                    throw 'REGISTER.ERROR_MSG.USER_ALREADY_EXISTS';
                 case 'signup_disabled':
                     throw 'REGISTER.ERROR_MSG.SIGNUP_DISABLED';
                 default:
