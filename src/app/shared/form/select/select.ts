@@ -73,6 +73,11 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.setViewValue(null);
     }
 
+    focusInput() {
+        if (this.disabled()) return;
+        this.input()?.nativeElement.focus();
+    }
+
     protected async updateVisibleOptions() {
         const search = this.search().toLocaleLowerCase();
         const filteredOptions = await this.getFilteredOptions(search);
