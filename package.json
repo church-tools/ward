@@ -39,7 +39,7 @@
     "@cloudflare/workers-types": "^4.20260210.0",
     "concurrently": "^9.2.1",
     "supabase": "^2.76.7",
-    "wrangler": "^4.64.0",
-    "typescript": "^5.9.3"
+    "typescript": "^5.9.3",
+    "wrangler": "^4.64.0"
   }
 }

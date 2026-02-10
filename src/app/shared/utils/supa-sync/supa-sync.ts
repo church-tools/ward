@@ -3,7 +3,7 @@ import { AsyncState } from "../async-state";
 import { Lock } from "../flow-control-utils";
 import { ChannelConnection } from "./channel-connection";
 import { SupaSyncTable } from "./supa-sync-table";
-import type { Database, SupaSyncPayload, SupaSyncTableInfo, TableName } from "./supa-sync.types";
+import type { Database, SupaSyncPayload, SupaSyncTableInfo, SupaSyncTableInfos, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
@@ -15,22 +15,21 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
     private readonly client: SupabaseClient<D>;
-    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> } = {} as any;
+    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> };
     private idb: Promise<IDBDatabase> | undefined;
 
     constructor(
         supabaseClient: SupabaseClient<D>,
-        tableInfos: Array<{
-            [K in TableName<D>]: SupaSyncTableInfo<D, K> & IA[K]
-        }[TableName<D>]>
+        tableInfos: SupaSyncTableInfos<D>,
     ) {
         this.client = supabaseClient;
         window.addEventListener('online', () => this.onlineState.set(true));
         window.addEventListener('offline', () => this.onlineState.unset());
         type TN = TableName<D>;
-        for (const info of tableInfos)
-            this.tablesByName[info.name as TN] = new SupaSyncTable<D, TN, IA[TN]>(
-                info.name, this.client, this.onlineState, info);
+        this.tablesByName = Object.fromEntries(Object.entries(tableInfos).map(([name, info]) => {
+           const table = new SupaSyncTable<D, TN, IA[TN]>(name, this.client, this.onlineState, info!);
+           return [name as TN, table];
+        })) as unknown as { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> };
     }
 
     public async init(session: Session, dbName: string) {
@@ -44,7 +43,8 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             openRequest.onupgradeneeded = (event) => {
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
-                    const { name, idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
+                    const name = table.name;
+                    const { idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
                     const indexedKeys = Object.keys(indexed ?? {});
                     const keyPath = idPath ?? 'id';
                     const store = idb.objectStoreNames.contains(name)
@@ -84,7 +84,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
-            let query = this.client.from(table.info.name)
+            let query = this.client.from(table.name)
                 .select('*')
                 .gt(table.updatedAtKey, lastUpdatedAt);
             if (lastUpdatedAt.startsWith('1970-') && table.info.deletable)

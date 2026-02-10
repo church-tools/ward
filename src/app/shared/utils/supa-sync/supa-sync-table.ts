@@ -41,7 +41,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
 
     constructor(
-        private readonly tableName: T,
+        public readonly name: T,
         private readonly supabaseClient: SupabaseClient<D>,
         private readonly onlineState: AsyncState<boolean>,
         public readonly info: SupaSyncTableInfo<D, T> & IA
@@ -54,10 +54,10 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.indexed = info.indexed ?? {};
         this.search = info.search ?? [];
         this.onlineState = onlineState;
-        this.storeAdapter = new IDBStoreAdapter<Row<D, T>>(tableName);
-        this.pendingAdapter = new IDBStoreAdapter<any>(tableName + PENDING_SUFFIX);
-        const currentIndex = localStorage.getItem(INDEX_PREFIX + tableName);
-        const currentSearch = localStorage.getItem(SEARCH_PREFIX + tableName);
+        this.storeAdapter = new IDBStoreAdapter<Row<D, T>>(name);
+        this.pendingAdapter = new IDBStoreAdapter<any>(name + PENDING_SUFFIX);
+        const currentIndex = localStorage.getItem(INDEX_PREFIX + name);
+        const currentSearch = localStorage.getItem(SEARCH_PREFIX + name);
         this.needsUpgrade = currentIndex !== serializeIndex(this.indexed)
                         || currentSearch !== serializeSearch(this.search);
         const indexEntries = Object.entries(this.indexed ?? {}) as [Column<D, T>, IndexType][];
@@ -84,7 +84,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.pendingAdapter.init(idb);
         if (this.needsUpgrade) {
             const serialized = serializeIndex(this.indexed);
-            localStorage.setItem(INDEX_PREFIX + this.tableName, serialized);
+            localStorage.setItem(INDEX_PREFIX + this.name, serialized);
         }
     }
     
@@ -131,7 +131,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                     if (row[this.idKey] == null)
                         row[this.idKey] = ++largestId;
             }
-            const { data } = await this.supabaseClient.from(this.tableName)
+            const { data } = await this.supabaseClient.from(this.name)
                 .insert(rows)
                 .select("*")
                 .throwOnError();
@@ -154,7 +154,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 this.writePending(updates, debounce),
             ]);
         } else {
-            const { data } = await this.supabaseClient.from(this.tableName)
+            const { data } = await this.supabaseClient.from(this.name)
                 .upsert(updates)
                 .select("*")
                 .throwOnError();
@@ -168,8 +168,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         await Promise.all([
             this.storeAdapter.delete(id),
             (this.updateOffline
-                ? this.supabaseClient.from(this.tableName).update({ [this.deletedKey]: true } as any)
-                : this.supabaseClient.from(this.tableName).delete()
+                ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
+                : this.supabaseClient.from(this.name).delete()
             ).eq(this.idKey, id).throwOnError()
         ]);
     }
@@ -239,8 +239,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 const isNew = '__new' in row;
                 if (isNew) delete row.__new;
                 const query = isNew
-                    ? this.supabaseClient.from(this.tableName).insert(row)
-                    : this.supabaseClient.from(this.tableName).update(row).eq(this.idKey, row[this.idKey]);
+                    ? this.supabaseClient.from(this.name).insert(row)
+                    : this.supabaseClient.from(this.name).update(row).eq(this.idKey, row[this.idKey]);
                 const { data } = await query
                     .select(this.updatedAtKey)
                     .single()

@@ -15,7 +15,6 @@ export type Indexed<D extends Database, T extends TableName<D>> = Partial<{
 }>;
 
 export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
-    name: T;
     idPath?: Column<D, T>; // default: 'id'
     updatedAtPath?: Column<D, T>; // default: 'updated_at'
     deletable?: boolean; // default: true
@@ -26,6 +25,8 @@ export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     search?: Column<D, T>[];
     autoIncrement?: boolean;
 }
+
+export type SupaSyncTableInfos<D extends Database> = Partial<{ [K in TableName<D>]: SupaSyncTableInfo<D, K> & IA[K] }>;
 
 export type SupaSyncPayload<D extends Database> = {
     commit_timestamp: string,

@@ -1,6 +1,6 @@
 import { Component, computed, input } from "@angular/core";
-import { xcomputed } from "../utils/signal-utils";
-import { iconCodes } from "./icon-codes";
+import { asyncComputed } from "../utils/signal-utils";
+import type { iconCodes } from "./icon-codes";
 
 export type IconPath = keyof typeof IconPathMap;
 
@@ -16,7 +16,10 @@ export type Icon = keyof typeof iconCodes extends
     `ic_fluent_${infer Rest}_20_regular` | `ic_fluent_${infer Rest}_20_filled`
     ? Rest : never;
 
-export function getIconChar(icon: Icon, filled?: boolean) {
+let cachedIconCodes: typeof iconCodes | null = null;
+
+export async function getIconChar(icon: Icon, filled?: boolean) {
+    const iconCodes = cachedIconCodes ??= (await import('./icon-codes')).iconCodes;
     const code: number = iconCodes[<never>`ic_fluent_${icon}_20_${filled ? 'filled' : 'regular'}`];
     if (!code) throw new Error(`Icon ${icon} not found`);
     return String.fromCodePoint(code);
@@ -45,8 +48,8 @@ export class IconComponent  {
         return `-webkit-mask: ${mask}; mask: ${mask}; background-color: currentColor;`;
     });
 
-    protected readonly content = xcomputed([this.icon, this.filled], (icon, filled) => {
+    protected readonly content = asyncComputed([this.icon, this.filled], async (icon, filled) => {
         if (icon in IconPathMap || !icon) return '';
-        return getIconChar(<Icon>icon, filled);
-    });
+        return await getIconChar(<Icon>icon, filled);
+    }, '');
 }
