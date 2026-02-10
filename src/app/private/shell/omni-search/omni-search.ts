@@ -40,9 +40,12 @@ export class OmniSearchComponent implements OnDestroy {
     protected getOptions = async (search: string) => {
         const members = await this.supabase.sync.from('member')
             .find()
-            .textSearch('first_name', search)
+            .containsText('first_name', search)
             .get();
         console.log(members);
-        return [];
+        return members.map(m => ({
+            view: `${m.first_name} ${m.last_name}`,
+            value: { table: 'member', id: m.id },
+        }));
     }
 }

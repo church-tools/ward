@@ -1,4 +1,3 @@
-import { ListObjectsV2Command, PutObjectCommand } from "@aws-sdk/client-s3";
 import { BadRequestError, getS3Client, PayloadTooLargeError, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
 
 const MAX_UPLOAD_BYTES_CAP = 10_000_000;
@@ -17,7 +16,8 @@ export const onRequest = runAuthenticatedFunction<{ key?: string }>(async req =>
     if (!key) throw new BadRequestError("key is required");
     if (!(file instanceof File)) throw new BadRequestError("file is required");
 
-    const s3Client = getS3Client(req.env);
+    const { ListObjectsV2Command, PutObjectCommand } = await import("@aws-sdk/client-s3");
+    const s3Client = await getS3Client(req.env);
     const result = await s3Client.send(
         new ListObjectsV2Command({ Bucket: bucket, Prefix: `${folder}/` })
     );

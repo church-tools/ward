@@ -1,4 +1,3 @@
-import { S3Client } from "@aws-sdk/client-s3";
 import type { PagesFunction, Request } from "@cloudflare/workers-types";
 import { createClient, SupabaseClient, User } from "@supabase/supabase-js";
 import type { Database } from "../../database";
@@ -59,18 +58,19 @@ export function getSupabaseService(env: Env) {
     );
 }
 
-let _s3Client: S3Client | null = null;
-export function getS3Client(env: Env) {
-    return _s3Client ??= (() => {
-        const accessKeyId = env["AWS_ACCESS_KEY_ID"];
-        const secretAccessKey = env["AWS_SECRET_ACCESS_KEY"];
-        const accountId = env["R2_ACCOUNT_ID"];
-        return new S3Client({
-            region: "auto",
-            endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
-            credentials: { accessKeyId, secretAccessKey },
-        });
-    })();
+let _s3Client: any | null = null;
+export async function getS3Client(env: Env) {
+    if (_s3Client) return _s3Client;
+    
+    const { S3Client } = await import("@aws-sdk/client-s3");
+    const accessKeyId = env["AWS_ACCESS_KEY_ID"];
+    const secretAccessKey = env["AWS_SECRET_ACCESS_KEY"];
+    const accountId = env["R2_ACCOUNT_ID"];
+    return _s3Client = new S3Client({
+        region: "auto",
+        endpoint: `https://${accountId}.r2.cloudflarestorage.com`,
+        credentials: { accessKeyId, secretAccessKey },
+    });
 }
 
 async function authenticateRequest(context: Context) {
