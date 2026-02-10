@@ -23,6 +23,7 @@ export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     createOffline?: boolean; // default: true
     updateOffline?: boolean; // default: true
     indexed?: Indexed<D, T>;
+    search?: Column<D, T>[];
     autoIncrement?: boolean;
 }
 

@@ -19,12 +19,12 @@ export class SupabaseService {
     readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, [
         { name: 'unit', createOffline: false, deletable: false },
-        { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean } },
-        { name: 'agenda', createOffline: false, orderKey: 'position' },
+        { name: 'profile', createOffline: false, indexed: { email: String, unit_approved: Boolean }, search: ['email'] },
+        { name: 'agenda', createOffline: false, orderKey: 'position', search: ['name', 'abbreviation'] },
         { name: 'agenda_section', createOffline: false, orderKey: 'position', indexed: { agenda: Number, type: String } },
-        { name: 'agenda_item', orderKey: 'position', indexed: { agenda: Number, type: String, assigned_to: Number } },
-        { name: 'calling', orderKey: 'position', indexed: {} },
-        { name: 'member', createOffline: false, indexed: { unit: Number, profile: Number } }
+        { name: 'agenda_item', orderKey: 'position', indexed: { agenda: Number, type: String, assigned_to: Number }, search: ['title', 'content'] },
+        { name: 'calling', orderKey: 'position', indexed: {}, search: ['name', 'full_name'] },
+        { name: 'member', createOffline: false, indexed: { unit: Number, profile: Number }, search: ['first_name', 'last_name', 'nick_name'] }
     ]);
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();

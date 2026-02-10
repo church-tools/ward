@@ -39,7 +39,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
         if (tables.some(table => table.needsUpgrade))
             version++;
-        this.idb = new Promise<IDBDatabase>((resolve, reject) => {
+        const idb = this.idb = new Promise<IDBDatabase>((resolve, reject) => {
             const openRequest = indexedDB.open(dbName, version);
             openRequest.onupgradeneeded = (event) => {
                 const idb = (event.target as IDBOpenDBRequest).result;
@@ -70,8 +70,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
         });
-        for (const table of tables)
-            table.init(this.idb);
+        await Promise.all(tables.map(table => table.init(idb)));
         this.startSyncing(tables);
     }
 
