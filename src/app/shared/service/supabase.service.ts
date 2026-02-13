@@ -1,10 +1,9 @@
 import { Injectable, signal } from '@angular/core';
-import type { SupabaseClient, User } from '@supabase/supabase-js';
+import { createClient, User } from '@supabase/supabase-js';
 import type { Database } from '../../../../database';
 import { environment } from '../../../environments/environment';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
-import type { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
 
@@ -17,7 +16,8 @@ export type Session = { user: User; unit?: string, unit_approved?: boolean | nul
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
 
-    private readonly config: SupaSyncTableInfos<Database> = {
+    readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
+    readonly sync = new SupaSync<Database, TableInfoMap>(this.client, {
         unit: { createOffline: false, deletable: false },
         profile: { createOffline: false, indexed: { email: String, unit_approved: Boolean }, search: ['email'] },
         agenda: { createOffline: false, orderKey: 'position', search: ['name', 'abbreviation'] },
@@ -25,42 +25,13 @@ export class SupabaseService {
         agenda_item: { orderKey: 'position', indexed: { agenda: Number, type: String, assigned_to: Number }, search: ['title', 'content'] },
         calling: { orderKey: 'position', indexed: {}, search: ['name', 'full_name'] },
         member: { createOffline: false, indexed: { unit: Number, profile: Number }, search: ['first_name', 'last_name', 'nick_name'] }
-    };
-
-    private _client: SupabaseClient<Database> | null = null;
-    private _sync: SupaSync<Database, TableInfoMap> | null = null;
-    private _initPromise: Promise<void> | null = null;
-
-    get client(): SupabaseClient<Database> {
-        if (!this._client)
-            throw new Error('Supabase client not yet initialized. Call ensureInitialized() first.');
-        return this._client;
-    }
-
-    get sync(): SupaSync<Database, TableInfoMap> {
-        if (!this._sync) 
-            throw new Error('Supabase sync not yet initialized. Call ensureInitialized() first.');
-        return this._sync;
-    }
+    });
 
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();
 
-    constructor() {}
-
-    async ensureInitialized(): Promise<void> {
-        if (this._initPromise) return this._initPromise;
-        this._initPromise = this._initialize();
-        return this._initPromise;
-    }
-
-    private async _initialize(): Promise<void> {
-        const { createClient } = await import('@supabase/supabase-js');
-        
-        this._client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
-        this._sync = new SupaSync<Database, TableInfoMap>(this._client, this.config);
-
-        this._client.auth.onAuthStateChange(async (event, session) => {
+    constructor() {
+        this.client.auth.onAuthStateChange(async (event, session) => {
             if (!session?.access_token) return;
             switch (event) {
                 case 'SIGNED_IN':
@@ -68,12 +39,12 @@ export class SupabaseService {
                 {
                     this._user.set(session.user);
                     const { unit } = this.decodeAccessToken(session.access_token);
-                    if (unit && this._sync) this._sync.init(session, `${environment.appId}-${unit}`);
+                    if (unit) this.sync.init(session, `${environment.appId}-${unit}`);
                     break;
                 }
                 case 'SIGNED_OUT': {
                     this._user.set(null);
-                    if (this._sync) this._sync.cleanup();
+                    this.sync.cleanup();
                     break;
                 }
             }
@@ -81,7 +52,6 @@ export class SupabaseService {
     }
 
     async signUp(email: string, password: string, captchaToken: string) {
-        await this.ensureInitialized();
         return await this.client.auth.signUp({
             email,
             password,
@@ -90,7 +60,6 @@ export class SupabaseService {
     }
 
     async signInWithOAuth(provider: 'google' | 'azure') {
-        await this.ensureInitialized();
         const { data, error } = await this.client.auth.signInWithOAuth({
             provider,
             options: {
@@ -103,12 +72,10 @@ export class SupabaseService {
     }
 
     async signOut() {
-        await this.ensureInitialized();
         return await this.client.auth.signOut();
     }
 
     async getSessionToken() {
-        await this.ensureInitialized();
         const { data, error } = await this.client.auth.getSession();
         if (error) throw error;
         return data.session;
@@ -121,7 +88,6 @@ export class SupabaseService {
     }
 
     async refreshSession() {
-        await this.ensureInitialized();
         const { data, error } = await this.client.auth.refreshSession();
         if (error) throw error;
         return data.session;

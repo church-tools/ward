@@ -25,10 +25,6 @@ export class AppComponent {
         const supabaseService = inject(SupabaseService);
         AppComponent.supabase = supabaseService;
 
-        supabaseService.ensureInitialized().catch(err => {
-            console.error('Supabase initialization error:', err);
-        });
-
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';
             this.popoverService

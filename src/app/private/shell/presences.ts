@@ -39,8 +39,8 @@ export class PresencesComponent {
         //     initials: 'AS',
         //     name: 'Alice Smith',
         //     path: '/documents/2',
-        //     color1: 'green',
-        //     color2: 'mediumpurple',
+        //     color1: 'chocolate',
+        //     color2: 'yellow',
         // }
     ]);
 

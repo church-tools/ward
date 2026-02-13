@@ -45,19 +45,33 @@ body {
     app-icon.#{"" + $color}-high-contrast { color: get-variant($color, 'high-contrast'); }
     app-icon.#{"" + $color}-high-contrast-bg { background-color: get-variant($color, 'high-contrast'); }
 
-    @each $color2 in $names {
-        .bg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: radial-gradient(circle at top left,
-                    get-variant($color, 'background'),
-                    get-variant($color2, 'active'));
-            }
+    @each $type in (bg, fg) {
+        $from: null;
+        $to: null;
+        @if $type == bg {
+            $from: 'background'; $to: 'active';
+        } @else {
+            $from: 'active'; $to: 'foreground';
         }
-        .fg-gradient {
-            &.from-#{"" + $color}.to-#{"" + $color2} {
-                background: radial-gradient(circle at top left,
-                    get-variant($color, 'active'),
-                    get-variant($color2, 'foreground'));
+        .#{$type}-gradient.from-#{"" + $color} {
+            --to-#{$type}: #{get-variant($color, $to)};
+            background: radial-gradient(circle at top left,
+                get-variant($color, $from),
+                var(--to-#{$type}));
+        }
+    }
+}
+@each $type in (bg, fg) {
+    .#{$type}-gradient {
+        @each $color in $names {
+            &.to-#{"" + $color} {
+                $to: null;
+                @if $type == bg {
+                    $to: 'active';
+                } @else {
+                    $to: 'foreground';
+                }
+                --to-#{$type}: #{get-variant($color, $to)};
             }
         }
     }
