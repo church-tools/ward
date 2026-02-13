@@ -95,7 +95,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 await this.searchIndex!.update(updates);
             };
         }
-        this.sendPending();
     }
 
     public async init(idb: Promise<IDBDatabase>) {
@@ -108,6 +107,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             const searchedFieldsStr = serializeSearchedFields(this.searched);
             localStorage.setItem(SEARCHED_FIELDS_PREFIX + this.name, searchedFieldsStr);
         }
+        this.sendPending();
     }
     
     public read(id: IDBValidKey) {
