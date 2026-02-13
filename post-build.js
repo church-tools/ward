@@ -106,7 +106,7 @@ async function purgeUnusedCSS() {
             /^shadow-/,
             // Color classes - more specific patterns
             new RegExp(`^(${allColorNames})$`),
-            new RegExp(`^(${allColorNames})-(bg|fg|text|border|active|active-bg|high-contrast|high-contrast-bg|mute|mute-bg)$`),
+            new RegExp(`^(${allColorNames})-(btn|bg|fg|text|border|active|active-bg|high-contrast|high-contrast-bg|mute|mute-bg)$`),
             new RegExp(`^(from|to)-(${allColorNames})$`),
             /^bg-gradient$/,
             /^fg-gradient$/,
