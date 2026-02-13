@@ -60,9 +60,11 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                         if (!expectedIndexSet.has(indexName))
                             store.deleteIndex(indexName);
                     const pendingName = table.pendingAdapter.storeName;
-                    idb.objectStoreNames.contains(pendingName)
-                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(pendingName)
-                        : idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
+                    if (!idb.objectStoreNames.contains(pendingName))
+                        idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
+                    const searchName = table.searchAdapter?.storeName;
+                    if (searchName && !idb.objectStoreNames.contains(searchName))
+                        idb.createObjectStore(searchName, { keyPath: 'idx' });
                 }
                 localStorage.setItem(VERSION_KEY, version.toString());
             };

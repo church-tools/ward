@@ -23,8 +23,9 @@ export class IDBStoreAdapter<T> {
     public readonly onChange = new EventEmitter<Change<T>[]>();
     public writeSubscriptions = 0;
     public readonly initialized = new AsyncState<boolean>();
-    public mappingInFunction?: ((item: T) => T);
-    public mappingOutFunction?: ((item: T) => T);
+    public mappingInFunction?: (item: T) => T;
+    public writeCallback?: (changes: { old: T | undefined, new: T | undefined }[]) => Promise<void>;
+    public mappingOutFunction?: (changes: T) => T;
     
     private idbSet: (idb: IDBDatabase) => void = null!;
     private readonly idb = new Promise<IDBDatabase>(resolve => this.idbSet = resolve);
@@ -42,8 +43,16 @@ export class IDBStoreAdapter<T> {
         const idb = await this.idb;
         if (this.mappingInFunction)
             item = this.mappingInFunction(item);
-        await idb.transaction(this.storeName, "readwrite")
-            .toPromise(store => store.put(item));
+        const prevItem = await idb.transaction(this.storeName, "readwrite")
+            .toPromise(store => {
+                const readProm = this.writeCallback
+                    ? store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
+                    : null;
+                store.put(item);
+                return readProm as Promise<T | undefined>;
+            });
+        if (this.writeCallback)
+            await this.writeCallback([{ old: prevItem, new: item }]);
     }
 
     public async writeMany(items: T[], deleteIds?: number[]): Promise<undefined> {
@@ -51,11 +60,17 @@ export class IDBStoreAdapter<T> {
         const idb = await this.idb;
         if (this.mappingInFunction)
             items = items.map(item => this.mappingInFunction!(item));
-        await idb.transaction(this.storeName, "readwrite")
+        const prevItems = await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => {
+                const readProm = this.writeCallback
+                    ? Promise.all(items.map(item => store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()))
+                    : null;
                 for (const item of items) store.put(item);
                 for (const id of deleteIds ?? []) store.delete(id);
+                return readProm;
             });
+        if (this.writeCallback && prevItems)
+            await this.writeCallback?.(items.map((item, i) => ({ old: prevItems[i], new: item })));
     }
 
     public async writeAndGet(items: T[], deleteIds?: number[]): Promise<Change<T>[]> {
@@ -76,7 +91,11 @@ export class IDBStoreAdapter<T> {
                     store.delete(id).toPromise(),
                 ]).then(([old]) => ({ old, new: undefined }))));
                 return Promise.all([itemUpdateProm, deleteProm]);
-            }).then(([items, deletions]) => [...items, ...deletions]);
+            }).then(([updated, deleted]) => {
+                const changes = [...updated, ...deleted];
+                this.writeCallback?.(changes);
+                return changes;
+            });
     }
 
     public abort() {

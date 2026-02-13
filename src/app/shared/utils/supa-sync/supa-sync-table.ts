@@ -3,7 +3,8 @@ import { AsyncState } from "../async-state";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { Change, Column, Database, Indexed, IndexType, Insert, Row, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import type { Change, Column, Database, Indexed, IndexType, Insert, Row, SearchNode, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import { IDBSearchIndex } from "./idb/idb-search-index";
 
 const SENT_CACHE_SIZE = 8;
 
@@ -11,23 +12,26 @@ function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 
-function serializeIndex<D extends Database, T extends TableName<D>>(index?: Indexed<D, T>) {
+function serializeIndexedFields<D extends Database, T extends TableName<D>>(index?: Indexed<D, T>) {
     const indexEntries = index ? Object.entries(index) as [Column<D, T>, IndexType][] : [];
     return indexEntries.map(([key, type]) => `${key}_${type}`).join(',');
 }
 
-function serializeSearch<D extends Database, T extends TableName<D>>(search?: Column<D, T>[]) {
+function serializeSearchedFields<D extends Database, T extends TableName<D>>(search?: Column<D, T>[]) {
     return search ? search.join(',') : '';
 }
 
-const INDEX_PREFIX = "idx_";
-const SEARCH_PREFIX = "srch_";
+export const SEARCH_INDEX_STORE_NAME = "search_index";
+const INDEXED_FIELDS_PREFIX = "idx_fields_";
+const SEARCHED_FIELDS_PREFIX = "srch_fields_";
 const PENDING_SUFFIX = "_pending";
+const SEARCH_SUFFIX = "_search";
 
 export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> {
 
     public readonly storeAdapter: IDBStoreAdapter<Row<D, T>>;
     public readonly pendingAdapter: IDBStoreAdapter<Update<D, T>>;
+    public readonly searchAdapter: IDBStoreAdapter<SearchNode> | undefined;
     public readonly idKey: Column<D, T>;
     public readonly updatedAtKey: Column<D, T>;
     public readonly deletedKey: Column<D, T>;
@@ -35,7 +39,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
     public readonly indexed: Indexed<D, T>;
-    public readonly search: Column<D, T>[];
+    public readonly searched: Column<D, T>[];
+    public readonly searchIndex: IDBSearchIndex | undefined;
 
     private readonly latestSents: Row<D, T>[] = [];
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
@@ -52,28 +57,42 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.createOffline = info.createOffline ?? true;
         this.updateOffline = info.updateOffline ?? true;
         this.indexed = info.indexed ?? {};
-        this.search = info.search ?? [];
+        this.searched = info.search ?? [];
         this.onlineState = onlineState;
         this.storeAdapter = new IDBStoreAdapter<Row<D, T>>(name);
         this.pendingAdapter = new IDBStoreAdapter<any>(name + PENDING_SUFFIX);
-        const currentIndex = localStorage.getItem(INDEX_PREFIX + name);
-        const currentSearch = localStorage.getItem(SEARCH_PREFIX + name);
-        this.needsUpgrade = currentIndex !== serializeIndex(this.indexed)
-                        || currentSearch !== serializeSearch(this.search);
+        if (this.searched.length) {
+            this.searchAdapter = new IDBStoreAdapter<SearchNode>(name + SEARCH_SUFFIX);
+            this.searchIndex = new IDBSearchIndex(this.searchAdapter);
+        }
+        this.needsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed)
+                        || localStorage.getItem(SEARCHED_FIELDS_PREFIX + name) !== serializeSearchedFields(this.searched);
         const indexEntries = Object.entries(this.indexed ?? {}) as [Column<D, T>, IndexType][];
         const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
         if (boolKeys.length) {
-            this.storeAdapter.mappingInFunction = (row: Row<D, T>) => {
+            this.storeAdapter.mappingInFunction = row => {
                 for (const key of boolKeys)
                     if (key in row)
                         row[key] = idbBoolToNumber(row[key]);
                 return row;
             };
-            this.storeAdapter.mappingOutFunction = (row: Row<D, T>) => {
+            this.storeAdapter.mappingOutFunction = row => {
                 for (const key of boolKeys)
                     if (key in row)
                         row[key] = idbNumberToBool(row[key]);
                 return row;
+            };
+        }
+        if (this.searchIndex) {
+            this.storeAdapter.writeCallback = async changes => {
+                const updates = changes.map(change => {
+                    const { new: newRow, old: oldRow } = change;
+                    const row = newRow ?? oldRow!;
+                    const oldText = oldRow ? this.searched.map(col => oldRow[col] ?? '').join(' ').toLowerCase() : undefined;
+                    const newText = newRow ? this.searched.map(col => newRow[col] ?? '').join(' ').toLowerCase() : undefined;
+                    return { old: oldText, new: newText, key: row[this.idKey] as number };
+                });
+                await this.searchIndex!.update(updates);
             };
         }
         this.sendPending();
@@ -82,9 +101,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public async init(idb: Promise<IDBDatabase>) {
         this.storeAdapter.init(idb);
         this.pendingAdapter.init(idb);
+        this.searchAdapter?.init(idb);
         if (this.needsUpgrade) {
-            const serialized = serializeIndex(this.indexed);
-            localStorage.setItem(INDEX_PREFIX + this.name, serialized);
+            const indexedFieldsStr = serializeIndexedFields(this.indexed);
+            localStorage.setItem(INDEXED_FIELDS_PREFIX + this.name, indexedFieldsStr);
+            const searchedFieldsStr = serializeSearchedFields(this.searched);
+            localStorage.setItem(SEARCHED_FIELDS_PREFIX + this.name, searchedFieldsStr);
         }
     }
     
@@ -101,15 +123,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     }
 
     public find() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows, this.indexed);
+        return new IDBFilterBuilder(this.storeAdapter, this.searchIndex, rows => rows, this.indexed);
     }
     
     public findKeys() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows, this.indexed);
+        return new IDBFilterBuilder(this.storeAdapter, this.searchIndex, rows => rows, this.indexed);
     }
 
     public findOne() {
-        return new IDBFilterBuilder(this.storeAdapter, rows => rows.length ? rows[0] : null, this.indexed);
+        return new IDBFilterBuilder(this.storeAdapter, this.searchIndex, rows => rows.length ? rows[0] : null, this.indexed);
     }
 
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(row: I): Promise<I extends Insert<D, T>[] ? Row<D, T>[] : Row<D, T>> {

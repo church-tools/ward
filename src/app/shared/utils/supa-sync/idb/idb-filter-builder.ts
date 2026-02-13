@@ -1,31 +1,36 @@
 import type { Column, Database, Indexed, Row, TableName } from "../supa-sync.types";
 import { IDBQueryBase } from "./idb-query-base";
+import { IDBSearchIndex } from "./idb-search-index";
 import { idbBoolToNumber, IDBStoreAdapter } from "./idb-store-adapter";
 
 type ConditionValue<T, C extends keyof T> = T[C] & IDBValidKey;
 type FieldCondition<T> = { field: keyof T & string };
 type EqCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "eq"; value: ConditionValue<T, C> };
 type ContainsCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "contains"; value: ConditionValue<T, C> };
-type ContainsTextCondition<T> = FieldCondition<T> & { operator: "containsText"; value: string; };
-type StartsWithCondition<T> = FieldCondition<T> & { operator: "startsWith"; value: string; };
+type ContainsTextCondition = { operator: "containsText"; value: string; };
+type StartsWithCondition = { operator: "startsWith"; value: string; };
+type ClosestCondition = { operator: "closest"; value: string; limit: number; };
 type GtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "gt"; value: ConditionValue<T, C> };
 type LtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "lt"; value: ConditionValue<T, C> };
 type NotCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "not"; value: ConditionValue<T, C> };
 type InCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "in"; value: ConditionValue<T, C>[] };
-type Condition<T, C extends keyof T> = EqCondition<T, C> | NotCondition<T, C> | InCondition<T, C> | GtCondition<T, C> | LtCondition<T, C>
-    | ContainsCondition<T, C> | ContainsTextCondition<T> | StartsWithCondition<T>;
+type Condition<T, C extends keyof T> = EqCondition<T, C> | NotCondition<T, C> | InCondition<T, C>
+    | GtCondition<T, C> | LtCondition<T, C> | ContainsCondition<T, C>;
+export type SearchCondition = ContainsTextCondition | StartsWithCondition | ClosestCondition;
+type FieldOrSearchCondition<T> = Condition<T, keyof T> | SearchCondition;
 
 export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> extends IDBQueryBase<D, T, R> {
     
     constructor(
         store: IDBStoreAdapter<Row<D, T>>,
+        private readonly searchIndex: IDBSearchIndex | undefined,
         resultMapping: (rows: Row<D, T>[]) => R,
         private readonly indexed: Indexed<D, T>,
     ) {
         super(store, resultMapping);
     }
 
-    private readonly conditions: Condition<Row<D, T>, Column<D, T>>[] = [];
+    private readonly conditions: FieldOrSearchCondition<Row<D, T>>[] = [];
 
     public eq<K extends Column<D, T>>(field: K, value: Row<D, T>[K]): this {
         this.conditions.push({ field, operator: "eq", value });
@@ -47,13 +52,13 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
         return this;
     }
 
-    public startsWith<K extends Column<D, T>>(field: K, value: string): this {
-        this.conditions.push({ field, operator: "startsWith", value: value.toLowerCase() });
+    public startsWith(value: string): this {
+        this.conditions.push({ operator: "startsWith", value: value.toLowerCase() });
         return this;
     }
 
-    public containsText<K extends Column<D, T>>(field: K, value: string): this {
-        this.conditions.push({ field, operator: "containsText", value: value.toLowerCase() });
+    public containsText(value: string): this {
+        this.conditions.push({ operator: "containsText", value: value.toLowerCase() });
         return this;
     }
 
@@ -68,16 +73,28 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
     private async getResults<R extends Row<D, T> | IDBValidKey>(keysOnly?: R extends IDBValidKey ? true : undefined): Promise<R[]> {
         if (this.conditions.length === 1) {
             const condition = this.conditions[0];
-            const index = await this.store.getIndex(condition.field);
-            return await this.queryCondition<R>(condition, keysOnly
-                ? index.getAllKeys.bind(index)
-                : index.getAll.bind(index));
+            if ('field' in condition) {
+                const index = await this.store.getIndex(condition.field);
+                return await this.queryCondition<R>(condition, keysOnly
+                    ? index.getAllKeys.bind(index)
+                    : index.getAll.bind(index));
+            } else {
+                if (!this.searchIndex) throw new Error(`no search defined for table ${this.store.storeName}`);
+                const keys = [...await this.searchIndex.queryCondition(condition)];
+                return keysOnly ? keys as R[] : await this.store.readMany(keys, this.abortSignal) as R[];
+            }
         }
         let keys: Set<IDBValidKey>;
-        await Promise.all(this.conditions.map(async condition => {
-            const index = await this.store.getIndex(condition.field);
-            const result = await this.queryCondition<IDBValidKey>(condition, index.getAllKeys.bind(index));
-            keys = keys?.intersection(new Set(result)) ?? new Set(result);
+        await Promise.all(this.conditions.map(async condition => {   
+            if ('field' in condition) {
+                const index = await this.store.getIndex(condition.field);
+                const result = await this.queryCondition<IDBValidKey>(condition, index.getAllKeys.bind(index));
+                keys = keys?.intersection(new Set(result)) ?? new Set(result);
+            } else {
+                if (!this.searchIndex) throw new Error(`no search defined for table ${this.store.storeName}`);
+                const result = await this.searchIndex.queryCondition(condition);
+                keys = keys?.intersection(result) ?? result;
+            }
         }));
         const keyArray = Array.from(keys!);
         if (keysOnly) return keyArray as R[];
@@ -86,6 +103,7 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
 
     protected filterRow(row: Row<D, T>): boolean {
         return this.conditions.every(condition => {
+            if (!('field' in condition)) return true;
             const value = row[condition.field];
             switch (condition.operator) {
                 case 'eq':
@@ -94,10 +112,10 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                     return value === condition.value;
                 case 'contains':
                     return (value as any[]).includes(condition.value);
-                case 'containsText':
-                    return value.toLowerCase().includes(condition.value);
-                case 'startsWith':
-                    return value.toLowerCase().startsWith(condition.value);
+                // case 'containsText':
+                //     return value.toLowerCase().includes(condition.value);
+                // case 'startsWith':
+                //     return value.toLowerCase().startsWith(condition.value);
                 case 'in': return condition.value.includes(value);
                 case 'gt': return value > condition.value;
                 case 'lt': return value < condition.value;
@@ -119,12 +137,6 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                     const val = this.indexed[condition.field] === Boolean
                         ? idbBoolToNumber(value as boolean | null) : value;
                     return fetchFn(val);
-                }
-                case 'containsText': {
-                    return [];
-                }
-                case 'startsWith': {
-                    return [];
                 }
                 case 'in': return value.map(val => fetchFn(val));
                 case 'gt': return fetchFn(IDBKeyRange.lowerBound(value));
