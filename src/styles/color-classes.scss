@@ -48,16 +48,21 @@ body {
     .bg-gradient.from-#{"" + $color} {
         --to-bg: #{get-variant($color, 'active')};
         background: radial-gradient(circle at top left,
-            get-variant($color, 'background'),
-            var(--to-bg));
+            get-variant($color, 'background') 0%,
+            get-variant($color, 'background') 25%,
+            var(--to-bg) 75%,
+            var(--to-bg) 100%);
     }
     .fg-gradient.from-#{"" + $color} {
         --to-fg: #{get-variant($color, 'foreground')};
         background: radial-gradient(circle at top left,
-            get-variant($color, 'active'),
-            var(--to-fg));
+            get-variant($color, 'active') 0%,
+            get-variant($color, 'active') 25%,
+            var(--to-fg) 75%,
+            var(--to-fg) 100%);
     }
 }
+
 @each $color in $names {
     .bg-gradient.to-#{"" + $color} {
         --to-bg: #{get-variant($color, 'active')};

@@ -38,6 +38,42 @@ async function purgeUnusedCSS() {
       
       const css = fs.readFileSync(cssFile, 'utf-8');
       
+      const colorNames = [
+        'palevioletred',
+        'red',
+        'tomato',
+        'coral',
+        'chocolate',
+        'orange',
+        'goldenrod',
+        'yellow',
+        'yellowgreen',
+        'lawngreen',
+        'green',
+        'aquamarine',
+        'turquoise',
+        'teal',
+        'powderblue',
+        'skyblue',
+        'steelblue',
+        'dodgerblue',
+        'royalblue',
+        'blue',
+        'mediumpurple',
+        'indigo',
+        'magenta',
+        'deeppink'
+      ];
+      const semanticColorNames = [
+        'accent',
+        'accent-variation-1',
+        'accent-variation-2',
+        'success',
+        'warning',
+        'danger'
+      ];
+      const allColorNames = [...colorNames, ...semanticColorNames].join('|');
+
       const purgePlugin = purgecss({
         content: [
           'src/**/*.{html,ts}',
@@ -69,7 +105,12 @@ async function purgeUnusedCSS() {
             // Only shadow prefixed classes
             /^shadow-/,
             // Color classes - more specific patterns
-            /^(bg|text|from|to|border)-[a-z0-9]+$/,
+            new RegExp(`^(${allColorNames})$`),
+            new RegExp(`^(${allColorNames})-(bg|fg|text|border|active|active-bg|high-contrast|high-contrast-bg|mute|mute-bg)$`),
+            new RegExp(`^(from|to)-(${allColorNames})$`),
+            /^bg-gradient$/,
+            /^fg-gradient$/,
+            /^color-(bg|fg|border|text|active)$/,
             // Button variants
             /^btn(-[a-z0-9]+)?$/,
             // Card and component styles
