@@ -87,7 +87,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             this.storeAdapter.writeCallback = async changes => {
                 const updates = changes.map(change => {
                     const { new: newRow, old: oldRow } = change;
-                    const row = newRow ?? oldRow!;
+                    const row = oldRow ?? newRow!;
                     const oldText = oldRow ? this.searched.map(col => oldRow[col] ?? '').join(' ').toLowerCase() : undefined;
                     const newText = newRow ? this.searched.map(col => newRow[col] ?? '').join(' ').toLowerCase() : undefined;
                     return { old: oldText, new: newText, key: row[this.idKey] as number };

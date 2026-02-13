@@ -124,7 +124,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                     const input = deleted
                         ? { update: [], delete: [payload.new![table.idKey] as number] }
                         : { update: [payload.new], delete: [] };
-                    payload.old = (await adapter.writeAndGet(input.update, input.delete))[0].old;
+                    payload.old = (await adapter.writeAndGet(input.update, input.delete))[0]?.old;
                     if (payload.new?.[table.deletedKey])
                         payload.new = undefined;
                     adapter.onChange.emit([payload]);

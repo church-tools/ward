@@ -39,6 +39,8 @@ export type SupaSyncPayload<D extends Database> = {
     old: Row<D, TableName<D>> | undefined
 };
 
-export type Change<T> = { old?: T, new?: T };
+export type DeleteChange<T> = { old: T, new?: undefined };
+export type UpdateChange<T> = { old?: T, new: T };
+export type Change<T> = DeleteChange<T> | UpdateChange<T>;
 
 export type QueryResult<R> = { result?: R, deletions?: number[] }

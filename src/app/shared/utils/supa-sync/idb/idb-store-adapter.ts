@@ -1,6 +1,6 @@
 import { AsyncState } from "../../async-state";
 import { EventEmitter } from "../event-emitter";
-import { Change } from "../supa-sync.types";
+import { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
 
 export function idbBoolToNumber(value: boolean | null) {
     switch (value) {
@@ -24,7 +24,7 @@ export class IDBStoreAdapter<T> {
     public writeSubscriptions = 0;
     public readonly initialized = new AsyncState<boolean>();
     public mappingInFunction?: (item: T) => T;
-    public writeCallback?: (changes: { old: T | undefined, new: T | undefined }[]) => Promise<void>;
+    public writeCallback?: (changes: Change<T>[]) => Promise<void>;
     public mappingOutFunction?: (changes: T) => T;
     
     private idbSet: (idb: IDBDatabase) => void = null!;
@@ -84,15 +84,15 @@ export class IDBStoreAdapter<T> {
                     store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
                     store.put(item).toPromise(),
-                ]).then(([old]) => ({ old, new: item }))));
+                ]).then(([old]) => <UpdateChange<T>>{ old, new: item })));
                 const deleteProm = Promise.all((deleteIds ?? []).map(id => Promise.all([
                     store.get(id).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
                     store.delete(id).toPromise(),
-                ]).then(([old]) => ({ old, new: undefined }))));
+                ]).then(([old]) => <DeleteChange<T>>{ old, new: undefined })));
                 return Promise.all([itemUpdateProm, deleteProm]);
             }).then(([updated, deleted]) => {
-                const changes = [...updated, ...deleted];
+                const changes = [...updated, ...deleted.filter(d => d.old)];
                 this.writeCallback?.(changes);
                 return changes;
             });
