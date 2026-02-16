@@ -12,6 +12,7 @@ import InputLabelComponent from "../shared/input-label";
 export type SelectOption<T> = {
     value: T;
     view: string;
+    id?: number | string;
     lcText?: string
     color?: ColorName
 }
@@ -37,6 +38,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     private readonly optionRefs: Signal<ReadonlyArray<ElementRef<HTMLDivElement>>> = viewChildren('option', { read: ElementRef });
 
     readonly options = input.required<SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
+    readonly getValueId = input<(value: T) => number | string>();
 
     protected readonly optionsLoading = signal<boolean>(false);
     protected readonly visibleOptions = signal<VisibleOption<T>[]>([]);
@@ -82,6 +84,10 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         const search = this.search().toLocaleLowerCase();
         const filteredOptions = await this.getFilteredOptions(search);
         this.visibleOptions.set(filteredOptions);
+        if (search || filteredOptions.length)
+            this.optionsViewRef?.rootNodes[0].classList.add('visible')
+        else
+            this.optionsViewRef?.rootNodes[0].classList.remove('visible');
     }
 
     protected selectOption(option: SelectOption<T>, event?: UIEvent) {
@@ -98,11 +104,11 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.keySubscriptions = [];
         const optionsViewRef = this.optionsViewRef;
         if (optionsViewRef) {
-            optionsViewRef?.rootNodes[0].classList.remove('visible');
+            optionsViewRef.rootNodes[0].classList.remove('visible');
             setTimeout(() => {
                 if (optionsViewRef !== this.optionsViewRef) return;
-                optionsViewRef.destroy();
                 this.optionsViewRef = null;
+                optionsViewRef.destroy();
                 this.topContainer().clear();
                 this.bottomContainer().clear();
             }, 100);
@@ -110,6 +116,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     }
 
     private openOptions() {
+        if (this.optionsViewRef) return;
         this.focusedIndex = -1;
         this.closeOptions();
         this.updateVisibleOptions();
@@ -125,7 +132,6 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         const isInUpperHalf = inputMiddle < (window.innerHeight / 2);
         const container = isInUpperHalf ? this.bottomContainer() : this.topContainer();
         this.optionsViewRef = container.createEmbeddedView(this.optionsTemplate());
-        setTimeout(() => this.optionsViewRef?.rootNodes[0].classList.add('visible'), 0);
     }
 
     private focusNextOption(offset: number) {
@@ -161,8 +167,9 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
         const options = this.options();
-        this.optionsLoading.set(true);
+        const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), 200);
         const allOptions = Array.isArray(options) ? options : await options(search);
+        clearTimeout(loadingTimeout);
         this.optionsLoading.set(false);
         if (!search) return allOptions.map(o => this.addHighlights(o, []));
         search = search.toLocaleLowerCase();

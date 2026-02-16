@@ -28,20 +28,20 @@ import { PaletteColor } from '../../shared/utils/color-utils';
 export class PresencesComponent {
 
     protected readonly presences = signal<{ initials: string, name: string, path: string, color1: PaletteColor, color2: PaletteColor }[]>([
-        {
-            initials: 'JD',
-            name: 'John Doe',
-            path: '/documents/1',
-            color1: 'blue',
-            color2: 'tomato',
-        },
-        {
-            initials: 'AS',
-            name: 'Alice Smith',
-            path: '/documents/2',
-            color1: 'chocolate',
-            color2: 'yellow',
-        }
+        // {
+        //     initials: 'JD',
+        //     name: 'John Doe',
+        //     path: '/documents/1',
+        //     color1: 'blue',
+        //     color2: 'tomato',
+        // },
+        // {
+        //     initials: 'AS',
+        //     name: 'Alice Smith',
+        //     path: '/documents/2',
+        //     color1: 'chocolate',
+        //     color2: 'yellow',
+        // }
     ]);
 
 }

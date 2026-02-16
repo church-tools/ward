@@ -66,7 +66,7 @@ export function highlightWords(text: string, wordsLower: string[]): [string, boo
                 if (start) insert.push([start, false]);
                 insert.push([mid, true]);
                 if (end) insert.push([end, false]);
-                result.splice(r, 1, ...<any>insert);
+                result.splice(r, 1, ...insert);
                 r += insert.length - 1;
             }
         }

@@ -9,7 +9,7 @@ const ROOT_INDEX = 0;
 
 function getWords(text: string) {
     if (!text) return [];
-    const words = text.split(/\.+[\s\n\t|,;:\/()]+/);
+    const words = text.split(/\.*[\s\n\t|,;:\/()]+/);
     return words.filter(Boolean);
 }
 
@@ -20,8 +20,9 @@ function isEmpty(obj: Record<any, any>): boolean {
 
 export class IDBSearchIndex {
 
-    private nodes: SearchNode[] = [{ idx: 0, children: {} }];
+    private nodes: SearchNode[] = [];
     private freeIndexes: number[] = [];
+    private writeLock = Promise.resolve();
     private readonly nodeIndexesByChar: Record<string, number[]> = {};
     
     private _initialized: () => void = () => {};
@@ -71,12 +72,11 @@ export class IDBSearchIndex {
                 return this.continuesWith(ROOT_INDEX, value) ?? new Set<number>();
             }
             case "closest": {
-                await this.initialized;
                 const result = new Set<number>();
                 const words = getWords(value);
                 const limit = condition.limit;
                 for (const word of words)
-                    if (limit < result.size)
+                    if (result.size < limit)
                         this.getLongestCommonPrefix(word, limit, result);
                 return result;
             }
@@ -85,26 +85,27 @@ export class IDBSearchIndex {
 
     private async load() {
         const nodes = await this.store.readAll();
-        if (!nodes.length) {
-            await this.saveNodes(new Set([ROOT_INDEX]));
-            return;
-        }
         let largestIndex = -1;
         for (const node of nodes) {
+            if (node.idx === FREE_INDEX) {
+                this.freeIndexes = (node as unknown as FreeIndexItem).indexes;
+                continue;
+            }
             if (node.idx > largestIndex)
                 largestIndex = node.idx;
-            else if (node.idx === FREE_INDEX)
-                this.freeIndexes = (node as unknown as FreeIndexItem).indexes;
         }
-        this.nodes = new Array(largestIndex + 1);
+        this.nodes = new Array(Math.max(largestIndex, ROOT_INDEX) + 1);
         for (const node of nodes) {
             if (node.idx === FREE_INDEX) continue;
             this.nodes[node.idx] = node;
             for (const char in node.children) {
-                const nodeIndex = this.nodeIndexesByChar[char] ??= [];
-                nodeIndex.push(node.children[char]);
+                if (char in this.nodeIndexesByChar)
+                    this.nodeIndexesByChar[char].push(node.children[char]);
+                else
+                    this.nodeIndexesByChar[char] = [node.children[char]];
             }
         }
+        this.nodes[ROOT_INDEX] ??= { idx: ROOT_INDEX, children: {} };
     }
 
     private _insert(words: string[], key: number, changedIndexes: Set<number>) {
@@ -112,7 +113,12 @@ export class IDBSearchIndex {
             let currIndex = ROOT_INDEX;
             for (const char of word) {
                 const children = this.nodes[currIndex].children;
-                currIndex = children[char] ??= this.createNewNode(char, changedIndexes);
+                if (char in children)
+                    currIndex = children[char];
+                else {
+                    changedIndexes.add(currIndex);
+                    currIndex = children[char] = this.createNewNode(char, changedIndexes);
+                }
             }
             const node = this.nodes[currIndex];
             node.keys = (node.keys ?? new Set()).add(key);
@@ -146,12 +152,12 @@ export class IDBSearchIndex {
     }
 
     private async saveNodes(changedIndexes: Set<number>, removedIndexes?: Set<number>) {
-        if (removedIndexes)
+        if (removedIndexes?.size)
             changedIndexes = changedIndexes.difference(removedIndexes);
-        const changedNodes = [...changedIndexes].map(i => i === FREE_INDEX
+        const changedNodes = [...changedIndexes].map(idx => idx === FREE_INDEX
             ? { idx: FREE_INDEX, indexes: this.freeIndexes }
-            : this.nodes[i]) as SearchNode[];
-        await this.store.writeMany(changedNodes, removedIndexes ? [...removedIndexes] : undefined);
+            : this.nodes[idx]) as SearchNode[];
+        this.writeLock = this.store.writeMany(changedNodes, removedIndexes ? [...removedIndexes] : undefined);
     }
 
     private createNewNode(char: string, changedIndexes: Set<number>) {

@@ -62,6 +62,11 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
         return this;
     }
 
+    public closestText(value: string, limit: number): this {
+        this.conditions.push({ operator: "closest", value: value.toLowerCase(), limit });
+        return this;
+    }
+
     protected async _getItems(): Promise<Row<D, T>[]> {
         return await this.getResults<Row<D, T>>();
     }
