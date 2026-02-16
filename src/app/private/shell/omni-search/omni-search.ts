@@ -49,15 +49,15 @@ export class OmniSearchComponent implements OnDestroy {
 
     protected getOptions = async (search: string) => {
         if (!search) return [];
-        const tablesAndBuilders = [...this.searchedTables()].map(table => [table, this.tableQueryBuilders[table]()] as const);
+        const tablesAndBuilders = [...this.searchedTables()].map(table => [table, this.tableQueryBuilders[table]] as const);
         let results = (await Promise.all(tablesAndBuilders.map(
-            ([table, builder]) => this.searchTable(table, builder.startsWith(search).get())))).flat();
+            ([table, builder]) => this.searchTable(table, builder().startsWith(search).get())))).flat();
         if (results.length) return results;
         results = (await Promise.all(tablesAndBuilders.map(
-            ([table, builder]) => this.searchTable(table, builder.containsText(search).get())))).flat();
+            ([table, builder]) => this.searchTable(table, builder().containsText(search).get())))).flat();
         if (results.length) return results;
         results = (await Promise.all(tablesAndBuilders.map(
-            ([table, builder]) => this.searchTable(table, builder.closestText(search, 10).get())))).flat();
+            ([table, builder]) => this.searchTable(table, builder().closestText(search, 10).get())))).flat();
         return results;
     }
 
