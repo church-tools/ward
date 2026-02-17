@@ -31,6 +31,6 @@ export class AgendaItemViewService extends ViewService<'agenda_item'> {
     }
 
     override toString(row: AgendaItem.Row): string {
-        return row.title ?? row.content ?? '';
+        return row.title?.trim() || row.content || '';
     }
 }

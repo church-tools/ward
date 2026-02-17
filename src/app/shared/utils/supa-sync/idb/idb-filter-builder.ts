@@ -116,11 +116,8 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, R> ext
                         return value === idbBoolToNumber(condition.value);
                     return value === condition.value;
                 case 'contains':
+                    if (!value) return false;
                     return (value as any[]).includes(condition.value);
-                // case 'containsText':
-                //     return value.toLowerCase().includes(condition.value);
-                // case 'startsWith':
-                //     return value.toLowerCase().startsWith(condition.value);
                 case 'in': return condition.value.includes(value);
                 case 'gt': return value > condition.value;
                 case 'lt': return value < condition.value;

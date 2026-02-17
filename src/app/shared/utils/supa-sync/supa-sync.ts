@@ -36,7 +36,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         await this.client.realtime.setAuth(session.access_token);
         const tables = Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[];
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
-        if (tables.some(table => table.needsUpgrade))
+        if (tables.some(table => table.indexNeedsUpgrade))
             version++;
         const idb = this.idb = new Promise<IDBDatabase>((resolve, reject) => {
             const openRequest = indexedDB.open(dbName, version);

@@ -22,10 +22,11 @@ export type SupaSyncTableInfo<D extends Database, T extends TableName<D>> = {
     updatedAtPath?: Column<D, T>; // default: 'updated_at'
     deletable?: boolean; // default: true
     deletedPath?: Column<D, T>; // default: 'deleted'
-    createOffline?: boolean; // default: true
+    createOffline?: boolean; // default: false
     updateOffline?: boolean; // default: true
     indexed?: Indexed<D, T>;
-    search?: Column<D, T>[];
+    getSearchString?: (row: Row<D, T>) => string;
+    searchIndexVersion?: number; // increment to reset search index, default: 0
     autoIncrement?: boolean;
 }
 

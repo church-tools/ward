@@ -12,6 +12,6 @@ export class ProfileViewService extends ViewService<'profile'> {
     }
     
     override toString(row: Profile.Row): string {
-        return '' + row.id;
+        return row.email;
     }
 }

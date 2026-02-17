@@ -1,14 +1,12 @@
 import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { Database } from '../../../../../database';
 import { Row } from '../../../modules/shared/table.types';
 import { getViewService } from '../../../modules/shared/view.service';
-import { SelectComponent, SelectOption } from '../../../shared/form/select/select';
+import { SelectComponent } from '../../../shared/form/select/select';
 import { IconComponent } from "../../../shared/icon/icon";
 import { SupabaseService } from '../../../shared/service/supabase.service';
 import { WindowService } from '../../../shared/service/window.service';
-import { IDBFilterBuilder } from '../../../shared/utils/supa-sync/idb/idb-filter-builder';
 
 type SearchedTableNames = 'member' | 'agenda_item';
 

@@ -22,8 +22,7 @@ export class IDBSearchIndex {
 
     private nodes: SearchNode[] = [];
     private freeIndexes: number[] = [];
-    private writeLock = Promise.resolve();
-    private readonly nodeIndexesByChar: Record<string, number[]> = {};
+    private nodeIndexesByChar: Record<string, number[]> = {};
     
     private _initialized: () => void = () => {};
     private readonly initialized = new Promise<void>(resolve => this._initialized = resolve);
@@ -50,6 +49,13 @@ export class IDBSearchIndex {
                 this._remove([...removedWords], key, changedIndexes, removedIndexes);
         }
         await this.saveNodes(changedIndexes, removedIndexes);
+    }
+
+    async clear() {
+        this.nodes = [{ idx: ROOT_INDEX, children: {} }];
+        this.freeIndexes = [];
+        this.nodeIndexesByChar = {};
+        await this.store.clear();
     }
 
     async queryCondition(condition: SearchCondition): Promise<Set<number>> {
@@ -157,7 +163,7 @@ export class IDBSearchIndex {
         const changedNodes = [...changedIndexes].map(idx => idx === FREE_INDEX
             ? { idx: FREE_INDEX, indexes: this.freeIndexes }
             : this.nodes[idx]) as SearchNode[];
-        this.writeLock = this.store.writeMany(changedNodes, removedIndexes ? [...removedIndexes] : undefined);
+        await this.store.writeMany(changedNodes, removedIndexes ? [...removedIndexes] : undefined);
     }
 
     private createNewNode(char: string, changedIndexes: Set<number>) {

@@ -17,13 +17,9 @@ function serializeIndexedFields<D extends Database, T extends TableName<D>>(inde
     return indexEntries.map(([key, type]) => `${key}_${type}`).join(',');
 }
 
-function serializeSearchedFields<D extends Database, T extends TableName<D>>(search?: Column<D, T>[]) {
-    return search ? search.join(',') : '';
-}
-
 export const SEARCH_INDEX_STORE_NAME = "search_index";
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
-const SEARCHED_FIELDS_PREFIX = "srch_fields_";
+const SEARCH_VERSION_PREFIX = "search_version_";
 const PENDING_SUFFIX = "_pending";
 const SEARCH_SUFFIX = "_search";
 
@@ -35,11 +31,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
     public readonly idKey: Column<D, T>;
     public readonly updatedAtKey: Column<D, T>;
     public readonly deletedKey: Column<D, T>;
-    public readonly needsUpgrade: boolean;
+    public readonly indexNeedsUpgrade: boolean;
+    public readonly searchNeedsUpgrade: boolean = false;
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
     public readonly indexed: Indexed<D, T>;
-    public readonly searched: Column<D, T>[];
+    public readonly getSearchString: ((row: Row<D, T>) => string) | undefined;
     public readonly searchIndex: IDBSearchIndex | undefined;
 
     private readonly latestSents: Row<D, T>[] = [];
@@ -54,19 +51,18 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.idKey = info.idPath ?? 'id';
         this.updatedAtKey = info.updatedAtPath ?? 'updated_at';
         this.deletedKey = info.deletedPath ?? 'deleted';
-        this.createOffline = info.createOffline ?? true;
+        this.createOffline = info.createOffline ?? false;
         this.updateOffline = info.updateOffline ?? true;
         this.indexed = info.indexed ?? {};
-        this.searched = info.search ?? [];
+        this.getSearchString = info.getSearchString;
         this.onlineState = onlineState;
         this.storeAdapter = new IDBStoreAdapter<Row<D, T>>(name);
         this.pendingAdapter = new IDBStoreAdapter<any>(name + PENDING_SUFFIX);
-        if (this.searched.length) {
+        if (this.getSearchString) {
             this.searchAdapter = new IDBStoreAdapter<SearchNode>(name + SEARCH_SUFFIX);
             this.searchIndex = new IDBSearchIndex(this.searchAdapter);
         }
-        this.needsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed)
-                        || localStorage.getItem(SEARCHED_FIELDS_PREFIX + name) !== serializeSearchedFields(this.searched);
+        this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed);
         const indexEntries = Object.entries(this.indexed ?? {}) as [Column<D, T>, IndexType][];
         const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
         if (boolKeys.length) {
@@ -84,12 +80,13 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             };
         }
         if (this.searchIndex) {
+            this.searchNeedsUpgrade = localStorage.getItem(SEARCH_VERSION_PREFIX + name) !== (this.info.searchIndexVersion ?? 0).toString();
             this.storeAdapter.writeCallback = async changes => {
                 const updates = changes.map(change => {
                     const { new: newRow, old: oldRow } = change;
                     const row = oldRow ?? newRow!;
-                    const oldText = oldRow ? this.searched.map(col => oldRow[col] ?? '').join(' ').toLowerCase() : undefined;
-                    const newText = newRow ? this.searched.map(col => newRow[col] ?? '').join(' ').toLowerCase() : undefined;
+                    const oldText = oldRow ? this.getSearchString!(oldRow) : undefined;
+                    const newText = newRow ? this.getSearchString!(newRow) : undefined;
                     return { old: oldText, new: newText, key: row[this.idKey] as number };
                 });
                 await this.searchIndex!.update(updates);
@@ -101,11 +98,20 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         this.storeAdapter.init(idb);
         this.pendingAdapter.init(idb);
         this.searchAdapter?.init(idb);
-        if (this.needsUpgrade) {
+        if (this.indexNeedsUpgrade) {
             const indexedFieldsStr = serializeIndexedFields(this.indexed);
             localStorage.setItem(INDEXED_FIELDS_PREFIX + this.name, indexedFieldsStr);
-            const searchedFieldsStr = serializeSearchedFields(this.searched);
-            localStorage.setItem(SEARCHED_FIELDS_PREFIX + this.name, searchedFieldsStr);
+        }
+        if (this.searchNeedsUpgrade) {
+            localStorage.setItem(SEARCH_VERSION_PREFIX + this.name, (this.info.searchIndexVersion ?? 0).toString());
+            await this.searchIndex?.clear();
+            const allItems = await this.readAll().get();
+            const updates = allItems.map(item => ({
+                old: undefined,
+                new: this.getSearchString?.(item),
+                key: item[this.idKey] as number,
+            }));
+            await this.searchIndex?.update(updates);
         }
         this.sendPending();
     }

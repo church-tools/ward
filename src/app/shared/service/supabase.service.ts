@@ -1,9 +1,15 @@
-import { Injectable, signal } from '@angular/core';
+import { inject, Injectable, signal } from '@angular/core';
 import { createClient, User } from '@supabase/supabase-js';
 import type { Database } from '../../../../database';
 import { environment } from '../../../environments/environment';
+import { AgendaViewService } from '../../modules/agenda/agenda-view.service';
+import { CallingViewService } from '../../modules/calling/calling-view.service';
+import { AgendaItemViewService } from '../../modules/item/agenda-item-view.service';
+import { MemberViewService } from '../../modules/member/member-view.service';
+import { ProfileViewService } from '../../modules/profile/profile-view.service';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
+import { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
 
@@ -18,14 +24,20 @@ export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap>(this.client, {
-        unit: { createOffline: false, deletable: false },
-        profile: { createOffline: false, indexed: { email: String, unit_approved: Boolean }, search: ['email'] },
-        agenda: { createOffline: false, orderKey: 'position', search: ['name', 'abbreviation'] },
-        agenda_section: { createOffline: false, orderKey: 'position', indexed: { agenda: Number, type: String } },
-        agenda_item: { orderKey: 'position', indexed: { agenda: Number, type: String, assigned_to: Number }, search: ['title', 'content'] },
-        calling: { orderKey: 'position', indexed: {}, search: ['name', 'full_name'] },
-        member: { createOffline: false, indexed: { unit: Number, profile: Number }, search: ['first_name', 'last_name', 'nick_name'] }
-    });
+        unit: { deletable: false },
+        profile: { indexed: { email: String, unit_approved: Boolean },
+            getSearchString: inject(ProfileViewService).toString },
+        agenda: { orderKey: 'position',
+            getSearchString: inject(AgendaViewService).toString },
+        agenda_section: { orderKey: 'position', indexed: { agenda: Number, type: String } },
+        agenda_item: { createOffline: true, orderKey: 'position',
+            indexed: { agenda: Number, type: String, assigned_to: Number },
+            getSearchString: inject(AgendaItemViewService).toString },
+        calling: { createOffline: true, orderKey: 'position', indexed: {},
+            getSearchString: inject(CallingViewService).toString },
+        member: { indexed: { unit: Number, profile: Number },
+            getSearchString: inject(MemberViewService).toString }
+    } as SupaSyncTableInfos<Database>);
 
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();
