@@ -4,6 +4,7 @@ import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
+import { wait } from '../../utils/flow-control-utils';
 import { xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
@@ -70,7 +71,8 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         xeffect([this.viewValue, this.options], (value, options) => {
             this.syncSelectedOption(value, options);
         });
-        this.blurSubscription = this.onBlur.subscribe(() => {
+        this.blurSubscription = this.onBlur.subscribe(async () => {
+            await wait(150);
             this.closeOptions();
         });
     }
