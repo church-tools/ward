@@ -85,8 +85,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 const updates = changes.map(change => {
                     const { new: newRow, old: oldRow } = change;
                     const row = oldRow ?? newRow!;
-                    const oldText = oldRow ? this.getSearchString!(oldRow) : undefined;
-                    const newText = newRow ? this.getSearchString!(newRow) : undefined;
+                    const oldText = oldRow ? this.getSearchString!(oldRow).toLowerCase() : undefined;
+                    const newText = newRow ? this.getSearchString!(newRow).toLowerCase() : undefined;
                     return { old: oldText, new: newText, key: row[this.idKey] as number };
                 });
                 await this.searchIndex!.update(updates);
@@ -108,7 +108,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             const allItems = await this.readAll().get();
             const updates = allItems.map(item => ({
                 old: undefined,
-                new: this.getSearchString?.(item),
+                new: this.getSearchString!(item).toLowerCase(),
                 key: item[this.idKey] as number,
             }));
             await this.searchIndex?.update(updates);
@@ -267,7 +267,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                 const isNew = '__new' in row;
                 if (isNew) delete row.__new;
                 const query = isNew
-                    ? this.supabaseClient.from(this.name).insert(row)
+                    ? this.supabaseClient.from(this.name).upsert(row)
                     : this.supabaseClient.from(this.name).update(row).eq(this.idKey, row[this.idKey]);
                 const { data } = await query
                     .select(this.updatedAtKey)

@@ -87,21 +87,28 @@
             transition: transform animation.$duration-xs ease;
         }
     }
-    
-    .option {
+
+    .option, .option-group-title {
         border-radius: input.$border-radius;
         padding: input.$padding-y input.$padding-x;
-        transition: all animation.$duration-xs animation.$ease-out;
-        transform: translateY(0);
         cursor: pointer;
+        transition: all animation.$duration-xs animation.$ease-out;
         
         &:hover, &.focused {
             background-color: input.$option-hover-background-color;
         }
+    }
+    
+    .option {
+        transform: translateY(0);
         
         .highlighted {
             border-radius: input.$border-radius;
             @include shadow.box(1);
         }
+    }
+
+    .option-group-item {
+        padding-left: calc(input.$padding-x + 0.75rem);
     }
 }

@@ -32,13 +32,33 @@
                 <app-icon icon="throbber" size="xs" class="loading-icon"/>
             </div>
         }
-        @for (option of visibleOptions(); track (option.id ?? option.value)) {
-            <div #option class="option {{option.color}}-text"
-                (click)="selectOption(option, $event)">
-                @for (label of option.highlights; track $index) {
-                    <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
-                }
-            </div>
+        @if (showOptionGroups()) {
+            @for (group of visibleOptionGroups(); track group.id) {
+                <div class="option-group column">
+                    <div class="option-group-title {{group.color ?? 'neutral'}}-text semibold-text"
+                        (mousedown)="onGroupTitleMouseDown($event)"
+                        (click)="onGroupTitleClick(group, $event)">
+                        {{ group.label }}:
+                    </div>
+                    @for (option of group.options; track (option.id ?? option.value)) {
+                        <div #option class="option option-group-item {{option.color}}-text"
+                            (click)="selectOption(option, $event)">
+                            @for (label of option.highlights; track $index) {
+                                <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                            }
+                        </div>
+                    }
+                </div>
+            }
+        } @else {
+            @for (option of visibleOptions(); track (option.id ?? option.value)) {
+                <div #option class="option {{option.color}}-text"
+                    (click)="selectOption(option, $event)">
+                    @for (label of option.highlights; track $index) {
+                        <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                    }
+                </div>
+            }
         }
     </div>
 </ng-template>

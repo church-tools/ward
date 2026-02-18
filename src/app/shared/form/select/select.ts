@@ -13,11 +13,22 @@ export type SelectOption<T> = {
     value: T;
     view: string;
     id?: number | string;
-    lcText?: string
-    color?: ColorName
+    lcText?: string;
+    color?: ColorName;
+    group?: {
+        id: string;
+        label: string;
+        color?: ColorName;
+    };
 }
 
 type VisibleOption<T> = SelectOption<T> & { highlights: [string, boolean][] };
+type VisibleOptionGroup<T> = {
+    id: string;
+    label: string;
+    color?: ColorName;
+    options: VisibleOption<T>[];
+};
 
 @Component({
     selector: 'app-select',
@@ -39,9 +50,14 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     readonly options = input.required<SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly getValueId = input<(value: T) => number | string>();
+    readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
+    readonly holdsValue = input(true);
+    readonly mapSearch = input<(search: string) => string>();
 
     protected readonly optionsLoading = signal<boolean>(false);
     protected readonly visibleOptions = signal<VisibleOption<T>[]>([]);
+    protected readonly visibleOptionGroups = signal<VisibleOptionGroup<T>[]>([]);
+    protected readonly showOptionGroups = signal<boolean>(false);
     protected readonly search = model<string>("");
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
     private keySubscriptions: Subscription[] = [];
@@ -80,23 +96,39 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.input()?.nativeElement.focus();
     }
 
+    getSearch() {
+        return this.search();
+    }
+
+    setSearch(search: string, keepOpen = true) {
+        this.search.set(search ?? '');
+        if (!this.optionsViewRef && keepOpen)
+            this.openOptions();
+        this.updateVisibleOptions();
+        this.input()?.nativeElement.focus();
+    }
+
     protected async updateVisibleOptions() {
         const search = this.search().toLocaleLowerCase();
-        const filteredOptions = await this.getFilteredOptions(search);
+        const mapSearch = this.mapSearch();
+        const filteredOptions = await this.getFilteredOptions(mapSearch ? mapSearch(search) : search);
         this.visibleOptions.set(filteredOptions);
-        if (search || filteredOptions.length)
-            this.optionsViewRef?.rootNodes[0].classList.add('visible')
-        else
-            this.optionsViewRef?.rootNodes[0].classList.remove('visible');
+        this.setVisibleOptionGroups(filteredOptions);
+        this.optionsViewRef?.rootNodes[0].classList[filteredOptions.length ? 'add' : 'remove']('visible');
     }
 
     protected selectOption(option: SelectOption<T>, event?: UIEvent) {
         event?.stopPropagation();
         event?.preventDefault();
-        this.selectedOption.set(option);
         this.search.set("");
-        this.setViewValue(option.value);
-        this.closeOptions();
+        if (this.holdsValue()) {
+            this.selectedOption.set(option);
+            this.setViewValue(option.value);
+            this.closeOptions();
+        } else {
+            this.emitChange(option.value);
+            this.updateVisibleOptions();
+        }
     }
 
     protected closeOptions() {
@@ -165,6 +197,16 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.updateVisibleOptions();
     }
 
+    protected onGroupTitleMouseDown(event: MouseEvent) {
+        event.preventDefault();
+    }
+
+    protected onGroupTitleClick(group: VisibleOptionGroup<T>, event: MouseEvent) {
+        event.stopPropagation();
+        event.preventDefault();
+        this.onGroupClick()?.({ id: group.id, label: group.label, color: group.color });
+    }
+
     private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
         const options = this.options();
         const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), 200);
@@ -190,6 +232,20 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     private addHighlights(option: SelectOption<T>, searchWords: string[]): VisibleOption<T> {
         return { ...option, highlights: highlightWords(option.view, searchWords) };
+    }
+
+    private setVisibleOptionGroups(options: VisibleOption<T>[]) {
+        const hasGroups = options.length > 0 && options[0].group != null;
+        if (!hasGroups) return;
+        const groupById: Record<string, VisibleOptionGroup<T>> = {};
+        for (const option of options) {
+            const { id, label, color } = option.group!;
+            const visibleGroup = groupById[id] ??= { id, label, color, options: [] };
+            visibleGroup.options.push(option);
+        }
+        const groups = Object.values(groupById);
+        this.visibleOptionGroups.set(groups);
+        this.showOptionGroups.set(groups.length > 1);
     }
 
     private async syncSelectedOption(value: T | null, options: SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)) {
