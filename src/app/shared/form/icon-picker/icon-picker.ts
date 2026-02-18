@@ -2,12 +2,13 @@ import { Component, input, model } from "@angular/core";
 import { Icon, IconComponent } from "../../icon/icon";
 import { PALETTE_COLORS, PaletteColor } from "../../utils/color-utils";
 import MenuButtonComponent from "../button/menu/menu-button";
+import { ButtonType } from "../button/shared/button-base";
 import { getProviders, InputBaseComponent } from "../shared/input-base";
 
 @Component({
     selector: 'app-icon-picker',
     template: `
-        <app-menu-button type="subtle"
+        <app-menu-button [type]="buttonType()"
             class="icon-only" icon="">
             <app-icon button-text [icon]="viewValue() ?? 'question_circle'" [filled]="filled()" class="{{color() + '-active'}}"/>
             <div menu-content class="column gap-4">
@@ -39,6 +40,7 @@ export class IconPickerComponent extends InputBaseComponent<Icon> {
 
     readonly iconOptions = input.required<readonly Icon[]>();
     readonly color = model<PaletteColor | null>();
+    readonly buttonType = input<ButtonType>('subtle');
     readonly filled = input<boolean>(false);
 
     protected readonly colors = PALETTE_COLORS;

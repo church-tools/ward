@@ -9,6 +9,7 @@ import { Table } from '../../modules/shared/table.types';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
+import { getRowRoute } from '../private.routes';
 
 @Component({
     selector: 'app-meetings-page',
@@ -54,12 +55,16 @@ export class MeetingsPageComponent extends PrivatePageComponent {
 
     protected readonly getAgendaQuery = { query: (table: Table<'agenda'>) => table.readAll(), id: 'agendas' };
     
-    protected getItemUrl = (item: AgendaItem.Row | null) => `/meetings/${item?.id ?? ""}`;
+    protected getItemUrl = (item: AgendaItem.Row | null) => item
+        ? `/meetings/${item.id}`
+        : "/meetings";
 
-    protected getAgendaUrl = (agenda: Agenda.Row | null) => `/meetings/agenda/${agenda?.id ?? ""}`;
+    protected getAgendaUrl = (agenda: Agenda.Row | null) => agenda
+        ? getRowRoute({ table: 'agenda', row: agenda })
+        : "meetings";
 
     protected navigateToThis() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate([`meetings`]);
     }
 
     protected onActivate(id: string | null) {

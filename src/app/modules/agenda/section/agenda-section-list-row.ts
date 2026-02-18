@@ -1,13 +1,16 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, input } from '@angular/core';
 import { AdminService } from '../../../private/shared/admin.service';
 import ButtonComponent from '../../../shared/form/button/button';
 import { ListRowComponent } from '../../shared/row-card-list/list-row';
+import { Agenda } from '../agenda';
 import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
 import { AgendaSectionResolutionsComponent } from './variants/agenda-section-resolutions';
 import { AgendaSectionSpiritualThoughtComponent } from "./variants/agenda-section-spiritual-thought";
 import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
 import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
 import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
+import { AgendaPageComponent } from '../../../private/meetings/agenda/agenda-page';
+import { xcomputed } from '../../../shared/utils/signal-utils';
 
 @Component({
     selector: 'app-agenda-section-list-row',
@@ -23,7 +26,7 @@ import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
                     <app-agenda-section-text [section]="row()"/>
                 }
                 @case ('prayer') {
-                    <app-agenda-section-prayer [section]="row()"/>
+                    <app-agenda-section-prayer [agenda]="agenda()" [section]="row()"/>
                 }
                 @case ('spiritual_thought') {
                     <app-agenda-section-spiritual-thought [section]="row()"/>
@@ -48,6 +51,9 @@ import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
 export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {
 
     protected readonly adminService = inject(AdminService);
+
+    protected readonly agenda = xcomputed([this.page],
+        page => (page as AgendaPageComponent).syncedRow.value())
 
     remove() {
         return this.onRemove()?.(this.row());

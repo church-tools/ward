@@ -3,6 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
 import { SupabaseService } from '../../../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../../../shared/utils/signal-utils';
+import { Agenda } from '../../agenda';
 import { AgendaSection } from '../agenda-section';
 
 @Component({
@@ -10,7 +11,9 @@ import { AgendaSection } from '../agenda-section';
     template: `
         <div class="column-grid items-center">
             <h3 class="col-md-5 overflow-ellipsis">{{ title() | translate }}</h3>
-            <app-row-select class="col-md-7" table="member"/>
+            @if (agenda()?.pre_assign_prayer) {
+                <app-row-select class="col-md-7" table="member"/>
+            }
         </div>
     `,
     imports: [TranslateModule, RowSelectComponent],
@@ -20,6 +23,7 @@ export class AgendaSectionPrayerComponent {
     protected readonly supabase = inject(SupabaseService);
     protected readonly table = this.supabase.sync.from('agenda_section');
     
+    readonly agenda = input.required<Agenda.Row | null>();
     readonly section = input.required<AgendaSection.Row>();
     
     private readonly allPrayerIds = asyncComputed([this.section],
@@ -27,6 +31,7 @@ export class AgendaSectionPrayerComponent {
             .eq('type', 'prayer')
             .eq('agenda', section!.agenda)
             .getKeys());
+
     private readonly isFirst = xcomputed([this.section, this.allPrayerIds],
         (section, prayerIds) => prayerIds?.[0] === section.id);
     private readonly isLast = xcomputed([this.section, this.allPrayerIds],

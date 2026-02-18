@@ -16,46 +16,46 @@ export type Database = {
     Tables: {
       agenda: {
         Row: {
-          abbreviation: string
           color: Database["public"]["Enums"]["color"] | null
           deleted: boolean
           id: number
           name: string
+          on_weeks: number[]
           position: number
           postponed_until: string | null
+          pre_assign_prayer: boolean
           shape: Database["public"]["Enums"]["shape"] | null
           start_time: number
           unit: number
           updated_at: string
-          week_interval: number
         }
         Insert: {
-          abbreviation?: string
           color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id: number
           name: string
+          on_weeks?: number[]
           position: number
           postponed_until?: string | null
+          pre_assign_prayer?: boolean
           shape?: Database["public"]["Enums"]["shape"] | null
           start_time?: number
           unit: number
           updated_at?: string
-          week_interval?: number
         }
         Update: {
-          abbreviation?: string
           color?: Database["public"]["Enums"]["color"] | null
           deleted?: boolean
           id?: number
           name?: string
+          on_weeks?: number[]
           position?: number
           postponed_until?: string | null
+          pre_assign_prayer?: boolean
           shape?: Database["public"]["Enums"]["shape"] | null
           start_time?: number
           unit?: number
           updated_at?: string
-          week_interval?: number
         }
         Relationships: [
           {

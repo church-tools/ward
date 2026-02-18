@@ -2,19 +2,19 @@ import { Component, input, Type } from "@angular/core";
 import { PageComponent } from "../../../shared/page/page";
 import { Row, TableName } from "../table.types";
 
-const rowComponentLoaders = {
-    agenda: async () => (await import('../../agenda/agenda-list-row')).AgendaListRowComponent,
-    agenda_section: async () => (await import('../../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent,
-    agenda_item: async () => (await import('../../item/agenda-item-list-row')).AgendaItemListRowComponent,
-    profile: async () => (await import('../../profile/profile-list-row')).ProfileListRowComponent,
-    member: async () => (await import('../../member/member-list-row')).MemberListRowComponent,
-} as const;
-
 export function getListRowComponent<T extends TableName>(tableName: T) {
-    const loader = rowComponentLoaders[tableName as keyof typeof rowComponentLoaders];
-    if (!loader)
-        throw new Error(`No list row component found for table: ${tableName}`);
-    return loader() as Promise<Type<ListRowComponent<T>>>;
+    return getComponent(tableName) as Promise<Type<ListRowComponent<T>>>;
+}
+    
+async function getComponent<T extends TableName>(tableName: T) {
+    switch (tableName) {
+        case "agenda": return (await import('../../agenda/agenda-list-row')).AgendaListRowComponent;
+        case "agenda_section": return (await import('../../agenda/section/agenda-section-list-row')).AgendaSectionListRowComponent;
+        case "agenda_item": return (await import('../../item/agenda-item-list-row')).AgendaItemListRowComponent;
+        case "profile": return (await import('../../profile/profile-list-row')).ProfileListRowComponent;
+        case "member": return (await import('../../member/member-list-row')).MemberListRowComponent;
+    }
+    throw new Error(`No list row component found for table: ${tableName}`);
 }
 
 @Component({

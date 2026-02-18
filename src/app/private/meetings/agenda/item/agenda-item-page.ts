@@ -34,7 +34,8 @@ export class AgendaItemPageComponent extends RowPageComponent<'agenda_item'> {
     protected readonly tableName = 'agenda_item';
 
     protected deleteItem = async () => {
+        const row = this.syncedRow.value();
         await this.syncedRow.write({ deleted: true });
-        this.router.navigate(['../'], { relativeTo: this.route });
+        this.router.navigate([`meetings/agenda/${row?.agenda}`]);
     };
 }

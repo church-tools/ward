@@ -8,6 +8,7 @@ import ButtonComponent from '../../shared/form/button/button';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
 import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
+import { getRowRoute } from '../private.routes';
 
 @Component({
     selector: 'app-members-page',
@@ -59,7 +60,9 @@ export class MembersPageComponent extends PrivatePageComponent {
         this.popoverService.open(MembersImportComponent);
     }
         
-    protected getUrl = (member: Member.Row | null) => `/members/${member?.id ?? ""}`;
+    protected getUrl = (member: Member.Row | null) =>  member
+        ? getRowRoute({ table: 'member', row: member })
+        : '/members';
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route });

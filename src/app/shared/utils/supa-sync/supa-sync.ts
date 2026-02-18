@@ -1,6 +1,6 @@
 import { Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
-import { Lock } from "../flow-control-utils";
+import { executeOnce, Lock } from "../flow-control-utils";
 import { ChannelConnection } from "./channel-connection";
 import { SupaSyncTable } from "./supa-sync-table";
 import type { Database, SupaSyncPayload, SupaSyncTableInfo, SupaSyncTableInfos, TableName } from "./supa-sync.types";
@@ -27,14 +27,14 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         window.addEventListener('offline', () => this.onlineState.unset());
         type TN = TableName<D>;
         this.tablesByName = Object.fromEntries(Object.entries(tableInfos).map(([name, info]) => {
-           const table = new SupaSyncTable<D, TN, IA[TN]>(name, this.client, this.onlineState, info!);
+           const table = new SupaSyncTable<D, TN, IA[TN]>(name, this.client, this.onlineState, info!, this.resync.bind(this));
            return [name as TN, table];
         })) as unknown as { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> };
     }
 
     public async init(session: Session, dbName: string) {
         await this.client.realtime.setAuth(session.access_token);
-        const tables = Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[];
+        const tables = this.getTables();
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
         if (tables.some(table => table.indexNeedsUpgrade))
             version++;
@@ -76,9 +76,16 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         this.startSyncing(tables);
     }
 
+    private async resync() {
+        executeOnce(async () => {
+            await this.clear();
+            this.startSyncing(Object.values(this.tablesByName));
+        }, 5000);
+    }
+
     private async startSyncing(tables: SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[]) {
         await this.onlineState.get();
-        this.changesConnection = new ChannelConnection(
+        this.changesConnection ??= new ChannelConnection(
             () => this.client.channel(`schema-db-changes`)
                 .on('postgres_changes', { event: '*', schema: 'public' }, this.processChanges.bind(this)),
             this.onlineState
@@ -102,15 +109,30 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         this.setLastSync(now);
     }
 
-    public cleanup() {
+    public async cleanup() {
         this.changesConnection?.close(this.client);
-        this.idb?.then(idb => idb.close());
+        this.changesConnection = undefined;
+        const idb = await this.idb;
+        idb?.close();
     }
 
     public from<T extends TableName<D>>(tableName: T) {
         return this.tablesByName[tableName];
     }
 
+    private async clear() {
+        await Promise.all(this.getTables().map(table => Promise.all([
+            table.storeAdapter.clear(),
+            table.pendingAdapter.clear(),
+            table.searchAdapter?.clear(),
+        ])));
+        this.setLastSync(new Date(0).toISOString());
+    }
+
+    private getTables() {
+        return Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[];
+    }
+    
     private async processChanges(payload: SupaSyncPayload<D>) {
         await this.eventLock.lock(async () => {
             const table = this.tablesByName[payload.table];

@@ -82,6 +82,10 @@
     "AGENDA_SECTION": "Agenda Section",
     "AGENDA_SECTIONS": "Agenda Sections"
   },
+  "AGENDA_SETTINGS": {
+    "PRE_ASSIGN_PRAYER": "Pre-assign Prayer",
+    "START_TIME": "Time"
+  },
   "AGENDA_SECTION_TYPE": {
     "TEXT": "Text",
     "PRAYER": "Prayer",

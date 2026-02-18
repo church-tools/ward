@@ -82,6 +82,10 @@
     "AGENDA_SECTION": "Sitzungsabschnitt",
     "AGENDA_SECTIONS": "Sitzungsabschnitte"
   },
+  "AGENDA_SETTINGS": {
+    "PRE_ASSIGN_PRAYER": "Gebet vorab einteilen",
+    "START_TIME": "Uhrzeit"
+  },
   "AGENDA_SECTION_TYPE": {
     "TEXT": "Text",
     "PRAYER": "Gebet",

@@ -1,4 +1,5 @@
 import { AppComponent } from "../app.component";
+import { Row, TableName } from "../modules/shared/table.types";
 import { Icon } from "../shared/icon/icon";
 import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
 import { PrivatePageComponent } from "./shared/private-page";
@@ -19,7 +20,11 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         },
         'agenda/:agenda': {
             loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),
-            ':agenda_item': {
+            settings: {
+                insideParent: true,
+                loadComponent: () => import('./meetings/agenda/settings/agenda-settings-page').then(m => m.AgendaSettingsPageComponent),
+            },
+            'item/:agenda_item': {
                 insideParent: true,
                 loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
             }
@@ -59,4 +64,16 @@ export async function getPrivateRoutes() {
         loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
         children: mapRouteObject(privateTabs, session?.is_admin),
     }];
+}
+
+export type TableRow = { [T in TableName]: { table: T, row: Row<T> } }[TableName];
+
+export function getRowRoute(tableRow: TableRow): string {
+    const { table, row } = tableRow;
+    switch (table) {
+        case 'member': return `/members/${row.id}`;
+        case 'agenda': return `/meetings/agenda/${row.id}`;
+        case 'agenda_item': return `/meetings/agenda/${row.agenda}/item/${row.id}`;
+    }
+    throw new Error(`No route defined for table ${tableRow.table}`);
 }

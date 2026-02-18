@@ -28,7 +28,7 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
     onIdChange?: (rowId: number) => Promise<void> | undefined;
     
     protected abstract readonly tableName: T;
-    protected readonly syncedRow = SupaSyncedRow.fromId(this.supabase.sync, () => this.tableName, this.rowId);
+    public readonly syncedRow = SupaSyncedRow.fromId(this.supabase.sync, () => this.tableName, this.rowId);
     protected readonly viewService = asyncComputed([], () => getViewService(this.injector, this.tableName));
     protected readonly title = xcomputed([this.syncedRow.value, this.viewService],
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');
@@ -37,8 +37,8 @@ export abstract class RowPageComponent<T extends TableName> extends PrivatePageC
 
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
-            const rowId = params.get(this.tableName);
-            if (!rowId) throw new Error(`${this.tableName} ID is required in the route`);
+            const rowId = params.get(this.tableName) ?? this.route.snapshot.paramMap.get(this.tableName);
+            if (!rowId) throw new Error(`:${this.tableName} param is required in the route`);
             this.rowPageService.pageOpened(this.tableName, +rowId);
             await this.onIdChange?.(+rowId);
             this.rowId.set(+rowId);

@@ -2,16 +2,16 @@ import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angu
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { AgendaItem } from '../../../modules/item/agenda-item';
 import { Row } from '../../../modules/shared/table.types';
 import { getViewService } from '../../../modules/shared/view.service';
 import { SelectComponent } from '../../../shared/form/select/select';
 import { IconComponent } from "../../../shared/icon/icon";
 import { SupabaseService } from '../../../shared/service/supabase.service';
 import { WindowService } from '../../../shared/service/window.service';
+import { getRowRoute, TableRow } from '../../private.routes';
 
 type SearchedTableName = 'member' | 'agenda_item';
-type SearchValue<T extends SearchedTableName> = { table: T; row: Row<T> };
+type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<T> };
 
 @Component({
     selector: 'app-omni-search',
@@ -77,9 +77,9 @@ export class OmniSearchComponent implements OnDestroy {
         this.select().setSearch(`${label}: ${search}`);
     }
 
-    protected navigateTo(value: SearchValue<SearchedTableName> | null) {
+    protected navigateTo<T extends SearchedTableName>(value: SearchValue<T> | null) {
         if (!value) return;
-        this.router.navigate([this.getPath(value.table, value.row)]);
+        this.router.navigate([getRowRoute(value)]);
     }
 
     protected mapSearch = (search: string) => {
@@ -123,12 +123,5 @@ export class OmniSearchComponent implements OnDestroy {
         const label = this.translate.instant('VIEW.' + table.toUpperCase());
         if (!label) throw new Error(`Missing translation key VIEW.${table.toUpperCase()}`);
         return label;
-    }
-
-    private getPath<T extends SearchedTableName>(table: T, row: Row<T>) {
-        switch (table) {
-            case 'member': return `/members/${row.id}`;
-            case 'agenda_item': return `/meetings/agenda/${(row as AgendaItem.Row).agenda}/${row.id}`;
-        }
     }
 }

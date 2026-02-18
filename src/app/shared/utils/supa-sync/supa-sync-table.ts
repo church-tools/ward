@@ -46,7 +46,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
         public readonly name: T,
         private readonly supabaseClient: SupabaseClient<D>,
         private readonly onlineState: AsyncState<boolean>,
-        public readonly info: SupaSyncTableInfo<D, T> & IA
+        public readonly info: SupaSyncTableInfo<D, T> & IA,
+        private readonly resync: () => Promise<void>,
     ) {
         this.idKey = info.idPath ?? 'id';
         this.updatedAtKey = info.updatedAtPath ?? 'updated_at';
@@ -280,7 +281,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
                     this.latestSents.pop();
             }));
             return true;
-        } catch (error) {
+        } catch (error: any) {
+            if (error.code === 'PGRST204') this.resync();
             console.error("Error sending updates:", error);
             return false;
         }

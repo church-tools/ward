@@ -2,7 +2,7 @@ import { registerLocaleData } from '@angular/common';
 import { provideHttpClient, withFetch } from '@angular/common/http';
 import localeDe from '@angular/common/locales/de';
 import { ApplicationConfig, isDevMode, provideZonelessChangeDetection } from '@angular/core';
-import { provideRouter } from '@angular/router';
+import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
 import { provideTranslateService } from "@ngx-translate/core";
 import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
@@ -13,7 +13,7 @@ registerLocaleData(localeDe);
 export const appConfig: ApplicationConfig = {
     providers: [
         provideZonelessChangeDetection(),
-        provideRouter(routes),
+        provideRouter(routes, withRouterConfig({ paramsInheritanceStrategy: 'always' })),
         provideHttpClient(withFetch()),
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),

@@ -119,8 +119,9 @@ export class CardListComponent<T> {
         if (dropList) this._dragDropGroup()?.unregisterTargets([dropList]);
     }
 
-    async clear() {
+    async clear(deinitialize = false) {
         await this.changeLock.lock();
+        if (deinitialize) this._initialized.set(false);
         this.itemCards.set([]);
     }
 

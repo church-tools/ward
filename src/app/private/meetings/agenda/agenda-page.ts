@@ -5,14 +5,11 @@ import { AgendaItem } from '../../../modules/item/agenda-item';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
-import { DbConstants } from '../../../shared/db-constants';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
-import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
-import { TextInputComponent } from "../../../shared/form/text/text-input";
+import LinkButtonComponent from '../../../shared/form/button/link/link-button';
 import { IconComponent } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
-import { SyncedFieldDirective } from "../../../shared/utils/supa-sync/synced-field.directive";
 import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
@@ -24,15 +21,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
-                @if (adminService.editMode()) {
-                    <div class="row full-width no-wrap">
-                        <app-icon-picker [iconOptions]="iconOptions" [filled]="true"
-                            [syncedRow]="syncedRow" column="shape"
-                            [color]="syncedRow.value()?.color" (colorChange)="syncedRow.write({ color: $event })"
-                            class="position-absolute ms--12 mt-3"/>
-                        <app-text-input [syncedRow]="syncedRow" column="name" [subtle]="true" textClass="h0" class="full-width"/>
-                    </div>
-                } @else {
+                <div class="row no-wrap spread-content items-center">
                     <span class="h0">
                         @let row = syncedRow.value();
                         @if (row && row.shape && windowService.isLarge()) {
@@ -41,7 +30,11 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                         }
                         {{title()}}
                     </span>
-                }
+                    @if (adminService.editMode()) {
+                        <app-link-button icon="settings" size="large" href="./settings" type="secondary" class="icon-only" [showNewTab]="false"/>
+                    }
+                </div>
+
                 <app-row-card-list #sectionList tableName="agenda_section"
                     [cardsVisible]="adminService.editMode()"
                     [editable]="adminService.editMode()"
@@ -63,7 +56,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
     imports: [TranslateModule, RowCardListComponent, DrawerRouterOutletComponent, AgendaDropZoneComponent,
-        TextInputComponent, SyncedFieldDirective, IconComponent, IconPickerComponent, AsyncButtonComponent],
+        IconComponent, AsyncButtonComponent, LinkButtonComponent],
     host: { class: 'full-width' },
 })
 export class AgendaPageComponent extends RowPageComponent<'agenda'> {
@@ -79,7 +72,6 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
 
     protected readonly sectionList = viewChild.required<RowCardListComponent<'agenda_section'>>('sectionList');
     
-    protected readonly iconOptions = DbConstants.public.Enums.shape;
     protected readonly activeItemId = signal<number | null>(null);
     protected readonly tableName = 'agenda';
     protected readonly dragData = signal<AgendaItem.Row | null>(null);
@@ -87,8 +79,6 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     protected onActivate(id: string | null) {
         this.activeItemId.set(id ? +id : null);
     }
-
-    protected getItemUrl = (item: AgendaItem.Row) => `/agenda/${item.agenda}/${item.id}`;
 
     protected prepareSectionInsert = (section: AgendaSection.Insert) => {
         const agenda = this.syncedRow.value();
