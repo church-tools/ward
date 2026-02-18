@@ -23,28 +23,28 @@ export class PageRouterOutlet extends RouterOutlet {
             environmentInjector
         });
         this.attach(newPageRef, activatedRoute);
-        if (oldPageRef?.instance instanceof RowPageComponent)
-            delete oldPageRef.instance.onIdChange;
         const animation = this.getAnimationClass(previousPath, this.path);
         const newPage = newPageRef.instance;
-        if (newPage instanceof RowPageComponent) {
-            newPage.onIdChange = async _ => {
-                newPage.el.classList.add('page-transitioning', 'content-changing');
-                setTimeout(() => newPage.el.classList.remove('page-transitioning', 'content-changing'), animationDurationLgMs);
-                await wait(animationDurationLgMs * 0.25);
-            };
-        }
         newPage.el.classList.add('page-router-child', 'page-transitioning', 'enter', animation);
         const oldPage = oldPageRef?.instance;
         oldPage?.el.classList.remove('enter', 'fade', 'left', 'right');
         oldPage?.el.classList.add('page-router-child', 'page-transitioning', 'leave', animation);
         oldPage?.onLeaving();
+        if (oldPage instanceof RowPageComponent)
+            delete oldPage.onIdChange;
         setTimeout(() => {
             newPage.el.classList.remove('page-transitioning', 'enter', animation);
             if (oldPageRef) {
                 location.detach(location.indexOf(oldPageRef.hostView));
                 oldPageRef.destroy();
                 this.detachEvents.emit(oldPageRef.instance);
+            }
+            if (newPage instanceof RowPageComponent) {
+                newPage.onIdChange = async _ => {
+                    newPage.el.classList.add('page-transitioning', 'content-changing');
+                    setTimeout(() => newPage.el.classList.remove('page-transitioning', 'content-changing'), animationDurationLgMs);
+                    await wait(animationDurationLgMs * 0.25);
+                };
             }
         }, animationDurationLgMs);
     }
