@@ -5,7 +5,7 @@ import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
-import { xeffect } from '../../utils/signal-utils';
+import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
 import InputLabelComponent from "../shared/input-label";
@@ -61,8 +61,13 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     protected readonly showOptionGroups = signal<boolean>(false);
     protected readonly search = model<string>("");
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
+    private readonly closing = signal(false);
+
+    readonly optionsVisible = xcomputed([this.visibleOptions, this.closing, this.optionsLoading],
+        (options, closing, loading) => loading || (options.length && !closing));
+
     private keySubscriptions: Subscription[] = [];
-    private optionsViewRef: EmbeddedViewRef<any> | null = null;
+    private readonly optionsViewRef = signal<EmbeddedViewRef<any> | null>(null);
     private readonly blurSubscription: OutputRefSubscription;
     private focusedIndex = -1;
 
@@ -71,19 +76,22 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         xeffect([this.viewValue, this.options], (value, options) => {
             this.syncSelectedOption(value, options);
         });
+        xeffect([this.optionsViewRef, this.optionsVisible], (optionsViewRef, optionsVisible) => {
+            optionsViewRef?.rootNodes[0].classList[optionsVisible ? 'add' : 'remove']('visible');
+        });
         this.blurSubscription = this.onBlur.subscribe(async () => {
             await wait(150);
-            this.closeOptions();
+            this.closeOptionsContainer();
         });
     }
 
     ngOnDestroy() {
         this.blurSubscription.unsubscribe();
-        this.closeOptions();
+        this.closeOptionsContainer();
     }
 
     protected onFocus() {
-        this.openOptions();
+        this.createOptionsContainer();
     }
 
     protected clearSelection() {
@@ -105,7 +113,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     setSearch(search: string, keepOpen = true) {
         this.search.set(search ?? '');
         if (!this.optionsViewRef && keepOpen)
-            this.openOptions();
+            this.createOptionsContainer();
         this.updateVisibleOptions();
         this.input()?.nativeElement.focus();
     }
@@ -116,7 +124,6 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         const filteredOptions = await this.getFilteredOptions(mapSearch ? mapSearch(search) : search);
         this.visibleOptions.set(filteredOptions);
         this.setVisibleOptionGroups(filteredOptions);
-        this.optionsViewRef?.rootNodes[0].classList[filteredOptions.length ? 'add' : 'remove']('visible');
     }
 
     protected selectOption(option: SelectOption<T>, event?: UIEvent) {
@@ -126,22 +133,24 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         if (this.holdsValue()) {
             this.selectedOption.set(option);
             this.setViewValue(option.value);
-            this.closeOptions();
+            this.closeOptionsContainer();
         } else {
             this.emitChange(option.value);
             this.updateVisibleOptions();
         }
     }
 
-    protected closeOptions() {
+    protected closeOptionsContainer() {
         this.keySubscriptions.forEach(sub => sub.unsubscribe());
         this.keySubscriptions = [];
-        const optionsViewRef = this.optionsViewRef;
+        const optionsViewRef = this.optionsViewRef();
         if (optionsViewRef) {
-            optionsViewRef.rootNodes[0].classList.remove('visible');
+            this.closing.set(true);
             setTimeout(() => {
-                if (optionsViewRef !== this.optionsViewRef) return;
-                this.optionsViewRef = null;
+                this.closing.set(false);
+                if (optionsViewRef !== this.optionsViewRef()) return;
+                this.visibleOptions.set([]);
+                this.optionsViewRef.set(null);
                 optionsViewRef.destroy();
                 this.topContainer().clear();
                 this.bottomContainer().clear();
@@ -149,13 +158,13 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         }
     }
 
-    private openOptions() {
-        if (this.optionsViewRef) return;
+    private createOptionsContainer() {
+        if (this.optionsViewRef()) return;
         this.focusedIndex = -1;
-        this.closeOptions();
         this.updateVisibleOptions();
+        this.keySubscriptions.forEach(sub => sub.unsubscribe());
         this.keySubscriptions = [
-            this.windowService.onKeyPressed('Escape').subscribe(() => this.closeOptions()),
+            this.windowService.onKeyPressed('Escape').subscribe(() => this.closeOptionsContainer()),
             this.windowService.onKeyPressed('Enter').subscribe(() => this.selectFocusedOption()),
             this.windowService.onKeyPressed('ArrowUp').subscribe(() => this.focusNextOption(-1)),
             this.windowService.onKeyPressed('ArrowDown').subscribe(() => this.focusNextOption(1)),
@@ -165,7 +174,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         const inputMiddle = inputContainerPosition.top + (inputContainerPosition.height / 2);
         const isInUpperHalf = inputMiddle < (window.innerHeight / 2);
         const container = isInUpperHalf ? this.bottomContainer() : this.topContainer();
-        this.optionsViewRef = container.createEmbeddedView(this.optionsTemplate());
+        this.optionsViewRef.set(container.createEmbeddedView(this.optionsTemplate()));
     }
 
     private focusNextOption(offset: number) {

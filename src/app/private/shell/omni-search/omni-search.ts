@@ -16,7 +16,8 @@ type SearchValue<T extends SearchedTableName> = { table: T; row: Row<T> };
 @Component({
     selector: 'app-omni-search',
     template: `
-        <app-select class="omni-search-select"
+        <app-select #select class="omni-search-select"
+            [class.options-open]="select.optionsVisible()"
             placeholder="{{ 'SEARCH' | translate }}"
             [options]="getOptions"
             [onGroupClick]="onGroupClick"
@@ -42,7 +43,7 @@ export class OmniSearchComponent implements OnDestroy {
         agenda_item: () => this.supabase.sync.from('agenda_item').find(),
     } as const;
     private readonly searchedTables = signal<Set<SearchedTableName>>(new Set(['member', 'agenda_item']));
-    private readonly select = viewChild.required(SelectComponent<SearchValue<SearchedTableName>>);
+    protected readonly select = viewChild.required(SelectComponent<SearchValue<SearchedTableName>>);
     private readonly keySubscription: Subscription;
 
     constructor() {

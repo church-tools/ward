@@ -12,7 +12,7 @@
 .omni-search-select {
     ::ng-deep {
         .form-input {
-            border-radius: card.$border-radius-round;
+            border-radius: calc(card.$border-radius-lg * 1.5);
             background-color: card.$background-transparent-color;
             border-color: input.$border-color-transparent;
             &:hover {
@@ -25,6 +25,14 @@
             }
             &::after {
                 display: none;
+            }
+        }
+    }
+    &.options-open {
+        ::ng-deep {
+            .form-input {
+                border-bottom-left-radius: card.$border-radius;
+                border-bottom-right-radius: card.$border-radius;
             }
         }
     }

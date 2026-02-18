@@ -28,7 +28,8 @@
         box-sizing: border-box;
         min-height: $min-height;
         transition: background-color animation.$duration ease,
-            border-color animation.$duration ease;
+            border-color animation.$duration ease,
+            border-radius animation.$duration ease;
         gap: layout.$tiny-horizontal-spacing;
     
         &::placeholder {
