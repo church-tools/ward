@@ -62,24 +62,31 @@ export class IDBSearchIndex {
         await this.initialized;
         let value = condition.value;
         if (!value) return new Set<number>();
+        const words = getWords(value);
         switch (condition.operator) {
             case "containsText": {
-                const startIndexes = this.nodeIndexesByChar[value[0]];
                 let result = new Set<number>();
-                if (!startIndexes) return result;
-                value = value.slice(1);
-                for (let currIndex of startIndexes) {
-                    const res = this.continuesWith(currIndex, value);
-                    if (res) result = result.union(res);
+                for (const word of words) {
+                    const startIndexes = this.nodeIndexesByChar[word[0]];
+                    if (!startIndexes) return result;
+                    const remainingWord = word.slice(1);
+                    for (let currIndex of startIndexes) {
+                        const res = this.continuesWith(currIndex, remainingWord);
+                        if (res) result = result.union(res);
+                    }
                 }
                 return result;
             }
             case "startsWith": {
-                return this.continuesWith(ROOT_INDEX, value) ?? new Set<number>();
+                let result = new Set<number>();
+                for (const word of words) {
+                    const res = this.continuesWith(ROOT_INDEX, word);
+                    if (res) result = result.union(res);
+                }
+                return result;
             }
             case "closest": {
                 const result = new Set<number>();
-                const words = getWords(value);
                 const limit = condition.limit;
                 for (const word of words)
                     if (result.size < limit)
