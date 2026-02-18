@@ -27,9 +27,13 @@ export class AgendaItemListComponent {
     readonly types = input.required<AgendaItem.type[]>();
 
     protected readonly getQuery = xcomputed([this.agendaId, this.types],
-        (agenda, types) => (table: Table<'agenda_item'>) => table.find()
-            .eq('agenda', agenda)
-            .in('type', types));
+        (agenda, types) => ({
+            query: (table: Table<'agenda_item'>) => table.find()
+                .eq('agenda', agenda)
+                .in('type', types),
+            id: `agenda_item_${agenda}_${types.join(',')}`,
+        }));
+    
     protected readonly itemFilter = xcomputed([this.agendaId, this.types],
         ((agenda, types) => (item: AgendaItem.Row) => item.agenda === agenda && types.includes(item.type)));
     protected readonly activeItemId = xcomputed([this.rowPageService.openRows],

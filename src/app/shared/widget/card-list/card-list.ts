@@ -119,6 +119,11 @@ export class CardListComponent<T> {
         if (dropList) this._dragDropGroup()?.unregisterTargets([dropList]);
     }
 
+    async clear() {
+        await this.changeLock.lock();
+        this.itemCards.set([]);
+    }
+
     async updateItems(update: { items?: T[], deletions?: number[] }) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();

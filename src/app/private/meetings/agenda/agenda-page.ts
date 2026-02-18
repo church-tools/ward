@@ -73,7 +73,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     private readonly itemDragDrop = this.dragDrop.ensureGroup('agenda_item');
 
     protected readonly sectionQuery = xcomputed([this.syncedRow.value],
-        row => row ? (table: Table<'agenda_section'>) => table.find().eq('agenda', row.id) : null);
+        row => row ? { query: (table: Table<'agenda_section'>) => table.find().eq('agenda', row.id), id: `agenda_sections_${row.id}` } : null);
     protected readonly draggedAgendaItem = xcomputed([this.itemDragDrop.dragged],
         drag => drag?.data && 'agenda' in drag.data ? drag : null);
 

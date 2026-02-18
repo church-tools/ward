@@ -47,14 +47,14 @@ export class MeetingsPageComponent extends PrivatePageComponent {
 
     protected readonly getMyTaskQuery = xcomputed([this.profileService.own],
         own => own
-        ? (table: Table<'agenda_item'>) => table.find()
+        ? { query: (table: Table<'agenda_item'>) => table.find()
             .contains('assigned_to', own.id)
-            .eq('type', 'task')
+            .eq('type', 'task'), id: `my_tasks_${own.id}` }
         : null);
+
+    protected readonly getAgendaQuery = { query: (table: Table<'agenda'>) => table.readAll(), id: 'agendas' };
     
     protected getItemUrl = (item: AgendaItem.Row | null) => `/meetings/${item?.id ?? ""}`;
-
-    protected getAgendaQuery = (table: Table<'agenda'>) => table.readAll();
 
     protected getAgendaUrl = (agenda: Agenda.Row | null) => `/meetings/agenda/${agenda?.id ?? ""}`;
 

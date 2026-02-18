@@ -42,8 +42,10 @@ export class UsersPageComponent extends PrivatePageComponent {
     
     protected getUrl = (profile: Profile.Row | null) => `/users/${profile?.id ?? ""}`;
 
-    protected getQuery = (table: Table<'profile'>) =>
-        table.find().not('unit_approved', false);
+    protected getQuery = {
+        query: (table: Table<'profile'>) => table.find().not('unit_approved', false),
+        id: 'users',
+    };
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route });

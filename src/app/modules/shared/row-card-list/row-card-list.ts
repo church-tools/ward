@@ -25,7 +25,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     private readonly supabase = inject(SupabaseService);
 
     readonly tableName = input.required<T>();
-    readonly getQuery = input<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>(null);
+    readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string }) | null>(null);
     readonly editable = input(false);
     readonly gap = input(2);
     readonly cardsVisible = input(true);
@@ -48,15 +48,19 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount() ?? 0);
     readonly initialized = xcomputed([this.cardListView], clv => clv?.initialized() ?? false);
 
+    private queryId: string | null = null;
     private subscription: Subscription | undefined;
 
     constructor() {
-        xeffect([this.tableName, this.cardListView, this.getQuery],
-            (tableName, cardListView, getQuery) => {
+        xeffect([this.tableName, this.cardListView, this.getQuery], async (tableName, cardListView, getQuery) => {
             if (!cardListView || !getQuery) return;
+            const { query, id } = getQuery;
+            if (this.queryId && this.queryId === id && cardListView.cardCount()) return;
+            this.queryId = id;
             this.subscription?.unsubscribe();
+            await cardListView.clear();
             const table = this.supabase.sync.from(tableName);
-            this.subscription = getQuery(table).subscribe(update => {
+            this.subscription = query(table).subscribe(update => {
                 cardListView.updateItems({ items: update.result, deletions: update.deletions });
             });
         });

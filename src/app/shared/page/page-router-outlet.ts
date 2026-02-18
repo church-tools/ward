@@ -1,5 +1,7 @@
 import { ComponentRef, Directive, EnvironmentInjector, Injector, Signal, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts, ROUTER_OUTLET_DATA, RouterOutlet } from '@angular/router';
+import { RowPageComponent } from '../../private/shared/row-page';
+import { wait } from '../utils/flow-control-utils';
 import { animationDurationLgMs } from '../utils/style';
 import { PageComponent } from './page';
 
@@ -21,8 +23,17 @@ export class PageRouterOutlet extends RouterOutlet {
             environmentInjector
         });
         this.attach(newPageRef, activatedRoute);
+        if (oldPageRef?.instance instanceof RowPageComponent)
+            delete oldPageRef.instance.onIdChange;
         const animation = this.getAnimationClass(previousPath, this.path);
         const newPage = newPageRef.instance;
+        if (newPage instanceof RowPageComponent) {
+            newPage.onIdChange = async _ => {
+                newPage.el.classList.add('page-transitioning', 'content-changing');
+                setTimeout(() => newPage.el.classList.remove('page-transitioning', 'content-changing'), animationDurationLgMs);
+                await wait(animationDurationLgMs * 0.25);
+            };
+        }
         newPage.el.classList.add('page-router-child', 'page-transitioning', 'enter', animation);
         const oldPage = oldPageRef?.instance;
         oldPage?.el.classList.remove('enter', 'fade', 'left', 'right');

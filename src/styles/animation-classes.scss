@@ -58,4 +58,26 @@
             transform: translateX($page-side-slide-distance);
         }
     }
+    &.content-changing {
+        animation: page-content-change $duration-lg $ease-out;
+    }
+}
+
+@keyframes page-content-change {
+    0% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    25% {
+        transform: translateY(0);
+        opacity: 0;
+    }
+    26% {
+        transform: translateY($page-up-slide-distance);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
 }

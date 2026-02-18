@@ -48,13 +48,16 @@ export class MembersPageComponent extends PrivatePageComponent {
     private readonly router = inject(Router);
 
     protected readonly activeMemberId = signal<number | null>(null);
+    
+    protected readonly getQuery = {
+        query: (table: Table<'member'>) => table.readAll(),
+        id: 'members'
+    };
 
     protected async openImportDialog() {
         const { MembersImportComponent } = await import('./import/members-import');
         this.popoverService.open(MembersImportComponent);
     }
-    
-    protected getQuery = (table: Table<'member'>) => table.readAll();
         
     protected getUrl = (member: Member.Row | null) => `/members/${member?.id ?? ""}`;
 
