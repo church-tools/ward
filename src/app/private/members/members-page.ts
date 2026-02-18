@@ -6,13 +6,13 @@ import { RowCardListComponent } from "../../modules/shared/row-card-list/row-car
 import { Table } from '../../modules/shared/table.types';
 import ButtonComponent from '../../shared/form/button/button';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
+import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
-import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/router-outlet-drawer";
 
 @Component({
     selector: 'app-members-page',
     template: `
-        <app-router-outlet-drawer
+        <app-drawer-router-outlet
             (onClose)="navigateHere()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
@@ -36,10 +36,10 @@ import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/rout
                     {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | translate }}
                 </app-button>
             </div>
-        </app-router-outlet-drawer>
+        </app-drawer-router-outlet>
     `,
     imports: [TranslateModule, RowCardListComponent, ButtonComponent,
-        LinkButtonComponent, RouterOutletDrawerComponent],
+        LinkButtonComponent, DrawerRouterOutletComponent],
     host: { class: 'full-width' },
 })
 export class MembersPageComponent extends PrivatePageComponent {

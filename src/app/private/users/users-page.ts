@@ -5,13 +5,13 @@ import { Profile } from '../../modules/profile/profile';
 import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import { PrivatePageComponent } from '../shared/private-page';
-import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/router-outlet-drawer";
+import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { NewUnitsComponent } from "./new-units";
 
 @Component({
     selector: 'app-users-page',
     template: `
-        <app-router-outlet-drawer
+        <app-drawer-router-outlet
             (onClose)="navigateHere()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
@@ -27,10 +27,10 @@ import { NewUnitsComponent } from "./new-units";
                     <app-new-units/>
                 }
             </div>
-        </app-router-outlet-drawer>
+        </app-drawer-router-outlet>
     `,
     imports: [TranslateModule, RowCardListComponent,
-        RouterOutletDrawerComponent, NewUnitsComponent],
+        DrawerRouterOutletComponent, NewUnitsComponent],
     host: { class: 'full-width' },
 })
 export class UsersPageComponent extends PrivatePageComponent {

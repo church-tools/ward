@@ -7,13 +7,13 @@ import { ProfileService } from '../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../modules/shared/table.types';
 import { xcomputed } from '../../shared/utils/signal-utils';
+import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
-import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/router-outlet-drawer";
 
 @Component({
     selector: 'app-meetings-page',
     template: `
-        <app-router-outlet-drawer
+        <app-drawer-router-outlet
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
@@ -32,9 +32,9 @@ import { RouterOutletDrawerComponent } from "../shared/router-outlet-drawer/rout
                     [gap]="4"
                     [getUrl]="getAgendaUrl"/>
             </div>
-        </app-router-outlet-drawer>
+        </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, RowCardListComponent, RouterOutletDrawerComponent],
+    imports: [TranslateModule, RowCardListComponent, RowCardListComponent, DrawerRouterOutletComponent],
     host: { class: 'full-width' },
 })
 export class MeetingsPageComponent extends PrivatePageComponent {

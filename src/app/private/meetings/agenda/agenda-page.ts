@@ -1,10 +1,10 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
+import { AgendaItem } from '../../../modules/item/agenda-item';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
-import { AgendaItem } from '../../../modules/item/agenda-item';
 import { DbConstants } from '../../../shared/db-constants';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { IconPickerComponent } from "../../../shared/form/icon-picker/icon-picker";
@@ -13,14 +13,14 @@ import { IconComponent } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { SyncedFieldDirective } from "../../../shared/utils/supa-sync/synced-field.directive";
-import { RouterOutletDrawerComponent } from "../../shared/router-outlet-drawer/router-outlet-drawer";
+import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { RowPageComponent } from '../../shared/row-page';
 import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
 
 @Component({
     selector: 'app-agenda-page',
     template: `
-        <app-router-outlet-drawer
+        <app-drawer-router-outlet
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
@@ -59,10 +59,10 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     </div> 
                 }
             </div>
-        </app-router-outlet-drawer>
+        </app-drawer-router-outlet>
         <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
-    imports: [TranslateModule, RowCardListComponent, RouterOutletDrawerComponent, AgendaDropZoneComponent,
+    imports: [TranslateModule, RowCardListComponent, DrawerRouterOutletComponent, AgendaDropZoneComponent,
         TextInputComponent, SyncedFieldDirective, IconComponent, IconPickerComponent, AsyncButtonComponent],
     host: { class: 'full-width' },
 })

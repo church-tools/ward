@@ -63,9 +63,9 @@ export class IDBSearchIndex {
         let value = condition.value;
         if (!value) return new Set<number>();
         const words = getWords(value);
+        let result = new Set<number>();
         switch (condition.operator) {
             case "containsText": {
-                let result = new Set<number>();
                 for (const word of words) {
                     const startIndexes = this.nodeIndexesByChar[word[0]];
                     if (!startIndexes) return result;
@@ -75,25 +75,24 @@ export class IDBSearchIndex {
                         if (res) result = result.union(res);
                     }
                 }
-                return result;
+                break;
             }
             case "startsWith": {
-                let result = new Set<number>();
                 for (const word of words) {
                     const res = this.continuesWith(ROOT_INDEX, word);
                     if (res) result = result.union(res);
                 }
-                return result;
+                break;
             }
             case "closest": {
-                const result = new Set<number>();
                 const limit = condition.limit;
                 for (const word of words)
                     if (result.size < limit)
                         this.getLongestCommonPrefix(word, limit, result);
-                return result;
+                break;
             }
         }
+        return result;
     }
 
     private async load() {

@@ -10,10 +10,10 @@ import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, ease
 import { RowPageComponent } from "../row-page";
 
 @Component({
-    selector: 'app-router-outlet-drawer',
-    templateUrl: './router-outlet-drawer.html',
+    selector: 'app-drawer-router-outlet',
+    templateUrl: './drawer-router-outlet.html',
     imports: [RouterOutlet, ButtonComponent],
-    styleUrl: './router-outlet-drawer.scss',
+    styleUrl: './drawer-router-outlet.scss',
     host: {
         'animate.enter': 'show-gap',
         '[class.drawer-open]': 'activeChild()',
@@ -22,7 +22,7 @@ import { RowPageComponent } from "../row-page";
         '[class.dense]': '!windowService.isLarge()',
     },
 })
-export class RouterOutletDrawerComponent implements OnDestroy {
+export class DrawerRouterOutletComponent implements OnDestroy {
 
     private static readonly DRAG_THRESHOLD = 10;
     private static readonly SWIPE_TIME_LIMIT = 100;
@@ -169,13 +169,13 @@ export class RouterOutletDrawerComponent implements OnDestroy {
             this.dragState.delayTimeout = window.setTimeout(() => {
                 if (this.dragState && !this.dragState.isDragActive)
                     delete this.dragState;
-            }, RouterOutletDrawerComponent.SWIPE_TIME_LIMIT);
+            }, DrawerRouterOutletComponent.SWIPE_TIME_LIMIT);
         }
     }
 
     private isCardBackground(element: HTMLElement): boolean {
         const tagName = element.tagName.toLowerCase();
-        return !RouterOutletDrawerComponent.INTERACTIVE_ELEMENTS.has(tagName);
+        return !DrawerRouterOutletComponent.INTERACTIVE_ELEMENTS.has(tagName);
     }
 
     private clearDragTimeout() {
@@ -204,9 +204,9 @@ export class RouterOutletDrawerComponent implements OnDestroy {
         const deltaY = current.clientY - startY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         const timeElapsed = Date.now() - startTime;
-        if (distance > RouterOutletDrawerComponent.DRAG_THRESHOLD || startedOnBackground) {
+        if (distance > DrawerRouterOutletComponent.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
-            if (timeElapsed <= RouterOutletDrawerComponent.SWIPE_TIME_LIMIT || startedOnBackground)
+            if (timeElapsed <= DrawerRouterOutletComponent.SWIPE_TIME_LIMIT || startedOnBackground)
                 this.activateDrag(event);
             else
                 delete this.dragState;
