@@ -6,9 +6,9 @@ import { RowCardListComponent } from "../../modules/shared/row-card-list/row-car
 import { Table } from '../../modules/shared/table.types';
 import ButtonComponent from '../../shared/form/button/button';
 import LinkButtonComponent from '../../shared/form/button/link/link-button';
+import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
-import { getRowRoute } from '../private.routes';
 
 @Component({
     selector: 'app-members-page',
@@ -40,7 +40,7 @@ import { getRowRoute } from '../private.routes';
         </app-drawer-router-outlet>
     `,
     imports: [TranslateModule, RowCardListComponent, ButtonComponent,
-        LinkButtonComponent, DrawerRouterOutletComponent],
+    LinkButtonComponent, DrawerRouterOutletComponent],
     host: { class: 'full-width' },
 })
 export class MembersPageComponent extends PrivatePageComponent {

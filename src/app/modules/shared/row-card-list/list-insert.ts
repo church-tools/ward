@@ -15,6 +15,7 @@ async function getComponent<T extends TableName>(tableName: T) {
         case "agenda_item": return (await import('../../item/agenda-item-list-insert')).AgendaItemListInsertComponent;
         case "member": return (await import('../../member/member-list-insert')).MemberListInsertComponent;
         case "calling": return (await import('../../calling/calling-list-insert')).CallingListInsertComponent;
+        case "organization": return (await import('../../organization/organization-list-insert')).OrganizationListInsertComponent;
         case "profile": return (await import('../../profile/profile-list-insert')).ProfileListInsertComponent;
     }
     throw new Error(`No list insert component found for table: ${tableName}`);

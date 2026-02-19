@@ -84,7 +84,8 @@
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Gebet vorab einteilen",
-    "START_TIME": "Uhrzeit"
+    "START_TIME": "Uhrzeit",
+    "WEEKDAY": "Wochentag"
   },
   "AGENDA_SECTION_TYPE": {
     "TEXT": "Text",
@@ -105,6 +106,9 @@
     "UPLOAD_BUTTON": "PDF hochladen",
     "IMPORT_BUTTON": "Mitglieder importieren",
     "SELECTED": "ausgewählt"
+  },
+  "ORGANIZATIONS_PAGE": {
+    "TITLE": "Organisationen"
   },
   "USERS_PAGE": {
     "TITLE": "Benutzer",
@@ -156,6 +160,15 @@
     "UPDATED_BY": "Aktualisiert von",
     "UPDATED_AT": "am",
     "FULL_UPDATED_AT": "Aktualisiert am"
+  },
+  "WEEKDAYS": {
+    "0": "Sonntag",
+    "1": "Montag",
+    "2": "Dienstag",
+    "3": "Mittwoch",
+    "4": "Donnerstag",
+    "5": "Freitag",
+    "6": "Samstag"
   },
   "OR": "oder",
   "DELETE": "Löschen",

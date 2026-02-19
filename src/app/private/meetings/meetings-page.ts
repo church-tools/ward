@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Agenda } from '../../modules/agenda/agenda';
 import { AgendaItem } from '../../modules/item/agenda-item';
@@ -7,9 +7,9 @@ import { ProfileService } from '../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../modules/shared/table.types';
 import { xcomputed } from '../../shared/utils/signal-utils';
+import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../shared/private-page';
-import { getRowRoute } from '../private.routes';
 
 @Component({
     selector: 'app-meetings-page',
@@ -40,7 +40,6 @@ import { getRowRoute } from '../private.routes';
 })
 export class MeetingsPageComponent extends PrivatePageComponent {
 
-    private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
     private readonly profileService = inject(ProfileService);
 

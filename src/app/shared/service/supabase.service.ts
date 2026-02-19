@@ -12,6 +12,7 @@ import { SupaSync } from '../utils/supa-sync/supa-sync';
 import { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
+import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
@@ -36,7 +37,9 @@ export class SupabaseService {
         calling: { createOffline: true, orderKey: 'position', indexed: {},
             getSearchString: inject(CallingViewService).toString },
         member: { indexed: { unit: Number, profile: Number },
-            getSearchString: inject(MemberViewService).toString }
+            getSearchString: inject(MemberViewService).toString },
+        organization: { orderKey: 'position',
+            getSearchString: inject(OrganizationViewService).toString },
     } as SupaSyncTableInfos<Database>);
 
     private readonly _user = signal<User | null>(null);

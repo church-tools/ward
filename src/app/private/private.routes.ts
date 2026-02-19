@@ -36,11 +36,18 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         ':member': {
             insideParent: true,
             loadComponent: () => import('./members/member-page').then(m => m.MemberPageComponent),
-        }
+        },
     },
     callings: {
         translateId: 'CALLINGS', icon: 'briefcase',
-        loadComponent: () => import('./callings-page').then(m => m.CallingsPageComponent)
+        loadComponent: () => import('./callings/callings-page').then(m => m.CallingsPageComponent),
+        organizations: {
+            loadComponent: () => import('./callings/organizations/organizations-page').then(m => m.OrganizationsPageComponent),
+            ':organization': {
+                insideParent: true,
+                loadComponent: () => import('./callings/organizations/organization-page').then(m => m.OrganizationPageComponent),
+            }
+        },
     },
     'church-service': {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',

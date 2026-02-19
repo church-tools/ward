@@ -13,6 +13,7 @@ async function getComponent<T extends TableName>(tableName: T) {
         case "agenda_item": return (await import('../../item/agenda-item-list-row')).AgendaItemListRowComponent;
         case "profile": return (await import('../../profile/profile-list-row')).ProfileListRowComponent;
         case "member": return (await import('../../member/member-list-row')).MemberListRowComponent;
+        case "organization": return (await import('../../organization/organization-list-row')).OrganizationListRowComponent;
     }
     throw new Error(`No list row component found for table: ${tableName}`);
 }

@@ -40,6 +40,9 @@ export class DrawerRouterOutletComponent implements OnDestroy {
 
     private readonly drawerView = viewChild('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
     private readonly routerOutlet = viewChild.required(RouterOutlet);
+    private contentChangeTimeout: number | undefined;
+    private snapBackTimeout: number | undefined;
+    private transitionToken = 0;
     
     // Drag state
     private dragState: { 
@@ -68,13 +71,26 @@ export class DrawerRouterOutletComponent implements OnDestroy {
     }
 
     protected async onActivate(page: PageComponent) {
+        this.cancelPendingAnimations();
+        const token = ++this.transitionToken;
         this.emitCurrentRoute();
         this.activeChild.set(page);
-        await this.animateDrawerOpen();
+        await this.animateDrawerOpen(token);
+        if (token !== this.transitionToken)
+            return;
         if (page instanceof RowPageComponent) {
             page.onIdChange = async _ => {
+                if (token !== this.transitionToken)
+                    return;
                 this.contentChanging.set(true);
-                setTimeout(() => this.contentChanging.set(false), animationDurationLgMs);
+                if (this.contentChangeTimeout)
+                    clearTimeout(this.contentChangeTimeout);
+                this.contentChangeTimeout = window.setTimeout(() => {
+                    this.contentChangeTimeout = undefined;
+                    if (token !== this.transitionToken)
+                        return;
+                    this.contentChanging.set(false);
+                }, animationDurationLgMs);
                 this.emitCurrentRoute();
                 await wait(animationDurationLgMs * 0.25);
             };
@@ -100,8 +116,10 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         this.activated.emit(currentRoute);
     }
 
-    private async animateDrawerOpen() {
+    private async animateDrawerOpen(token: number) {
         await new Promise(resolve => requestAnimationFrame(resolve));
+        if (token !== this.transitionToken)
+            return;
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
         if (this.onBottom()) {
@@ -117,6 +135,8 @@ export class DrawerRouterOutletComponent implements OnDestroy {
             { minWidth: '0px', width: '0px' },
             { minWidth: `${width}px`, width: `${width}px` },
             animationDurationLgMs, easeOut, true);
+        if (token !== this.transitionToken)
+            return;
             
         card.style.minWidth = '';
     }
@@ -263,11 +283,44 @@ export class DrawerRouterOutletComponent implements OnDestroy {
                 : `transform ${animationDurationMs}ms ease-out, opacity ${animationDurationMs}ms ease-out`;
             element.style.transform = '';
             element.style.opacity = '';
-            setTimeout(() => element.style.transition = '', animationDurationMs);
+            if (this.snapBackTimeout)
+                clearTimeout(this.snapBackTimeout);
+            this.snapBackTimeout = window.setTimeout(() => {
+                this.snapBackTimeout = undefined;
+                element.style.transition = '';
+            }, animationDurationMs);
         });
     }
 
+    private cancelPendingAnimations() {
+        if (this.contentChangeTimeout) {
+            clearTimeout(this.contentChangeTimeout);
+            this.contentChangeTimeout = undefined;
+        }
+        if (this.snapBackTimeout) {
+            clearTimeout(this.snapBackTimeout);
+            this.snapBackTimeout = undefined;
+        }
+        this.contentChanging.set(false);
+        this.closing.set(false);
+        const drawer = this.drawerView();
+        if (!drawer)
+            return;
+        const element = drawer.nativeElement;
+        const card = element.querySelector('.drawer-card') as HTMLElement | null;
+        element.style.opacity = '';
+        element.style.transform = '';
+        element.style.transition = '';
+        element.style.minHeight = '';
+        element.style.minWidth = '';
+        card?.classList.remove('fade-out');
+        card?.style.removeProperty('left');
+        card?.style.removeProperty('minHeight');
+        card?.style.removeProperty('minWidth');
+    }
+
     ngOnDestroy() {
+        this.cancelPendingAnimations();
         this.abortController.abort();
         this.clearDragTimeout();
     }

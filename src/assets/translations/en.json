@@ -84,7 +84,8 @@
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Pre-assign Prayer",
-    "START_TIME": "Time"
+    "START_TIME": "Time",
+    "WEEKDAY": "Weekday"
   },
   "AGENDA_SECTION_TYPE": {
     "TEXT": "Text",
@@ -105,6 +106,9 @@
     "UPLOAD_BUTTON": "Upload PDF",
     "IMPORT_BUTTON": "Import Members",
     "SELECTED": "selected"
+  },
+  "ORGANIZATIONS_PAGE": {
+    "TITLE": "Organizations"
   },
   "USERS_PAGE": {
     "TITLE": "Users",
@@ -159,6 +163,15 @@
     "UPDATED_BY": "Updated by",
     "UPDATED_AT": "at",
     "FULL_UPDATED_AT": "Updated at"
+  },
+  "WEEKDAYS": {
+    "0": "Sunday",
+    "1": "Monday",
+    "2": "Tuesday",
+    "3": "Wednesday",
+    "4": "Thursday",
+    "5": "Friday",
+    "6": "Saturday"
   },
   "OR": "or",
   "DELETE": "Delete",

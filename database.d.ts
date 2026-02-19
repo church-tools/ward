@@ -28,6 +28,7 @@ export type Database = {
           start_time: number
           unit: number
           updated_at: string
+          weekday: number
         }
         Insert: {
           color?: Database["public"]["Enums"]["color"] | null
@@ -42,6 +43,7 @@ export type Database = {
           start_time?: number
           unit: number
           updated_at?: string
+          weekday?: number
         }
         Update: {
           color?: Database["public"]["Enums"]["color"] | null
@@ -56,6 +58,7 @@ export type Database = {
           start_time?: number
           unit?: number
           updated_at?: string
+          weekday?: number
         }
         Relationships: [
           {
@@ -563,7 +566,7 @@ export type Database = {
           created_at: string
           id: number
           name: string
-          order: number | null
+          position: number
           unit: number
           updated_at: string
         }
@@ -572,7 +575,7 @@ export type Database = {
           created_at?: string
           id: number
           name: string
-          order?: number | null
+          position: number
           unit: number
           updated_at?: string
         }
@@ -581,7 +584,7 @@ export type Database = {
           created_at?: string
           id?: number
           name?: string
-          order?: number | null
+          position?: number
           unit?: number
           updated_at?: string
         }
