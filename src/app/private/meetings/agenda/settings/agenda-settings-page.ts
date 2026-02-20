@@ -3,6 +3,7 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { DbConstants } from '../../../../shared/db-constants';
 import TimePickerComponent from '../../../../shared/form/date-time/time-picker';
 import { IconPickerComponent } from "../../../../shared/form/icon-picker/icon-picker";
+import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
 import { SelectComponent } from "../../../../shared/form/select/select";
 import SwitchComponent from '../../../../shared/form/switch/switch';
 import { TextInputComponent } from "../../../../shared/form/text/text-input";
@@ -30,10 +31,13 @@ import { RowPageComponent } from '../../../shared/row-page';
             <app-time-picker class="col-6" [syncedRow]="syncedRow" column="start_time"
                 label="{{ 'AGENDA_SETTINGS.START_TIME' | translate }}"/>
         </div>
+        <app-row-select [syncedRow]="syncedRow" column="organizations"
+            table="organization"
+            label="{{ 'AGENDA_SETTINGS.DEFAULT_SECTION' | translate }}" allowClear/>
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, SyncedFieldDirective, IconPickerComponent,
-        TextInputComponent, SwitchComponent, TimePickerComponent, SelectComponent],
+        TextInputComponent, SwitchComponent, TimePickerComponent, SelectComponent, RowSelectComponent],
 })
 export class AgendaSettingsPageComponent extends RowPageComponent<'agenda'> {
 

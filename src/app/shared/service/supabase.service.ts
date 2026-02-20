@@ -28,7 +28,7 @@ export class SupabaseService {
         unit: { deletable: false },
         profile: { indexed: { email: String, unit_approved: Boolean },
             getSearchString: inject(ProfileViewService).toString },
-        agenda: { orderKey: 'position',
+        agenda: { orderKey: 'position', indexed: { weekday: Number },
             getSearchString: inject(AgendaViewService).toString },
         agenda_section: { orderKey: 'position', indexed: { agenda: Number, type: String } },
         agenda_item: { createOffline: true, orderKey: 'position',

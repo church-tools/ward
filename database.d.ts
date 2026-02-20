@@ -21,6 +21,7 @@ export type Database = {
           id: number
           name: string
           on_weeks: number[]
+          organizations: number[]
           position: number
           postponed_until: string | null
           pre_assign_prayer: boolean
@@ -36,6 +37,7 @@ export type Database = {
           id: number
           name: string
           on_weeks?: number[]
+          organizations?: number[]
           position: number
           postponed_until?: string | null
           pre_assign_prayer?: boolean
@@ -51,6 +53,7 @@ export type Database = {
           id?: number
           name?: string
           on_weeks?: number[]
+          organizations?: number[]
           position?: number
           postponed_until?: string | null
           pre_assign_prayer?: boolean
@@ -567,6 +570,7 @@ export type Database = {
           id: number
           name: string
           position: number
+          type: Database["public"]["Enums"]["organization_type"] | null
           unit: number
           updated_at: string
         }
@@ -576,6 +580,7 @@ export type Database = {
           id: number
           name: string
           position: number
+          type?: Database["public"]["Enums"]["organization_type"] | null
           unit: number
           updated_at?: string
         }
@@ -585,6 +590,7 @@ export type Database = {
           id?: number
           name?: string
           position?: number
+          type?: Database["public"]["Enums"]["organization_type"] | null
           unit?: number
           updated_at?: string
         }
@@ -827,6 +833,16 @@ export type Database = {
         | "general_conference"
         | "stake_conference"
         | "ward_conference"
+      organization_type:
+        | "bishopric"
+        | "relief_society"
+        | "elders_quorum"
+        | "sunday_school"
+        | "young_men"
+        | "young_women"
+        | "primary"
+        | "mission_work"
+        | "tempel_work"
       permission: "calling" | "sacrament_meeting" | "music"
       shape:
         | "circle"
@@ -1051,6 +1067,17 @@ export const Constants = {
         "general_conference",
         "stake_conference",
         "ward_conference",
+      ],
+      organization_type: [
+        "bishopric",
+        "relief_society",
+        "elders_quorum",
+        "sunday_school",
+        "young_men",
+        "young_women",
+        "primary",
+        "mission_work",
+        "tempel_work",
       ],
       permission: ["calling", "sacrament_meeting", "music"],
       shape: [
