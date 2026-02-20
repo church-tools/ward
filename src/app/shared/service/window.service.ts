@@ -4,6 +4,7 @@ import { filter, tap } from "rxjs";
 import { AsyncState } from "../utils/async-state";
 import { executeOnce } from "../utils/flow-control-utils";
 import { xcomputed, xeffect } from "../utils/signal-utils";
+import { getParentUrl, getRoutePaths } from "../utils/route-utils";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -46,6 +47,8 @@ export class WindowService {
     readonly onlineState = new AsyncState<boolean>();
     readonly titleBarColors = signal<{ focused: { light: string, dark: string }, unfocused: { light: string, dark: string } } | null>(null);
 
+    private allRoutePaths: { path: string, parent: string | null }[] | null = null;
+
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
             this._focused.set(this.document.hasFocus?.());
@@ -70,10 +73,13 @@ export class WindowService {
             this.onlineState.set(true);
         this.document.defaultView!.addEventListener?.('online', () => { this.isOnline.set(true); this.onlineState.set(true); });
         this.document.defaultView!.addEventListener?.('offline', () => { this.isOnline.set(false); this.onlineState.unset(); });
-        this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(res => {
+        this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(async res => {
             this._currentRoute.set(res.urlAfterRedirects);
-            const parts = res.urlAfterRedirects.split('/').slice(1, -1);
-            this.backUrl.set(parts.length ? '/' + parts.join('/') : null);
+            this.allRoutePaths ??= [
+                ...getRoutePaths((await import('../../private/private.routes')).privateTabs),
+                ...getRoutePaths((await import('../../public/public.routes')).publicTabs)
+            ];
+            this.backUrl.set(getParentUrl(res.urlAfterRedirects, this.allRoutePaths));
         });
         if (this.document.defaultView) {
             this.document.defaultView.onfocus = () => {

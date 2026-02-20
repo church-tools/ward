@@ -39,3 +39,59 @@ export function mapRouteObject(routes?: { [path: string]: RouteObject }, isAdmin
             ];
         }).flat();
 }
+
+export function getRoutePaths(routes?: { [path: string]: any }, parentPath: string | null = null): { path: string, parent: string | null }[] {
+    return Object.entries(routes ?? {})
+        .filter(([_, route]) => typeof route === 'object' && route !== null)
+        .map(([path, route]) => {
+            const fullPath = parentPath ? `${parentPath}/${path}` : path;
+            const { loadComponent, admin, insideParent, translateId, icon, onBottom, ...children } = route;
+            const paths = [];
+            if (loadComponent) {
+                paths.push({ path: fullPath, parent: parentPath });
+            }
+            paths.push(...getRoutePaths(children, fullPath));
+            return paths;
+        }).flat();
+}
+
+export function getParentUrl(url: string, routePaths: { path: string, parent: string | null }[]): string | null {
+    const pathOnly = url.split('?')[0].split('#')[0];
+    const urlSegments = pathOnly.split('/').filter(s => s);
+
+    let bestMatch: { route: { path: string, parent: string | null }, score: number } | null = null;
+
+    for (const route of routePaths) {
+        const routeSegments = route.path.split('/').filter(s => s);
+        if (routeSegments.length !== urlSegments.length) continue;
+
+        let match = true;
+        let score = 0;
+        for (let i = 0; i < routeSegments.length; i++) {
+            if (routeSegments[i].startsWith(':')) {
+                if (!/^\d+$/.test(urlSegments[i])) {
+                    match = false;
+                    break;
+                }
+            } else if (routeSegments[i] === urlSegments[i]) {
+                score++;
+            } else {
+                match = false;
+                break;
+            }
+        }
+
+        if (match) {
+            if (!bestMatch || score > bestMatch.score) {
+                bestMatch = { route, score };
+            }
+        }
+    }
+
+    if (bestMatch && bestMatch.route.parent) {
+        const parentSegments = bestMatch.route.parent.split('/').filter(s => s);
+        return '/' + urlSegments.slice(0, parentSegments.length).join('/');
+    }
+
+    return null;
+}

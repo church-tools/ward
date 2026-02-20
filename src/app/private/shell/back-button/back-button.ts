@@ -6,7 +6,7 @@ import { IconComponent } from '../../../shared/icon/icon';
 @Component({
     selector: 'app-back-button',
     template: `
-        <a class="back-area button subtle-with-gap" [routerLink]="url()">
+        <a class="back-area button medium subtle-with-gap" [routerLink]="url()">
             <app-icon icon="arrow_left" size="sm"/>
         </a>
         `,

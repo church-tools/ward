@@ -121,9 +121,6 @@ button, .button {
         }
     }
     &.subtle-with-gap {
-        background-color: transparent;
-        border: none;
-        border-radius: 0;
         &::after {
             content: "";
             position: absolute;
@@ -188,6 +185,9 @@ button, .button {
         min-height: 1.5rem;
         min-width: 1.5rem;
         gap: 0.125rem;
+    }
+    &.medium {
+        min-width: 2.25rem;
     }
     &.large {
         padding: 0.25rem 1.25rem;
