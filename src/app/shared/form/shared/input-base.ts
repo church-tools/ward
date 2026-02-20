@@ -47,8 +47,6 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
     readonly debounceTime: number | undefined;
 
     private justClickedSomething = false;
-
-    private suppressModelSync = false;
     private currentMapToken: symbol | null = null;
 
     constructor() {
@@ -59,8 +57,6 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
         xeffect([this.labelView, this.required, this.indicateRequired, this.disabled],
             (labelView, required, indicateRequired, disabledState) => labelView?.required.set(required && indicateRequired && !disabledState));
         xeffect([this.value], (modelValue) => {
-            if (this.suppressModelSync)
-                return;
             this.updateViewFromModel(modelValue);
         });
         xeffect([this.errorView, this.errors, this.touched, this.disabled], (errorView, errors, touched, disabled) => {
@@ -85,7 +81,7 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
 
     protected async emitChange(viewValue: TIn | null = this.viewValue()) {
         const mapped = await this.mapOut(viewValue);
-        this.pushModelValue(mapped);
+        this.value.set(mapped);
     }
 
     protected mapIn(value: TOut | null): PromiseOrValue<TIn | null> {
@@ -110,12 +106,6 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
     }
 
     private pushModelValue(value: TOut | null) {
-        this.suppressModelSync = true;
-        try {
-            this.value.set(value);
-        } finally {
-            queueMicrotask(() => this.suppressModelSync = false);
-        }
     }
 
     protected isRealClick() {

@@ -1,4 +1,4 @@
-import { computed, CreateEffectOptions, effect, Injector, signal, Signal, WritableSignal } from "@angular/core";
+import { computed, CreateEffectOptions, effect, Injector, signal, Signal, untracked, WritableSignal } from "@angular/core";
 
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
@@ -143,52 +143,52 @@ export function asyncComputed<T, Default = T>(
 export function xeffect<T, D1>(
     dependencies: [Signal<D1>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2>(
     dependencies: [Signal<D1>, Signal<D2>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5, D6>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5, D6, D7>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T, D1, D2, D3, D4, D5, D6, D7, D8, D9>(
     dependencies: [Signal<D1>, Signal<D2>, Signal<D3>, Signal<D4>, Signal<D5>, Signal<D6>, Signal<D7>, Signal<D8>, Signal<D9>],
     effectFn: (value1: StrictUnwrap<Signal<D1>>, value2: StrictUnwrap<Signal<D2>>, value3: StrictUnwrap<Signal<D3>>, value4: StrictUnwrap<Signal<D4>>, value5: StrictUnwrap<Signal<D5>>, value6: StrictUnwrap<Signal<D6>>, value7: StrictUnwrap<Signal<D7>>, value8: StrictUnwrap<Signal<D8>>, value9: StrictUnwrap<Signal<D9>>) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, untracked?: boolean }
 ): { effectRef: any, fn: () => T };
 export function xeffect<T>(
     dependencies: (Signal<any> | undefined)[],
     effectFn: (...values: any[]) => T,
-    options?: CreateEffectOptions & { skipFirst?: boolean }
+    options?: CreateEffectOptions & { skipFirst?: boolean, trackFn?: boolean }
 ): { effectRef: any, fn: () => T } {
     let lastValues: any[] | null = null;
     let first = options?.skipFirst;
@@ -205,7 +205,7 @@ export function xeffect<T>(
     }, options);
     return { effectRef, fn: () => {
         const values = dependencies.map(d => d ? d() : null);
-        return effectFn(...values);
+        return options?.trackFn ? effectFn(...values) : untracked(() => effectFn(...values));
     }};
 }
 

@@ -17,6 +17,14 @@ function serializeIndexedFields<D extends Database, T extends TableName<D>>(inde
     return indexEntries.map(([key, type]) => `${key}_${type}`).join(',');
 }
 
+function equal(a: any, b: any): boolean {
+    if (a === b) return true;
+    if (!a || !b || typeof a !== 'object' || typeof b !== 'object' || a.constructor !== b.constructor) return false;
+    if (Array.isArray(a)) return a.length === b.length && a.every((v, i) => equal(v, b[i]));
+    const keys = Object.keys(a);
+    return keys.length === Object.keys(b).length && keys.every(k => Object.prototype.hasOwnProperty.call(b, k) && equal(a[k], b[k]));
+}
+
 export const SEARCH_INDEX_STORE_NAME = "search_index";
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
 const SEARCH_VERSION_PREFIX = "search_version_";
@@ -216,7 +224,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, IA = {}> 
             const sent = sentRow[key];
             if (key === this.updatedAtKey && received > sent)
                 return false;
-            if (received !== sent) return false;
+            if (!equal(received, sent))
+                return false;
         }
         return true;
     }

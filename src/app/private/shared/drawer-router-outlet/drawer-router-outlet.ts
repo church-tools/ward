@@ -1,5 +1,5 @@
 import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
-import { Router, RouterOutlet } from "@angular/router";
+import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
 import ButtonComponent from "../../../shared/form/button/button";
 import { PageComponent } from "../../../shared/page/page";
 import { WindowService } from "../../../shared/service/window.service";
@@ -30,6 +30,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
 
     protected readonly windowService = inject(WindowService);
     private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
 
     readonly activated = output<string | null>();
 
@@ -107,7 +108,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
     protected async onClose() {
         if (!this.routerOutlet().isActivated) return;
         await this.animateDrawerClose();
-        this.router.navigate(['..'], { relativeTo: this.routerOutlet().activatedRoute });
+        this.router.navigate(['.'], { relativeTo: this.route });
     }
 
     private emitCurrentRoute() {
