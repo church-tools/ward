@@ -1,0 +1,9 @@
+@use 'font';
+
+.active-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: font.$color-inverse-alpha-80;
+    border-radius: 50%;
+}

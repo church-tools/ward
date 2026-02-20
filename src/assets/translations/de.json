@@ -80,7 +80,9 @@
     "MEMBER": "Mitglied",
     "MEMBERS": "Mitglieder",
     "AGENDA_SECTION": "Sitzungsabschnitt",
-    "AGENDA_SECTIONS": "Sitzungsabschnitte"
+    "AGENDA_SECTIONS": "Sitzungsabschnitte",
+    "ORGANIZATION": "Organisation",
+    "ORGANIZATIONS": "Organisationen"
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Gebet vorab einteilen",
@@ -160,6 +162,18 @@
     "UPDATED_BY": "Aktualisiert von",
     "UPDATED_AT": "am",
     "FULL_UPDATED_AT": "Aktualisiert am"
+  },
+  "ORGANIZATION_TYPE": {
+    "BISHOPRIC": "Bischofschaft",
+    "ELDERS_QUORUM": "Ältestenkollegium",
+    "RELIEF_SOCIETY": "Frauenhilfsvereinigung",
+    "SUNDAY_SCHOOL": "Sonntagsschule",
+    "YOUNG_MEN": "Junge Männer",
+    "YOUNG_WOMEN": "Junge Damen",
+    "PRIMARY": "Primarvereinigung",
+    "MISSION_WORK": "Missionsarbeit",
+    "TEMPLE_WORK": "Familiengeschichte & Tempelarbeit",
+    "OTHER": "Sonstige"
   },
   "WEEKDAYS": {
     "0": "Sonntag",

@@ -12,7 +12,7 @@ import { PrivatePageComponent } from '../shared/private-page';
         <a class="stealth card canvas-card selectable-card" routerLink="/callings/organizations">
             <div class="row no-wrap items-center m-6-8">
                 <h3 class="grow-1">
-                    <app-icon [icon]="organizationView.icon" [filled]="true"/>
+                    <app-icon [icon]="organizationView.icon" filled/>
                     <span class="overflow-ellipsis">{{ 'ORGANIZATIONS_PAGE.TITLE' | translate }}</span>
                 </h3>
                 <app-icon class="ms-auto" icon="chevron_right"/>

@@ -13,8 +13,8 @@ import { RowPageComponent } from '../shared/row-page';
     selector: 'app-user-page',
     template: `
         <h3 class="wrap-anywhere mb-4">{{ syncedRow.value()?.email }}</h3>
-        <app-switch label="{{ 'USER_PAGE.IS_ADMIN' | translate }}" [forceLabelOnTop]="true"
-            [syncedRow]="syncedRow" column="is_admin" name="is_admin" [disabled]="true"/>
+        <app-switch label="{{ 'USER_PAGE.IS_ADMIN' | translate }}" forceLabelOnTop
+            [syncedRow]="syncedRow" column="is_admin" name="is_admin" disabled/>
         <div class="row center-content gap-4">
             @if (isSelf()) {
 

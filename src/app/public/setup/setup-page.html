@@ -11,7 +11,7 @@
                 [value]="selectedUnit()" (valueChange)="selectedUnit.set($event)"/>
             <app-async-button icon="home_person"
                 [disabled]="!selectedUnit()"
-                [needsInternet]="true"
+                needsInternet
                 [onClick]="joinUnit">Gemeinde beitreten</app-async-button>
         </div>
     </div>
@@ -19,10 +19,10 @@
         <div class="card-body">
             <h3>Neu anlegen</h3>
             <app-text-input [value]="unitName()" (valueChange)="unitName.set($event ?? '')"
-                [trim]="true" placeholder="Gemeinde Name"/>
+                trim placeholder="Gemeinde Name"/>
             <app-async-button icon="home_add"
                 [disabled]="!unitName()"
-                [needsInternet]="true"
+                needsInternet
                 [onClick]="createUnit">
                 Gemeinde anlegen
             </app-async-button>

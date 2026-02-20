@@ -1,4 +1,4 @@
-import { Component, OnDestroy, inject, input } from "@angular/core";
+import { Component, OnDestroy, booleanAttribute, inject, input } from "@angular/core";
 import { Subscription } from "rxjs";
 import { Icon, IconSize } from "../../../icon/icon";
 import { WindowService } from "../../../service/window.service";
@@ -15,16 +15,16 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
 
     readonly icon = input<Icon>();
     readonly iconSize = input<IconSize>('smaller');
-    readonly iconFilled = input(false);
-    readonly iconColored = input(false);
+    readonly iconFilled = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly iconColored = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly title = input<string>();
     readonly type = input<ButtonType>('primary');
     readonly color = input<ColorName, ColorName>('accent', { transform: c => c ?? 'accent' });
-    readonly highlight = input(false);
+    readonly highlight = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly size = input<ButtonSize>('medium');
     readonly disabled = input(false);
     readonly shortcut = input<string | null>(null);
-    readonly shortcutNeedsCtrl = input(true);
+    readonly shortcutWithoutCtrl = input<boolean, unknown>(false, { transform: booleanAttribute });
     
     protected readonly classes = xcomputed([this.type, this.size, this.color, this.disabled, this.iconColored],
         (type, size, color, disabled, iconColored) =>
@@ -35,12 +35,12 @@ export default abstract class ButtonBaseComponent implements OnDestroy {
     private justClickedSomething = false;
 
     constructor() {
-        xeffect([this.shortcut, this.shortcutNeedsCtrl], (shortcut, shortcutNeedsCtrl) => {
+        xeffect([this.shortcut, this.shortcutWithoutCtrl], (shortcut, shortcutWithoutCtrl) => {
             this.hotkeySubscription?.unsubscribe();
             if (!shortcut) return;
-            this.hotkeySubscription = (shortcutNeedsCtrl
-                ? this.windowService.onCtrlAndKeyPressed(shortcut)
-                : this.windowService.onKeyPressed(shortcut))
+            this.hotkeySubscription = (shortcutWithoutCtrl
+                ? this.windowService.onKeyPressed(shortcut)
+                : this.windowService.onCtrlAndKeyPressed(shortcut))
                     .subscribe(this.execute.bind(this));
         });
     }

@@ -9,7 +9,7 @@ import CollapseComponent from '../collapse/collapse';
     template: `
         <app-collapse>
             <div class="row no-wrap danger-text">
-                <app-icon icon="error_circle" [filled]="true" size="xs"/>
+                <app-icon icon="error_circle" filled size="xs"/>
                 {{ error() }}
             </div>
         </app-collapse>

@@ -10,7 +10,7 @@ import { MeetingsPageComponent } from '../../private/meetings/meetings-page';
         <div class="row no-wrap full-width items-center m-6-8">
             <h3 class="grow-1">
                 @if (row().shape) {
-                    <app-icon [icon]="icon()" [filled]="true"
+                    <app-icon [icon]="icon()" filled
                         class="{{row().color}}-active"/>
                 }
                 <span class="overflow-ellipsis">{{ row().name }}</span>

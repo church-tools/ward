@@ -1,4 +1,4 @@
-import { Component, input, signal, viewChild } from "@angular/core";
+import { booleanAttribute, Component, input, signal, viewChild } from "@angular/core";
 import { IconComponent } from "../../../icon/icon";
 import { xcomputed, xeffect } from "../../../utils/signal-utils";
 import ErrorMessageComponent from "../../../widget/error-message/error-message";
@@ -34,18 +34,18 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
     protected readonly errorMessage = viewChild.required(ErrorMessageComponent);
 
     readonly onClick = input.required<(event?: UIEvent, progressCallback?: ProgressCallback) => Promise<any>>();
-    readonly needsInternet = input(false);
-    readonly showSuccess = input(true);
+    readonly needsInternet = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly hideSuccess = input<boolean, unknown>(false, { transform: booleanAttribute });
 
     protected readonly success = signal<boolean | null>(null);
     protected readonly progress = signal<number>(0);
     private readonly inProgress = signal(false);
     protected readonly connectionLost = signal<boolean | null>(null);
-    protected readonly progressIcon = xcomputed([this.icon, this.inProgress, this.connectionLost, this.success, this.showSuccess],
-        (icon, inProgress, connectionLost, success, showSuccess) => {
+    protected readonly progressIcon = xcomputed([this.icon, this.inProgress, this.connectionLost, this.success, this.hideSuccess],
+        (icon, inProgress, connectionLost, success, hideSuccess) => {
             if (connectionLost) return 'plug_disconnected';
             if (inProgress) return 'throbber';
-            if (showSuccess && success !== null) return success ? 'checkmark' : 'dismiss';
+            if (!hideSuccess && success !== null) return success ? 'checkmark' : 'dismiss';
             return icon;
         });
     

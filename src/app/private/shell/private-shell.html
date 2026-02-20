@@ -25,7 +25,7 @@
                 <span button-text>{{ 'EDIT_MODE' | translate }}</span>
             }
             <div menu-content>
-                <app-async-button class="left-aligned" icon="sign_out" type="subtle" [onClick]="signOut" [showSuccess]="false">
+                <app-async-button class="left-aligned" icon="sign_out" type="subtle" [onClick]="signOut" hideSuccess>
                     {{ 'SIGN_OUT' | translate }}
                 </app-async-button>
                 @if (this.profileService.own()?.is_unit_admin) {

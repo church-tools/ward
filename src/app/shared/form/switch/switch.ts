@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ColorName } from '../../utils/color-utils';
 import ErrorMessageComponent from '../../widget/error-message/error-message';
 import { getProviders, InputBaseComponent } from '../shared/input-base';
@@ -33,8 +33,8 @@ import InputLabelComponent from '../shared/input-label';
 export default class SwitchComponent extends InputBaseComponent<boolean> {
 
     readonly color = input<ColorName>('accent');
-    readonly forceLabelOnTop = input(false);
-    readonly forceLabelOnSide = input(false);
+    readonly forceLabelOnTop = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly forceLabelOnSide = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly labelSide = input<'left' | 'right'>('right');
 
     protected onClick(event: MouseEvent): void {

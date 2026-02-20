@@ -5,7 +5,7 @@
         <ng-content select="[main-button-text]"/>
         <button class="menu-button small" (click)="click($event)" [disabled]="disabled()"
             title="{{title()}}" type="button" [class]="classes()">
-            <app-icon icon="chevron_down" class="no-color" [filled]="true"/>
+            <app-icon icon="chevron_down" class="no-color" filled/>
         </button>
     </button>
 } @else {
@@ -13,7 +13,7 @@
         @if (icon()) { <app-icon [icon]="icon()!" [size]="iconSize()" [filled]="iconFilled()"/> }
         <ng-content select="[button-text]"/>
         @if (showChevron()) {
-            <app-icon class="me-0 ms--1" icon="chevron_down" size="ns" [filled]="true"/>
+            <app-icon class="me-0 ms--1" icon="chevron_down" size="ns" filled/>
         }
     </button>
 }

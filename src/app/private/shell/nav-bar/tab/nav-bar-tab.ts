@@ -23,7 +23,7 @@ export type InnerNavBarTab = {
             <div class="icon-area">
                 <app-icon class="icon" [icon]="tab().icon" [size]="pillMode() ? 'lg' : 'md'"/>
                 <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}"
-                    [icon]="tab().icon" [filled]="true"  [size]="pillMode() ? 'lg' : 'md'"/>
+                    [icon]="tab().icon" filled [size]="pillMode() ? 'lg' : 'md'"/>
             </div>
             <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
         </a>

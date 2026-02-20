@@ -5,12 +5,11 @@
         @for (fileInfo of viewValue(); track $index) {
             <app-async-button type="secondary" class="grow-1"
                 [icon]="fileInfo.icon"
-                [iconFilled]="true"
-                [iconColored]="true"
+                iconFilled iconColored
                 [title]="fileInfo.fullName"
                 [color]="fileInfo.color ?? 'accent'"
                 [onClick]="openFile(fileInfo)"
-                [showSuccess]="false">
+                hideSuccess>
                 {{ fileInfo.name }}
             </app-async-button>
         }

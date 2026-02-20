@@ -9,7 +9,7 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
             @if (!row().unit_approved) {
                 <app-icon class="accent-text"
                     icon="question_circle"
-                    [filled]="true"/>
+                    filled/>
             }
             <h4>
                 {{ row().email }}

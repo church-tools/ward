@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
-import { Organization } from '../../../modules/organization/organization';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import type { Organization } from '../../../modules/organization/organization';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from "../../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../../modules/shared/table.types';
@@ -46,6 +46,7 @@ export class OrganizationsPageComponent extends PrivatePageComponent {
     private readonly router = inject(Router);
     private readonly profileService = inject(ProfileService);
     private readonly supabase = inject(SupabaseService);
+    private readonly translate = inject(TranslateService);
 
     protected readonly activeOrganizationId = signal<number | null>(null);
     
@@ -68,10 +69,20 @@ export class OrganizationsPageComponent extends PrivatePageComponent {
     
     protected enableEditMode = async () => {
         const profile = await this.profileService.own.asPromise();
-        const names = ['Elders Quorum', 'Relief Society'];
         const organizationTable = this.supabase.sync.from('organization');
-        await organizationTable.insert(names.map((name, position) =>
-            <Organization.Insert>{ name, position, unit: profile.unit, color: 'red' }));
+        const infos: Omit<Organization.Insert, 'id' | 'unit' | 'position' | 'name'>[] = [
+            { type: 'bishopric', color: 'goldenrod' },
+            { type: 'elders_quorum', color: 'chocolate' },
+            { type: 'relief_society', color: 'royalblue' },
+            { type: 'sunday_school', color: 'indigo' },
+            { type: 'young_men', color: 'tomato' },
+            { type: 'young_women', color: 'deeppink' },
+            { type: 'primary', color: 'lawngreen' }
+        ];
+        await organizationTable.insert(infos.map(({ type, color }, position) => <Organization.Insert>{
+            type, color, position, unit: profile.unit,
+            name: this.translate.instant(`ORGANIZATION_TYPE.${type!.toUpperCase()}`),
+        }));
         this.adminService.editMode.set(true);
     }
 }

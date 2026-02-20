@@ -9,7 +9,7 @@ import { TranslateModule } from '@ngx-translate/core';
         <span class="display-text">{{ 'NOT_FOUND.TITLE' | translate }}</span>
         <p>{{ 'NOT_FOUND.MESSAGE' | translate }}</p>
         <div class="row center-content mt-8">
-            <app-link-button [href]="'/'" size="large" [showNewTab]="false">
+            <app-link-button [href]="'/'" size="large" hideNewTab>
                 {{ 'NOT_FOUND.GO_HOME' | translate }}
             </app-link-button>
         </div>

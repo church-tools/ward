@@ -15,7 +15,7 @@ import { RowPageComponent } from '../../../shared/row-page';
     selector: 'app-agenda-settings-page',
     template: `
         <div class="row no-wrap items-center gap-4">
-            <app-icon-picker [iconOptions]="iconOptions" [filled]="true"
+            <app-icon-picker [iconOptions]="iconOptions" filled
                 buttonType="form"
                 [syncedRow]="syncedRow" column="shape"
                 [color]="syncedRow.value()?.color"
@@ -33,7 +33,8 @@ import { RowPageComponent } from '../../../shared/row-page';
         </div>
         <app-row-select [syncedRow]="syncedRow" column="organizations"
             table="organization"
-            label="{{ 'AGENDA_SETTINGS.DEFAULT_SECTION' | translate }}" allowClear/>
+            label="{{ 'VIEW.ORGANIZATIONS' | translate }}"
+            multiple allowClear/>
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, SyncedFieldDirective, IconPickerComponent,

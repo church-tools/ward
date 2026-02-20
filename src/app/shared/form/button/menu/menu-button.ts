@@ -1,4 +1,4 @@
-import { Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
+import { booleanAttribute, Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { IconComponent } from "../../../icon/icon";
 import { AnchoredPopoverComponent, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
@@ -24,7 +24,7 @@ export default class MenuButtonComponent extends ButtonBaseComponent implements 
     readonly position = input<PopoverPosition>('bottom');
     readonly alignment = input<PopoverAlignment>('right');
     readonly leaveTimeout = input<number>(0);
-    readonly showChevron = input(false);
+    readonly showChevron = input<boolean, unknown>(false, { transform: booleanAttribute });
 
     private timeout: ReturnType<typeof setTimeout> | undefined;
 

@@ -81,6 +81,7 @@ export function getRowRoute(tableRow: TableRow): string {
         case 'member': return `/members/${row.id}`;
         case 'agenda': return `/meetings/agenda/${row.id}`;
         case 'agenda_item': return `/meetings/agenda/${row.agenda}/item/${row.id}`;
+        case 'organization': return `/callings/organizations/${row.id}`;
     }
     throw new Error(`No route defined for table ${tableRow.table}`);
 }

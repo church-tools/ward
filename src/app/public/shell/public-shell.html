@@ -11,7 +11,7 @@
             <div menu-content>
                 @let loggedIn = this.supabase.user();
                 <app-async-button class="left-aligned"
-                    icon="sign_out" type="subtle" [showSuccess]="false"
+                    icon="sign_out" type="subtle" hideSuccess
                     [onClick]="loggedIn ? signOut : signIn">
                     {{ (loggedIn ? 'SIGN_OUT' : 'SIGN_IN') | translate }}
                 </app-async-button>

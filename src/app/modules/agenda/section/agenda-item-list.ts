@@ -11,7 +11,7 @@ import { Agenda } from '../agenda';
 @Component({
     selector: 'app-agenda-item-list',
     template: `
-        <app-row-card-list tableName="agenda_item" [editable]="true"
+        <app-row-card-list tableName="agenda_item" editable
             [getQuery]="getQuery()"
             [getUrl]="getItemUrl"
             [activeId]="activeItemId()"

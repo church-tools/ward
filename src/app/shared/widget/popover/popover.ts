@@ -15,7 +15,7 @@ export class PopoverPage {
             (cancel)="$event.preventDefault(); onClose.emit()">
             <app-button type="subtle" icon="dismiss" size="large"
                 class="close-button icon-only"
-                shortcut="Escape" [shortcutNeedsCtrl]="false"
+                shortcut="Escape" shortcutWithoutCtrl
                 (onClick)="onClose.emit()"/>
             <ng-container #contentContainer/>
         </dialog>

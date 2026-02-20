@@ -21,14 +21,14 @@ import { PrivatePageComponent } from '../shared/private-page';
                 <div class="row">
                     <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
                         icon="open"
-                        [outside]="true" [newTab]="true" type="secondary">
+                        outside newTab type="secondary">
                         <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | translate }}</span>
                     </app-link-button>
                 </div>
                 <app-row-card-list
                     tableName="member"
                     [getQuery]="getQuery"
-                    [editable]="true"
+                    editable
                     [page]="this"
                     [getUrl]="getUrl"
                     [activeId]="activeMemberId()"/>

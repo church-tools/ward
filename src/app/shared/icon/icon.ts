@@ -1,4 +1,4 @@
-import { Component, input } from "@angular/core";
+import { booleanAttribute, Component, input } from "@angular/core";
 import { xcomputed } from "../utils/signal-utils";
 import { iconCodes } from "./icon-codes";
 
@@ -28,7 +28,7 @@ export class IconComponent  {
     
     readonly icon = input.required<Icon | IconPath>();
     readonly size = input<IconSize>('md');
-    readonly filled = input<boolean>();
+    readonly filled = input<boolean, unknown>(false, { transform: booleanAttribute });
 
     protected readonly style = xcomputed([this.icon], icon => {
         if (!(icon in IconPathMap)) return '';

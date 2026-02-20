@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { Component, inject, Injector, input, OnDestroy, OnInit, output, viewChild } from "@angular/core";
+import { booleanAttribute, Component, inject, Injector, input, OnDestroy, OnInit, output, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { Icon } from "../../../shared/icon/icon";
 import { PageComponent } from "../../../shared/page/page";
@@ -26,7 +26,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
 
     readonly tableName = input.required<T>();
     readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string }) | null>(null);
-    readonly editable = input(false);
+    readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);
     readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T> | null) => string>();

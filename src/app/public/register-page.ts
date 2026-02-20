@@ -32,10 +32,10 @@ import { CredentialsComponent } from './shared/credentials';
                 </app-button>
             </div>
             <div class="row gap-4 mt-4">
-                <app-link-button [href]="'/reset-password'" type="transparent" [showNewTab]="false">
+                <app-link-button [href]="'/reset-password'" type="transparent" hideNewTab>
                     {{ 'FORGOT_PASSWORD.TITLE' | translate }}
                 </app-link-button>
-                <app-link-button [href]="'/login'" type="transparent" [showNewTab]="false">
+                <app-link-button [href]="'/login'" type="transparent" hideNewTab>
                     {{ 'LOGIN.TITLE' | translate }}
                 </app-link-button>
             </div>

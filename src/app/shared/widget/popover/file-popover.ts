@@ -17,7 +17,7 @@ import { PopoverPage } from "./popover";
                 <div class="row center-content gap-2">
                     @if (onDelete) {
                         <app-async-button class="icon-only" icon="delete" type="secondary" size="large"
-                            [onClick]="onDelete" [showSuccess]="false"/>
+                            [onClick]="onDelete" hideSuccess/>
                     }
                 </div>
                 <app-button class="icon-only" icon="arrow_download" type="secondary" size="large"

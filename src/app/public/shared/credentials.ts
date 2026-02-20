@@ -16,15 +16,15 @@ export type Credentials = {
 			<app-text-input #emailInput class="col-12"
 				[label]="'LOGIN.EMAIL' | translate"
 				[placeholder]="'LOGIN.EMAIL' | translate"
-                [indicateRequired]="false"
+                hideRequiredIndicator
 				autocomplete="email"
-				[trim]="true"
+				trim
 				type="email"
 				[formField]="credentialsForm.email"/>
 			<app-text-input class="col-12"
 				[label]="'LOGIN.PASSWORD' | translate"
 				[placeholder]="'LOGIN.PASSWORD' | translate"
-                [indicateRequired]="false"
+                hideRequiredIndicator
 				autocomplete="current-password"
 				type="password"
 				[formField]="credentialsForm.password"/>

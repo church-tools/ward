@@ -1,4 +1,4 @@
-import { Component, ElementRef, input, signal, viewChild } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, input, signal, viewChild } from '@angular/core';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { xcomputed } from '../../utils/signal-utils';
 import ErrorMessageComponent from '../../widget/error-message/error-message';
@@ -37,7 +37,7 @@ export class TextInputComponent extends InputBaseComponent<string> {
     readonly autocomplete = input<string>('off');
     readonly pattern = input<readonly RegExp[] | undefined>(); 
     readonly patternErrorMsg = input<string>();
-    readonly trim = input<boolean>(false);
+    readonly trim = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly copyable = input(false);
     readonly textClass = input<string | undefined>();
     readonly type = input<'text' | 'email' | 'password'>('text');

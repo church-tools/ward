@@ -1,4 +1,4 @@
-import { Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
@@ -53,6 +53,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     readonly getValueId = input<(value: T) => number | string>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
     readonly holdsValue = input(true);
+    readonly allowClear = input<boolean, unknown>(true, { transform: booleanAttribute });
     readonly mapSearch = input<(search: string) => string>();
 
     protected readonly optionsLoading = signal<boolean>(false);
@@ -95,6 +96,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     }
 
     protected clearSelection() {
+        if (!this.allowClear()) return;
         this.selectedOption.set(null);
         this.search.set("");
         this.input()?.nativeElement.focus();
@@ -197,6 +199,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     }
 
     private deleteLastSelection() {
+        if (!this.allowClear()) return;
         if (!this.selectedOption()) return;
         this.selectedOption.set(null);
         this.setViewValue(null);

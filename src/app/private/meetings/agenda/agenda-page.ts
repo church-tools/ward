@@ -25,13 +25,13 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     <span class="h0">
                         @let row = syncedRow.value();
                         @if (row && row.shape && windowService.isLarge()) {
-                            <app-icon [icon]="row.shape" [filled]="true" size="xl"
+                            <app-icon [icon]="row.shape" filled size="xl"
                                 class="{{syncedRow.value()?.color}}-active ms--12"></app-icon>
                         }
                         {{title()}}
                     </span>
                     @if (adminService.editMode()) {
-                        <app-link-button icon="settings" size="large" href="./settings" type="secondary" class="icon-only" [showNewTab]="false"/>
+                        <app-link-button icon="settings" size="large" href="./settings" type="secondary" class="icon-only" hideNewTab/>
                     }
                 </div>
 

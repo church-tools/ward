@@ -11,8 +11,7 @@ import { RowPageComponent } from '../../../shared/row-page';
 @Component({
     selector: 'app-agenda-item-page',
     template: `
-        <app-textarea [syncedRow]="syncedRow" column="title" name="title" textClass="h3"
-            [subtle]="true"/>
+        <app-textarea [syncedRow]="syncedRow" column="title" name="title" textClass="h3" subtle/>
         <app-rich-text [syncedRow]="syncedRow" column="content" name="content"/>
         <app-file-input [syncedRow]="syncedRow" column="files" name="files"/>
         <!-- <app-row-select [syncedRow]="syncedRow" column="assigned_to" name="assigned_to"

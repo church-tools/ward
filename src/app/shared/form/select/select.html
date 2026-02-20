@@ -6,7 +6,7 @@
             <div class="value-container row gap-1">
                 <button class="value-btn subtle" type="button">
                     <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
-                    @if (!disabled()) {
+                    @if (!disabled() && allowClear()) {
                         <button class="delete-btn subtle" type="button" (click)="clearSelection()">
                             <app-icon icon="dismiss" size="xs"/>
                         </button>

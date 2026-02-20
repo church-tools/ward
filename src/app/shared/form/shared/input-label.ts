@@ -7,7 +7,7 @@ import { Icon, IconComponent } from '../../icon/icon';
     imports: [IconComponent, TooltipComponent],
     template: `
         @if (label()) {
-            @if (icon()) { <app-icon [icon]="icon()!" [filled]="true" size="sm"/> }
+            @if (icon()) { <app-icon [icon]="icon()!" filled size="sm"/> }
             <span class="label color-text">
                 {{ label() }}
                 @if (required()) { <span class="required-indicator">*</span> }

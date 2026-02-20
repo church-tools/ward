@@ -1,4 +1,4 @@
-import { Component, ForwardRefFn, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
+import { Component, ForwardRefFn, booleanAttribute, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
 import { ValidationError } from "@angular/forms/signals";
 import { Icon } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
@@ -33,13 +33,13 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
     readonly info = input<string | undefined>();
     readonly placeholder = input<string>('');
     readonly required = input<boolean>(false);
-    readonly indicateRequired = input<boolean>(true);
-    readonly subtle = input<boolean>(false);
+    readonly hideRequiredIndicator = input<boolean, unknown>(true, { transform: booleanAttribute });
+    readonly subtle = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly onBlur = output<void>();
 
     protected readonly viewValue = signal<TIn | null>(null);
     readonly value = model<TOut | null>(null);
-    readonly disabled = model(false);
+    readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly touched = model(false);
     readonly dirty = input(false);
     readonly errors = model<ValidationError[]>([]);
@@ -54,8 +54,8 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
         xeffect([this.labelView, this.label], (labelView, label) => labelView?.label.set(label));
         xeffect([this.labelView, this.labelIcon], (labelView, icon) => labelView?.icon.set(icon));
         xeffect([this.labelView, this.info], (labelView, info) => labelView?.info.set(info));
-        xeffect([this.labelView, this.required, this.indicateRequired, this.disabled],
-            (labelView, required, indicateRequired, disabledState) => labelView?.required.set(required && indicateRequired && !disabledState));
+        xeffect([this.labelView, this.required, this.hideRequiredIndicator, this.disabled],
+            (labelView, required, hideRequiredIndicator, disabledState) => labelView?.required.set(required && !hideRequiredIndicator && !disabledState));
         xeffect([this.value], (modelValue) => {
             this.updateViewFromModel(modelValue);
         });

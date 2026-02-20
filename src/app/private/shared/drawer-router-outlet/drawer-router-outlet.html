@@ -16,7 +16,7 @@
             @if (windowService.hasMouse) {
                 <app-button type="subtle" icon="dismiss"
                     class="close-button icon-only"
-                    shortcut="Escape" [shortcutNeedsCtrl]="false"
+                    shortcut="Escape" shortcutWithoutCtrl
                     (onClick)="onClose()"/>
             }
         </div>
@@ -36,7 +36,7 @@
             @if (windowService.hasMouse) {
                 <app-button type="subtle" icon="dismiss" size="large"
                     class="close-button icon-only"
-                    shortcut="Escape" [shortcutNeedsCtrl]="false"
+                    shortcut="Escape" shortcutWithoutCtrl
                     (onClick)="onClose()"/>
             }
         </div>

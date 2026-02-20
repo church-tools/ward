@@ -80,7 +80,9 @@
     "MEMBER": "Member",
     "MEMBERS": "Members",
     "AGENDA_SECTION": "Agenda Section",
-    "AGENDA_SECTIONS": "Agenda Sections"
+    "AGENDA_SECTIONS": "Agenda Sections",
+    "ORGANIZATION": "Organization",
+    "ORGANIZATIONS": "Organizations"
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Pre-assign Prayer",
@@ -163,6 +165,18 @@
     "UPDATED_BY": "Updated by",
     "UPDATED_AT": "at",
     "FULL_UPDATED_AT": "Updated at"
+  },
+  "ORGANIZATION_TYPE": {
+    "BISHOPRIC": "Bishopric",
+    "ELDERS_QUORUM": "Elders Quorum",
+    "RELIEF_SOCIETY": "Relief Society",
+    "SUNDAY_SCHOOL": "Sunday School",
+    "YOUNG_MEN": "Young Men",
+    "YOUNG_WOMEN": "Young Women",
+    "PRIMARY": "Primary",
+    "MISSION_WORK": "Mission Work",
+    "TEMPLE_WORK": "Family History & Temple Work",
+    "OTHER": "Other"
   },
   "WEEKDAYS": {
     "0": "Sunday",

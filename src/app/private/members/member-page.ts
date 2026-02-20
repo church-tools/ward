@@ -7,8 +7,7 @@ import { RowPageComponent } from '../shared/row-page';
 @Component({
     selector: 'app-member-page',
     template: `
-        <app-text-input [syncedRow]="syncedRow" column="first_name" name="title" textClass="h1"
-            [subtle]="true"/>
+        <app-text-input [syncedRow]="syncedRow" column="first_name" name="title" textClass="h1" subtle/>
         <app-text-input [syncedRow]="syncedRow" column="last_name" name="content"/>
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,

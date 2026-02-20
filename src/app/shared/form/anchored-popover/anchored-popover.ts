@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, ElementRef, inject, input, OnDestroy, output, viewChild } from "@angular/core";
+import { booleanAttribute, Component, DOCUMENT, ElementRef, inject, input, OnDestroy, output, viewChild } from "@angular/core";
 
 export type PopoverPosition = 'top' | 'bottom' | 'anchor';
 export type PopoverAlignment = 'left' | 'right' | 'center';
@@ -19,7 +19,7 @@ export class AnchoredPopoverComponent implements OnDestroy {
 
     readonly position = input<PopoverPosition>('bottom');
     readonly alignment = input<PopoverAlignment>('right');
-    readonly closeOnOutsideClick = input(true);
+    readonly allowCickOutside = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly anchorElement = input<HTMLElement | null>(null);
     readonly offsetX = input<number>(0);
     readonly offsetY = input<number>(0);
@@ -30,7 +30,7 @@ export class AnchoredPopoverComponent implements OnDestroy {
     get visible() { return this._visible; }
 
     private readonly onDocumentPointerDown = (event: PointerEvent) => {
-        if (!this._visible || !this.closeOnOutsideClick()) return;
+        if (!this._visible || this.allowCickOutside()) return;
         const popoverEl = this.popover().nativeElement as HTMLElement;
         const anchorEl = this.anchorElement();
         const target = event.target as Node | null;

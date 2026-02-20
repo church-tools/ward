@@ -1,4 +1,4 @@
-import { Component, DOCUMENT, inject, input, OnDestroy } from "@angular/core";
+import { booleanAttribute, Component, DOCUMENT, inject, input, OnDestroy } from "@angular/core";
 import { Params, Router, RouterModule } from "@angular/router";
 import { IconComponent } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
@@ -48,16 +48,16 @@ export default class LinkButtonComponent extends ButtonBaseComponent implements 
     private readonly document = inject<Document>(DOCUMENT);
 
     readonly href = input.required<string>();
-    readonly showNewTab = input(true);
-    readonly newTab = input(false);
-    readonly outside = input(false);
+    readonly hideNewTab = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly newTab = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly outside = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly queryParams = input<Params>();
 
     protected readonly routerLink = xcomputed([this.href, this.outside], (href, outside) => outside ? null : href.split('?')[0]);
     protected readonly rel = xcomputed([this.outside], outside => outside ? 'noopener noreferrer' : '');
     protected readonly target = xcomputed([this.newTab], newTab => newTab ? '_blank' : '_self');
-    protected readonly newTabVisible = xcomputed([this.disabled, this.showNewTab, this.newTab],
-        (disabled, show, newTab) => !disabled && show && !newTab);
+    protected readonly newTabVisible = xcomputed([this.disabled, this.hideNewTab, this.newTab],
+        (disabled, hide, newTab) => !disabled && !hide && !newTab);
 
     execute() {
         this.navigate(this.href(), undefined, this.newTab());

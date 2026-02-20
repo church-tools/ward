@@ -578,7 +578,7 @@ export type Database = {
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           id: number
-          name: string
+          name?: string | null
           position: number
           type?: Database["public"]["Enums"]["organization_type"] | null
           unit: number
@@ -588,7 +588,7 @@ export type Database = {
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           id?: number
-          name?: string
+          name?: string | null
           position?: number
           type?: Database["public"]["Enums"]["organization_type"] | null
           unit?: number
