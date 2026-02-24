@@ -1,9 +1,9 @@
-import type { Database } from "../../../../../database";
+import type Table from "../shared/table.types";
 
 export namespace AgendaSection {
-    export type Insert = Database["public"]["Tables"]["agenda_section"]["Insert"];
-    export type Update = Database["public"]["Tables"]["agenda_section"]["Update"];
-    export type Row = Database["public"]["Tables"]["agenda_section"]["Row"];
+    export type Insert = Table.Insert<"agenda_section">;
+    export type Update = Table.Update<"agenda_section">;
+    export type Row = Table.RowWithCalculated<"agenda_section">;
 
     export type Type = Row["type"];
 }

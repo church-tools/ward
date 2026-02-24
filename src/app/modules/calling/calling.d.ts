@@ -1,7 +1,7 @@
-import type { Database } from "../../../../database";
+import type Table from "../shared/table.types";
 
 export namespace Calling {
-    export type Insert = Database["public"]["Tables"]["calling"]["Insert"];
-    export type Update = Database["public"]["Tables"]["calling"]["Update"];
-    export type Row = Database["public"]["Tables"]["calling"]["Row"];
+    export type Insert = Table.Insert<"calling">;
+    export type Update = Table.Update<"calling">;
+    export type Row = Table.RowWithCalculated<"calling">;
 }

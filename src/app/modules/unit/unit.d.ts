@@ -1,7 +1,7 @@
-import type { Database } from "../../../../database.types.ts";
+import type Table from "../shared/table.types";
 
 export namespace Unit {
-    export type Insert = Database["public"]["Tables"]["unit"]["Insert"];
-    export type Update = Database["public"]["Tables"]["unit"]["Update"];
-    export type Row = Database["public"]["Tables"]["unit"]["Row"];
+    export type Insert = Table.Insert<"unit">;
+    export type Update = Table.Update<"unit">;
+    export type Row = Table.RowWithCalculated<"unit">;
 }
