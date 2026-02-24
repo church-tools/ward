@@ -1,8 +1,8 @@
 import { AppComponent } from "../app.component";
-import { Row, TableName } from "../modules/shared/table.types";
-import { Icon } from "../shared/icon/icon";
+import type { Row, TableName } from "../modules/shared/table.types";
+import type { Icon } from "../shared/icon/icon";
 import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
-import { PrivatePageComponent } from "./shared/private-page";
+import type { PrivatePageComponent } from "./shared/private-page";
 
 export type PrivateTab = RouteObject<PrivatePageComponent> & {
     translateId: string;

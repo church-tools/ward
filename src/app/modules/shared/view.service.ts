@@ -1,7 +1,7 @@
 import { inject, Injectable, Injector } from "@angular/core";
 import { TranslateService, Translation } from "@ngx-translate/core";
-import { Observable } from "rxjs";
-import { Icon } from "../../shared/icon/icon";
+import type { Observable } from "rxjs";
+import type { Icon } from "../../shared/icon/icon";
 import type { Row, TableName } from "./table.types";
 
 export async function getViewService<T extends TableName>(injector: Injector, tableName: T): Promise<ViewService<T>> {

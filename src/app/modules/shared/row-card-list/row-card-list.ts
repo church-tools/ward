@@ -60,7 +60,8 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
             this.subscription?.unsubscribe();
             await cardListView.clear(true);
             const table = this.supabase.sync.from(tableName);
-            this.subscription = query(table).subscribe(update => {
+            const queryBase = query(table);
+            this.subscription = queryBase.subscribe(update => {
                 cardListView.updateItems({ items: update.result, deletions: update.deletions });
             });
         });

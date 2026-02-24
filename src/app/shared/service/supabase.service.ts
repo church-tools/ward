@@ -6,15 +6,20 @@ import { AgendaViewService } from '../../modules/agenda/agenda-view.service';
 import { CallingViewService } from '../../modules/calling/calling-view.service';
 import { AgendaItemViewService } from '../../modules/item/agenda-item-view.service';
 import { MemberViewService } from '../../modules/member/member-view.service';
+import { MemberCallingCalculated, type MemberCallingCalculatedValues } from '../../modules/member_calling/member-calling-calculated';
+import { MemberCallingViewService } from '../../modules/member_calling/member-calling-view.service';
+import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 import { ProfileViewService } from '../../modules/profile/profile-view.service';
 import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
-import { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
+import type { SupaSyncCalculatedMap, SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
-import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
+type CalculatedMap = SupaSyncCalculatedMap<Database> & {
+    member_calling: MemberCallingCalculatedValues;
+};
 
 export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
@@ -24,23 +29,26 @@ export type Session = { user: User; unit?: string, unit_approved?: boolean | nul
 export class SupabaseService {
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
-    readonly sync = new SupaSync<Database, TableInfoMap>(this.client, {
+    readonly sync = new SupaSync<Database, TableInfoMap, CalculatedMap>(this.client, {
         unit: { deletable: false },
         profile: { indexed: { email: String, unit_approved: Boolean },
-            getSearchString: inject(ProfileViewService).toString },
-        agenda: { orderKey: 'position', indexed: { weekday: Number },
-            getSearchString: inject(AgendaViewService).toString },
+            getSummaryString: inject(ProfileViewService).toString },
+        agenda: { orderKey: 'position', indexed: { weekday: Number, organizations: Number },
+            getSummaryString: inject(AgendaViewService).toString },
         agenda_section: { orderKey: 'position', indexed: { agenda: Number, type: String } },
         agenda_item: { createOffline: true, orderKey: 'position',
             indexed: { agenda: Number, type: String, assigned_to: Number },
-            getSearchString: inject(AgendaItemViewService).toString },
+            getSummaryString: inject(AgendaItemViewService).toString },
         calling: { createOffline: true, orderKey: 'position', indexed: {},
-            getSearchString: inject(CallingViewService).toString },
-        member: { indexed: { unit: Number, profile: Number },
-            getSearchString: inject(MemberViewService).toString },
+            getSummaryString: inject(CallingViewService).toString },
+        member: { indexed: { profile: Number },
+            getSummaryString: inject(MemberViewService).toString },
+        member_calling: { indexed: { member: Number, calling: Number },
+            calculated: MemberCallingCalculated,
+            getSummaryString: inject(MemberCallingViewService).toString },
         organization: { orderKey: 'position',
-            getSearchString: inject(OrganizationViewService).toString },
-    } as SupaSyncTableInfos<Database>);
+            getSummaryString: inject(OrganizationViewService).toString },
+    } as SupaSyncTableInfos<Database, TableInfoMap, CalculatedMap>);
 
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();

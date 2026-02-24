@@ -5,16 +5,16 @@ import type Table from "../shared/table.types";
 export const MemberCallingCalculated = {
 	memberName: {
 		dependsOn: { member: 'member' } as const,
-		getValue: (_, dependencies) => {
-			const member = dependencies.member as Table.Row<'member'> | undefined;
+		calculation: (_, dependencies) => {
+			const member = dependencies.member as Table.RawRow<'member'> | undefined;
 			if (!member) return '';
 			return `${member.nick_name || member.first_name} ${member.last_name ?? ''}`.trim();
 		},
 	},
 	callingName: {
 		dependsOn: { calling: 'calling' } as const,
-		getValue: (_, dependencies) => {
-			const calling = dependencies.calling as Table.Row<'calling'> | undefined;
+		calculation: (_, dependencies) => {
+			const calling = dependencies.calling as Table.RawRow<'calling'> | undefined;
 			return calling?.name ?? '';
 		},
 	},

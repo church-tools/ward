@@ -1,23 +1,27 @@
 import { Observable } from "rxjs";
-import { Subscription } from "../event-emitter";
-import { Database, QueryResult, Row, TableName } from "../supa-sync.types";
-import { IDBStoreAdapter } from "./idb-store-adapter";
+import type { Subscription } from "../event-emitter";
+import type { AnyCalculatedValues, Database, QueryResult, Row, RowWithCalculated, TableName } from "../supa-sync.types";
+import type { IDBStoreAdapter } from "./idb-store-adapter";
 
-export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R> {
-
+export abstract class IDBQueryBase<
+    D extends Database,
+    T extends TableName<D>,
+    C extends AnyCalculatedValues,
+    R
+> {
     protected abortSignal?: AbortSignal;
 
     constructor(
-        protected readonly store: IDBStoreAdapter<Row<D, T>>,
-        private readonly resultMapping: (rows: Row<D, T>[]) => R,
+        protected readonly store: IDBStoreAdapter<RowWithCalculated<D, T, C>>,
+        private readonly resultMapping: (rows: RowWithCalculated<D, T, C>[]) => R,
     ) {
     }
 
-    protected abstract _getItems(): Promise<Row<D, T>[]>;
+    protected abstract _getItems(): Promise<RowWithCalculated<D, T, C>[]>;
 
     protected abstract _getKeys(): Promise<IDBValidKey[]>;
 
-    protected abstract filterRow(row: Row<D, T>): boolean;
+    protected abstract filterRow(row: RowWithCalculated<D, T, C>): boolean;
 
     public abortOn(abortSignal: AbortSignal) {
         this.abortSignal = abortSignal;
@@ -42,7 +46,7 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
         return new Observable<QueryResult<R>>(subscriber => {
             this._getItems().then(items => {
                 const result = this.resultMapping(items);
-                subscriber.next({ result });
+                subscriber.next({ result, deletions: null });
             });
             const sub = this.listenToChanges(res => subscriber.next(res));
             return () => sub.unsubscribe();
@@ -51,7 +55,7 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
 
     public listenToChanges(callback: (result: QueryResult<R>) => void) {
         return this.store.onChange.subscribe(changes => {
-            const items: Row<D, T>[] = [];
+            const items: RowWithCalculated<D, T, C>[] = [];
             const deletions: number[] = [];
             for (const change of changes) {
                 const { old, new: cur } = change;
@@ -61,7 +65,7 @@ export abstract class IDBQueryBase<D extends Database, T extends TableName<D>, R
                     deletions.push(old.id);
             }
             if (!items.length && !deletions.length) return;
-            const result = items.length ? this.resultMapping(items) : undefined;
+            const result = items.length ? this.resultMapping(items) : null;
             callback({ result, deletions });
         });
     }

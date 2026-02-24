@@ -1,6 +1,6 @@
 import { Component, input, Type } from "@angular/core";
 import { PageComponent } from "../../../shared/page/page";
-import { Row, TableName } from "../table.types";
+import type { Row, TableName } from "../table.types";
 
 export function getListRowComponent<T extends TableName>(tableName: T) {
     return getComponent(tableName) as Promise<Type<ListRowComponent<T>>>;

@@ -1,5 +1,6 @@
 import { Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { OrganizationService } from '../../modules/organization/organization.service';
 import { UnitService } from '../../modules/unit/unit.service';
 import AsyncButtonComponent from '../../shared/form/button/async/async-button';
 import MenuButtonComponent from '../../shared/form/button/menu/menu-button';
@@ -27,6 +28,8 @@ import { PresencesComponent } from "./presences";
 export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     protected readonly adminService = inject(AdminService);
+    private readonly unitService = inject(UnitService);
+    private readonly organizationService = inject(OrganizationService);
 
     protected readonly tabs = signal<NavBarTab[]>([]);
 
@@ -48,8 +51,15 @@ export class PrivateShellComponent extends ShellComponent implements OnInit {
 
     private async getStartRoute() {
         const [unit, agendas] = await Promise.all([
-            (inject(UnitService)).getUnit(),
-            this.supabase.sync.from('agenda').readAll().get(),
+            this.unitService.getUnit(),
+            
+            this.organizationService.own.asPromise()
+            .then(organizations => 
+                this.supabase.sync.from('agenda').find()
+                .eq('weekday', new Date().getDay())
+                .containsAny('organizations', organizations.map(o => o.id))
+                .get()
+            )
         ]);
         const now = Date.now();
         const sacramentServiceStart = blockInWeekToTime(unit!.sacrament_service_time).getTime();

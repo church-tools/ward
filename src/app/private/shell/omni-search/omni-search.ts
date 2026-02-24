@@ -2,7 +2,7 @@ import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angu
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import { Row } from '../../../modules/shared/table.types';
+import type { Row } from '../../../modules/shared/table.types';
 import { getViewService } from '../../../modules/shared/view.service';
 import { SelectComponent } from '../../../shared/form/select/select';
 import { IconComponent } from "../../../shared/icon/icon";
@@ -22,7 +22,7 @@ type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<
             [options]="getOptions"
             [onGroupClick]="onGroupClick"
             (valueChange)="navigateTo($event)"
-            [holdsValue]="false"
+            withoutValue
             [mapSearch]="mapSearch">
             <app-icon icon="search" size="sm"/>
         </app-select>

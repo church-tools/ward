@@ -34,7 +34,7 @@ import { RowPageComponent } from '../../../shared/row-page';
         <app-row-select [syncedRow]="syncedRow" column="organizations"
             table="organization"
             label="{{ 'VIEW.ORGANIZATIONS' | translate }}"
-            multiple allowClear/>
+            multiple/>
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, SyncedFieldDirective, IconPickerComponent,

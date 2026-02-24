@@ -3,7 +3,7 @@ import { Component, inject, input } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 import { map } from 'rxjs/operators';
-import { Row, TableName } from '../../modules/shared/table.types';
+import type { Row, TableName } from '../../modules/shared/table.types';
 import { mapLangToLocale } from '../../shared/utils/language-utils';
 import { xcomputed } from '../../shared/utils/signal-utils';
 

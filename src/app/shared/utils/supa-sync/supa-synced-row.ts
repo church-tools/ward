@@ -2,10 +2,11 @@
 import { effect, EffectRef, Signal, signal, WritableSignal } from "@angular/core";
 import { Subscription } from "./event-emitter";
 import { SupaSyncTable } from "./supa-sync-table";
-import type { Database, Row, TableName, Update } from "./supa-sync.types";
+import type { AnyCalculatedValues, CalculatedOf, Database, NoCalculatedValues,
+    RowWithCalculated, SupaSyncCalculatedMap, TableName, Update } from "./supa-sync.types";
 import { SupaSync } from "./supa-sync";
 
-export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
+export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues = NoCalculatedValues> {
 
     private subscription: Subscription | undefined;
     private readonly effectRef: EffectRef | undefined;
@@ -13,21 +14,26 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
     public get table() { return this._table; }
 
     constructor(
-        private _table: SupaSyncTable<D, T>,
+        private _table: SupaSyncTable<D, T, C>,
         public readonly id: Signal<number | null>,
-        public readonly value: Signal<Row<D, T> | null>,
-        effectFunc: (self: SupaSyncedRow<D, T>) => void,
+        public readonly value: Signal<RowWithCalculated<D, T, C> | null>,
+        effectFunc: (self: SupaSyncedRow<D, T, C>) => void,
     ) {
         this.effectRef = effect(() => effectFunc(this));
     }
 
-    public static fromId<D extends Database, T extends TableName<D>, IA extends { [K in TableName<D>]?: any } = {}>(
-        supaSync: SupaSync<D, IA>,
+    public static fromId<
+        D extends Database,
+        T extends TableName<D>,
+        IA extends Partial<{ [K in TableName<D>]: any }> = {},
+        CM extends SupaSyncCalculatedMap<D> = {},
+    >(
+        supaSync: SupaSync<D, IA, CM>,
         getTableName: () => T,
         idSignal: Signal<number | null>,
-    ): SupaSyncedRow<D, T> {
-        const row = signal<Row<D, T> | null>(null); 
-        const self = new SupaSyncedRow<D, T>(supaSync.from(getTableName()), idSignal, row, self => {
+    ): SupaSyncedRow<D, T, CalculatedOf<D, T, CM>> {
+        const row = signal<RowWithCalculated<D, T, CalculatedOf<D, T, CM>> | null>(null);
+        const self = new SupaSyncedRow<D, T, CalculatedOf<D, T, CM>>(supaSync.from(getTableName()), idSignal, row, self => {
             const id = idSignal();
             row.set(null);
             self.subscription?.unsubscribe();
@@ -39,12 +45,12 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>> {
         return self;
     }
 
-    public static fromRow<D extends Database, T extends TableName<D>>(
-        table: SupaSyncTable<D, T>,
-        rowSignal: WritableSignal<Row<D, T>>,
-    ): SupaSyncedRow<D, T> {
+    public static fromRow<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues = NoCalculatedValues>(
+        table: SupaSyncTable<D, T, C, any>,
+        rowSignal: WritableSignal<RowWithCalculated<D, T, C> | null>,
+    ): SupaSyncedRow<D, T, C> {
         const id = signal<number | null>(null);
-        const self = new SupaSyncedRow<D, T>(table, id, rowSignal, self => {
+        const self = new SupaSyncedRow<D, T, C>(table, id, rowSignal, self => {
             const row = rowSignal();
             id.set(row?.[self._table.idKey] ?? null);
             self.subscription?.unsubscribe();

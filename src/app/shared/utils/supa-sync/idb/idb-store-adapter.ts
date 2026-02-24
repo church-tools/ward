@@ -1,6 +1,6 @@
 import { AsyncState } from "../../async-state";
 import { EventEmitter } from "../event-emitter";
-import { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
+import type { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
 
 export function idbBoolToNumber(value: boolean | null) {
     switch (value) {
