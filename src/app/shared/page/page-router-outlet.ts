@@ -1,4 +1,4 @@
-import { ComponentRef, Directive, ElementRef, EnvironmentInjector, inject, Injector, Signal, ViewContainerRef } from '@angular/core';
+import { ComponentRef, Directive, ElementRef, EnvironmentInjector, inject, Injector, input, Signal, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts, ROUTER_OUTLET_DATA, RouterOutlet } from '@angular/router';
 import { RowPageComponent } from '../../private/shared/row-page';
 import { wait } from '../utils/flow-control-utils';
@@ -16,6 +16,8 @@ export class PageRouterOutlet extends RouterOutlet {
     private transitionToken = 0;
     private leavingPageRef: ComponentRef<PageComponent> | undefined;
 
+    public readonly saveScrollPosition = input<boolean, unknown>(false, { transform: value => value !== null });
+
     private getScrollContainer(): HTMLElement | null {
         return this.el.closest('.canvas-container');
     }
@@ -30,7 +32,7 @@ export class PageRouterOutlet extends RouterOutlet {
         const scrollContainer = this.getScrollContainer();
         const currentScrollTop = scrollContainer?.scrollTop ?? 0;
 
-        if (previousPath != null)
+        if (this.saveScrollPosition() && previousPath != null)
             this.scrollPositions.set(previousPath, currentScrollTop);
 
         const oldPageRef = this['activated'] as ComponentRef<PageComponent> | null;
@@ -48,7 +50,8 @@ export class PageRouterOutlet extends RouterOutlet {
         const newPage = newPageRef.instance;
 
         const scrollPosition = this.scrollPositions.get(newPath) ?? 0;
-        newPage.el.style.top = currentScrollTop - scrollPosition + 'px';
+        if (this.saveScrollPosition())
+            newPage.el.style.top = currentScrollTop - scrollPosition + 'px';
         newPage.el.classList.add('page-router-child', 'page-transitioning', 'enter', animation);
         const oldPage = oldPageRef?.instance;
         oldPage?.el.classList.remove('enter', 'fade', 'left', 'right');
@@ -62,7 +65,7 @@ export class PageRouterOutlet extends RouterOutlet {
             this.transitionTimeout = undefined;
             newPage.el.style.top = '';
             newPage.el.classList.remove('page-transitioning', 'enter', animation);
-            if (scrollContainer)
+            if (this.saveScrollPosition() && scrollContainer)
                 scrollContainer.scrollTop = scrollPosition;
             if (oldPageRef) {
                 const viewIndex = location.indexOf(oldPageRef.hostView);
@@ -73,7 +76,7 @@ export class PageRouterOutlet extends RouterOutlet {
                 if (this.leavingPageRef === oldPageRef)
                     this.leavingPageRef = undefined;
             }
-            if (animation === 'left' && previousPath != null)
+            if (this.saveScrollPosition() && animation === 'left' && previousPath != null)
                 this.scrollPositions.delete(previousPath);
             if (newPage instanceof RowPageComponent) {
                 newPage.onIdChange = async _ => {

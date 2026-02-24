@@ -1,7 +1,7 @@
 import { Directive, effect, inject, input, ModelSignal, untracked } from "@angular/core";
-import { FormValueControl } from "@angular/forms/signals";
+import type { FormValueControl } from "@angular/forms/signals";
 import type { Column, Database, Row, TableName } from "./supa-sync.types";
-import { SupaSyncedRow } from "./supa-synced-row";
+import type { SupaSyncedRow } from "./supa-synced-row";
 
 export abstract class HasFormValueControl<T> implements FormValueControl<T> {
     abstract value: ModelSignal<T>;

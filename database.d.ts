@@ -565,6 +565,7 @@ export type Database = {
       }
       organization: {
         Row: {
+          abbreviation: string | null
           color: Database["public"]["Enums"]["color"] | null
           created_at: string
           id: number
@@ -575,20 +576,22 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          abbreviation?: string | null
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           id: number
-          name?: string | null
+          name: string
           position: number
           type?: Database["public"]["Enums"]["organization_type"] | null
           unit: number
           updated_at?: string
         }
         Update: {
+          abbreviation?: string | null
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
           id?: number
-          name?: string | null
+          name?: string
           position?: number
           type?: Database["public"]["Enums"]["organization_type"] | null
           unit?: number
@@ -881,6 +884,12 @@ export type Database = {
         | "savings"
         | "people_audience"
         | "scales"
+        | "sport"
+        | "sport_basketball"
+        | "american_football"
+        | "sport_soccer"
+        | "doctor"
+        | "shape_organic"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1117,6 +1126,12 @@ export const Constants = {
         "savings",
         "people_audience",
         "scales",
+        "sport",
+        "sport_basketball",
+        "american_football",
+        "sport_soccer",
+        "doctor",
+        "shape_organic",
       ],
     },
   },

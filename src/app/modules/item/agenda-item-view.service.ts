@@ -1,7 +1,7 @@
 import { Injectable } from "@angular/core";
-import { Icon } from "../../shared/icon/icon";
+import type { Icon } from "../../shared/icon/icon";
 import { ViewService } from "../shared/view.service";
-import { AgendaItem } from "./agenda-item";
+import type { AgendaItem } from "./agenda-item";
 
 @Injectable({ providedIn: 'root' })
 export class AgendaItemViewService extends ViewService<'agenda_item'> {

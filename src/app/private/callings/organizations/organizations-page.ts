@@ -81,7 +81,8 @@ export class OrganizationsPageComponent extends PrivatePageComponent {
         ];
         await organizationTable.insert(infos.map(({ type, color }, position) => <Organization.Insert>{
             type, color, position, unit: profile.unit,
-            name: this.translate.instant(`ORGANIZATION_TYPE.${type!.toUpperCase()}`),
+            name: this.translate.instant(`ORGANIZATION_TYPE.${type!.toUpperCase()}.NAME`),
+            abbreviation: this.translate.instant(`ORGANIZATION_TYPE.${type!.toUpperCase()}.SHORT`),
         }));
         this.adminService.editMode.set(true);
     }

@@ -51,3 +51,5 @@ Thumbs.db
 
 # Icons
 FluentSystemIcons-Resizable.json
+
+.playwright-mcp/

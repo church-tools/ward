@@ -112,6 +112,9 @@
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organizations"
   },
+  "ORGANIZATION_PAGE": {
+    "ABBREVIATION": "Abbreviation"
+  },
   "USERS_PAGE": {
     "TITLE": "Users",
     "NEW_UNITS": {
@@ -167,16 +170,16 @@
     "FULL_UPDATED_AT": "Updated at"
   },
   "ORGANIZATION_TYPE": {
-    "BISHOPRIC": "Bishopric",
-    "ELDERS_QUORUM": "Elders Quorum",
-    "RELIEF_SOCIETY": "Relief Society",
-    "SUNDAY_SCHOOL": "Sunday School",
-    "YOUNG_MEN": "Young Men",
-    "YOUNG_WOMEN": "Young Women",
-    "PRIMARY": "Primary",
-    "MISSION_WORK": "Mission Work",
-    "TEMPLE_WORK": "Family History & Temple Work",
-    "OTHER": "Other"
+    "BISHOPRIC": { "NAME": "Bishopric", "SHORT": "Bish." },
+    "ELDERS_QUORUM": { "NAME": "Elders Quorum", "SHORT": "EQ" },
+    "RELIEF_SOCIETY": { "NAME": "Relief Society", "SHORT": "RS" },
+    "SUNDAY_SCHOOL": { "NAME": "Sunday School", "SHORT": "So.School" },
+    "YOUNG_MEN": { "NAME": "Young Men", "SHORT": "YM" },
+    "YOUNG_WOMEN": { "NAME": "Young Women", "SHORT": "YW" },
+    "PRIMARY": { "NAME": "Primary", "SHORT": "Primary" },
+    "MISSION_WORK": { "NAME": "Mission Work", "SHORT": "Mission" },
+    "TEMPLE_WORK": { "NAME": "Family History & Temple Work", "SHORT": "Temple" },
+    "OTHER": { "NAME": "Other", "SHORT": "" }
   },
   "WEEKDAYS": {
     "0": "Sunday",

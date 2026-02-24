@@ -1,4 +1,4 @@
-import { Component, ForwardRefFn, booleanAttribute, forwardRef, input, model, output, signal, viewChild } from "@angular/core";
+import { Component, ElementRef, ForwardRefFn, booleanAttribute, forwardRef, inject, input, model, output, signal, viewChild } from "@angular/core";
 import { ValidationError } from "@angular/forms/signals";
 import { Icon } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
@@ -20,11 +20,12 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
         'class': 'input',
         '[class.disabled]': 'disabled()',
         '[class.subtle]': 'subtle()',
-        '(focusout)': 'markTouched(); onBlur.emit()',
+        '(focusout)': 'onHostFocusOut($event)',
     },
 })
 export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOut | null> {
 
+    private readonly host = inject(ElementRef<HTMLElement>);
     private readonly labelView = viewChild(InputLabelComponent);
     protected readonly errorView = viewChild(ErrorMessageComponent);
 
@@ -92,8 +93,12 @@ export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOu
         return value as any as TOut;
     }
 
-    protected onFocusOut(event: FocusEvent): void {
-        
+    protected onHostFocusOut(event: FocusEvent): void {
+        const nextFocused = event.relatedTarget as Node | null;
+        if (nextFocused && this.host.nativeElement.contains(nextFocused))
+            return;
+        this.markTouched();
+        this.onBlur.emit();
     }
     
     private async updateViewFromModel(value: TOut | null) {

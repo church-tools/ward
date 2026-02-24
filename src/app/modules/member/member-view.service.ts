@@ -1,12 +1,12 @@
 import { Injectable } from "@angular/core";
+import type { ColorName } from "../../shared/utils/color-utils";
 import { ViewService } from "../shared/view.service";
-import { Member } from "./member";
-import { ColorName } from "../../shared/utils/color-utils";
+import type { Member } from "./member";
 
 @Injectable({ providedIn: 'root' })
 export class MemberViewService extends ViewService<'member'> {
     
-    readonly icon = 'calendar_agenda';
+    readonly icon = 'people_community';
 
     readonly brotherColor: ColorName = 'royalblue';
     readonly sisterColor: ColorName = 'deeppink';

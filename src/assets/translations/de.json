@@ -112,6 +112,9 @@
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organisationen"
   },
+  "ORGANIZATION_PAGE": {
+    "ABBREVIATION": "Abkürzung"
+  },
   "USERS_PAGE": {
     "TITLE": "Benutzer",
     "NEW_UNITS": {
@@ -164,16 +167,16 @@
     "FULL_UPDATED_AT": "Aktualisiert am"
   },
   "ORGANIZATION_TYPE": {
-    "BISHOPRIC": "Bischofschaft",
-    "ELDERS_QUORUM": "Ältestenkollegium",
-    "RELIEF_SOCIETY": "Frauenhilfsvereinigung",
-    "SUNDAY_SCHOOL": "Sonntagsschule",
-    "YOUNG_MEN": "Junge Männer",
-    "YOUNG_WOMEN": "Junge Damen",
-    "PRIMARY": "Primarvereinigung",
-    "MISSION_WORK": "Missionsarbeit",
-    "TEMPLE_WORK": "Familiengeschichte & Tempelarbeit",
-    "OTHER": "Sonstige"
+    "BISHOPRIC": { "NAME": "Bischofschaft", "SHORT": "Bisch." },
+    "ELDERS_QUORUM": { "NAME": "Ältestenkollegium", "SHORT": "ÄK" },
+    "RELIEF_SOCIETY": { "NAME": "Frauenhilfsvereinigung", "SHORT": "FHV" },
+    "SUNDAY_SCHOOL": { "NAME": "Sonntagsschule", "SHORT": "So.Schu." },
+    "YOUNG_MEN": { "NAME": "Junge Männer", "SHORT": "JM" },
+    "YOUNG_WOMEN": { "NAME": "Junge Damen", "SHORT": "JD" },
+    "PRIMARY": { "NAME": "Primarvereinigung", "SHORT": "PV" },
+    "MISSION_WORK": { "NAME": "Missionsarbeit", "SHORT": "Mission" },
+    "TEMPLE_WORK": { "NAME": "Familiengeschichte & Tempelarbeit", "SHORT": "Tempel" },
+    "OTHER": { "NAME": "Sonstige", "SHORT": "" }
   },
   "WEEKDAYS": {
     "0": "Sonntag",
