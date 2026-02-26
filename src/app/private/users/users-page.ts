@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Profile } from '../../modules/profile/profile';
+import { ProfileListInsertComponent } from '../../modules/profile/profile-list-insert';
+import { ProfileListRowComponent } from '../../modules/profile/profile-list-row';
 import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import { PrivatePageComponent } from '../shared/private-page';
@@ -22,14 +24,25 @@ import { NewUnitsComponent } from "./new-units";
                     [getQuery]="getQuery"
                     [page]="this"
                     [getUrl]="getUrl"
-                    [activeId]="activeProfileId()"/>
+                    [activeId]="activeProfileId()">
+                    <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                        <app-profile-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                        <app-profile-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"
+                            [prepareInsert]="prepareInsert"
+                            [context]="context"/>
+                    </ng-template>
+                </app-row-card-list>
                 @if (adminService.isAdmin()) {
                     <app-new-units/>
                 }
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent,
+    imports: [TranslateModule, RowCardListComponent, ProfileListRowComponent, ProfileListInsertComponent,
         DrawerRouterOutletComponent, NewUnitsComponent],
     host: { class: 'full-width' },
 })

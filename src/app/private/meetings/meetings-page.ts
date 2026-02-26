@@ -2,7 +2,11 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Agenda } from '../../modules/agenda/agenda';
+import { AgendaListInsertComponent } from '../../modules/agenda/agenda-list-insert';
+import { AgendaListRowComponent } from '../../modules/agenda/agenda-list-row';
 import { AgendaItem } from '../../modules/item/agenda-item';
+import { AgendaItemListInsertComponent } from '../../modules/item/agenda-item-list-insert';
+import { AgendaItemListRowComponent } from '../../modules/item/agenda-item-list-row';
 import { ProfileService } from '../../modules/profile/profile.service';
 import { RowCardListComponent } from '../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../modules/shared/table.types';
@@ -23,7 +27,18 @@ import { PrivatePageComponent } from '../shared/private-page';
                     [getQuery]="getMyTaskQuery()"
                     [getUrl]="getItemUrl"
                     [activeId]="activeItemId()"
-                    emptyIcon="checkmark_circle"/>
+                    emptyIcon="checkmark_circle">
+                    <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                        <app-agenda-item-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                        <app-agenda-item-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"
+                            [prepareInsert]="prepareInsert"
+                            [context]="context"/>
+                    </ng-template>
+                </app-row-card-list>
                 <span class="h0 mt-4">{{ 'MEETINGS_PAGE.TITLE' | translate }}</span>
                 <app-row-card-list
                     tableName="agenda"
@@ -31,11 +46,23 @@ import { PrivatePageComponent } from '../shared/private-page';
                     [page]="this"
                     [editable]="adminService.editMode()"
                     [gap]="4"
-                    [getUrl]="getAgendaUrl"/>
+                    [getUrl]="getAgendaUrl">
+                    <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                        <app-agenda-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                        <app-agenda-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"
+                            [prepareInsert]="prepareInsert"
+                            [context]="context"/>
+                    </ng-template>
+                </app-row-card-list>
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, RowCardListComponent, DrawerRouterOutletComponent],
+    imports: [TranslateModule, RowCardListComponent, AgendaItemListRowComponent, AgendaItemListInsertComponent,
+        AgendaListRowComponent, AgendaListInsertComponent, DrawerRouterOutletComponent],
     host: { class: 'full-width' },
 })
 export class MeetingsPageComponent extends PrivatePageComponent {

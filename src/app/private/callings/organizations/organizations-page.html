@@ -1,0 +1,40 @@
+<app-drawer-router-outlet
+    (onClose)="navigateHere()"
+    (activated)="onActivate($event)">
+    <div class="page narrow gap-4">
+        <span class="h0">{{ 'ORGANIZATIONS_PAGE.TITLE' | translate }}</span>
+        <app-row-card-list #organizationList
+            tableName="organization"
+            [getQuery]="getQuery"
+            [editable]="adminService.editMode()"
+            [page]="this"
+            [activeId]="activeOrganizationId()">
+            <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                <div class="column full-width">
+                    <app-organization-list-row [row]="row" [page]="page" [onRemove]="onRemove" (click)="collapse.toggle()">
+                        <app-icon icon="chevron_down" class="chevron" [class.rotated]="!collapse.collapsed()"/>
+                    </app-organization-list-row>
+                    <app-collapse #collapse>
+                        TODO: add details here, maybe members of the organization?  
+                    </app-collapse>
+                </div>    
+            </ng-template>
+            <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                <app-organization-list-insert
+                    [insert]="functions.insert"
+                    [cancel]="functions.cancel"
+                    [prepareInsert]="prepareInsert"
+                    [context]="context"/>
+            </ng-template>
+        </app-row-card-list>
+        @if (adminService.isUnitAdmin() && !adminService.editMode() &&
+            organizationList.initialized() && !organizationList.rowCount()) {
+            <div class="card canvas-card large card-appear row p-4">
+                <app-async-button icon="edit" size="large"
+                    [onClick]="enableEditMode">
+                    {{ 'ENABLE_EDIT_MODE' | translate }}
+                </app-async-button>
+            </div> 
+        }
+    </div>
+</app-drawer-router-outlet>

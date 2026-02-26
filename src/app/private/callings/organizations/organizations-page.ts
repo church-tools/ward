@@ -2,41 +2,24 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Organization } from '../../../modules/organization/organization';
+import { OrganizationListInsertComponent } from '../../../modules/organization/organization-list-insert';
+import { OrganizationListRowComponent } from '../../../modules/organization/organization-list-row';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from "../../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../../modules/shared/table.types';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { SupabaseService } from '../../../shared/service/supabase.service';
+import CollapseComponent from '../../../shared/widget/collapse/collapse';
 import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../../shared/private-page';
+import { IconComponent } from "../../../shared/icon/icon";
 
 @Component({
     selector: 'app-organizations-page',
-    template: `
-        <app-drawer-router-outlet
-            (onClose)="navigateHere()"
-            (activated)="onActivate($event)">
-            <div class="page narrow gap-4">
-                <span class="h0">{{ 'ORGANIZATIONS_PAGE.TITLE' | translate }}</span>
-                <app-row-card-list #organizationList
-                    tableName="organization"
-                    [getQuery]="getQuery"
-                    [editable]="adminService.editMode()"
-                    [page]="this"
-                    [activeId]="activeOrganizationId()"/>
-                @if (adminService.isUnitAdmin() && !adminService.editMode() &&
-                    organizationList.initialized() && !organizationList.rowCount()) {
-                    <div class="card canvas-card large card-appear row p-4">
-                        <app-async-button icon="edit" size="large"
-                            [onClick]="enableEditMode">
-                            {{ 'ENABLE_EDIT_MODE' | translate }}
-                        </app-async-button>
-                    </div> 
-                }
-            </div>
-        </app-drawer-router-outlet>
-    `,
-    imports: [TranslateModule, RowCardListComponent, DrawerRouterOutletComponent, AsyncButtonComponent],
+    templateUrl: './organizations-page.html',
+    imports: [TranslateModule, RowCardListComponent, OrganizationListRowComponent, OrganizationListInsertComponent,
+        DrawerRouterOutletComponent, AsyncButtonComponent, CollapseComponent, IconComponent],
+    styleUrl: './organizations-page.scss',
     host: { class: 'full-width' },
 })
 export class OrganizationsPageComponent extends PrivatePageComponent {

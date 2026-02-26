@@ -1,8 +1,7 @@
 @let table = this.table();
-@let rowComponent = this.rowComponent();
-@let insertComponent = this.insertComponent();
+@let insertTemplate = this.insertTemplate();
 @let editable = this.editable();
-@if (table && rowComponent && (insertComponent || !editable)) {
+@if (table && (!editable || insertTemplate)) {
     <app-card-list
         [cardClasses]="cardsVisible() ? cardClasses() : ''"
         [reorderable]="editable && !!table.info.orderKey"
@@ -19,22 +18,23 @@
         [dragDropGroup]="tableName()"
         [emptyIcon]="emptyIcon()"
         (itemClick)="onRowClick($event)">
-        <ng-template let-row>
-            <ng-container [ngComponentOutlet]="rowComponent" 
-                [ngComponentOutletInputs]="{
-                    row,
+        <ng-template #itemTemplate let-row>
+            <ng-container *ngTemplateOutlet="rowTemplate();
+                context: {
+                    $implicit: row,
                     page: this.page(),
                     onRemove: this.removeRow.bind(this)
                 }"/>
         </ng-template>
-        <ng-template let-functions>   
-            <ng-container [ngComponentOutlet]="insertComponent"
-                [ngComponentOutletInputs]="{
-                    insert: functions.insert,
-                    cancel: functions.cancel,
-                    prepareInsert: _prepareInsert.bind(this),
-                    context: insertContext()
-                }"/>
+        <ng-template #insertTemplate let-functions>
+            @if (insertTemplate) {
+                <ng-container *ngTemplateOutlet="insertTemplate;
+                    context: {
+                        $implicit: functions,
+                        prepareInsert: _prepareInsert.bind(this),
+                        context: insertContext()
+                    }"/>
+            }
         </ng-template>
     </app-card-list>
 }

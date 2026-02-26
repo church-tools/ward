@@ -1,5 +1,7 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { AgendaSectionListInsertComponent } from '../../../modules/agenda/section/agenda-section-list-insert';
+import { AgendaSectionListRowComponent } from '../../../modules/agenda/section/agenda-section-list-row';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
 import { AgendaItem } from '../../../modules/item/agenda-item';
 import { ProfileService } from '../../../modules/profile/profile.service';
@@ -42,7 +44,18 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
                     [gap]="8"
                     [insertContext]="syncedRow"
                     [prepareInsert]="prepareSectionInsert"
-                    [page]="this"/>
+                    [page]="this">
+                    <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                        <app-agenda-section-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                        <app-agenda-section-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"
+                            [prepareInsert]="prepareInsert"
+                            [context]="context"/>
+                    </ng-template>
+                </app-row-card-list>
                 @if (adminService.isUnitAdmin() && !adminService.editMode() && sectionList.initialized() && sectionList.rowCount() === 0) {
                     <div class="card canvas-card large card-appear row p-4">
                         <app-async-button icon="edit" size="large"
@@ -55,7 +68,7 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         </app-drawer-router-outlet>
         <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
-    imports: [TranslateModule, RowCardListComponent, DrawerRouterOutletComponent, AgendaDropZoneComponent,
+    imports: [TranslateModule, RowCardListComponent, AgendaSectionListRowComponent, AgendaSectionListInsertComponent, DrawerRouterOutletComponent, AgendaDropZoneComponent,
         IconComponent, AsyncButtonComponent, LinkButtonComponent],
     host: { class: 'full-width' },
 })

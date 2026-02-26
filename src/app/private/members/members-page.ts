@@ -2,6 +2,8 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Member } from '../../modules/member/member';
+import { MemberListInsertComponent } from '../../modules/member/member-list-insert';
+import { MemberListRowComponent } from '../../modules/member/member-list-row';
 import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
 import ButtonComponent from '../../shared/form/button/button';
@@ -31,7 +33,18 @@ import { PrivatePageComponent } from '../shared/private-page';
                     editable
                     [page]="this"
                     [getUrl]="getUrl"
-                    [activeId]="activeMemberId()"/>
+                    [activeId]="activeMemberId()">
+                    <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                        <app-member-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                        <app-member-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"
+                            [prepareInsert]="prepareInsert"
+                            [context]="context"/>
+                    </ng-template>
+                </app-row-card-list>
                 <app-button icon="archive_arrow_back" type="subtle" size="large"
                     (click)="openImportDialog()">
                     {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | translate }}
@@ -39,7 +52,7 @@ import { PrivatePageComponent } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, ButtonComponent,
+    imports: [TranslateModule, RowCardListComponent, MemberListRowComponent, MemberListInsertComponent, ButtonComponent,
     LinkButtonComponent, DrawerRouterOutletComponent],
     host: { class: 'full-width' },
 })

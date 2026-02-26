@@ -1,0 +1,8 @@
+@use "animation";
+
+.chevron {
+    transition: transform animation.$duration animation.$ease-out;
+    &.rotated {
+        transform: rotate(-180deg);
+    }
+}

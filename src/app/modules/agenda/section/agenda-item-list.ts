@@ -3,6 +3,8 @@ import { getRowRoute } from '../../../private/private.routes';
 import { RowPageService } from '../../../private/row-page.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AgendaItem } from '../../item/agenda-item';
+import { AgendaItemListInsertComponent } from '../../item/agenda-item-list-insert';
+import { AgendaItemListRowComponent } from '../../item/agenda-item-list-row';
 import { ProfileService } from '../../profile/profile.service';
 import { RowCardListComponent } from '../../shared/row-card-list/row-card-list';
 import { Table } from '../../shared/table.types';
@@ -15,9 +17,20 @@ import { Agenda } from '../agenda';
             [getQuery]="getQuery()"
             [getUrl]="getItemUrl"
             [activeId]="activeItemId()"
-            [prepareInsert]="prepareItemInsert"/>
+            [prepareInsert]="prepareItemInsert">
+            <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                <app-agenda-item-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+            </ng-template>
+            <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                <app-agenda-item-list-insert
+                    [insert]="functions.insert"
+                    [cancel]="functions.cancel"
+                    [prepareInsert]="prepareInsert"
+                    [context]="context"/>
+            </ng-template>
+        </app-row-card-list>
     `,
-    imports: [RowCardListComponent],
+    imports: [RowCardListComponent, AgendaItemListRowComponent, AgendaItemListInsertComponent],
     host: { class: 'full-width' },
 })
 export class AgendaItemListComponent {

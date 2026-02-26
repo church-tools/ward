@@ -1,5 +1,5 @@
 import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, inject, Injector, input, OnDestroy, OnInit, output, viewChild } from "@angular/core";
+import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, output, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
 import { Icon } from "../../../shared/icon/icon";
 import { PageComponent } from "../../../shared/page/page";
@@ -10,8 +10,21 @@ import { Subscription } from "../../../shared/utils/supa-sync/event-emitter";
 import { CardListComponent } from "../../../shared/widget/card-list/card-list";
 import type { Insert, Row, Table, TableName, TableQuery } from "../table.types";
 import { getViewService } from "../view.service";
-import { getListInsertComponent } from "./list-insert";
-import { getListRowComponent } from "./list-row";
+
+type RowTemplateContext<T extends TableName> = {
+    $implicit: Row<T>;
+    page: PageComponent | undefined;
+    onRemove: (row: Row<T>) => Promise<void>;
+}
+
+type InsertTemplateContext<T extends TableName> = {
+    $implicit: {
+        insert: (item: Insert<T>) => PromiseOrValue<void>;
+        cancel: () => void;
+    };
+    prepareInsert: (row: Insert<T>) => PromiseOrValue<void>;
+    context: unknown;
+}
 
 @Component({
     selector: 'app-row-card-list',
@@ -39,12 +52,11 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly rowClicked = output<Row<T>>();
 
     protected readonly cardListView = viewChild(CardListComponent);
+    protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');
+    protected readonly insertTemplate = contentChild<TemplateRef<InsertTemplateContext<T>>>('insertTemplate');
 
     protected readonly table = xcomputed([this.tableName], t => this.supabase.sync.from(t));
     protected readonly viewService = asyncComputed([this.tableName], t => getViewService(this.injector, t), null);
-    protected readonly rowComponent = asyncComputed([this.tableName], t => getListRowComponent(t), null);
-    protected readonly insertComponent = asyncComputed([this.tableName, this.editable],
-        async (t, e) => e ? await getListInsertComponent(t) : null, null);
     readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount() ?? 0);
     readonly initialized = xcomputed([this.cardListView], clv => clv?.initialized() ?? false);
 

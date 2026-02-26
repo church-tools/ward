@@ -7,7 +7,7 @@ import { ListInsertComponent } from '../shared/row-card-list/list-insert';
 import { Profile } from './profile';
 
 @Component({
-    selector: 'app-profile-list-row',
+    selector: 'app-profile-list-insert',
     template: `
         <div class="row no-wrap gap-2">
             <app-text-input #email type="email" class="grow-1"
