@@ -19,7 +19,7 @@
         [dragDropGroup]="tableName()"
         [emptyIcon]="emptyIcon()"
         (itemClick)="onRowClick($event)">
-        <ng-template #itemTemplate let-row>
+        <ng-template let-row>
             <ng-container [ngComponentOutlet]="rowComponent" 
                 [ngComponentOutletInputs]="{
                     row,
@@ -27,7 +27,7 @@
                     onRemove: this.removeRow.bind(this)
                 }"/>
         </ng-template>
-        <ng-template #insertTemplate let-functions>   
+        <ng-template let-functions>   
             <ng-container [ngComponentOutlet]="insertComponent"
                 [ngComponentOutletInputs]="{
                     insert: functions.insert,

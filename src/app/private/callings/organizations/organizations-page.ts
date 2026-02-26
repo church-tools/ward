@@ -7,7 +7,6 @@ import { RowCardListComponent } from "../../../modules/shared/row-card-list/row-
 import { Table } from '../../../modules/shared/table.types';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
 import { SupabaseService } from '../../../shared/service/supabase.service';
-import { getRowRoute } from '../../private.routes';
 import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../../shared/private-page';
 
@@ -24,9 +23,9 @@ import { PrivatePageComponent } from '../../shared/private-page';
                     [getQuery]="getQuery"
                     [editable]="adminService.editMode()"
                     [page]="this"
-                    [getUrl]="getUrl"
                     [activeId]="activeOrganizationId()"/>
-                @if (adminService.isUnitAdmin() && !adminService.editMode() && organizationList.initialized() && organizationList.rowCount() === 0) {
+                @if (adminService.isUnitAdmin() && !adminService.editMode() &&
+                    organizationList.initialized() && !organizationList.rowCount()) {
                     <div class="card canvas-card large card-appear row p-4">
                         <app-async-button icon="edit" size="large"
                             [onClick]="enableEditMode">
@@ -54,10 +53,6 @@ export class OrganizationsPageComponent extends PrivatePageComponent {
         query: (table: Table<'organization'>) => table.readAll(),
         id: 'organizations'
     };
-        
-    protected getUrl = (organization: Organization.Row | null) =>  organization
-        ? getRowRoute({ table: 'organization', row: organization })
-        : '/organizations';
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route });
