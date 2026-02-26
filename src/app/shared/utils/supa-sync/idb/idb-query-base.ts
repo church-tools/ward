@@ -1,6 +1,6 @@
 import { Observable } from "rxjs";
 import type { Subscription } from "../event-emitter";
-import type { AnyCalculatedValues, Database, QueryResult, Row, RowWithCalculated, TableName } from "../supa-sync.types";
+import type { AnyCalculatedValues, Database, LocalRow, QueryResult, TableName } from "../supa-sync.types";
 import type { IDBStoreAdapter } from "./idb-store-adapter";
 
 export abstract class IDBQueryBase<
@@ -12,16 +12,16 @@ export abstract class IDBQueryBase<
     protected abortSignal?: AbortSignal;
 
     constructor(
-        protected readonly store: IDBStoreAdapter<RowWithCalculated<D, T, C>>,
-        private readonly resultMapping: (rows: RowWithCalculated<D, T, C>[]) => R,
+        protected readonly store: IDBStoreAdapter<LocalRow<D, T, C>>,
+        private readonly resultMapping: (rows: LocalRow<D, T, C>[]) => R,
     ) {
     }
 
-    protected abstract _getItems(): Promise<RowWithCalculated<D, T, C>[]>;
+    protected abstract _getItems(): Promise<LocalRow<D, T, C>[]>;
 
     protected abstract _getKeys(): Promise<IDBValidKey[]>;
 
-    protected abstract filterRow(row: RowWithCalculated<D, T, C>): boolean;
+    protected abstract filterRow(row: LocalRow<D, T, C>): boolean;
 
     public abortOn(abortSignal: AbortSignal) {
         this.abortSignal = abortSignal;
@@ -46,7 +46,7 @@ export abstract class IDBQueryBase<
         return new Observable<QueryResult<R>>(subscriber => {
             this._getItems().then(items => {
                 const result = this.resultMapping(items);
-                subscriber.next({ result, deletions: null });
+                subscriber.next({ result });
             });
             const sub = this.listenToChanges(res => subscriber.next(res));
             return () => sub.unsubscribe();
@@ -55,7 +55,7 @@ export abstract class IDBQueryBase<
 
     public listenToChanges(callback: (result: QueryResult<R>) => void) {
         return this.store.onChange.subscribe(changes => {
-            const items: RowWithCalculated<D, T, C>[] = [];
+            const items: LocalRow<D, T, C>[] = [];
             const deletions: number[] = [];
             for (const change of changes) {
                 const { old, new: cur } = change;
@@ -65,7 +65,7 @@ export abstract class IDBQueryBase<
                     deletions.push(old.id);
             }
             if (!items.length && !deletions.length) return;
-            const result = items.length ? this.resultMapping(items) : null;
+            const result = items.length ? this.resultMapping(items) : undefined;
             callback({ result, deletions });
         });
     }

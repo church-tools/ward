@@ -3,7 +3,7 @@ import { PageComponent } from "../../../shared/page/page";
 import type { Row, TableName } from "../table.types";
 
 export function getListRowComponent<T extends TableName>(tableName: T) {
-    return getComponent(tableName) as Promise<Type<ListRowComponent<T>>>;
+    return getComponent(tableName) as unknown as Promise<Type<ListRowComponent<T>>>;
 }
     
 async function getComponent<T extends TableName>(tableName: T) {

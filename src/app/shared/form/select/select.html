@@ -1,30 +1,36 @@
 <app-input-label/>
-<label class="column">
+<div class="column" (mousedown)="onInputContainerMouseDown($event)">
     <div class="top-anchor"><ng-container #topContainer/></div>
     <div #inputContainer class="form-input">
-        @if (selectedOption()) {
+        @if (selectedOption() && !withoutValue()) {
             <div class="value-container row gap-1">
-                <button class="value-btn subtle" type="button">
-                    <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
-                    @if (!disabled() && allowClear()) {
-                        <button class="delete-btn subtle" type="button" (click)="clearSelection()">
+                <div class="value-btn subtle row no-wrap items-center gap-1">
+                    @if (valueTemplate) {
+                        <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption()!)"/>
+                    } @else {
+                        <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
+                    }
+                    @if (!disabled() && !hideClear()) {
+                        <button class="delete-btn subtle icon-only tiny" type="button" aria-label="Clear selection" (click)="clearSelection()">
                             <app-icon icon="dismiss" size="xs"/>
                         </button>
                     }
-                </button>
+                </div>
             </div>
         }
+        <ng-content/>
         @if (!disabled()) {
-            <input #input type="text"
+            <input #input type="text" title="Select option" placeholder=" "
                 [value]="search()"
+                [attr.aria-label]="label() || placeholder() || 'Select option'"
+                [attr.title]="label() || placeholder() || 'Select option'"
                 [placeholder]="selectedOption() ? '' : placeholder()"
                 (focus)="onFocus()"
                 (input)="onSearch($event)">
         }
-        <ng-content/>
     </div>
     <div class="bottom-anchor"><ng-container #bottomContainer/></div>
-</label>
+</div>
 <ng-template #optionsTemplate>
     <div class="options-card input-acrylic-card" animate.leave="leave">
         @if (optionsLoading()) {
@@ -43,8 +49,12 @@
                     @for (option of group.options; track (option.id ?? option.value)) {
                         <div #option class="option option-group-item {{option.color}}-text"
                             (click)="selectOption(option, $event)">
-                            @for (label of option.highlights; track $index) {
-                                <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                            @if (optionTemplate) {
+                                <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
+                            } @else {
+                                @for (label of option.highlights; track $index) {
+                                    <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                                }
                             }
                         </div>
                     }
@@ -54,8 +64,12 @@
             @for (option of visibleOptions(); track (option.id ?? option.value)) {
                 <div #option class="option {{option.color}}-text"
                     (click)="selectOption(option, $event)">
-                    @for (label of option.highlights; track $index) {
-                        <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                    @if (optionTemplate) {
+                        <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
+                    } @else {
+                        @for (label of option.highlights; track $index) {
+                            <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                        }
                     }
                 </div>
             }

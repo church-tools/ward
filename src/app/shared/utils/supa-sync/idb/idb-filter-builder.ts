@@ -1,4 +1,4 @@
-import type { AnyCalculatedValues, Column, Database, Indexed, Row, RowWithCalculated, TableName } from "../supa-sync.types";
+import type { AnyCalculatedValues, Column, Database, Indexed, RemoteRow, LocalRow, TableName } from "../supa-sync.types";
 import { IDBQueryBase } from "./idb-query-base";
 import type { IDBSearchIndex } from "./idb-search-index";
 import { idbBoolToNumber, IDBStoreAdapter } from "./idb-store-adapter";
@@ -23,37 +23,37 @@ type FieldOrSearchCondition<T> = Condition<T, keyof T> | SearchCondition;
 export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues, R> extends IDBQueryBase<D, T, C, R> {
     
     constructor(
-        store: IDBStoreAdapter<RowWithCalculated<D, T, C>>,
+        store: IDBStoreAdapter<LocalRow<D, T, C>>,
         private readonly searchIndex: IDBSearchIndex | undefined,
-        resultMapping: (rows: RowWithCalculated<D, T, C>[]) => R,
+        resultMapping: (rows: LocalRow<D, T, C>[]) => R,
         private readonly indexed: Indexed<D, T>,
     ) {
         super(store, resultMapping);
     }
 
-    private readonly conditions: FieldOrSearchCondition<Row<D, T>>[] = [];
+    private readonly conditions: FieldOrSearchCondition<RemoteRow<D, T>>[] = [];
 
-    public eq<K extends Column<D, T>>(field: K, value: Row<D, T>[K]): this {
+    public eq<K extends Column<D, T>>(field: K, value: RemoteRow<D, T>[K]): this {
         this.conditions.push({ field, operator: "eq", value });
         return this;
     }
     
-    public not<K extends Column<D, T>>(field: K, value: Row<D, T>[K]): this {
+    public not<K extends Column<D, T>>(field: K, value: RemoteRow<D, T>[K]): this {
         this.conditions.push({ field, operator: "not", value });
         return this;
     }
 
-    public in<K extends Column<D, T>>(field: K, values: Row<D, T>[K][]): this {
+    public in<K extends Column<D, T>>(field: K, values: RemoteRow<D, T>[K][]): this {
         this.conditions.push({ field, operator: "in", value: values });
         return this;
     }
 
-    public contains<K extends Column<D, T>>(field: K, value: Row<D, T>[K][number]): this {
+    public contains<K extends Column<D, T>>(field: K, value: RemoteRow<D, T>[K][number]): this {
         this.conditions.push({ field, operator: "contains", value });
         return this;
     }
 
-    public containsAny<K extends Column<D, T>>(field: K, values: Row<D, T>[K]): this {
+    public containsAny<K extends Column<D, T>>(field: K, values: RemoteRow<D, T>[K]): this {
         this.conditions.push({ field, operator: "containsAny", value: values });
         return this;
     }
@@ -73,15 +73,15 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
         return this;
     }
 
-    protected async _getItems(): Promise<RowWithCalculated<D, T, C>[]> {
-        return await this.getResults<RowWithCalculated<D, T, C>>();
+    protected async _getItems(): Promise<LocalRow<D, T, C>[]> {
+        return await this.getResults<LocalRow<D, T, C>>();
     }
 
     protected async _getKeys(): Promise<IDBValidKey[]> {
         return this.getResults<IDBValidKey>(true);
     }
 
-    private async getResults<R extends Row<D, T> | IDBValidKey>(keysOnly?: R extends IDBValidKey ? true : undefined): Promise<R[]> {
+    private async getResults<R extends RemoteRow<D, T> | IDBValidKey>(keysOnly?: R extends IDBValidKey ? true : undefined): Promise<R[]> {
         if (this.conditions.length === 1) {
             const condition = this.conditions[0];
             if ('field' in condition) {
@@ -112,7 +112,7 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
         return await this.store.readMany(keyArray, this.abortSignal) as R[];
     }
 
-    protected filterRow(row: RowWithCalculated<D, T, C>): boolean {
+    protected filterRow(row: LocalRow<D, T, C>): boolean {
         return this.conditions.every(condition => {
             if (!('field' in condition)) return true;
             const value = row[condition.field];

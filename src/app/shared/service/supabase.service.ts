@@ -6,20 +6,17 @@ import { AgendaViewService } from '../../modules/agenda/agenda-view.service';
 import { CallingViewService } from '../../modules/calling/calling-view.service';
 import { AgendaItemViewService } from '../../modules/item/agenda-item-view.service';
 import { MemberViewService } from '../../modules/member/member-view.service';
-import { MemberCallingCalculated, type MemberCallingCalculatedValues } from '../../modules/member_calling/member-calling-calculated';
+import { MemberCallingCalculated } from '../../modules/member_calling/member-calling-calculated';
 import { MemberCallingViewService } from '../../modules/member_calling/member-calling-view.service';
 import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 import { ProfileViewService } from '../../modules/profile/profile-view.service';
-import type { TableInfoAdditions, TableName } from '../../modules/shared/table.types';
+import type { CalculatedMap, TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
-import type { SupaSyncCalculatedMap, SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
+import type { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
-type CalculatedMap = SupaSyncCalculatedMap<Database> & {
-    member_calling: MemberCallingCalculatedValues;
-};
 
 export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 

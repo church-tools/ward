@@ -3,33 +3,40 @@ import { AsyncState } from "../async-state";
 import { executeOnce, Lock } from "../flow-control-utils";
 import { ChannelConnection } from "./channel-connection";
 import { SupaSyncTable } from "./supa-sync-table";
-import type { Database, SupaSyncPayload, SupaSyncTableInfo, SupaSyncTableInfos, TableName } from "./supa-sync.types";
+import type { AnyCalculatedValues, CalculatedOf, Change, Database, SupaSyncCalculatedMap, SupaSyncPayload, SupaSyncTableInfo, SupaSyncTableInfos, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
 
-export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any } = {}> {
+export class SupaSync<
+    D extends Database,
+    IA extends Partial<{ [K in TableName<D>]: any }> = {},
+    CM extends SupaSyncCalculatedMap<D> = {},
+> {
 
     private changesConnection: ChannelConnection | undefined;
     private presenceChannel: ChannelConnection | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
     private readonly client: SupabaseClient<D>;
-    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> };
+    private readonly tablesByName: { [T in TableName<D>]: SupaSyncTable<D, T, CalculatedOf<D, T, CM>, IA[T]> } = {} as any;
     private idb: Promise<IDBDatabase> | undefined;
 
     constructor(
         supabaseClient: SupabaseClient<D>,
-        tableInfos: SupaSyncTableInfos<D>,
+        tableInfos: SupaSyncTableInfos<D, IA, CM>,
     ) {
         this.client = supabaseClient;
         window.addEventListener('online', () => this.onlineState.set(true));
         window.addEventListener('offline', () => this.onlineState.unset());
         type TN = TableName<D>;
-        this.tablesByName = Object.fromEntries(Object.entries(tableInfos).map(([name, info]) => {
-           const table = new SupaSyncTable<D, TN, IA[TN]>(name, this.client, this.onlineState, info!, this.resync.bind(this));
-           return [name as TN, table];
-        })) as unknown as { [T in TableName<D>]: SupaSyncTable<D, T, IA[T]> };
+        for (const name in tableInfos) {
+            const info = tableInfos[name as TN];
+            this.tablesByName[name as TN] = new SupaSyncTable<D, TN, CalculatedOf<D, TN, CM>, IA[TN]>(name,
+                this.client, this.onlineState, this.tablesByName, info as IA[TN], this.resync.bind(this));
+        }
+        for (const table of Object.values(this.tablesByName))
+            table._buildReverseDependencies();
     }
 
     public async init(session: Session, dbName: string) {
@@ -59,10 +66,10 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
                     for (const indexName of store.indexNames)
                         if (!expectedIndexSet.has(indexName))
                             store.deleteIndex(indexName);
-                    const pendingName = table.pendingAdapter.storeName;
+                    const pendingName = table._pendingAdapter.storeName;
                     if (!idb.objectStoreNames.contains(pendingName))
                         idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
-                    const searchName = table.searchAdapter?.storeName;
+                    const searchName = table._summaryInfo?.adapter.storeName;
                     if (searchName && !idb.objectStoreNames.contains(searchName))
                         idb.createObjectStore(searchName, { keyPath: 'idx' });
                 }
@@ -72,7 +79,7 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
         });
-        await Promise.all(tables.map(table => table.init(idb)));
+        await Promise.all(tables.map(table => table._init(idb)));
         this.startSyncing(tables);
     }
 
@@ -83,13 +90,12 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
         }, 5000);
     }
 
-    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[]) {
+    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>[]) {
         await this.onlineState.get();
         this.changesConnection ??= new ChannelConnection(
             () => this.client.channel(`schema-db-changes`)
                 .on('postgres_changes', { event: '*', schema: 'public' }, this.processChanges.bind(this)),
-            this.onlineState
-        );
+            this.onlineState);
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
@@ -99,10 +105,13 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
             if (lastUpdatedAt.startsWith('1970-') && table.info.deletable)
                 query = query.eq(table.deletedKey, false as any);
             const { data } = await query.throwOnError();
-            const adapter = table.storeAdapter;
+            const adapter = table._storeAdapter;
             if (data.length) {
-                const changes = await table['writeAndDelete'](data);
-                if (changes) adapter.onChange.emit(changes);
+                const changes = await table['_writeAndDelete'](data);
+                if (changes?.length) {
+                    adapter.onChange.emit(changes);
+                    await table._updateDependentCalculatedValues(changes);
+                }
             }
             adapter.initialized.set(true);
         }));
@@ -122,39 +131,58 @@ export class SupaSync<D extends Database, IA extends { [K in TableName<D>]?: any
 
     private async clear() {
         await Promise.all(this.getTables().map(table => Promise.all([
-            table.storeAdapter.clear(),
-            table.pendingAdapter.clear(),
-            table.searchAdapter?.clear(),
+            table._storeAdapter.clear(),
+            table._pendingAdapter.clear(),
+            table._summaryInfo?.adapter.clear(),
         ])));
         this.setLastSync(new Date(0).toISOString());
     }
 
     private getTables() {
-        return Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, IA[TableName<D>]>[];
+        return Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>[];
     }
     
     private async processChanges(payload: SupaSyncPayload<D>) {
         await this.eventLock.lock(async () => {
             const table = this.tablesByName[payload.table];
-            const adapter = table.storeAdapter;
+            const adapter = table._storeAdapter;
             switch (payload.eventType) {
                 case 'INSERT':
                 case 'UPDATE':
-                    if (payload.new && table.wasSentLately(payload.new))
+                    if (payload.new && table._wasSentLately(payload.new))
                         return;
-                    const deleted = payload.new?.[table.deletedKey];
-                    const input = deleted
-                        ? { update: [], delete: [payload.new![table.idKey] as number] }
-                        : { update: [payload.new], delete: [] };
-                    payload.old = (await adapter.writeAndGet(input.update, input.delete))[0]?.old;
-                    if (payload.new?.[table.deletedKey])
-                        payload.new = undefined;
-                    adapter.onChange.emit([payload]);
+                    if (!payload.new)
+                        break;
+                    if (payload.new?.[table.deletedKey]) {
+                        const deleteId = payload.new![table.idKey] as number;
+                        const old = await adapter.read(deleteId);
+                        await adapter.delete(deleteId);
+                        if (old) {
+                            const changes = [{ old, new: undefined }] as Change<any>[];
+                            adapter.onChange.emit(changes);
+                            await table._updateDependentCalculatedValues(changes);
+                        }
+                    } else {
+                        const changes = await table._writeAndDelete([payload.new]);
+                        if (changes?.length) {
+                            adapter.onChange.emit(changes);
+                            await table._updateDependentCalculatedValues(changes);
+                        }
+                    }
                     break;
                 case 'DELETE':
-                    await adapter.delete(payload.old![table.idKey]);
-                    adapter.onChange.emit([payload]);
+                {
+                    const oldId = payload.old?.[table.idKey] as number | undefined;
+                    if (oldId == null) break;
+                    const old = await adapter.read(oldId);
+                    await adapter.delete(oldId);
+                    if (old) {
+                        const changes = [{ old, new: undefined }] as Change<any>[];
+                        adapter.onChange.emit(changes);
+                        await table._updateDependentCalculatedValues(changes);
+                    }
                     break;
+                }
             }
             this.setLastSync(payload.commit_timestamp);
         });

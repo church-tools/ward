@@ -8,7 +8,7 @@
     .value-btn {
         padding: 0 input.$padding-x;
         padding-right: 0;
-        gap: 0.25rem;
+        gap: 0.125rem;
         width: auto;
         min-height: 2rem;
         transition: opacity animation.$duration-xs animation.$ease-out;
@@ -19,8 +19,6 @@
         
         .delete-btn {
             transition: opacity animation.$duration-xs animation.$ease-out;
-            padding: 0.25rem;
-            min-height: 0rem;
             opacity: 0;
         }
         

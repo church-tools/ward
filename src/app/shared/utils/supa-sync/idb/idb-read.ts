@@ -1,18 +1,18 @@
-import type { AnyCalculatedValues, Database, RowWithCalculated, TableName } from "../supa-sync.types";
+import type { AnyCalculatedValues, Database, LocalRow, TableName } from "../supa-sync.types";
 import { IDBQueryBase } from "./idb-query-base";
 import type { IDBStoreAdapter } from "./idb-store-adapter";
 
 export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues, R> extends IDBQueryBase<D, T, C, R> {
     
     constructor(
-        store: IDBStoreAdapter<RowWithCalculated<D, T, C>>,
+        store: IDBStoreAdapter<LocalRow<D, T, C>>,
         private readonly ids: IDBValidKey[] | undefined,
-        resultMapping: (rows: RowWithCalculated<D, T, C>[]) => R,
+        resultMapping: (rows: LocalRow<D, T, C>[]) => R,
     ) {
         super(store, resultMapping);
     }
 
-    protected async _getItems(): Promise<RowWithCalculated<D, T, C>[]> {
+    protected async _getItems(): Promise<LocalRow<D, T, C>[]> {
         let items = await (this.ids ? this.store.readMany(this.ids, this.abortSignal) : this.store.readAll(this.abortSignal));
         if (!items.length) {
             await this.store.initialized.get();
@@ -26,7 +26,7 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
         return await this.store.readAllKeys(this.abortSignal);
     }
 
-    protected filterRow(update: RowWithCalculated<D, T, C>): boolean {
+    protected filterRow(update: LocalRow<D, T, C>): boolean {
         return this.ids?.includes(update.id) ?? true;
     }
 }

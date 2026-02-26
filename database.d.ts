@@ -886,7 +886,7 @@ export type Database = {
         | "scales"
         | "sport"
         | "sport_basketball"
-        | "american_football"
+        | "sport_american_football"
         | "sport_soccer"
         | "doctor"
         | "shape_organic"
@@ -1128,7 +1128,7 @@ export const Constants = {
         "scales",
         "sport",
         "sport_basketball",
-        "american_football",
+        "sport_american_football",
         "sport_soccer",
         "doctor",
         "shape_organic",

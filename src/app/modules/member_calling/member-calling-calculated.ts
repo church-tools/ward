@@ -6,7 +6,7 @@ export const MemberCallingCalculated = {
 	memberName: {
 		dependsOn: { member: 'member' } as const,
 		calculation: (_, dependencies) => {
-			const member = dependencies.member as Table.RawRow<'member'> | undefined;
+			const member = dependencies.member as Table.RemoteRow<'member'> | undefined;
 			if (!member) return '';
 			return `${member.nick_name || member.first_name} ${member.last_name ?? ''}`.trim();
 		},
@@ -14,7 +14,7 @@ export const MemberCallingCalculated = {
 	callingName: {
 		dependsOn: { calling: 'calling' } as const,
 		calculation: (_, dependencies) => {
-			const calling = dependencies.calling as Table.RawRow<'calling'> | undefined;
+			const calling = dependencies.calling as Table.RemoteRow<'calling'> | undefined;
 			return calling?.name ?? '';
 		},
 	},
