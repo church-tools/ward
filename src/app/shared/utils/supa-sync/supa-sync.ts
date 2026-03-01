@@ -79,19 +79,6 @@ export class SupaSync<
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
         });
-        await Promise.all(tables.map(table => table._init(idb)));
-        this.startSyncing(tables);
-    }
-
-    private async resync() {
-        executeOnce(async () => {
-            await this.clear();
-            this.startSyncing(Object.values(this.tablesByName));
-        }, 5000);
-    }
-
-    private async startSyncing(tables: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>[]) {
-        await this.onlineState.get();
         this.changesConnection ??= new ChannelConnection(
             () => this.client.channel(`schema-db-changes`)
                 .on('postgres_changes', { event: '*', schema: 'public' }, this.processChanges.bind(this)),
@@ -99,23 +86,20 @@ export class SupaSync<
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
-            let query = this.client.from(table.name)
-                .select('*')
-                .gt(table.updatedAtKey, lastUpdatedAt);
-            if (lastUpdatedAt.startsWith('1970-') && table.info.deletable)
-                query = query.eq(table.deletedKey, false as any);
-            const { data } = await query.throwOnError();
-            const adapter = table._storeAdapter;
-            if (data.length) {
-                const changes = await table['_writeAndDelete'](data);
-                if (changes?.length) {
-                    adapter.onChange.emit(changes);
-                    await table._updateDependentCalculatedValues(changes);
-                }
-            }
-            adapter.initialized.set(true);
+            await table._init(idb);
+            await table._sync(lastUpdatedAt);
         }));
         this.setLastSync(now);
+    }
+
+    private async resync() {
+        executeOnce(async () => {
+            await this.clear();
+            const lastUpdatedAt = await this.getLastSync();
+            const now = new Date().toISOString();
+            await Promise.all(Object.values(this.tablesByName).map(table => table._sync(lastUpdatedAt)));
+            this.setLastSync(now);
+        }, 5000);
     }
 
     public async cleanup() {
@@ -148,7 +132,7 @@ export class SupaSync<
             const adapter = table._storeAdapter;
             switch (payload.eventType) {
                 case 'INSERT':
-                case 'UPDATE':
+                case 'UPDATE': {
                     if (payload.new && table._wasSentLately(payload.new))
                         return;
                     if (!payload.new)
@@ -170,6 +154,7 @@ export class SupaSync<
                         }
                     }
                     break;
+                }
                 case 'DELETE':
                 {
                     const oldId = payload.old?.[table.idKey] as number | undefined;

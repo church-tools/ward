@@ -22,7 +22,6 @@ export class IDBStoreAdapter<T> {
 
     public readonly onChange = new EventEmitter<Change<T>[]>();
     public writeSubscriptions = 0;
-    public readonly initialized = new AsyncState<boolean>();
     public mappingInFunction?: (item: T) => T;
     public writeCallback?: (changes: Change<T>[]) => Promise<void>;
     public mappingOutFunction?: (changes: T) => T;

@@ -7,7 +7,7 @@ import { Organization } from './organization';
 @Component({
     selector: 'app-organization-list-insert',
     template: `
-        <app-text-input #name/>
+        <app-text-input #name (onBlur)="submit()"/>
     `,
     imports: [TextInputComponent],
 })

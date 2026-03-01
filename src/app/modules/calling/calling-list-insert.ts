@@ -7,18 +7,18 @@ import { Calling } from './calling';
 @Component({
     selector: 'app-calling-list-insert',
     template: `
-        <app-text-input #title (onBlur)="submit()"/>
+        <app-text-input #name (onBlur)="submit()"/>
     `,
     imports: [TextInputComponent],
 })
 export class CallingListInsertComponent extends ListInsertComponent<'calling'> {
 
-    private readonly titleView = viewChild.required<TextInputComponent>('title');
+    private readonly nameView = viewChild.required<TextInputComponent>('name');
 
     protected override getRowInfo(profile: Profile.Row) {
-        const title = this.titleView().getValue();
-        if (!title) return;
-        return <Calling.Insert><any>{ title, unit: profile.unit }; // TODO
+        const name = this.nameView().getValue();
+        if (!name) return;
+        return <Calling.Insert>{ name, unit: profile.unit };
     }
 
 }

@@ -1,7 +1,7 @@
 @let table = this.table();
-@let insertTemplate = this.insertTemplate();
+@let projectedInsertTemplate = this.insertTemplate();
 @let editable = this.editable();
-@if (table && (!editable || insertTemplate)) {
+@if (table && (!editable || projectedInsertTemplate)) {
     <app-card-list
         [cardClasses]="cardsVisible() ? cardClasses() : ''"
         [reorderable]="editable && !!table.info.orderKey"
@@ -17,7 +17,7 @@
         [insertRow]="insertRow"
         [dragDropGroup]="tableName()"
         [emptyIcon]="emptyIcon()"
-        (itemClick)="onRowClick($event)">
+        [itemClicked]="getUrl() ? onRowClick : rowClicked()">
         <ng-template #itemTemplate let-row>
             <ng-container *ngTemplateOutlet="rowTemplate();
                 context: {
@@ -27,8 +27,8 @@
                 }"/>
         </ng-template>
         <ng-template #insertTemplate let-functions>
-            @if (insertTemplate) {
-                <ng-container *ngTemplateOutlet="insertTemplate;
+            @if (projectedInsertTemplate) {
+                <ng-container *ngTemplateOutlet="projectedInsertTemplate;
                     context: {
                         $implicit: functions,
                         prepareInsert: _prepareInsert.bind(this),

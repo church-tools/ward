@@ -1,5 +1,6 @@
 <ng-template #cardContent let-itemCard>
-    <div class="card-item {{cardClasses()}} mb-{{gap()}} selectable-card card-inner"
+    <div class="card-item {{cardClasses()}} mb-{{gap()}} card-inner"
+        [class.selectable-card]="cardsSelectable()"
         [class.appear]="itemCard.animateEntrance"
         [class.disappear]="itemCard.removed()">
         @if (itemCard.id === activeId()) {
@@ -39,8 +40,7 @@
                 <ng-container *ngTemplateOutlet="cardContent;
                     context: { $implicit: itemCard }"/>
             </a>
-        }
-        @else {
+        } @else {
             <div #card cdkDrag
                 [cdkDragStartDelay]="dragStartDelay"
                 class="drag-card-host"
@@ -79,7 +79,7 @@
                 <div swapped #insertion class="insertion grow-1 p-3">
                     @if (!newEditCard() && insertTemplate(); as template) {
                         <ng-container *ngTemplateOutlet="template;
-                            context: { $implicit: { insert, cancel: cancelInsert } }"/>
+                            context: { $implicit: { insert: insert, cancel: cancelInsert } }"/>
                     }
                 </div>
             </app-swap-container>

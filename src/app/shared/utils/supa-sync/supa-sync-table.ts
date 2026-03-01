@@ -59,6 +59,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
 
     private readonly latestSents: RemoteRow<D, T>[] = [];
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
+    private _firstSynced: () => void = null!;
+    public readonly firstSynced = new Promise<void>(resolve => this._firstSynced = resolve);
 
     constructor(
         public readonly name: T,
@@ -73,11 +75,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this.deletedKey = info.deletedPath ?? 'deleted';
         this.createOffline = info.createOffline ?? false;
         this.updateOffline = info.updateOffline ?? true;
-        this._indexed = info.indexed ?? {};
         this._calculatedInfo = info.calculated
             ? Object.entries(info.calculated).map(
                 ([key, { dependsOn, calculation }]) => ({ key, dependsOn: Object.entries(dependsOn ?? {}), calculation }))
             : [];
+        this._indexed = info.indexed ?? {};
         if (info.getSummaryString) {
             const adapter = new IDBStoreAdapter<SearchNode>(name + SEARCH_SUFFIX);
             this._summaryInfo = {
@@ -153,9 +155,25 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 await index.update(updates);
             }
         }
-        if (this._calculatedInfo.length)
-            await this.backfillCalculatedValues();
         this.sendPending();
+    }
+
+    public async _sync(lastUpdatedAt: string) {
+        let query = this.supabaseClient.from(this.name)
+            .select('*')
+            .gt(this.updatedAtKey, lastUpdatedAt);
+        if (lastUpdatedAt.startsWith('1970-') && this.info.deletable)
+            query = query.eq(this.deletedKey, false as any);
+        await this.onlineState.get();
+        const { data } = await query.throwOnError();
+        if (data.length) {
+            const changes = await this._writeAndDelete(data);
+            if (changes?.length) {
+                this._storeAdapter.onChange.emit(changes);
+                await this._updateDependentCalculatedValues(changes);
+            }
+        }
+        this._firstSynced();
     }
 
     public async __(key: keyof RemoteRow<D, T>, dependencyIds: number[]) {
@@ -169,15 +187,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
     
     public read(id: IDBValidKey) {
-        return new IDBRead(this._storeAdapter, [id], rows => rows.length ? rows[0] : null);
+        return new IDBRead(this._storeAdapter, this.firstSynced, [id], rows => rows.length ? rows[0] : null);
     }
 
     public readMany(ids: IDBValidKey[]) {
-        return new IDBRead(this._storeAdapter, ids, rows => rows);
+        return new IDBRead(this._storeAdapter, this.firstSynced, ids, rows => rows);
     }
 
     public readAll() {
-        return new IDBRead(this._storeAdapter, undefined, rows => rows);
+        return new IDBRead(this._storeAdapter, this.firstSynced, undefined, rows => rows);
     }
 
     public find() {
@@ -193,7 +211,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(row: I): Promise<I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>> {
-        await this._storeAdapter.initialized.get();
+        await this.firstSynced;
         const isArray = Array.isArray(row);
         const rows: Insert<D, T>[] = isArray ? row : [row];
         if (this.createOffline) {
@@ -223,7 +241,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async update(update: Update<D, T> | Update<D, T>[], debounce?: number) {
-        await this._storeAdapter.initialized.get();
+        await this.firstSynced;
         const updates = Array.isArray(update) ? update : [update];
         const missingIds = updates.filter(u => !u[this.idKey]);
         if (missingIds.length) throw new Error(`Missing IDs for updates: ${JSON.stringify(missingIds)}`);
@@ -288,7 +306,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         if (!this._reverseDependencies.length) return;
         const ids = changes.map(change => change.old?.[this.idKey] ?? change.new[this.idKey]) as number[];
         await Promise.all(this._reverseDependencies.map(async target => {
-            const rows = await this.find().in(target.key, ids).get();
+            const rows = await target.table.find().in(target.key, ids).get();
             if (!rows.length) return;
             const updatedRows = await this.applyCalculatedValues(rows);
             const dependentChanges = target.table._storeAdapter.onChange.hasSubscriptions

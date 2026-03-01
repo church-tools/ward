@@ -49,7 +49,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly activeId = input<number | null>(null);
     readonly page = input<PageComponent>();
     readonly emptyIcon = input<Icon | null>(null);
-    readonly rowClicked = output<Row<T>>();
+    readonly rowClicked = input<(row: Row<T>) => void>();
 
     protected readonly cardListView = viewChild(CardListComponent);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');
@@ -109,17 +109,17 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
         await this.table().update(row);
     }
 
-    protected onRowClick(row: Row<T>) {
+    protected onRowClick = (row: Row<T>) => {
         const getUrl = this.getUrl();
         if (getUrl && this.activeId() === row[this.table().idKey])
             this.router.navigate([getUrl(null)]);
     }
 
-    protected _prepareInsert(row: Row<T>): PromiseOrValue<void> {
+    protected _prepareInsert(row: Insert<T>): PromiseOrValue<void> {
         this.prepareInsert()?.(row);
         const orderKey = this.table().info.orderKey;
         if (orderKey)
-            row[orderKey] = (this.cardListView()?.getLast()?.[orderKey] ?? -1) + 1;
+            (row as Row<T>)[orderKey] = (this.cardListView()?.getLast()?.[orderKey] ?? -1) + 1;
     }
 
     ngOnDestroy(): void {

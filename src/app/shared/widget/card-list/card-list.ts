@@ -44,12 +44,12 @@ export class CardListComponent<T> {
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly itemInserted = input<(item: T) => PromiseOrValue<void>>();
     readonly getUrl = input<(item: T) => string>();
+    readonly itemClicked = input<(item: T) => void>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
     readonly emptyIcon = input<Icon | null>(null);
 
-    readonly itemClick = output<T>();
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
     readonly itemDropped = output<T>();
@@ -75,6 +75,8 @@ export class CardListComponent<T> {
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
+    protected readonly cardsSelectable = xcomputed([this.getUrl, this.itemClicked],
+        (getUrl, itemClicked) => !!(getUrl || itemClicked));
     readonly cardCount = xcomputed([this.itemCards], cards => cards.length);
 
     private readonly changeLock = new Lock();
@@ -153,7 +155,7 @@ export class CardListComponent<T> {
     }
 
     protected onItemClick(listItem: ItemCard<T>): void {
-        this.itemClick.emit(listItem.item);
+        this.itemClicked()?.(listItem.item);
     }
 
     protected onInsertClick(): void {

@@ -8,14 +8,22 @@
             [getQuery]="getQuery"
             [editable]="adminService.editMode()"
             [page]="this"
+            [rowClicked]="rowClickCallback()"
             [activeId]="activeOrganizationId()">
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
                 <div class="column full-width">
-                    <app-organization-list-row [row]="row" [page]="page" [onRemove]="onRemove" (click)="collapse.toggle()">
+                    <app-organization-list-row [row]="row" [page]="page"
+                        [onRemove]="onRemove"
+                        (mouseenter)="rowClickCallback.set(getCollapseToggleFn(collapse))"
+                        (mouseleave)="rowClickCallback.set(undefined)">
+                        @if (adminService.editMode()) {
+                            <app-link-button icon="edit" type="subtle" class="icon-only" hideNewTab
+                                [href]="getSettingsUrl(row)"/>
+                        }
                         <app-icon icon="chevron_down" class="chevron" [class.rotated]="!collapse.collapsed()"/>
                     </app-organization-list-row>
                     <app-collapse #collapse>
-                        TODO: add details here, maybe members of the organization?  
+                        <app-organization-callings [organization]="row.id"/>
                     </app-collapse>
                 </div>    
             </ng-template>
