@@ -4,7 +4,13 @@ export type TableName<D extends Database> = keyof D["public"]["Tables"] & string
 export type Table<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]
 export type AnyCalculatedValues = Record<string, unknown>;
 export type NoCalculatedValues = Record<string, never>;
-export type SupaSyncCalculatedMap<D extends Database> = Partial<{ [K in TableName<D>]: AnyCalculatedValues }>;
+export type SupaSyncCalculatedOverrides<D extends Database> = Partial<{ [K in TableName<D>]: AnyCalculatedValues }>;
+export type SupaSyncCalculatedMap<
+    D extends Database,
+    O extends SupaSyncCalculatedOverrides<D> = {},
+> = {
+    [K in TableName<D>]: K extends keyof O ? NonNullable<O[K]> : NoCalculatedValues;
+};
 
 export type Column<D extends Database, T extends TableName<D>> = keyof RemoteRow<D, T> & string;
 
@@ -45,8 +51,8 @@ export type CalculatedFields<
 export type CalculatedOf<
     D extends Database,
     T extends TableName<D>,
-    CM extends SupaSyncCalculatedMap<D>,
-> = T extends keyof CM ? NonNullable<CM[T]> : NoCalculatedValues;
+    CM extends SupaSyncCalculatedMap<D, any>,
+> = CM[T];
 
 export type LocalRow<
     D extends Database,
@@ -81,7 +87,7 @@ export type SupaSyncTableInfo<
 export type SupaSyncTableInfos<
     D extends Database,
     IA extends Partial<{ [K in TableName<D>]: any }> = {},
-    CM extends SupaSyncCalculatedMap<D> = {},
+    CM extends SupaSyncCalculatedMap<D, any> = SupaSyncCalculatedMap<D>,
 > = Partial<{ [K in TableName<D>]: SupaSyncTableInfo<D, K, CalculatedOf<D, K, CM>> & (K extends keyof IA ? IA[K] : {}) }>;
 
 export type SupaSyncPayload<D extends Database> = {

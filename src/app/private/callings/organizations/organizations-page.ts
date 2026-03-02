@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Organization } from '../../../modules/organization/organization';
 import { OrganizationListInsertComponent } from '../../../modules/organization/organization-list-insert';
@@ -8,21 +8,21 @@ import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardListComponent } from "../../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../../modules/shared/table.types';
 import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
+import LinkButtonComponent from '../../../shared/form/button/link/link-button';
 import { IconComponent } from "../../../shared/icon/icon";
 import { SupabaseService } from '../../../shared/service/supabase.service';
 import CollapseComponent from '../../../shared/widget/collapse/collapse';
+import { getRowRoute } from '../../private.routes';
 import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePageComponent } from '../../shared/private-page';
 import { OrganizationCallingsComponent } from './organization-callings';
-import { getRowRoute } from '../../private.routes';
-import LinkButtonComponent from '../../../shared/form/button/link/link-button';
 
 @Component({
     selector: 'app-organizations-page',
     templateUrl: './organizations-page.html',
     imports: [TranslateModule, RowCardListComponent, OrganizationListRowComponent, OrganizationListInsertComponent,
     DrawerRouterOutletComponent, AsyncButtonComponent, LinkButtonComponent, CollapseComponent,
-    IconComponent, OrganizationCallingsComponent, RouterLink],
+    IconComponent, OrganizationCallingsComponent],
     styleUrl: './organizations-page.scss',
     host: { class: 'full-width' },
 })

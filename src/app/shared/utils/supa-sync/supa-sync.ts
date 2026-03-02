@@ -11,7 +11,7 @@ const VERSION_KEY = "version";
 export class SupaSync<
     D extends Database,
     IA extends Partial<{ [K in TableName<D>]: any }> = {},
-    CM extends SupaSyncCalculatedMap<D> = {},
+    CM extends SupaSyncCalculatedMap<D, any> = SupaSyncCalculatedMap<D>,
 > {
 
     private changesConnection: ChannelConnection | undefined;
@@ -110,7 +110,7 @@ export class SupaSync<
     }
 
     public from<T extends TableName<D>>(tableName: T) {
-        return this.tablesByName[tableName];
+        return this.tablesByName[tableName] as SupaSyncTable<D, T, CalculatedOf<D, T, CM>, IA[T]>;
     }
 
     private async clear() {

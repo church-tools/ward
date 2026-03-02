@@ -186,27 +186,27 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             : (await this._storeAdapter.writeMany(updatedRows), [] as Change<LocalRow<D, T, C>>[]));
     }
     
-    public read(id: IDBValidKey) {
+    public read(id: IDBValidKey): IDBRead<D, T, C, LocalRow<D, T, C> | null> {
         return new IDBRead(this._storeAdapter, this.firstSynced, [id], rows => rows.length ? rows[0] : null);
     }
 
-    public readMany(ids: IDBValidKey[]) {
+    public readMany(ids: IDBValidKey[]): IDBRead<D, T, C, LocalRow<D, T, C>[]> {
         return new IDBRead(this._storeAdapter, this.firstSynced, ids, rows => rows);
     }
 
-    public readAll() {
+    public readAll(): IDBRead<D, T, C, LocalRow<D, T, C>[]> {
         return new IDBRead(this._storeAdapter, this.firstSynced, undefined, rows => rows);
     }
 
-    public find() {
+    public find(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C>[]> {
         return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this._indexed);
     }
     
-    public findKeys() {
+    public findKeys(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C>[]> {
         return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this._indexed);
     }
 
-    public findOne() {
+    public findOne(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C> | null> {
         return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows.length ? rows[0] : null, this._indexed);
     }
 

@@ -4,6 +4,7 @@ import { CallingListInsertComponent } from '../../../modules/calling/calling-lis
 import { CallingListRowComponent } from '../../../modules/calling/calling-list-row';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
 import { Insert, Table } from '../../../modules/shared/table.types';
+import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AdminService } from '../../shared/admin.service';
 
 @Component({
@@ -44,11 +45,8 @@ export class OrganizationCallingsComponent {
 		this.adminService.editMode.set(true);
 	};
 
-	protected getQuery() {
-		const organization = this.organization();
-		return {
-			query: (table: Table<'calling'>) => table.find().eq('organization', organization),
-			id: `organization_callings_${organization}`
-		};
-	}
+	protected readonly getQuery = xcomputed([this.organization], organization => ({
+		query: (table: Table<'calling'>) => table.find().eq('organization', organization),
+		id: `organization_callings_${organization}`
+	}));
 }

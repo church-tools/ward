@@ -26,7 +26,7 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
         D extends Database,
         T extends TableName<D>,
         IA extends Partial<{ [K in TableName<D>]: any }> = {},
-        CM extends SupaSyncCalculatedMap<D> = {},
+        CM extends SupaSyncCalculatedMap<D, any> = SupaSyncCalculatedMap<D>,
     >(
         supaSync: SupaSync<D, IA, CM>,
         getTableName: () => T,
