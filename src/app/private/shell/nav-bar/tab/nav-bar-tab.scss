@@ -1,8 +1,8 @@
-@use "/src/styles/font";
-@use "/src/styles/color";
-@use "/src/styles/card";
-@use "/src/styles/animation";
-@use "/src/styles/shadow";
+@use "font";
+@use "color";
+@use "card";
+@use "animation";
+@use "shadow";
 
 .btn {
     -webkit-tap-highlight-color: transparent;

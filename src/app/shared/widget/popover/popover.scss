@@ -1,6 +1,6 @@
-@use "/src/styles/animation";
-@use "/src/styles/layout";
-@use "/src/styles/shadow";
+@use "animation";
+@use "layout";
+@use "shadow";
 
 dialog {
     margin: auto;

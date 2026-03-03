@@ -1,7 +1,7 @@
-@use "/src/styles/layout";
-@use "/src/styles/shadow";
-@use "/src/styles/card";
-@use "/src/styles/animation";
+@use "layout";
+@use "shadow";
+@use "card";
+@use "animation";
 
 .card-item-container.cdk-drop-list-dragging .drag-card-host:not(.cdk-drag-placeholder) {
     transition: transform animation.$duration-sm ease;

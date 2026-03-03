@@ -1,6 +1,6 @@
-@use "/src/styles/input";
-@use "/src/styles/color";
-@use "/src/styles/font";
+@use "input";
+@use "color";
+@use "font";
 
 :host {
     position: relative;

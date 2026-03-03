@@ -1,7 +1,7 @@
-@use "/src/styles/input";
-@use "/src/styles/font";
-@use "/src/styles/color";
-@use "/src/styles/animation";
+@use "input";
+@use "font";
+@use "color";
+@use "animation";
 
 .checkbox {
     align-self: flex-start;

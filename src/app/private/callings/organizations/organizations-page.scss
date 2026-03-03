@@ -1,4 +1,4 @@
-@use "/src/styles/animation";
+@use "animation";
 
 .chevron {
     transition: transform animation.$duration animation.$ease-out;

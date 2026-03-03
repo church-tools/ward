@@ -1,6 +1,6 @@
-@use "/src/styles/animation";
-@use "/src/styles/layout";
-@use "/src/styles/color";
+@use "animation";
+@use "layout";
+@use "color";
 @use "sass:color" as sassColor;
 
 :host {

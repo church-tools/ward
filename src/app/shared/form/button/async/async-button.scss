@@ -1,5 +1,5 @@
-@use "/src/styles/animation";
-@use "/src/styles/font";
+@use "animation";
+@use "font";
 
 :host {
     flex-direction: column;

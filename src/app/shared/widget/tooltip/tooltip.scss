@@ -1,6 +1,6 @@
-@use "/src/styles/card";
-@use "/src/styles/input";
-@use "/src/styles/animation";
+@use "card";
+@use "input";
+@use "animation";
 
 :host {
     position: relative;
