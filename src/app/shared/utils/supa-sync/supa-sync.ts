@@ -51,9 +51,9 @@ export class SupaSync<
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
                     const name = table.name;
-                    const { idPath, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
+                    const { idKey, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
                     const indexedKeys = Object.keys(indexed ?? {});
-                    const keyPath = idPath ?? 'id';
+                    const keyPath = idKey ?? 'id';
                     const store = idb.objectStoreNames.contains(name)
                         ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
                         : idb.createObjectStore(name, { keyPath, autoIncrement: true });
@@ -134,11 +134,11 @@ export class SupaSync<
                 case 'INSERT':
                 case 'UPDATE': {
                     if (payload.new && table._wasSentLately(payload.new))
-                        return;
+                        break;
                     if (!payload.new)
                         break;
                     if (payload.new?.[table.deletedKey]) {
-                        const deleteId = payload.new![table.idKey] as number;
+                        const deleteId = table.getId(payload.new);
                         const old = await adapter.read(deleteId);
                         await adapter.delete(deleteId);
                         if (old) {
@@ -157,8 +157,8 @@ export class SupaSync<
                 }
                 case 'DELETE':
                 {
-                    const oldId = payload.old?.[table.idKey] as number | undefined;
-                    if (oldId == null) break;
+                    if (!payload.old) break;
+                    const oldId = table.getId(payload.old);
                     const old = await adapter.read(oldId);
                     await adapter.delete(oldId);
                     if (old) {

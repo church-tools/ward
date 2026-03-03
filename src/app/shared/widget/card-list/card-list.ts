@@ -14,8 +14,8 @@ import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
 import { SwapContainerComponent } from '../swap-container/swap-container';
 
-type ItemCard<T> = {
-    id: number;
+type ItemCard<T, ID extends number | string> = {
+    id: ID;
     item: T;
     top?: number; // used for animations - relative to container
     animateEntrance: boolean;
@@ -28,7 +28,7 @@ type ItemCard<T> = {
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
-export class CardListComponent<T> {
+export class CardListComponent<T, ID extends number | string> {
 
     private readonly injector = inject(Injector);
     private readonly windowService = inject(WindowService);
@@ -37,7 +37,7 @@ export class CardListComponent<T> {
 
     readonly editable = input(false);
     readonly gap = input(2);
-    readonly idKey = input.required<keyof T>();
+    readonly getId = input.required<(item: T) => ID>();
     readonly orderByKey = input<keyof T | null | undefined>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
@@ -66,7 +66,7 @@ export class CardListComponent<T> {
     readonly isInserting = this.inserting.asReadonly();
     protected readonly insertedItem = signal<T | null>(null);
     protected readonly newEditCard = signal(false);
-    protected readonly itemCards = signal<ItemCard<T>[]>([]);
+    protected readonly itemCards = signal<ItemCard<T, ID>[]>([]);
     protected readonly dragStartDelay = { touch: this.windowService.mobileOS ? 500 : 300, mouse: 0 };
     private readonly _initialized = signal(false);
     public readonly initialized = this._initialized.asReadonly();
@@ -127,7 +127,7 @@ export class CardListComponent<T> {
         this.itemCards.set([]);
     }
 
-    async updateItems(update: { items?: T[], deletions?: number[] }) {
+    async updateItems(update: { items?: T[], deletions?: ID[] }) {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
         await this.updateItemCards(update);
@@ -154,7 +154,7 @@ export class CardListComponent<T> {
         transitionStyle(item, { height: '0' }, { height: `${height}px` }, animationDurationMs, easeOut, true);
     }
 
-    protected onItemClick(listItem: ItemCard<T>): void {
+    protected onItemClick(listItem: ItemCard<T, ID>): void {
         this.itemClicked()?.(listItem.item);
     }
 
@@ -193,13 +193,13 @@ export class CardListComponent<T> {
         this.inserting.set(false);
     }
 
-    protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T>, card: HTMLElement) {
+    protected onDragStart(event: CdkDragStart, itemCard: ItemCard<T, ID>, card: HTMLElement) {
         this.dragStart = Date.now();
         this.dragDropMutex.acquire();
         this._dragDropGroup()?.setDrag(event.source, itemCard.item, card);
     }
 
-    protected onDragEnd(itemCard: ItemCard<T>) {
+    protected onDragEnd(itemCard: ItemCard<T, ID>) {
         setTimeout(() => {
             this.dragDropMutex.release();
             this._dragDropGroup()?.clearDrag();
@@ -242,8 +242,7 @@ export class CardListComponent<T> {
 
     private addDroppedItem(data: DropData<T>) {
         const itemCards = this.itemCards();
-        const idKey = this.idKey();
-        const id = data.item[idKey] as number;
+        const id = this.getId()(data.item);
         if (itemCards.some(card => card.id === id)) return;
         const newItemCards = [...itemCards];
         newItemCards.splice(data.toPosition, 0, { id, item: data.item, animateEntrance: false, removed: signal(false) });
@@ -260,7 +259,7 @@ export class CardListComponent<T> {
         this.itemCards.set(newItemCards);
     }
 
-    private getPositionForIndex(itemCards: ItemCard<T>[], index: number): any {
+    private getPositionForIndex(itemCards: ItemCard<T, ID>[], index: number): any {
         const orderByKey = this.orderByKey();
         if (!orderByKey) throw new Error('OrderByKey is not set');
         const leadingPosition = <number | null>itemCards[index - 1]?.item[orderByKey];
@@ -272,7 +271,7 @@ export class CardListComponent<T> {
                 : followingPosition != null ? followingPosition - 1 : 0);
     }
 
-    private async updateItemCards(update: { items?: T[], deletions?: number[] }, animateEntrance = true) {
+    private async updateItemCards(update: { items?: T[], deletions?: ID[] }, animateEntrance = true) {
         const { items = [], deletions = [] } = update;
         if (!items.length && !deletions.length) {
             this._initialized.set(true);
@@ -280,10 +279,10 @@ export class CardListComponent<T> {
         }
         let itemCards = [...this.itemCards()];
         animateEntrance &&= this._initialized();
-        const idKey = this.idKey();
-        const itemCardMap = new Map<number, ItemCard<T>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
+        const getId = this.getId();
+        const itemCardMap = new Map<ID, ItemCard<T, ID>>(itemCards.map(itemCard => [itemCard.id, itemCard]));
         for (const item of items) {
-            const id = item[idKey] as number;
+            const id = getId(item);
             const itemCard = itemCardMap.get(id);
             if (itemCard) {
                 itemCard.item = item;
@@ -320,13 +319,13 @@ export class CardListComponent<T> {
         }
     }
 
-    private sort(itemCards: ItemCard<T>[]) {
+    private sort(itemCards: ItemCard<T, ID>[]) {
         const orderByKey = this.orderByKey();
         if (!orderByKey || itemCards.length <= 1) return;
         itemCards.sort((a, b) => (a.item[orderByKey] as number) - (b.item[orderByKey] as number));
     }
 
-    private orderIsCorrect(itemCards: ItemCard<T>[]) {
+    private orderIsCorrect(itemCards: ItemCard<T, ID>[]) {
         const orderByKey = this.orderByKey();
         if (!orderByKey) return true;
         for (let i = 0; i < itemCards.length; i++)

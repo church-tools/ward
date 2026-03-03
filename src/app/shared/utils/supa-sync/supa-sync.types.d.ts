@@ -71,7 +71,8 @@ export type SupaSyncTableInfo<
     T extends TableName<D>,
     C extends AnyCalculatedValues = NoCalculatedValues,
 > = {
-    idPath?: Column<D, T>; // default: 'id'
+    idKey?: Column<D, T>; // default: 'id'
+    compositeIdKeys?: Column<D, T>[]; // default: none
     updatedAtPath?: Column<D, T>; // default: 'updated_at'
     deletable?: boolean; // default: true
     deletedPath?: Column<D, T>; // default: 'deleted'

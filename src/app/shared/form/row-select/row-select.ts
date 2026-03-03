@@ -1,5 +1,5 @@
 import { booleanAttribute, Component, inject, Injector, input, signal } from "@angular/core";
-import type { IdOf, Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
+import type { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
 import { getViewService } from "../../../modules/shared/view.service";
 import { SupabaseService } from "../../service/supabase.service";
 import { assureArray } from "../../utils/array-utils";
@@ -7,9 +7,6 @@ import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { MultiSelectComponent } from "../select/multi-select";
 import { SelectComponent, SelectOption } from "../select/select";
 import { getProviders, InputBaseComponent } from "../shared/input-base";
-
-type TableNameWithId = { [K in TableName]: Row<K> extends { id: number | string } ? K : never }[TableName];
-type RowSelectValue<T extends TableName> = IdOf<T> | IdOf<T>[];
 
 @Component({
     selector: 'app-row-select',
@@ -49,7 +46,7 @@ type RowSelectValue<T extends TableName> = IdOf<T> | IdOf<T>[];
     providers: getProviders(() => RowSelectComponent),
     imports: [SelectComponent, MultiSelectComponent],
 })
-export class RowSelectComponent<T extends TableNameWithId> extends InputBaseComponent<RowSelectValue<T>> {
+export class RowSelectComponent<T extends TableName> extends InputBaseComponent<number | number[]> {
 
     private readonly supabase = inject(SupabaseService);
     private readonly injector = inject(Injector);
@@ -61,18 +58,18 @@ export class RowSelectComponent<T extends TableNameWithId> extends InputBaseComp
     readonly allowCustom = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
 
-    private readonly optionList = signal<SelectOption<IdOf<T>>[]>([]);
+    private readonly _table = xcomputed([this.table], t => this.supabase.sync.from(t));
+    private readonly optionList = signal<SelectOption<number>[]>([]);
     private viewToString: ((row: Row<T>) => string) | null = null;
 
     protected readonly singleValue = xcomputed([this.viewValue], value => {
         if (Array.isArray(value))
             return value[0] ?? null;
-        return value as IdOf<T> | null;
+        return value as number | null;
     });
 
-    protected readonly multipleValue = xcomputed([this.viewValue], value =>
-        assureArray(value as IdOf<T> | IdOf<T>[]));
-
+    protected readonly multipleValue = xcomputed([this.viewValue], value => assureArray(value));
+    
     constructor() {
         super();
         xeffect([this.table, this.getQuery], () => {
@@ -83,44 +80,43 @@ export class RowSelectComponent<T extends TableNameWithId> extends InputBaseComp
     protected getOptions = async (search: string) => {
         if (this.optionList().length)
             return this.optionList();
-        const table = this.supabase.sync.from<T>(this.table());
-        const query = this.getQuery()?.(table) ?? table.readAll();
+        const query = this.getQuery()?.(this._table()) ?? this._table().readAll();
         const rows = await query.get();
         const options = await this.mapRowsToOptions(rows);
         this.optionList.set(options);
         return options;
     }
 
-    protected override async mapIn(value: RowSelectValue<T> | null): Promise<RowSelectValue<T> | null> {
+    protected override async mapIn(value: number | number[] | null): Promise<number | number[] | null> {
         if (value == null)
             return value;
         const normalized = this.multiple()
-            ? [...assureArray(value as IdOf<T> | IdOf<T>[])] as RowSelectValue<T>
-            : (Array.isArray(value) ? (value[0] ?? null) : value) as RowSelectValue<T> | null;
-        const selectedIds = assureArray(normalized as IdOf<T> | IdOf<T>[]).filter(v => v != null);
+            ? [...assureArray(value)]
+            : (Array.isArray(value) ? (value[0] ?? null) : value) as number | null;
+        const selectedIds = assureArray(normalized).filter(v => v != null);
         if (selectedIds.length)
             await this.ensureOptionsForValues(selectedIds);
         const aligned = this.alignValuesToOptions(selectedIds);
         return this.multiple()
-            ? [...aligned] as RowSelectValue<T>
-            : (aligned[0] ?? null) as RowSelectValue<T> | null;
+            ? [...aligned]
+            : (aligned[0] ?? null);
     }
 
-    protected override mapOut(value: RowSelectValue<T> | null): RowSelectValue<T> | null {
+    protected override mapOut(value: number | number[] | null): number | number[] | null {
         if (value == null)
             return value;
         return this.multiple()
-            ? [...assureArray(value)] as RowSelectValue<T>
-            : (Array.isArray(value) ? (value[0] ?? null) : value) as RowSelectValue<T> | null;
+            ? [...assureArray(value)]
+            : (Array.isArray(value) ? (value[0] ?? null) : value);
     }
 
-    private async ensureOptionsForValues(values: IdOf<T>[]) {
+    private async ensureOptionsForValues(values: number[]) {
         await this.getOptions('');
         const currentOptions = this.optionList();
         const existingValues = new Set(currentOptions.map(option => option.value));
         const missingValues = values.filter(value => !existingValues.has(value));
         if (!missingValues.length) return;
-        const table = this.supabase.sync.from<T>(this.table());
+        const table = this._table();
         const rows = await table.readMany(missingValues as unknown as IDBValidKey[]).get();
         if (!rows.length) return;
         const missingOptions = await this.mapRowsToOptions(rows);
@@ -138,7 +134,8 @@ export class RowSelectComponent<T extends TableNameWithId> extends InputBaseComp
 
     private async mapRowsToOptions(rows: Row<T>[]) {
         const toString = await this.getToString();
-        return rows.map(row => ({ value: row.id as IdOf<T>, view: toString(row), row }));
+        const getId = this._table().getId;
+        return rows.map(row => ({ value: getId(row), view: toString(row), row }));
     }
 
     private async getToString() {
@@ -149,7 +146,7 @@ export class RowSelectComponent<T extends TableNameWithId> extends InputBaseComp
         return this.viewToString;
     }
 
-    private alignValuesToOptions(values: IdOf<T>[]) {
+    private alignValuesToOptions(values: number[]) {
         if (!values.length)
             return values;
         const options = this.optionList();

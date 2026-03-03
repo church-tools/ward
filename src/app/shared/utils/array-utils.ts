@@ -69,7 +69,7 @@ export function getLowest<T>(array: T[], getValue: (item: T, i: number) => numbe
     return lowest;
 }
 
-export function assureArray<T>(value: T | T[]): T[] {
+export function assureArray<T>(value: T | T[] | null): T[] {
     if (value == null) return [];
     return Array.isArray(value) ? value : [value];
 }

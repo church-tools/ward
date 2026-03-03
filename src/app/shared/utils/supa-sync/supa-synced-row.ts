@@ -52,10 +52,10 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
         const id = signal<number | null>(null);
         const self = new SupaSyncedRow<D, T, C>(table, id, rowSignal, self => {
             const row = rowSignal();
-            id.set(row?.[self._table.idKey] ?? null);
+            id.set(row ? self._table.getId(row) : null);
             self.subscription?.unsubscribe();
             if (row == null) return;
-            self.subscription = self._table.read(row[self._table.idKey])
+            self.subscription = self._table.read(self._table.getId(row))
                 .listenToChanges(update => rowSignal.set(update.result ?? null));
         });
         return self;

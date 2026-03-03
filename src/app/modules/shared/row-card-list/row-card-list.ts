@@ -51,7 +51,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly emptyIcon = input<Icon | null>(null);
     readonly rowClicked = input<(row: Row<T>) => void>();
 
-    protected readonly cardListView = viewChild(CardListComponent);
+    protected readonly cardListView = viewChild(CardListComponent<Row<T>, number>);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<InsertTemplateContext<T>>>('insertTemplate');
 
@@ -93,7 +93,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
 
     protected removeRow = async (row: Row<T>) => {
         const table = this.table();
-        const id = row[table.idKey] as number;
+        const id = table.getId(row);
         await Promise.all([
             table.delete(row),
             this.cardListView()?.updateItems({ deletions: [id] }),
@@ -111,15 +111,17 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
 
     protected onRowClick = (row: Row<T>) => {
         const getUrl = this.getUrl();
-        if (getUrl && this.activeId() === row[this.table().idKey])
+        if (getUrl && this.activeId() === this.table().getId(row))
             this.router.navigate([getUrl(null)]);
     }
 
     protected _prepareInsert(row: Insert<T>): PromiseOrValue<void> {
         this.prepareInsert()?.(row);
         const orderKey = this.table().info.orderKey;
-        if (orderKey)
-            (row as Row<T>)[orderKey] = (this.cardListView()?.getLast()?.[orderKey] ?? -1) + 1;
+        if (orderKey) {
+            const last = this.cardListView()?.getLast();
+            (row as any)[orderKey] = (last?.[orderKey] as number ?? -1) + 1;
+        }
     }
 
     ngOnDestroy(): void {
