@@ -1,10 +1,10 @@
-@use "input" as *;
-@use "font";
-@use "color";
-@use "card";
-@use "layout";
-@use "animation";
-@use "shadow";
+@use "./input" as *;
+@use "./font";
+@use "./color";
+@use "./card";
+@use "./layout";
+@use "./animation";
+@use "./shadow";
 
 .input-color {
     color: $color;

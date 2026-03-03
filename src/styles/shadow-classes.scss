@@ -1,4 +1,4 @@
-@use "shadow" as *;
+@use "./shadow" as *;
 
 @each $level in $levels {
     .shadow-#{$level} { @include box($level); }

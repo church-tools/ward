@@ -1,6 +1,4 @@
-@use "animation";
-@use "card";
-@use "shadow";
+@use "../../../../styles/animation";
 
 .chevron {
     transition: transform animation.$duration animation.$ease-out;

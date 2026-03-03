@@ -1,9 +1,9 @@
 @use "card" as *;
-@use "color";
-@use "shadow";
-@use "animation";
-@use "layout-classes";
-@use "shadow-classes";
+@use "./color";
+@use "./shadow";
+@use "./animation";
+@use "./layout-classes";
+@use "./shadow-classes";
 
 .card {
     display: flex;

@@ -1,6 +1,6 @@
-@use 'color';
-@use 'shadow';
-@use 'animation';
+@use "./color";
+@use "./shadow";
+@use "./animation";
 
 $background-color: light-dark(#f6f6f6, #323232);
 $background-color-transparent: light-dark(rgba(#f6f6f6, 0.5), rgba(#323232, 0.5));

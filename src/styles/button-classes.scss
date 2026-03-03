@@ -1,11 +1,11 @@
-@use "button" as *;
-@use "font";
-@use "input";
-@use "shadow";
-@use "color";
-@use "animation";
-@use "card";
-@use 'sass:color' as sassColor;
+@use "./button" as *;
+@use "./font";
+@use "./input";
+@use "./shadow";
+@use "./color";
+@use "./animation";
+@use "./card";
+@use "sass:color" as sassColor;
 
 button, .button {
     -webkit-tap-highlight-color: transparent;

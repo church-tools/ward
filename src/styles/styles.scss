@@ -1,12 +1,12 @@
-@forward "shadow-classes";
-@forward "color-classes";
-@forward "font-classes";
-@forward "animation-classes";
-@forward "card-classes";
-@forward "layout-classes";
-@forward "input-classes";
-@forward "form-classes";
-@forward "button-classes";
+@forward "./shadow-classes";
+@forward "./color-classes";
+@forward "./font-classes";
+@forward "./animation-classes";
+@forward "./card-classes";
+@forward "./layout-classes";
+@forward "./input-classes";
+@forward "./form-classes";
+@forward "./button-classes";
 
 body {
     position: relative;

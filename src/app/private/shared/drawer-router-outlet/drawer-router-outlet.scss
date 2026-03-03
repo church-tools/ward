@@ -1,8 +1,8 @@
-@use 'layout';
-@use 'input';
-@use 'card';
-@use 'shadow';
-@use 'animation';
+@use "../../../../styles/layout";
+@use "../../../../styles/input";
+@use "../../../../styles/card";
+@use "../../../../styles/shadow";
+@use "../../../../styles/animation";
 
 :host {
     width: 100%;

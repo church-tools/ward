@@ -1,5 +1,5 @@
-@use "color";
-@use "card";
+@use "./color";
+@use "./card";
 
 @mixin highlight {
     &::after {

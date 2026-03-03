@@ -1,7 +1,7 @@
-@use "input";
-@use "font";
-@use "color";
-@use "animation";
+@use "../../../../styles/input";
+@use "../../../../styles/font";
+@use "../../../../styles/color";
+@use "../../../../styles/animation";
 
 :host {
     label.row app-input-label {

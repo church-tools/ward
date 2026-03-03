@@ -1,6 +1,6 @@
-@use "font";
-@use "animation";
-@use "layout";
+@use "../../../../styles/font";
+@use "../../../../styles/animation";
+@use "../../../../styles/layout";
 
 :host {
     transition: all animation.$duration-lg animation.$ease-out;
