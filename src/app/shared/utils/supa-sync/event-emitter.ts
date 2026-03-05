@@ -29,6 +29,7 @@ class UnsafeSortedSet {
 }
 
 export type Subscription = {
+    readonly closed: boolean;
     unsubscribe: () => void;
 };
 
@@ -46,8 +47,12 @@ export class EventEmitter<T> {
     subscribe(callback: (event: T) => any): Subscription {
         const index = this.freeIndexes.first ?? this.listeners.length;
         this.listeners[index] = callback;
-        return {
+        let isClosed = false;
+        const subscription: Subscription = {
+            get closed() { return isClosed; },
             unsubscribe: () => {
+                if (isClosed) return;
+                isClosed = true;
                 delete this.listeners[index];
                 if (index === this.listeners.length - 1) {
                     this.listeners.pop();
@@ -59,5 +64,6 @@ export class EventEmitter<T> {
                 this.freeIndexes.add(index);
             }
         };
+        return subscription;
     }
 }

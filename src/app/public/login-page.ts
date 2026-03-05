@@ -2,11 +2,11 @@ import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import AsyncButtonComponent from '../shared/form/button/async/async-button';
-import ButtonComponent from "../shared/form/button/button";
 import LinkButtonComponent from '../shared/form/button/link/link-button';
 import { PageComponent } from '../shared/page/page';
 import { FunctionsService } from '../shared/service/functions.service';
 import { SupabaseService } from '../shared/service/supabase.service';
+import { wait } from '../shared/utils/flow-control-utils';
 import { CredentialsComponent } from './shared/credentials';
 
 @Component({
@@ -16,19 +16,25 @@ import { CredentialsComponent } from './shared/credentials';
             <span class="display-text">{{ 'LOGIN.TITLE' | translate }}</span>
             <app-credentials #credentials class="full-width"/>
             <app-async-button type="primary" size="large" class="third-width"
-                [onClick]="loginWithCredentials">
+                [onClick]="loginWithCredentials" needsInternet hideSuccess>
                 {{ 'LOGIN.TITLE' | translate }}
             </app-async-button>
             <div class="horizontal-divider with-label" role="separator" aria-label="or">
                 {{ 'OR' | translate }}
             </div>
             <div class="row gap-4">
-                <app-button type="secondary" size="large" (onClick)="loginWithProvider('google')">
-                    <img src="assets/img/brand/google.svg" sizes="16x16" alt="Google Icon" class="provider-icon">
-                </app-button>
-                <app-button type="secondary" size="large" (onClick)="loginWithProvider('azure')">
-                    <img src="assets/img/brand/microsoft.svg" sizes="16x16" alt="Microsoft Icon" class="provider-icon">
-                </app-button>
+                <app-async-button #googleButton class="provider-btn" type="secondary" size="large"
+                    [onClick]="loginWithProvider('google')" needsInternet hideSuccess>
+                    @if (!googleButton.inProgress()) {
+                        <img src="assets/img/brand/google.svg" sizes="16x16" alt="Google Icon" class="provider-icon">
+                    }
+                </app-async-button>
+                <app-async-button #azureButton class="provider-btn" type="secondary" size="large"
+                    [onClick]="loginWithProvider('azure')" needsInternet hideSuccess>
+                    @if (!azureButton.inProgress()) {
+                        <img src="assets/img/brand/microsoft.svg" sizes="16x16" alt="Microsoft Icon" class="provider-icon">
+                    }
+                </app-async-button>
             </div>
             <div class="row gap-4 mt-4">
                 <app-link-button [href]="'/reset-password'" type="transparent" hideNewTab>
@@ -40,11 +46,14 @@ import { CredentialsComponent } from './shared/credentials';
             </div>
         </div>
     `,
-    imports: [TranslateModule, ButtonComponent, LinkButtonComponent, AsyncButtonComponent, CredentialsComponent],
+    imports: [TranslateModule, LinkButtonComponent, AsyncButtonComponent, CredentialsComponent],
     styles: [`
-        .provider-icon {
-            width: 64px;
-            height: 16px;
+        .provider-btn {
+            min-width: 6rem;
+            img {
+                width: 16px;
+                height: 16px;
+            }
         }
     `],
     host: { class: 'portrait' },
@@ -77,6 +86,9 @@ export class LoginPageComponent extends PageComponent {
     };
 
     protected loginWithProvider(provider: 'google' | 'azure') {
-        this.supabase.signInWithOAuth(provider);
+        return async () => {
+            await this.supabase.signInWithOAuth(provider);
+            await wait(10000); // Wait for the auth state change to propagate
+        }
     }
 }

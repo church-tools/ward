@@ -165,7 +165,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             if (summaryInfo) {
                 const { index, toString } = summaryInfo;
                 await index.clear();
-                const allItems = await this.readAll().get();
+                const allItems = await this.readAll().dontWaitForFirstSync().get();
                 const updates = allItems.map(item => ({
                     old: undefined,
                     new: toString(item).toLowerCase(),
@@ -185,11 +185,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             query = query.eq(this.deletedKey, false as any);
         await this.onlineState.get();
         const { data } = await query.throwOnError();
+        console.log(`Store ${this.name} has Subscriptions: ${this._storeAdapter.onChange.hasSubscriptions}, got Data: ${data.length}`);
         if (data.length) {
-            const changes = await this._writeAndDelete(data);
+            const changes = await this._writeAndDelete(data, true);
             if (changes?.length) {
-                this._storeAdapter.onChange.emit(changes);
                 await this._updateDependentCalculatedValues(changes);
+                this._storeAdapter.onChange.emit(changes);
             }
         }
         this._firstSynced();
@@ -312,11 +313,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         return true;
     }
 
-    public async _writeAndDelete(rows: Update<D, T>[]) {
+    public async _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
         const updated = rows.filter(update => !update[this.deletedKey]);
         const deletedIds = rows.filter(update => update[this.deletedKey]).map(update => update[this.idKey] as number);
         const rowsWithCalc = await this.applyCalculatedValues(updated);
-        return await (this._storeAdapter.onChange.hasSubscriptions
+        return await (this._storeAdapter.onChange.hasSubscriptions || alwaysGetChanges
             ? this._storeAdapter.writeAndGet(rowsWithCalc, deletedIds)
             : this._storeAdapter.writeMany(rowsWithCalc, deletedIds));
     }
