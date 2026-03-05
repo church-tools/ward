@@ -48,6 +48,7 @@ Thumbs.db
 
 # Wrangler
 .wrangler
+patches/*.patch
 
 # Icons
 FluentSystemIcons-Resizable.json
