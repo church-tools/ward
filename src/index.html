@@ -23,9 +23,9 @@
 
         function hideLoadingScreen() {
             if (!fontLoaded || !viewInitialized) return;
-            // const pageLoading = document.querySelector('.page-loading');
-            // pageLoading?.classList.add('hidden');
-            // setTimeout(function() { pageLoading?.remove() }, 1000);
+            const pageLoading = document.querySelector('.page-loading');
+            pageLoading?.classList.add('hidden');
+            setTimeout(function() { pageLoading?.remove() }, 1000);
         }
 
         window.addEventListener('view-initialized', function() {
