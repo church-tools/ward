@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { SupabaseService } from "../../shared/service/supabase.service";
 import { asyncComputed } from "../../shared/utils/signal-utils";
-import { MemberCallingService } from "../member_calling/member-calling.service";
+import { MemberCallingService } from "../member-calling/member-calling.service";
 
 @Injectable({ providedIn: 'root' })
 export class CallingService {

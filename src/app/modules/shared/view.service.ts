@@ -14,6 +14,7 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
             case 'calling': return (await import('../calling/calling-view.service')).CallingViewService;
             case 'organization': return (await import('../organization/organization-view.service')).OrganizationViewService;
             case 'member': return (await import('../member/member-view.service')).MemberViewService;
+            case 'member_calling': return (await import('../member-calling/member-calling-view.service')).MemberCallingViewService;
             default: throw new Error(`No view service found for table: ${tableName}`);
         }
     })();
