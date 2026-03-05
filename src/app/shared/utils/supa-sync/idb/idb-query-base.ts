@@ -44,10 +44,7 @@ export abstract class IDBQueryBase<
 
     public subscribe(callback: (result: QueryResult<R>) => void): Subscription {
         return new Observable<QueryResult<R>>(subscriber => {
-            const sub = this.listenToChanges(res => {
-                subscriber.next(res);
-            });
-            console.log(`Subscribed to ${this.store.storeName}`);
+            const sub = this.listenToChanges(res => subscriber.next(res));
             this._getItems()
                 .then(items => {
                     if (sub.closed) return;

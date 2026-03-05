@@ -86,9 +86,7 @@ export class SupaSync<
         const lastUpdatedAt = await this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
-            console.log(`Initializing store ${table.name}`);
             await table._init(idb);
-            console.log(`Initialized store ${table.name}`);
             await table._sync(lastUpdatedAt);
         }));
         this.setLastSync(now);

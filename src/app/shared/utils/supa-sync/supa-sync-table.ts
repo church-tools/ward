@@ -185,7 +185,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             query = query.eq(this.deletedKey, false as any);
         await this.onlineState.get();
         const { data } = await query.throwOnError();
-        console.log(`Store ${this.name} has Subscriptions: ${this._storeAdapter.onChange.hasSubscriptions}, got Data: ${data.length}`);
         if (data.length) {
             const changes = await this._writeAndDelete(data, true);
             if (changes?.length) {
