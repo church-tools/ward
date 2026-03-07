@@ -33,6 +33,24 @@ export function syncedArraySignal<
 ): SyncedArraySignal<LocalRow<D, T, C>>;
 
 export function syncedArraySignal<
+	D extends DB, T extends TN<D>,
+	Dep1, Dep2, Dep3,
+	C extends AnyCalculatedValues
+>(
+	dependencies: [Signal<Dep1>, Signal<Dep2>, Signal<Dep3>],
+	queryComputation: (value1: StrictUnwrap<Signal<Dep1>>, value2: StrictUnwrap<Signal<Dep2>>, value3: StrictUnwrap<Signal<Dep3>>) => IDBQueryBase<D, T, C, LocalRow<D, T, C>[]>,
+): SyncedArraySignal<LocalRow<D, T, C>>;
+
+export function syncedArraySignal<
+	D extends DB, T extends TN<D>,
+	Dep1, Dep2, Dep3, Dep4,
+	C extends AnyCalculatedValues
+>(
+	dependencies: [Signal<Dep1>, Signal<Dep2>, Signal<Dep3>, Signal<Dep4>],
+	queryComputation: (value1: StrictUnwrap<Signal<Dep1>>, value2: StrictUnwrap<Signal<Dep2>>, value3: StrictUnwrap<Signal<Dep3>>, value4: StrictUnwrap<Signal<Dep4>>) => IDBQueryBase<D, T, C, LocalRow<D, T, C>[]>,
+): SyncedArraySignal<LocalRow<D, T, C>>;
+
+export function syncedArraySignal<
 	D extends Database,
 	T extends TableName<D>,
 	C extends AnyCalculatedValues
