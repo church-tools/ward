@@ -2,16 +2,24 @@
 <div class="column" (mousedown)="onInputContainerMouseDown($event)">
     <div class="top-anchor"><ng-container #topContainer/></div>
     <div #inputContainer class="form-input">
-        @if (selectedOption() && !withoutValue()) {
+        @let selectedOption = this.selectedOption();
+        @if (selectedOption && !withoutValue()) {
             <div class="value-container row gap-1">
                 <div class="value-btn subtle row no-wrap items-center gap-1">
                     @if (valueTemplate) {
-                        <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption()!)"/>
+                        <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption!)"/>
                     } @else {
-                        <span class="{{selectedOption()!.color}}-text">{{ selectedOption()!.view }}</span>
+                        <span class="{{selectedOption!.color}}-text">
+                            @if (translateOptions()) {
+                                {{ selectedOption.view | translate }}
+                            } @else {
+                                {{ selectedOption!.view }}
+                            }
+                        </span>
                     }
                     @if (!disabled() && !hideClear()) {
-                        <button class="delete-btn subtle icon-only tiny" type="button" aria-label="Clear selection" (click)="clearSelection()">
+                        <button class="delete-btn subtle icon-only tiny"
+                            type="button" aria-label="Clear selection" (click)="clearSelection()">
                             <app-icon icon="dismiss" size="xs"/>
                         </button>
                     }
@@ -24,7 +32,7 @@
                 [value]="search()"
                 [attr.aria-label]="label() || placeholder() || 'Select option'"
                 [attr.title]="label() || placeholder() || 'Select option'"
-                [placeholder]="selectedOption() ? '' : placeholder()"
+                [placeholder]="selectedOption ? '' : placeholder()"
                 (focus)="onFocus()"
                 (input)="onSearch($event)">
         }

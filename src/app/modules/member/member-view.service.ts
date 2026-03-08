@@ -11,6 +11,15 @@ export class MemberViewService extends ViewService<'member'> {
     readonly brotherColor: ColorName = 'royalblue';
     readonly sisterColor: ColorName = 'deeppink';
 
+    readonly salutationGenderOptions = [
+        { value: 'male', view: 'MEMBER_PAGE.BROTHER_SHORT', color: this.brotherColor },
+        { value: 'female', view: 'MEMBER_PAGE.SISTER_SHORT', color: this.sisterColor },
+    ] as const;
+
+    readonly salutationOptionsByGender = Object.fromEntries(
+        this.salutationGenderOptions.map(option => [option.value, option])
+    ) as Record<Member.Gender, (typeof this.salutationGenderOptions)[number]>;
+
     constructor() {
         super('member');
     }

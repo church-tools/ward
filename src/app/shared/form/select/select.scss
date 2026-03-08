@@ -34,14 +34,14 @@
     bottom: 0;
     .option {
         @starting-style {
-            transform: translateY(1rem);
+            translate: 0 1rem;
         }
         &.leave {
-            transform: translateY(1rem);
+            translate: 0 1rem;
         }
     }
     &.leave > .option {
-        transform: translateY(1rem);
+        translate: 0 1rem;
     }
 }
 
@@ -49,11 +49,11 @@
     top: 0;
     .option {
         @starting-style {
-            transform: translateY(-1rem);
+            translate: 0 -1rem;
         }
     }
     &.leave > .option {
-        transform: translateY(-1rem);
+        translate: 0 -1rem;
     }
 }
 
@@ -82,7 +82,7 @@
         transition: opacity animation.$duration-xxs ease;
         opacity: 0;
         & > .option {
-            transition: transform animation.$duration-xs ease;
+            transition: translate animation.$duration-xs ease;
         }
     }
 
@@ -98,7 +98,7 @@
     }
     
     .option {
-        transform: translateY(0);
+        translate: 0 0;
         
         .highlighted {
             border-radius: input.$border-radius;

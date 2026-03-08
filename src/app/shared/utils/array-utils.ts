@@ -39,7 +39,7 @@ export function sortInto<T>(value: T, sortedArray: T[], compare: SortingFn<T> = 
     sortedArray.splice(index, 0, value);
 }
 
-export function getHighest<T>(array: T[], getValue: (item: T, i: number) => number, limit?: number): WithSimilarity<T>[] {
+export function getHighest<T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithSimilarity<T>[] {
     const highest: WithSimilarity<T>[] = [];
     for (let i = 0; i < array.length; i++) {
         const elem = array[i] as WithSimilarity<T>;
@@ -54,7 +54,7 @@ export function getHighest<T>(array: T[], getValue: (item: T, i: number) => numb
     return highest;
 }
 
-export function getLowest<T>(array: T[], getValue: (item: T, i: number) => number, limit?: number): WithDistance<T>[] {
+export function getLowest<T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithDistance<T>[] {
     const lowest: WithDistance<T>[] = [];
     for (let i = 0; i < array.length; i++) {
         const elem = array[i] as WithDistance<T>;

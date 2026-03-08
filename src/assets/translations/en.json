@@ -109,6 +109,13 @@
     "IMPORT_BUTTON": "Import Members",
     "SELECTED": "selected"
   },
+  "MEMBER_PAGE": {
+    "SALUTATION": "Anrede",
+    "FIRST_NAME": "First Name",
+    "NICK_NAME": "Nickname",
+    "LAST_NAME": "Last Name",
+    "NOTES": "Notes"
+  },
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organizations"
   },

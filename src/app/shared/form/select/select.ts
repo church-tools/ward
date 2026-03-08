@@ -1,5 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, Component, ContentChild, ElementRef, EmbeddedViewRef, inject, input, model, OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import { booleanAttribute, Component, ContentChild, ElementRef, EmbeddedViewRef, inject, input, model,
+    OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
@@ -17,6 +19,7 @@ export type SelectOption<T> = {
     row?: unknown;
     id?: number | string;
     lcText?: string;
+    translatedText?: string;
     color?: ColorName;
     group?: {
         id: string;
@@ -47,7 +50,7 @@ type SelectValueTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [InputLabelComponent, IconComponent, NgTemplateOutlet],
+    imports: [TranslateModule, InputLabelComponent, IconComponent, NgTemplateOutlet],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => SelectComponent),
@@ -55,6 +58,7 @@ type SelectValueTemplateContext<T> = {
 export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestroy {
 
     private readonly windowService = inject(WindowService);
+    private readonly translateService = inject(TranslateService);
 
     private readonly input = viewChild('input', { read: ElementRef });
     private readonly inputContainer = viewChild.required('inputContainer', { read: ElementRef });
@@ -69,12 +73,13 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     @ContentChild('valueTemplate', { read: TemplateRef })
     protected valueTemplate: TemplateRef<SelectValueTemplateContext<T>> | null = null;
 
-    readonly options = input.required<SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
+    readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly getValueId = input<(value: T) => number | string>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
     readonly withoutValue = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly hideClear = input<boolean, unknown>(true, { transform: booleanAttribute });
     readonly mapSearch = input<(search: string) => string>();
+    readonly translateOptions = input<boolean, unknown>(false, { transform: booleanAttribute });
 
     protected readonly optionsLoading = signal<boolean>(false);
     protected readonly visibleOptions = signal<VisibleOption<T>[]>([]);
@@ -285,28 +290,32 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
         const options = this.options();
         const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), 200);
-        const allOptions = Array.isArray(options) ? options : await options(search);
+        const allOptions = typeof options === 'function'
+            ? await options(search)
+            : options;
         clearTimeout(loadingTimeout);
         this.optionsLoading.set(false);
-        if (!search) return allOptions.map(o => this.addHighlights(o, []));
+        if (this.translateOptions())
+            for (const option of allOptions)
+                option.translatedText = this.translateService.instant(option.view);
+        const textKey = this.translateOptions() ? 'translatedText' : 'view' as const;
         search = search.toLocaleLowerCase();
+        const searchWords = search.split(/\s+/).filter(Boolean);
+        const addHighlights = (option: SelectOption<T>): VisibleOption<T> =>
+            ({ ...option, highlights: highlightWords(option[textKey]!, searchWords) });
+        if (!searchWords.length) return allOptions.map(addHighlights);
         for (const option of allOptions)
-            option.lcText = option.view.toLocaleLowerCase();
-        const searchWords = search.split(/\s+/);
+            option.lcText = option[textKey]!.toLocaleLowerCase();
         let filteredOptions = allOptions
-            .filter(option => option.lcText!.startsWith(search))
-            .map(o => this.addHighlights(o, searchWords))
+            .filter(o => o.lcText!.startsWith(search))
+            .map(addHighlights);
         if (filteredOptions.length) return filteredOptions;
         filteredOptions = allOptions
             .filter(o => o.lcText!.includes(search))
-            .map(o => this.addHighlights(o, searchWords));
+            .map(addHighlights);
         if (filteredOptions.length) return filteredOptions;
         return getLowest(allOptions, o => levenshteinDistance(search, o.lcText!), 1)
-            .map(o => this.addHighlights(o, searchWords));
-    }
-
-    private addHighlights(option: SelectOption<T>, searchWords: string[]): VisibleOption<T> {
-        return { ...option, highlights: highlightWords(option.view, searchWords) };
+            .map(addHighlights);
     }
 
     private setVisibleOptionGroups(options: VisibleOption<T>[]) {
@@ -323,8 +332,10 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         this.showOptionGroups.set(groups.length > 1);
     }
 
-    private async syncSelectedOption(value: T | null, options: SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)) {
-        const allOptions = Array.isArray(options) ? options : await options('');
+    private async syncSelectedOption(value: T | null, options: readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)) {
+        const allOptions = typeof options === 'function'
+            ? await options('')
+            : options;
         if (value == null) {
             this.selectedOption.set(null);
             return;

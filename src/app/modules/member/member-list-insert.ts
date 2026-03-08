@@ -1,27 +1,41 @@
-import { Component, viewChild } from '@angular/core';
+import { Component, inject, viewChild } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import ButtonComponent from '../../shared/form/button/button';
+import { SelectComponent } from "../../shared/form/select/select";
 import { TextInputComponent } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';
 import { ListInsertComponent } from '../shared/row-card-list/list-insert';
 import { Member } from './member';
+import { MemberViewService } from './member-view.service';
 
 @Component({
     selector: 'app-member-list-insert',
     template: `
-        <app-text-input #firstName/>
-        <app-text-input #lastName/>
-        <app-button (onClick)="submit()" icon="save" class="icon-only"/>
+        <div class="row gap-1 full-width">
+            <app-select #gender class="width-6"
+                placeholder="{{ 'MEMBER_PAGE.GENDER' | translate }}"
+                [options]="memberView.salutationGenderOptions" translateOptions/>
+            <app-text-input #firstName class="grow-1" placeholder="{{ 'MEMBER_PAGE.FIRST_NAME' | translate }}"/>
+            <app-text-input #lastName class="grow-1" placeholder="{{ 'MEMBER_PAGE.LAST_NAME' | translate }}"/>
+            <app-button (onClick)="submit()" icon="save" class="icon-only"/>
+        </div>
     `,
-    imports: [TextInputComponent, ButtonComponent],
+    imports: [TranslateModule, SelectComponent, TextInputComponent, ButtonComponent],
 })
 export class MemberListInsertComponent extends ListInsertComponent<'member'> {
 
-    private readonly firstNameView = viewChild.required<TextInputComponent>('name');
+    protected readonly memberView = inject(MemberViewService);
+
+    private readonly genderView = viewChild.required<TextInputComponent>('gender');
+    private readonly firstNameView = viewChild.required<TextInputComponent>('firstName');
+    private readonly lastNameView = viewChild.required<TextInputComponent>('lastName');
 
     protected override getRowInfo(profile: Profile.Row) {
-        const name = this.firstNameView().getValue();
-        if (!name) return;
-        return <Member.Insert>{ first_name: name, unit: profile.unit };
+        const gender = this.genderView().getValue();
+        const first_name = this.firstNameView().getValue();
+        const last_name = this.lastNameView().getValue();
+        if (!gender || !first_name || !last_name) return;
+        return <Member.Insert>{ gender, first_name, last_name, unit: profile.unit };
     }
 
 }

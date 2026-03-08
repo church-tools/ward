@@ -19,9 +19,10 @@ import { AdminService } from '../../shared/admin.service';
 				cardClasses=""
                 [editable]="adminService.editMode() || !callingList.rowCount()">
 				<ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
-					<app-calling-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+					<app-calling-list-row class="full-width" [row]="row" [page]="page" [onRemove]="onRemove"/>
 				</ng-template>
-                <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                <ng-template #insertTemplate let-functions
+					let-prepareInsert="prepareInsert" let-context="context">
                     <app-calling-list-insert
                         [insert]="functions.insert"
                         [cancel]="functions.cancel"

@@ -109,6 +109,15 @@
     "IMPORT_BUTTON": "Mitglieder importieren",
     "SELECTED": "ausgewählt"
   },
+  "MEMBER_PAGE": {
+    "SALUTATION": "Anrede",
+    "FIRST_NAME": "Vorname",
+    "NICK_NAME": "Spitzname",
+    "LAST_NAME": "Nachname",
+    "NOTES": "Notizen",
+    "BROTHER_SHORT": "Brd.",
+    "SISTER_SHORT": "Schw."
+  },
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organisationen"
   },
@@ -131,8 +140,6 @@
     "REMOVE_ADMIN": "Als Administrator entfernen"
   },
   "SELECT_ALL": "Alle auswählen",
-  "BROTHER_SHORT": "Br.",
-  "SISTER_SHORT": "Schw.",
   "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
   "MEETINGS_PAGE": {
     "TITLE": "Sitzungen",

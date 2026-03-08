@@ -319,46 +319,40 @@ export type Database = {
       }
       member: {
         Row: {
-          agenda_permissions: number[] | null
           created_at: string
           deleted: boolean
           first_name: string
-          gender: Database["public"]["Enums"]["gender"] | null
+          gender: Database["public"]["Enums"]["gender"]
           id: number
           last_name: string | null
           nick_name: string | null
           notes: string | null
-          permissions: Database["public"]["Enums"]["permission"][] | null
           profile: number | null
           unit: number
           updated_at: string
         }
         Insert: {
-          agenda_permissions?: number[] | null
           created_at?: string
           deleted?: boolean
           first_name: string
-          gender?: Database["public"]["Enums"]["gender"] | null
+          gender: Database["public"]["Enums"]["gender"]
           id: number
           last_name?: string | null
           nick_name?: string | null
           notes?: string | null
-          permissions?: Database["public"]["Enums"]["permission"][] | null
           profile?: number | null
           unit: number
           updated_at?: string
         }
         Update: {
-          agenda_permissions?: number[] | null
           created_at?: string
           deleted?: boolean
           first_name?: string
-          gender?: Database["public"]["Enums"]["gender"] | null
+          gender?: Database["public"]["Enums"]["gender"]
           id?: number
           last_name?: string | null
           nick_name?: string | null
           notes?: string | null
-          permissions?: Database["public"]["Enums"]["permission"][] | null
           profile?: number | null
           unit?: number
           updated_at?: string
