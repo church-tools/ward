@@ -190,9 +190,9 @@ export type Database = {
       calling: {
         Row: {
           caller: Database["public"]["Enums"]["calling_caller"]
-          created_at: string
           deleted: boolean
-          full_name: string
+          full_name: string | null
+          gender_restriction: Database["public"]["Enums"]["gender"] | null
           id: number
           is_temporary: boolean
           is_unique: boolean
@@ -201,13 +201,12 @@ export type Database = {
           position: number
           unit: number
           updated_at: string
-          uuid: string
         }
         Insert: {
           caller?: Database["public"]["Enums"]["calling_caller"]
-          created_at?: string
           deleted?: boolean
-          full_name: string
+          full_name?: string | null
+          gender_restriction?: Database["public"]["Enums"]["gender"] | null
           id: number
           is_temporary?: boolean
           is_unique?: boolean
@@ -216,13 +215,12 @@ export type Database = {
           position: number
           unit?: number
           updated_at?: string
-          uuid: string
         }
         Update: {
           caller?: Database["public"]["Enums"]["calling_caller"]
-          created_at?: string
           deleted?: boolean
-          full_name?: string
+          full_name?: string | null
+          gender_restriction?: Database["public"]["Enums"]["gender"] | null
           id?: number
           is_temporary?: boolean
           is_unique?: boolean
@@ -231,7 +229,6 @@ export type Database = {
           position?: number
           unit?: number
           updated_at?: string
-          uuid?: string
         }
         Relationships: [
           {
@@ -246,58 +243,6 @@ export type Database = {
             columns: ["unit", "organization"]
             isOneToOne: false
             referencedRelation: "organization"
-            referencedColumns: ["unit", "id"]
-          },
-        ]
-      }
-      calling_process: {
-        Row: {
-          calling: number | null
-          created_at: string
-          deleted: boolean
-          id: number
-          member: number | null
-          unit: number
-          updated_at: string
-        }
-        Insert: {
-          calling?: number | null
-          created_at?: string
-          deleted?: boolean
-          id: number
-          member?: number | null
-          unit: number
-          updated_at?: string
-        }
-        Update: {
-          calling?: number | null
-          created_at?: string
-          deleted?: boolean
-          id?: number
-          member?: number | null
-          unit?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "calling_process_unit_calling_fkey"
-            columns: ["unit", "calling"]
-            isOneToOne: false
-            referencedRelation: "calling"
-            referencedColumns: ["unit", "id"]
-          },
-          {
-            foreignKeyName: "calling_process_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "calling_process_unit_member_fkey"
-            columns: ["unit", "member"]
-            isOneToOne: false
-            referencedRelation: "member"
             referencedColumns: ["unit", "id"]
           },
         ]
@@ -474,6 +419,7 @@ export type Database = {
           created_at: string
           deleted: boolean
           member: number
+          state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at: string
         }
@@ -482,6 +428,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           member: number
+          state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at?: string
         }
@@ -490,6 +437,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           member?: number
+          state?: Database["public"]["Enums"]["member_calling_state"]
           unit?: number
           updated_at?: string
         }
@@ -798,12 +746,6 @@ export type Database = {
         | "callings"
       callability: "callable" | "other_needs" | "retired"
       calling_caller: "bishopric" | "elders_quorum" | "stake_presidency"
-      calling_process_state:
-        | "proposed"
-        | "decided"
-        | "accepted"
-        | "confirmed"
-        | "set_apart"
       class: "sunday_school" | "relief_society" | "elders_quorum"
       color:
         | "palevioletred"
@@ -836,6 +778,12 @@ export type Database = {
         | "general_conference"
         | "stake_conference"
         | "ward_conference"
+      member_calling_state:
+        | "proposed"
+        | "decided"
+        | "accepted"
+        | "confirmed"
+        | "set_apart"
       organization_type:
         | "bishopric"
         | "relief_society"
@@ -1036,13 +984,6 @@ export const Constants = {
       ],
       callability: ["callable", "other_needs", "retired"],
       calling_caller: ["bishopric", "elders_quorum", "stake_presidency"],
-      calling_process_state: [
-        "proposed",
-        "decided",
-        "accepted",
-        "confirmed",
-        "set_apart",
-      ],
       class: ["sunday_school", "relief_society", "elders_quorum"],
       color: [
         "palevioletred",
@@ -1076,6 +1017,13 @@ export const Constants = {
         "general_conference",
         "stake_conference",
         "ward_conference",
+      ],
+      member_calling_state: [
+        "proposed",
+        "decided",
+        "accepted",
+        "confirmed",
+        "set_apart",
       ],
       organization_type: [
         "bishopric",

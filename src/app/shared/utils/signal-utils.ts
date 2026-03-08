@@ -7,7 +7,6 @@ type StrictUnwrap<T> = T extends Signal<infer U>
     ? (null extends U ? U : undefined extends U ? U : Exclude<U, null | undefined>)
     : never;
 
-
 export function xsignal<T>(initialValue: T | null = null) {
     const s = signal<T | null>(initialValue);
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;

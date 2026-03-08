@@ -44,11 +44,17 @@ export abstract class IDBQueryBase<
 
     public subscribe(callback: (result: QueryResult<R>) => void): Subscription {
         return new Observable<QueryResult<R>>(subscriber => {
-            this._getItems().then(items => {
-                const result = this.resultMapping(items);
-                subscriber.next({ result });
-            });
             const sub = this.listenToChanges(res => subscriber.next(res));
+            this._getItems()
+                .then(items => {
+                    if (sub.closed) return;
+                    const result = this.resultMapping(items);
+                    subscriber.next({ result });
+                })
+                .catch(error => {
+                    if (sub.closed) return;
+                    subscriber.error(error);
+                });
             return () => sub.unsubscribe();
         }).subscribe(callback);
     }

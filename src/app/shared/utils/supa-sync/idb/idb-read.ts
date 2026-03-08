@@ -4,6 +4,8 @@ import type { IDBStoreAdapter } from "./idb-store-adapter";
 
 export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues, R> extends IDBQueryBase<D, T, C, R> {
     
+    private dontWaitForFirstSyncFlag: boolean | undefined;
+
     constructor(
         store: IDBStoreAdapter<LocalRow<D, T, C>>,
         private readonly firstSynced: Promise<void>,
@@ -13,9 +15,14 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
         super(store, resultMapping);
     }
 
+    public dontWaitForFirstSync() {
+        this.dontWaitForFirstSyncFlag = true;
+        return this;
+    }
+
     protected async _getItems(): Promise<LocalRow<D, T, C>[]> {
         let items = await (this.ids ? this.store.readMany(this.ids, this.abortSignal) : this.store.readAll(this.abortSignal));
-        if (!items.length) {
+        if (!items.length && !this.dontWaitForFirstSyncFlag) {
             await this.firstSynced;
             items = await (this.ids ? this.store.readMany(this.ids, this.abortSignal) : this.store.readAll(this.abortSignal));
         }

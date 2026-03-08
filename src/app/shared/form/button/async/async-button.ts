@@ -39,9 +39,10 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
 
     protected readonly success = signal<boolean | null>(null);
     protected readonly progress = signal<number>(0);
-    private readonly inProgress = signal(false);
+    private readonly _inProgress = signal(false);
+    public readonly inProgress = this._inProgress.asReadonly();
     protected readonly connectionLost = signal<boolean | null>(null);
-    protected readonly progressIcon = xcomputed([this.icon, this.inProgress, this.connectionLost, this.success, this.hideSuccess],
+    protected readonly progressIcon = xcomputed([this.icon, this._inProgress, this.connectionLost, this.success, this.hideSuccess],
         (icon, inProgress, connectionLost, success, hideSuccess) => {
             if (connectionLost) return 'plug_disconnected';
             if (inProgress) return 'throbber';
@@ -62,13 +63,13 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
         if (!this.isRealClick()) return;
         if (this.errorMessage().getError())
             this.errorMessage().setError(null);
-        if (this.inProgress()) return;
+        if (this._inProgress()) return;
         this.success.set(null);
-        this.inProgress.set(true);
+        this._inProgress.set(true);
         this.progress.set(0);
         this.onClick()(event, progress => this.progress.set(progress))
         .then(() => {
-            this.inProgress.set(false);
+            this._inProgress.set(false);
             this.success.set(true);
             setTimeout(() => this.progress.set(0), 300);
             setTimeout(() => this.success.set(null), 3000);
@@ -76,7 +77,7 @@ export default class AsyncButtonComponent extends ButtonBaseComponent {
         .catch(err => {
             this.errorMessage().setError(typeof err === 'string' ? err : "ERROR.FAILED");
             console.error(err);
-            this.inProgress.set(false);
+            this._inProgress.set(false);
             this.success.set(false);
             setTimeout(() => this.progress.set(0), 300);
             setTimeout(() => this.success.set(null), 3000);

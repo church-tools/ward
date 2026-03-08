@@ -133,11 +133,9 @@ export class SupaSync<
             switch (payload.eventType) {
                 case 'INSERT':
                 case 'UPDATE': {
-                    if (payload.new && table._wasSentLately(payload.new))
+                    if (!payload.new || table._wasSentLately(payload.new))
                         break;
-                    if (!payload.new)
-                        break;
-                    if (payload.new?.[table.deletedKey]) {
+                    if (payload.new[table.deletedKey]) {
                         const deleteId = table.getId(payload.new);
                         const old = await adapter.read(deleteId);
                         await adapter.delete(deleteId);
