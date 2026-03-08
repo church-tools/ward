@@ -8,7 +8,7 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
     template: `
         <div class="row m-3-4">
             <span class="overflow-ellipsis">{{ row().name }}</span>
-            <app-related-row-select
+            <app-related-row-select class="grow-1"
                 [parent]="row()"
 				parentTable="calling"
 				parentIdKey="calling"
