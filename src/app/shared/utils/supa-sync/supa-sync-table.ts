@@ -226,12 +226,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         const isArray = Array.isArray(row);
         const rows: Insert<D, T>[] = isArray ? row : [row];
         if (this.createOffline) {
-            if (!this.compositeIdKeys) {
-                for (const row of rows) {
+            if (!this.compositeIdKeys)
+                for (const row of rows)
                     row[this.idKey] ??= getRandomId();
-                    row.__new = true;
-                }
-            }
             const rowsWithCalculatedValues = await this.applyCalculatedValues(rows);
             this._storeAdapter.writeMany(rowsWithCalculatedValues as Insert<D, T>[]);
             await this.writePending(rows);
@@ -370,25 +367,31 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
 
     private async trySend(rows: Update<D, T>[]) {
         if (!this.onlineState.unsafeGet()) return false;
+        if (!rows.length) return true;
         try {
-            await Promise.all(rows.map(async row => {
-                const sendRow = { ...row } as RemoteRow<D, T>;
-                const isNew = '__new' in row;
-                if (isNew) delete sendRow.__new;
-                if ('_calculated' in sendRow) delete sendRow._calculated;
-                const query = isNew
-                    ? this.supabaseClient.from(this.name).upsert(sendRow)
-                    : this.supabaseClient.from(this.name).update(sendRow).eq(this.idKey, this.getId(sendRow) as any); // to do: support composite keys
-                const { data } = await query
-                    .select(this.updatedAtKey)
-                    .single()
-                    .throwOnError();
-                if (this.updatedAtKey)
-                    row[this.updatedAtKey] = data[this.updatedAtKey];
-                this.latestSents.unshift(sendRow);
-                if (this.latestSents.length > SENT_CACHE_SIZE)
-                    this.latestSents.pop();
-            }));
+            const sendRows = rows.map(row => {
+                const sendRow = { ...row } as Partial<RemoteRow<D, T>> & { __index?: number; _calculated?: C };
+                delete sendRow.__index;
+                delete sendRow._calculated;
+                if (this.compositeIdKeys?.length) delete sendRow[this.idKey];
+                return sendRow as Insert<D, T>;
+            });
+            const onConflict = this.compositeIdKeys?.length ? this.compositeIdKeys.join(',') : this.idKey;
+            const { data: returnedRows } = await this.supabaseClient.from(this.name)
+                .upsert(sendRows, { onConflict })
+                .select(this.updatedAtKey ?? '')
+                .throwOnError();
+            const returnedById = Object.fromEntries(returnedRows.map(row => [this.getId(row), row]));
+            if (this.updatedAtKey) {
+                for (const sentRow of sendRows) {
+                    const returned = returnedById[this.getId(sentRow)];
+                    if (!returned) continue;
+                    sentRow[this.updatedAtKey] = returned[this.updatedAtKey];
+                    this.latestSents.unshift(sentRow);
+                    if (this.latestSents.length > SENT_CACHE_SIZE)
+                        this.latestSents.pop();
+                }
+            }
             return true;
         } catch (error: any) {
             if (error.code === 'PGRST204') this.resync();

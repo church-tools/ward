@@ -104,7 +104,8 @@
   },
   "MEMBERS_IMPORT": {
     "TITLE": "Mitglieder aus LCR importieren",
-    "INSTRUCTIONS_1": "Drucken Sie das Mitgliederverzeichnis von LCR als PDF-Datei und laden Sie es hier hoch.",
+    "INSTRUCTIONS_1": "Drucken Sie das Mitgliederverzeichnis von LCR als PDF-Datei",
+    "INSTRUCTIONS_2": "laden Sie die PDF hier hoch",
     "UPLOAD_BUTTON": "PDF hochladen",
     "IMPORT_BUTTON": "Mitglieder importieren",
     "SELECTED": "ausgewählt"

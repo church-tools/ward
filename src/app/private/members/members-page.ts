@@ -37,7 +37,8 @@ import { PrivatePageComponent } from '../shared/private-page';
                     <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
                         <app-member-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
                     </ng-template>
-                    <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+                    <ng-template #insertTemplate let-functions
+                        let-prepareInsert="prepareInsert" let-context="context">
                         <app-member-list-insert
                             [insert]="functions.insert"
                             [cancel]="functions.cancel"

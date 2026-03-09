@@ -104,7 +104,8 @@
   },
   "MEMBERS_IMPORT": {
     "TITLE": "Import Members from LCR",
-    "INSTRUCTIONS_1": "Print the member directory from LCR as a PDF file and upload it here.",
+    "INSTRUCTIONS_1": "Print the member directory from LCR as a PDF file",
+    "INSTRUCTIONS_2": "Upload the PDF file here",
     "UPLOAD_BUTTON": "Upload PDF",
     "IMPORT_BUTTON": "Import Members",
     "SELECTED": "selected"

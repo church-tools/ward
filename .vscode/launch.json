@@ -13,14 +13,7 @@
   "configurations": [
     {
       "name": "Launch Headless Edge",
-      "type": "vscode-edge-devtools.debug",
-      "request": "launch",
-      "url": "http://localhost:4201",
-      "webRoot": "${workspaceFolder}"
-    },
-    {
-      "name": "ng test",
-      "type": "chrome",
+      "type": "msedge",
       "request": "launch",
       "url": "http://localhost:4201",
       "webRoot": "${workspaceFolder}"

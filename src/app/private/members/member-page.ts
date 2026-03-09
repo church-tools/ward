@@ -1,17 +1,21 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { MemberViewService } from '../../modules/member/member-view.service';
+import { SelectComponent } from "../../shared/form/select/select";
+import { SelectResultComponent } from "../../shared/form/select/select-result";
 import { TextInputComponent } from '../../shared/form/text/text-input';
 import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
 import { RowHistoryComponent } from "../shared/row-history";
 import { RowPageComponent } from '../shared/row-page';
-import { xcomputed } from '../../shared/utils/signal-utils';
-import { MemberViewService } from '../../modules/member/member-view.service';
-import { SelectComponent } from "../../shared/form/select/select";
 
 @Component({
     selector: 'app-member-page',
     template: `
-        <h1>{{ name() }}</h1>
+        <h1>
+            <app-select-result [optionsByValue]="memberView.salutationOptionsByGender"
+                [value]="syncedRow.value()?.gender" translateOptions/>
+            {{ memberView.toString(syncedRow.value()!) }}
+        </h1>
         <div class="column-grid">
             <app-select [syncedRow]="syncedRow" column="gender"
                 class="col-md-2" name="gender"
@@ -31,18 +35,12 @@ import { SelectComponent } from "../../shared/form/select/select";
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, TextInputComponent, RowHistoryComponent,
-        SyncedFieldDirective, SelectComponent],
+    SyncedFieldDirective, SelectComponent, SelectResultComponent],
 })
 export class MemberPageComponent extends RowPageComponent<'member'> {
 
     protected readonly memberView = inject(MemberViewService);
 
     protected readonly tableName = 'member';
-
-    protected readonly name = xcomputed([this.syncedRow.value], row => {
-        if (!row) return '';
-        const salutation = this.memberView.salutationOptionsByGender[row.gender].view;
-        return `${salutation} ${this.memberView.toString(row)}`;
-    });
     
 }

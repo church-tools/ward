@@ -13,15 +13,18 @@ import { Agenda } from '../agenda';
 @Component({
     selector: 'app-agenda-item-list',
     template: `
-        <app-row-card-list tableName="agenda_item" editable
+        <app-row-card-list
+            tableName="agenda_item"
             [getQuery]="getQuery()"
+            editable
             [getUrl]="getItemUrl"
             [activeId]="activeItemId()"
             [prepareInsert]="prepareItemInsert">
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
                 <app-agenda-item-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
             </ng-template>
-            <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
+            <ng-template #insertTemplate let-functions
+                let-prepareInsert="prepareInsert" let-context="context">
                 <app-agenda-item-list-insert
                     [insert]="functions.insert"
                     [cancel]="functions.cancel"

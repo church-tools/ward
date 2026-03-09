@@ -1,8 +1,9 @@
 import { NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, Component, ContentChild, ElementRef, EmbeddedViewRef, inject, input, model,
-    OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren, ViewContainerRef } from '@angular/core';
+import { booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
+    OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
+import { AnchoredPopoverComponent, PopoverPosition } from '../anchored-popover/anchored-popover';
 import { IconComponent } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
@@ -50,7 +51,7 @@ type SelectValueTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [TranslateModule, InputLabelComponent, IconComponent, NgTemplateOutlet],
+    imports: [TranslateModule, InputLabelComponent, IconComponent, NgTemplateOutlet, AnchoredPopoverComponent],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => SelectComponent),
@@ -62,9 +63,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     private readonly input = viewChild('input', { read: ElementRef });
     private readonly inputContainer = viewChild.required('inputContainer', { read: ElementRef });
-    private readonly topContainer = viewChild.required('topContainer', { read: ViewContainerRef });
-    private readonly bottomContainer = viewChild.required('bottomContainer', { read: ViewContainerRef });
-    private readonly optionsTemplate = viewChild.required('optionsTemplate', { read: TemplateRef<any> });
+    protected readonly popover = viewChild.required(AnchoredPopoverComponent);
     private readonly optionRefs: Signal<ReadonlyArray<ElementRef<HTMLDivElement>>> = viewChildren('option', { read: ElementRef });
 
     @ContentChild('optionTemplate', { read: TemplateRef })
@@ -87,13 +86,15 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     protected readonly showOptionGroups = signal<boolean>(false);
     protected readonly search = model<string>("");
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
+    protected readonly popoverPosition = signal<PopoverPosition>('bottom');
+    protected readonly popoverWidth = signal<number>(0);
     private readonly closing = signal(false);
+    private readonly popoverRequested = signal(false);
 
-    readonly optionsVisible = xcomputed([this.visibleOptions, this.closing, this.optionsLoading],
-        (options, closing, loading) => loading || (options.length && !closing));
+    readonly optionsVisible = xcomputed([this.visibleOptions, this.closing, this.optionsLoading, this.popoverRequested],
+        (options, closing, loading, popoverRequested) => popoverRequested && !closing && (loading || options.length > 0));
 
     private keySubscriptions: Subscription[] = [];
-    private readonly optionsViewRef = signal<EmbeddedViewRef<any> | null>(null);
     private readonly blurSubscription: OutputRefSubscription;
     private focusedIndex = -1;
     private suppressNextFocusOpen = false;
@@ -103,8 +104,10 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
         xeffect([this.viewValue, this.options], (value, options) => {
             this.syncSelectedOption(value, options);
         });
-        xeffect([this.optionsViewRef, this.optionsVisible], (optionsViewRef, optionsVisible) => {
-            optionsViewRef?.rootNodes[0].classList[optionsVisible ? 'add' : 'remove']('visible');
+        xeffect([this.popover, this.optionsVisible], (popover, optionsVisible) => {
+            if (!popover) return;
+            if (optionsVisible) popover.show();
+            else popover.hide();
         });
         this.blurSubscription = this.onBlur.subscribe(async () => {
             await wait(150);
@@ -156,7 +159,7 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
 
     setSearch(search: string, keepOpen = true) {
         this.search.set(search ?? '');
-        if (!this.optionsViewRef && keepOpen)
+        if (!this.popoverRequested() && keepOpen)
             this.createOptionsContainer();
         this.updateVisibleOptions();
         this.input()?.nativeElement.focus();
@@ -187,24 +190,26 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
     protected closeOptionsContainer() {
         this.keySubscriptions.forEach(sub => sub.unsubscribe());
         this.keySubscriptions = [];
-        const optionsViewRef = this.optionsViewRef();
-        if (optionsViewRef) {
-            this.closing.set(true);
-            setTimeout(() => {
-                this.closing.set(false);
-                if (optionsViewRef !== this.optionsViewRef()) return;
-                this.visibleOptions.set([]);
-                this.optionsViewRef.set(null);
-                optionsViewRef.destroy();
-                this.topContainer().clear();
-                this.bottomContainer().clear();
-            }, 100);
-        }
+        if (!this.popoverRequested()) return;
+        this.popoverRequested.set(false);
+        this.closing.set(true);
+        setTimeout(() => {
+            if (this.popoverRequested()) return;
+            this.closing.set(false);
+            this.visibleOptions.set([]);
+            this.visibleOptionGroups.set([]);
+        }, 100);
     }
 
     private createOptionsContainer() {
-        if (this.optionsViewRef()) return;
+        if (this.popoverRequested()) return;
         this.focusedIndex = -1;
+        const inputContainerPosition = this.inputContainer().nativeElement.getBoundingClientRect();
+        const inputMiddle = inputContainerPosition.top + (inputContainerPosition.height / 2);
+        const isInUpperHalf = inputMiddle < (window.innerHeight / 2);
+        this.popoverPosition.set(isInUpperHalf ? 'bottom' : 'top');
+        this.popoverWidth.set(inputContainerPosition.width);
+        this.popoverRequested.set(true);
         this.updateVisibleOptions();
         this.keySubscriptions.forEach(sub => sub.unsubscribe());
         this.keySubscriptions = [
@@ -214,11 +219,15 @@ export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestr
             this.windowService.onKeyPressed('ArrowDown').subscribe(() => this.focusNextOption(1)),
             this.windowService.onKeyPressed('Backspace').subscribe(() => this.deleteLastSelection()),
         ];
-        const inputContainerPosition = this.inputContainer().nativeElement.getBoundingClientRect();
-        const inputMiddle = inputContainerPosition.top + (inputContainerPosition.height / 2);
-        const isInUpperHalf = inputMiddle < (window.innerHeight / 2);
-        const container = isInUpperHalf ? this.bottomContainer() : this.topContainer();
-        this.optionsViewRef.set(container.createEmbeddedView(this.optionsTemplate()));
+    }
+
+    protected onPopoverVisibilityChange(visible: boolean) {
+        if (visible) return;
+        this.keySubscriptions.forEach(sub => sub.unsubscribe());
+        this.keySubscriptions = [];
+        this.popoverRequested.set(false);
+        this.closing.set(false);
+        this.focusedIndex = -1;
     }
 
     private focusNextOption(offset: number) {

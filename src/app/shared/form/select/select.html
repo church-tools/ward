@@ -1,7 +1,6 @@
 <app-input-label/>
 <div class="column" (mousedown)="onInputContainerMouseDown($event)">
-    <div class="top-anchor"><ng-container #topContainer/></div>
-    <div #inputContainer class="form-input">
+    <div #inputContainer class="form-input" [style.anchor-name]="popover.anchorNameCss">
         @let selectedOption = this.selectedOption();
         @if (selectedOption && !withoutValue()) {
             <div class="value-container row gap-1">
@@ -37,50 +36,58 @@
                 (input)="onSearch($event)">
         }
     </div>
-    <div class="bottom-anchor"><ng-container #bottomContainer/></div>
-</div>
-<ng-template #optionsTemplate>
-    <div class="options-card input-acrylic-card" animate.leave="leave">
-        @if (optionsLoading()) {
-            <div>
-                <app-icon icon="throbber" size="xs" class="loading-icon"/>
-            </div>
-        }
-        @if (showOptionGroups()) {
-            @for (group of visibleOptionGroups(); track group.id) {
-                <div class="option-group column">
-                    <div class="option-group-title {{group.color ?? 'neutral'}}-text semibold-text"
-                        (mousedown)="onGroupTitleMouseDown($event)"
-                        (click)="onGroupTitleClick(group, $event)">
-                        {{ group.label }}:
-                    </div>
-                    @for (option of group.options; track (option.id ?? option.value)) {
-                        <div #option class="option option-group-item {{option.color}}-text"
-                            (click)="selectOption(option, $event)">
-                            @if (optionTemplate) {
-                                <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
-                            } @else {
-                                @for (label of option.highlights; track $index) {
-                                    <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
-                                }
-                            }
+    <app-anchored-popover #popover
+        [position]="popoverPosition()"
+        alignment="center"
+        [anchorElement]="inputContainer"
+        [offsetY]="2"
+        (visibilityChange)="onPopoverVisibilityChange($event)">
+        <div class="options-card"
+            [class.visible]="optionsVisible()"
+            [class.position-top]="popoverPosition() === 'top'"
+            [class.position-bottom]="popoverPosition() === 'bottom'"
+            [style.width.px]="popoverWidth()">
+            @if (optionsLoading()) {
+                <div>
+                    <app-icon icon="throbber" size="xs" class="loading-icon"/>
+                </div>
+            }
+            @if (showOptionGroups()) {
+                @for (group of visibleOptionGroups(); track group.id) {
+                    <div class="option-group column">
+                        <div class="option-group-title {{group.color ?? 'neutral'}}-text semibold-text"
+                            (mousedown)="onGroupTitleMouseDown($event)"
+                            (click)="onGroupTitleClick(group, $event)">
+                            {{ group.label }}:
                         </div>
-                    }
-                </div>
-            }
-        } @else {
-            @for (option of visibleOptions(); track (option.id ?? option.value)) {
-                <div #option class="option {{option.color}}-text"
-                    (click)="selectOption(option, $event)">
-                    @if (optionTemplate) {
-                        <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
-                    } @else {
-                        @for (label of option.highlights; track $index) {
-                            <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                        @for (option of group.options; track (option.id ?? option.value)) {
+                            <div #option class="option option-group-item {{option.color}}-text"
+                                (click)="selectOption(option, $event)">
+                                @if (optionTemplate) {
+                                    <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
+                                } @else {
+                                    @for (label of option.highlights; track $index) {
+                                        <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                                    }
+                                }
+                            </div>
                         }
-                    }
-                </div>
+                    </div>
+                }
+            } @else {
+                @for (option of visibleOptions(); track (option.id ?? option.value)) {
+                    <div #option class="option {{option.color}}-text"
+                        (click)="selectOption(option, $event)">
+                        @if (optionTemplate) {
+                            <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
+                        } @else {
+                            @for (label of option.highlights; track $index) {
+                                <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
+                            }
+                        }
+                    </div>
+                }
             }
-        }
-    </div>
-</ng-template>
+        </div>
+    </app-anchored-popover>
+</div>

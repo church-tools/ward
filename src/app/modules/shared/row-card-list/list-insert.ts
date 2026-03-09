@@ -19,7 +19,7 @@ export abstract class ListInsertComponent<T extends TableName, C = unknown> {
 
     protected async submit() {
         const profile = await this.profileService.own.asPromise();
-        let rowInfo = this.getRowInfo(profile);
+        const rowInfo = this.getRowInfo(profile);
         if (!rowInfo) {
             this.cancel()();
             return;

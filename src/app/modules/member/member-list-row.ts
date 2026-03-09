@@ -1,17 +1,21 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { SelectResultComponent } from "../../shared/form/select/select-result";
 import { ListRowComponent } from '../shared/row-card-list/list-row';
-import AsyncButtonComponent from '../../shared/form/button/async/async-button';
+import { MemberViewService } from './member-view.service';
 
 @Component({
     selector: 'app-member-list-row',
     template: `
         <div class="row m-4">
             <h4>
-                {{ row().nick_name || row().first_name }} {{ row().last_name }}
+                <app-select-result [optionsByValue]="memberView.salutationOptionsByGender" [value]="row().gender" translateOptions/>
+                {{ memberView.toString(row()) }}
             </h4>
         </div>
     `,
+    imports: [SelectResultComponent],
 })
 export class MemberListRowComponent extends ListRowComponent<'member'> {
 
+    protected readonly memberView = inject(MemberViewService);
 }
