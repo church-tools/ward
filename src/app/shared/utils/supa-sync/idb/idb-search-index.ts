@@ -28,7 +28,7 @@ export class IDBSearchIndex {
     private readonly initialized = new Promise<void>(resolve => this._initialized = resolve);
 
     constructor(
-        private readonly store: IDBStoreAdapter<SearchNode>,
+        private readonly store: IDBStoreAdapter<SearchNode, 'idx'>,
     ) {
         this.load().then(() => this._initialized());
     }

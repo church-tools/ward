@@ -17,13 +17,12 @@ function getRandomId() {
 }
 
 function getCombinedIdFn<D extends Database, T extends TableName<D>>(idKeys: ReadonlyArray<IdColumn<D, T>>) {
-    const idSpace = Math.floor(Number.MAX_SAFE_INTEGER / idKeys.length);
     return (row: RemoteRow<D, T>) => {
-        let combined = 0;
-        for (const key of idKeys) {
-            const value = row[key] as number;
-            if (value >= idSpace) throw new Error(`Value ${value} for key ${key} exceeds id space limit of ${idSpace}`);
-            combined += value * idSpace;
+        let combined = row[idKeys[0]] as number;
+        for (const key of idKeys.slice(1)) {
+            const id = BigInt(row[key] as number);
+            const sum = BigInt(combined) + id;
+            combined = Number((sum * (sum + 1n)) / 2n + id);
         }
         return combined;
     };
@@ -58,8 +57,8 @@ type CalculatedFieldInfo<D extends Database, T extends TableName<D>, C extends A
 
 export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues = NoCalculatedValues, IA = {}> {
     
-    public readonly _storeAdapter: IDBStoreAdapter<LocalRow<D, T, C>>;
-    public readonly _pendingAdapter: IDBStoreAdapter<PendingUpdate<D, T>>;
+    public readonly _storeAdapter: IDBStoreAdapter<LocalRow<D, T, C>, 'id'>;
+    public readonly _pendingAdapter: IDBStoreAdapter<PendingUpdate<D, T>, '__index'>;
     public readonly updatedAtKey: Column<D, T>;
     public readonly deletedKey: BooleanColumn<D, T>;
     public readonly indexNeedsUpgrade: boolean;
@@ -69,7 +68,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly indexed: Indexed<D, T>;
     public readonly _summaryInfo: {
         index: IDBSearchIndex;
-        adapter: IDBStoreAdapter<SearchNode>;
+        adapter: IDBStoreAdapter<SearchNode, 'idx'>;
         toString: (row: LocalRow<D, T, C>) => string;
     } | undefined;
     public readonly _calculatedInfo: CalculatedFieldInfo<D, T, C>[];
@@ -109,7 +108,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             : [];
         this.indexed = info.indexed ?? {};
         if (info.getSummaryString) {
-            const adapter = new IDBStoreAdapter<SearchNode>(name + SEARCH_SUFFIX);
+            const adapter = new IDBStoreAdapter<SearchNode, 'idx'>(name + SEARCH_SUFFIX, 'idx');
             this._summaryInfo = {
                 index: new IDBSearchIndex(adapter),
                 adapter,
@@ -117,8 +116,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             };
         }
         this.onlineState = onlineState;
-        this._storeAdapter = new IDBStoreAdapter<LocalRow<D, T, C>>(name);
-        this._pendingAdapter = new IDBStoreAdapter<PendingUpdate<D, T>>(name + PENDING_SUFFIX);
+        this._storeAdapter = new IDBStoreAdapter<LocalRow<D, T, C>, 'id'>(name, 'id');
+        this._pendingAdapter = new IDBStoreAdapter<PendingUpdate<D, T>, '__index'>(name + PENDING_SUFFIX, '__index');
         this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed);
         const indexEntries = Object.entries(this.indexed) as [Column<D, T>, IndexType][];
         const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
@@ -291,15 +290,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         if (changes) this._storeAdapter.onChange.emit(changes);
     }
 
-    public async delete(row: RemoteRow<D, T> | number | string) {
-        const id = typeof row === 'object' ? this.getId(row) : row as any;
+    public async delete(row: RemoteRow<D, T>) {
         let query = (this.updateOffline
             ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
             : this.supabaseClient.from(this.name).delete());
         for (const idKey of this.idKeys)
-            query = query.eq(idKey, id);
+            query = query.eq(idKey, row[idKey] as any);
         await Promise.all([
-            this._storeAdapter.delete(id),
+            this._storeAdapter.delete(this.getId(row)),
             query.throwOnError()
         ]);
     }
@@ -327,8 +325,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         const { matched: deleted, unmatched: updated } = classifyArray(rows, row => row[this.deletedKey]);
         const rowsWithCalc = await this.addCalculatedValues(updated);
         return await (this._storeAdapter.onChange.hasSubscriptions || alwaysGetChanges
-            ? this._storeAdapter.writeAndGet(rowsWithCalc, deleted.map(this.getId))
-            : this._storeAdapter.writeMany(rowsWithCalc, deleted.map(this.getId)));
+            ? this._storeAdapter.writeAndGet(rowsWithCalc, deleted.map(row => this.getId(row)))
+            : this._storeAdapter.writeMany(rowsWithCalc, deleted.map(row => this.getId(row))));
     }
 
     public async _updateDependentCalculatedValues(changes: Change<any>[]) {
@@ -424,6 +422,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     private async addCalculatedValues(rows: RemoteRow<D, T>[]): Promise<LocalRow<D, T, C>[]> {
         if (!rows.length) return [];
         const rowsWithCalc = rows as LocalRow<D, T, C>[];
+        if (this.hasCompositeKeys || !('id' in rows[0]))
+            for (const row of rowsWithCalc)
+                row.id = this.getId(row);
         if (this._calculatedInfo.length) {
             for (const field of this._calculatedInfo) {
                 const { dependsOn, calculation } = field;

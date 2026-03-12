@@ -12,7 +12,7 @@ export abstract class IDBQueryBase<
     protected abortSignal?: AbortSignal;
 
     constructor(
-        protected readonly store: IDBStoreAdapter<LocalRow<D, T, C>>,
+        protected readonly store: IDBStoreAdapter<LocalRow<D, T, C>, 'id'>,
         private readonly resultMapping: (rows: LocalRow<D, T, C>[]) => R,
     ) {
     }

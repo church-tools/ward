@@ -23,7 +23,7 @@ type FieldOrSearchCondition<T> = Condition<T, keyof T> | SearchCondition;
 export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues, R> extends IDBQueryBase<D, T, C, R> {
     
     constructor(
-        store: IDBStoreAdapter<LocalRow<D, T, C>>,
+        store: IDBStoreAdapter<LocalRow<D, T, C>, 'id'>,
         private readonly searchIndex: IDBSearchIndex | undefined,
         resultMapping: (rows: LocalRow<D, T, C>[]) => R,
         private readonly indexed: Indexed<D, T>,

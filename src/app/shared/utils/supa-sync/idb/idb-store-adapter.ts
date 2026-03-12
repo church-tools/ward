@@ -1,4 +1,3 @@
-import { AsyncState } from "../../async-state";
 import { EventEmitter } from "../event-emitter";
 import type { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
 
@@ -18,7 +17,7 @@ export function idbNumberToBool(value: number | null) {
     }
 }
 
-export class IDBStoreAdapter<T> {
+export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey extends keyof T> {
 
     public readonly onChange = new EventEmitter<Change<T>[]>();
     public writeSubscriptions = 0;
@@ -32,10 +31,28 @@ export class IDBStoreAdapter<T> {
     
     constructor(
         public readonly storeName: string,
+        private readonly keyPath: IDKey,
     ) {}
 
     public init(idb: Promise<IDBDatabase>) {
         idb.then(this.idbSet);
+    }
+
+    public assureIDBStore(transaction: IDBTransaction, options?: { autoIncrement?: boolean, clear?: boolean, indexedKeys?: (keyof T & string)[] }) {
+        const exists = transaction.objectStoreNames.contains(this.storeName);
+        if (options?.clear && exists) transaction.db.deleteObjectStore(this.storeName);
+        const store = (options?.clear || !exists)
+            ? transaction.db.createObjectStore(this.storeName, { keyPath: this.keyPath as string, autoIncrement: options?.autoIncrement })
+            : transaction.objectStore(this.storeName);
+        const existingIndexSet = new Set(store.indexNames);
+        const indexedKeys = new Set<string>(options?.indexedKeys ?? []);
+        for (const indexKey of indexedKeys)
+            if (!existingIndexSet.has(indexKey))
+                store.createIndex(indexKey, indexKey);
+        for (const indexName of store.indexNames)
+            if (!indexedKeys.has(indexName))
+                store.deleteIndex(indexName);
+        return store;
     }
 
     public async write(item: T) {
@@ -45,7 +62,7 @@ export class IDBStoreAdapter<T> {
         const prevItem = await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => {
                 const readProm = this.writeCallback
-                    ? store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
+                    ? store.get(item[this.keyPath]).toPromise<T | undefined>()
                     : null;
                 store.put(item);
                 return readProm as Promise<T | undefined>;
@@ -54,33 +71,33 @@ export class IDBStoreAdapter<T> {
             await this.writeCallback([{ old: prevItem, new: item }]);
     }
 
-    public async writeMany(items: T[], deleteIds?: number[]): Promise<undefined> {
+    public async writeMany(items: T[], deleteIds?: IDBValidKey[]): Promise<undefined> {
         if (!items.length && !deleteIds?.length) return;
         const idb = await this.idb;
-        if (this.mappingInFunction)
-            items = items.map(item => this.mappingInFunction!(item));
+        const mapping = this.mappingInFunction;
+        if (mapping) items = items.map(item => mapping(item));
         const prevItems = await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => {
                 const readProm = this.writeCallback
-                    ? Promise.all(items.map(item => store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()))
+                    ? Promise.all(items.map(item => store.get(item[this.keyPath]).toPromise<T | undefined>()))
                     : null;
                 for (const item of items) store.put(item);
                 for (const id of deleteIds ?? []) store.delete(id);
                 return readProm;
             });
         if (this.writeCallback && prevItems)
-            await this.writeCallback?.(items.map((item, i) => ({ old: prevItems[i], new: item })));
+            await this.writeCallback(items.map((item, i) => ({ old: prevItems[i], new: item })));
     }
 
-    public async writeAndGet(items: T[], deleteIds?: number[]): Promise<Change<T>[]> {
+    public async writeAndGet(items: T[], deleteIds?: IDBValidKey[]): Promise<Change<T>[]> {
         if (!items.length && !deleteIds?.length) return [];
         const idb = await this.idb;
-        if (this.mappingInFunction)
-            items = items.map(item => this.mappingInFunction!(item));
+        const mapping = this.mappingInFunction;
+        if (mapping) items = items.map(item => mapping(item));
         return await idb.transaction(this.storeName, 'readwrite')
             .toPromise(store => {
                 const itemUpdateProm = Promise.all(items.map(item => Promise.all([
-                    store.get(item[store.keyPath as keyof T] as IDBValidKey).toPromise<T | undefined>()
+                    store.get(item[this.keyPath]).toPromise<T | undefined>()
                     .then(old => this.mappingOutFunction && old ? this.mappingOutFunction(old) : old),
                     store.put(item).toPromise(),
                 ]).then(([old]) => <UpdateChange<T>>{ old, new: item })));
@@ -104,26 +121,29 @@ export class IDBStoreAdapter<T> {
 
     public async read<I = T>(key: IDBValidKey) {
         const idb = await this.idb;
+        const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .toPromise(store => store.get(key).toPromise<I>())
-            .then(row => this.mappingOutFunction && row ? this.mappingOutFunction(<T>row) : row);
+            .then(row => mapping && row ? mapping(row as unknown as T) : row);
     }
 
     public async readMany(keys: IDBValidKey[], abortSignal?: AbortSignal) {
         if (keys.length === 0) return Promise.resolve([]);
         const idb = await this.idb;
+        const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
             .toPromise(store => Promise.all(keys.map(key => store.get(key).toPromise<T>()))
-                .then(rows => this.mappingOutFunction ? rows.map(row => this.mappingOutFunction!(row)) : rows));
+                .then(rows => mapping ? rows.map(row => mapping(row)) : rows));
     }
 
     public async readAll(abortSignal?: AbortSignal) {
         const idb = await this.idb;
+        const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
             .toPromise(store => store.getAll().toPromise<T[]>()
-                .then(rows => this.mappingOutFunction ? rows.map(row => this.mappingOutFunction!(row)) : rows));
+                .then(rows => mapping ? rows.map(row => mapping(row)) : rows));
     }
 
     public async readAllKeys(abortSignal?: AbortSignal) {
@@ -141,13 +161,13 @@ export class IDBStoreAdapter<T> {
                 .then(cursor => cursor?.key as number | undefined));
     }
 
-    public async delete(key: number) {
+    public async delete(key: IDBValidKey) {
         const idb = await this.idb;
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => store.delete(key).toPromise());
     }
 
-    public async deleteMany(keys: number[]) {
+    public async deleteMany(keys: IDBValidKey[]) {
         if (keys.length === 0) return Promise.resolve();
         const idb = await this.idb;
         await idb.transaction(this.storeName, "readwrite")

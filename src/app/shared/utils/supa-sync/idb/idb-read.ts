@@ -7,7 +7,7 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
     private dontWaitForFirstSyncFlag: boolean | undefined;
 
     constructor(
-        store: IDBStoreAdapter<LocalRow<D, T, C>>,
+        store: IDBStoreAdapter<LocalRow<D, T, C>, 'id'>,
         private readonly firstSynced: Promise<void>,
         private readonly ids: IDBValidKey[] | undefined,
         resultMapping: (rows: LocalRow<D, T, C>[]) => R,

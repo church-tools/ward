@@ -49,13 +49,14 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
         table: SupaSyncTable<D, T, C, any>,
         rowSignal: WritableSignal<LocalRow<D, T, C> | null>,
     ): SupaSyncedRow<D, T, C> {
-        const id = signal<number | null>(null);
-        const self = new SupaSyncedRow<D, T, C>(table, id, rowSignal, self => {
+        const idSignal = signal<number | null>(null);
+        const self = new SupaSyncedRow<D, T, C>(table, idSignal, rowSignal, self => {
             const row = rowSignal();
-            id.set(row ? self._table.getId(row) : null);
+            const id = row ? self._table.getId(row) : null;
+            idSignal.set(id);
             self.subscription?.unsubscribe();
-            if (row == null) return;
-            self.subscription = self._table.read(self._table.getId(row))
+            if (id == null) return;
+            self.subscription = self._table.read(id)
                 .listenToChanges(update => rowSignal.set(update.result ?? null));
         });
         return self;

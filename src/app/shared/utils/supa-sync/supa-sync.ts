@@ -7,6 +7,8 @@ import type { AnyCalculatedValues, CalculatedOf, Change, Database, SupaSyncCalcu
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
+const MIGRATION_KEY = "migration";
+const MIGRATION_VERSION = "2";
 
 async function rejectOnError(reject: (err: any) => void, fn: () => void) {
     try {
@@ -51,36 +53,26 @@ export class SupaSync<
         await this.client.realtime.setAuth(session.access_token);
         const tables = this.getTables();
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
-        if (tables.some(table => table.indexNeedsUpgrade))
+        const migrate = localStorage.getItem(MIGRATION_KEY) !== MIGRATION_VERSION;
+        if (migrate || tables.some(table => table.indexNeedsUpgrade))
             version++;
         const idb = this.idb = new Promise<IDBDatabase>((resolve, reject) => {
             const openRequest = indexedDB.open(dbName, version);
             openRequest.onupgradeneeded = event => rejectOnError(reject, () => {
-                const idb = (event.target as IDBOpenDBRequest).result;
+                const transaction = (event.target as IDBOpenDBRequest).transaction!;
                 for (const table of tables) {
-                    const indexedKeys = new Set([...table.idKeys, ...Object.keys(table.indexed)]);
-                    const store = idb.objectStoreNames.contains(table.name)
-                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(table.name)
-                        : idb.createObjectStore(table.name, {
-                            keyPath: table.hasCompositeKeys ? table.idKeys : table.idKeys[0] as any,
-                            autoIncrement: !table.hasCompositeKeys
-                        });
-                    const existingIndexSet = new Set(store.indexNames);
-                    for (const indexKey of indexedKeys)
-                        if (!existingIndexSet.has(indexKey))
-                            store.createIndex(indexKey, indexKey);
-                    for (const indexName of store.indexNames)
-                        if (!indexedKeys.has(indexName))
-                            store.deleteIndex(indexName);
-                    const pendingName = table._pendingAdapter.storeName;
-                    if (!idb.objectStoreNames.contains(pendingName))
-                        idb.createObjectStore(pendingName, { keyPath: '__index', autoIncrement: true });
-                    const searchName = table._summaryInfo?.adapter.storeName;
-                    if (searchName && !idb.objectStoreNames.contains(searchName))
-                        idb.createObjectStore(searchName, { keyPath: 'idx' });
+                    table._storeAdapter.assureIDBStore(transaction, {
+                        autoIncrement: !table.hasCompositeKeys,
+                        clear: migrate,
+                        indexedKeys: ['id', ...table.idKeys, ...Object.keys(table.indexed)]
+                    });
+                    table._pendingAdapter.assureIDBStore(transaction, { autoIncrement: true, clear: migrate });
+                    table._summaryInfo?.adapter.assureIDBStore(transaction, { clear: migrate });
                 }
+                if (migrate)
+                    localStorage.setItem(MIGRATION_KEY, MIGRATION_VERSION);
+                localStorage.setItem(VERSION_KEY, version.toString());
             });
-            localStorage.setItem(VERSION_KEY, version.toString());
             openRequest.onsuccess = event => resolve((event.target as IDBOpenDBRequest).result);
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
@@ -89,7 +81,7 @@ export class SupaSync<
             () => this.client.channel(`schema-db-changes`)
                 .on('postgres_changes', { event: '*', schema: 'public' }, this.processChanges.bind(this)),
             this.onlineState);
-        const lastUpdatedAt = await this.getLastSync();
+        const lastUpdatedAt = migrate ? new Date(0).toISOString() : this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(async table => {
             await table._init(idb);
@@ -101,7 +93,7 @@ export class SupaSync<
     private async resync() {
         executeOnce(async () => {
             await this.clear();
-            const lastUpdatedAt = await this.getLastSync();
+            const lastUpdatedAt = this.getLastSync();
             const now = new Date().toISOString();
             await Promise.all(Object.values(this.tablesByName).map(table => table._sync(lastUpdatedAt)));
             this.setLastSync(now);
@@ -177,12 +169,12 @@ export class SupaSync<
         });
     }
 
-    private async getLastSync() {
+    private getLastSync() {
         const lastSync = localStorage.getItem(LAST_SYNC_KEY);
         return lastSync ?? new Date(0).toISOString();
     }
 
-    private async setLastSync(lastSync: string) {
+    private setLastSync(lastSync: string) {
         localStorage.setItem(LAST_SYNC_KEY, lastSync);
     }
 }
