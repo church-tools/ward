@@ -17,6 +17,7 @@ type RelationInsertMapper<RelationTable extends TableName> =
 	template: `
 		<app-row-select [table]="relatedTable()" multiple
 			[getQuery]="relatedQuery()"
+			[label]="label()"
 			[value]="selectedRelatedIds()"
 			(valueChange)="onRelatedRowsChange($event)"/>
 	`,
@@ -37,6 +38,7 @@ export class RelatedRowSelectComponent<
 	readonly getRelatedQuery = input<RelatedQueryFactory<ParentTable, RelatedTable> | null>(null);
 	readonly relatedIdKey = input.required<NumberColumn<RelationTable>>();
 	readonly mapInsert = input.required<RelationInsertMapper<RelationTable>>();
+	readonly label = input<string>()
 
 	protected readonly relatedQuery = xcomputed([this.parent, this.getRelatedQuery], (parent, getRelatedQuery) =>
 		(table: Table<RelatedTable>) => getRelatedQuery?.(table, parent) ?? table.readAll());

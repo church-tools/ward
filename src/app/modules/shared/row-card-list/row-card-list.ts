@@ -41,6 +41,7 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string }) | null>(null);
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);
+    readonly columns = input(1);
     readonly cardsVisible = input(true);
     readonly getUrl = input<(row: Row<T> | null) => string>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();

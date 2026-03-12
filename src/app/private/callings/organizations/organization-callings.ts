@@ -13,7 +13,7 @@ import { AdminService } from '../../shared/admin.service';
 		<div class="column p-2 pt-0">
 			<app-row-card-list #callingList
 				tableName="calling"
-				[gap]="1"
+				[gap]="1" [columns]="3"
 				[getQuery]="getQuery()"
 				[prepareInsert]="prepareInsert"
 				cardClasses=""
