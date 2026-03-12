@@ -34,9 +34,9 @@
         &.right {
             @starting-style {
                 opacity: 0;
-                translate: $page-side-slide-distance 0;
+                translate: -$page-side-slide-distance 0;
                 @include layout.smaller-than(layout.$md) {
-                    translate: $page-side-slide-distance-sm 0;
+                    translate: -$page-side-slide-distance-sm 0;
                 }
             }
         }

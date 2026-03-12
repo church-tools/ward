@@ -37,6 +37,7 @@ export class CardListComponent<T, ID extends number | string> {
 
     readonly editable = input(false);
     readonly gap = input(2);
+    readonly columns = input(1);
     readonly getId = input.required<(item: T) => ID>();
     readonly orderByKey = input<keyof T | null | undefined>();
     readonly reorderable = input<boolean>(false);
@@ -75,6 +76,10 @@ export class CardListComponent<T, ID extends number | string> {
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
         group => group?.targets() ?? []);
+    protected readonly multiColumn = xcomputed([this.columns], columns => columns > 1);
+    protected readonly dropListOrientation = xcomputed([this.multiColumn],
+        multiColumn => multiColumn ? 'mixed' : 'vertical');
+    protected readonly gapSize = xcomputed([this.gap], gap => `${gap * 0.25}rem`);
     protected readonly cardsSelectable = xcomputed([this.getUrl, this.itemClicked],
         (getUrl, itemClicked) => !!(getUrl || itemClicked));
     readonly cardCount = xcomputed([this.itemCards], cards => cards.length);
@@ -149,6 +154,7 @@ export class CardListComponent<T, ID extends number | string> {
     }
 
     protected placeholderAdded(item: HTMLElement) {
+        if (this.multiColumn()) return;
         if (this.dragStart && this.dragStart + 100 > Date.now()) return;
         const height = item.getBoundingClientRect().height;
         transitionStyle(item, { height: '0' }, { height: `${height}px` }, animationDurationMs, easeOut, true);
@@ -298,10 +304,11 @@ export class CardListComponent<T, ID extends number | string> {
             });
             await wait(animationDurationMs);
         }
+        const needsSort = !this.orderIsCorrect(itemCards);
+        if (needsSort) this.sort(itemCards);
         this._initialized.set(true);
         this.itemCards.set(itemCards);
-        if (this.orderIsCorrect(itemCards)) return;
-        this.sort(itemCards);
+        if (!needsSort || this.multiColumn()) return;
         const cardViews = await waitForNextChange(this.cardViews, this.injector);
         const containerRect = this.element.nativeElement.getBoundingClientRect();
         for (let i = 0; i < cardViews.length; i++) {

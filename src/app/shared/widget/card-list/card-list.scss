@@ -3,11 +3,37 @@
 @use "card";
 @use "animation";
 
-.card-item-container.cdk-drop-list-dragging .drag-card-host:not(.cdk-drag-placeholder) {
+.card-item-container {
+    --card-list-gap: 0.5rem;
+}
+
+.card-item-container.cdk-drop-list-dragging:not(.multi-column) .drag-card-host:not(.cdk-drag-placeholder) {
     transition: transform animation.$duration-sm ease;
 }
 
+.card-item-container.multi-column {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: var(--card-list-gap);
+
+    > .drag-card-host,
+    > .insertion-card {
+        flex: 0 0 calc((100% - (var(--card-list-columns, 2) - 1) * var(--card-list-gap)) / var(--card-list-columns, 2));
+        max-width: calc((100% - (var(--card-list-columns, 2) - 1) * var(--card-list-gap)) / var(--card-list-columns, 2));
+    }
+
+    > .items-center.center-content {
+        flex: 1 0 100%;
+    }
+
+    .card-item {
+        margin-bottom: 0 !important;
+    }
+}
+
 .drag-card-host {
+    display: block;
     transition: transform 0s;
     touch-action: pan-y;
     -webkit-touch-callout: none;

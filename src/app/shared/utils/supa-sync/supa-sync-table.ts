@@ -391,7 +391,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 return isNew;
             });
             await Promise.all([
-                this.supabaseClient.from(this.name).insert(inserts)
+                inserts.length ? this.supabaseClient.from(this.name).insert(inserts)
                     .select([...this.idKeys, this.updatedAtKey].join(',')).throwOnError().then(async ({ data }) => {
                         if (!data?.length) return
                         const insertedById = Object.fromEntries(data.map(row => [this.getId(row), row]));
@@ -401,7 +401,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                             row[this.updatedAtKey] = inserted[this.updatedAtKey];
                             this.latestSents.unshift(row);
                         }
-                    }),
+                    }) : Promise.resolve(),
                 Promise.all(updates.map(async row => {
                     let query = this.supabaseClient.from(this.name).update(row);
                     for (const idKey of this.idKeys)
