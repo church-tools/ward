@@ -22,8 +22,7 @@ export class AppComponent {
     constructor() {
         const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
         this.translate.use(browserLang);
-        const supabaseService = inject(SupabaseService);
-        AppComponent.supabase = supabaseService;
+        AppComponent.supabase = inject(SupabaseService);
 
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';

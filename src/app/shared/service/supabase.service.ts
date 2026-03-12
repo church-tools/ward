@@ -40,7 +40,7 @@ export class SupabaseService {
             getSummaryString: inject(CallingViewService).toString },
         member: { indexed: { profile: Number },
             getSummaryString: inject(MemberViewService).toString },
-        member_calling: { compositeIdKeys: ['member', 'calling'], createOffline: true,
+        member_calling: { idKeys: ['member', 'calling'], createOffline: true,
             indexed: { member: Number, calling: Number },
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },

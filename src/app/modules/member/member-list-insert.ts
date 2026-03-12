@@ -19,7 +19,7 @@ import { MemberViewService } from './member-view.service';
                 (ngModelChange)="updateValidity()"/>
             <app-text-input #lastName class="grow-1" placeholder="{{ 'MEMBER_PAGE.LAST_NAME' | translate }}"
                 (ngModelChange)="updateValidity()"/>
-            <app-button (onClick)="submit()" class="icon-only"
+            <app-button (onClick)="submit($event)" class="icon-only"
                 [icon]="isValid() ? 'save' : 'dismiss'"
                 [type]="isValid() ? 'primary' : 'subtle'"
                 (ngModelChange)="updateValidity()"/>

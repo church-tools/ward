@@ -17,6 +17,8 @@ button, .button {
         color animation.$duration ease,
         box-shadow animation.$duration ease,
         border-color animation.$duration ease,
+        backdrop-filter animation.$duration ease,
+        scale animation.$duration ease,
         opacity animation.$duration ease;
     flex-wrap: nowrap;
     text-wrap: nowrap;
@@ -68,6 +70,7 @@ button, .button {
                         background-color: color-mix(in srgb, $value, white 20%);
                     }
                     &:active {
+                        scale: $active-scale;
                         background-color: color-mix(in srgb, $value, white 40%);
                     }
                 }
@@ -88,6 +91,7 @@ button, .button {
                 background-color: card.$hover-background-transparent-color;
             }
             &:active {
+                scale: $active-scale;
                 background-color: card.$active-background-transparent-color;
             }
         }
@@ -106,6 +110,7 @@ button, .button {
                 @include card.vibrant(300%);
             }
             &:active, &.active {
+                scale: $active-scale;
                 background-color: card.$active-background-transparent-color;
                 @include card.vibrant(400%);
             }

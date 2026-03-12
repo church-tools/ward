@@ -21,10 +21,14 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
     }
 
     protected async _getItems(): Promise<LocalRow<D, T, C>[]> {
-        let items = await (this.ids ? this.store.readMany(this.ids, this.abortSignal) : this.store.readAll(this.abortSignal));
+        let items = await (this.ids
+            ? this.store.readMany(this.ids, this.abortSignal)
+            : this.store.readAll(this.abortSignal));
         if (!items.length && !this.dontWaitForFirstSyncFlag) {
             await this.firstSynced;
-            items = await (this.ids ? this.store.readMany(this.ids, this.abortSignal) : this.store.readAll(this.abortSignal));
+            items = await (this.ids
+                ? this.store.readMany(this.ids, this.abortSignal)
+                : this.store.readAll(this.abortSignal));
         }
         return items;
     }

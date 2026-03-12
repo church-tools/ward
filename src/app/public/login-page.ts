@@ -14,7 +14,7 @@ import { CredentialsComponent } from './shared/credentials';
     template: `
         <div class="column gap-8 items-center">
             <span class="display-text">{{ 'LOGIN.TITLE' | translate }}</span>
-            <app-credentials #credentials class="full-width"/>
+            <app-credentials #credentials class="max-width-96 full-width"/>
             <app-async-button type="primary" size="large" class="third-width"
                 [onClick]="loginWithCredentials" needsInternet hideSuccess>
                 {{ 'LOGIN.TITLE' | translate }}

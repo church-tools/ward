@@ -8,12 +8,20 @@ import type { AnyCalculatedValues, CalculatedOf, Change, Database, SupaSyncCalcu
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
 
+async function rejectOnError(reject: (err: any) => void, fn: () => void) {
+    try {
+        return fn();
+    } catch (err) {
+        reject(err);
+        throw err;
+    }
+}
+
 export class SupaSync<
     D extends Database,
     IA extends Partial<{ [K in TableName<D>]: any }> = {},
     CM extends SupaSyncCalculatedMap<D, any> = SupaSyncCalculatedMap<D>,
 > {
-
     private changesConnection: ChannelConnection | undefined;
     private presenceChannel: ChannelConnection | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
@@ -47,24 +55,22 @@ export class SupaSync<
             version++;
         const idb = this.idb = new Promise<IDBDatabase>((resolve, reject) => {
             const openRequest = indexedDB.open(dbName, version);
-            openRequest.onupgradeneeded = (event) => {
+            openRequest.onupgradeneeded = event => rejectOnError(reject, () => {
                 const idb = (event.target as IDBOpenDBRequest).result;
                 for (const table of tables) {
-                    const name = table.name;
-                    const { idKey, indexed } = table.info as SupaSyncTableInfo<D, TableName<D>>;
-                    const indexedKeys = Object.keys(indexed ?? {});
-                    const keyPath = idKey ?? 'id';
-                    const store = idb.objectStoreNames.contains(name)
-                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(name)
-                        : idb.createObjectStore(name, { keyPath, autoIncrement: true });
+                    const indexedKeys = new Set([...table.idKeys, ...Object.keys(table.indexed)]);
+                    const store = idb.objectStoreNames.contains(table.name)
+                        ? (event.target as IDBOpenDBRequest).transaction!.objectStore(table.name)
+                        : idb.createObjectStore(table.name, {
+                            keyPath: table.hasCompositeKeys ? table.idKeys : table.idKeys[0] as any,
+                            autoIncrement: !table.hasCompositeKeys
+                        });
                     const existingIndexSet = new Set(store.indexNames);
-                    for (const indexKey of [keyPath, ...indexedKeys])
+                    for (const indexKey of indexedKeys)
                         if (!existingIndexSet.has(indexKey))
                             store.createIndex(indexKey, indexKey);
-                    const expectedIndexSet = new Set(indexedKeys);
-                    expectedIndexSet.add(keyPath);
                     for (const indexName of store.indexNames)
-                        if (!expectedIndexSet.has(indexName))
+                        if (!indexedKeys.has(indexName))
                             store.deleteIndex(indexName);
                     const pendingName = table._pendingAdapter.storeName;
                     if (!idb.objectStoreNames.contains(pendingName))
@@ -73,8 +79,8 @@ export class SupaSync<
                     if (searchName && !idb.objectStoreNames.contains(searchName))
                         idb.createObjectStore(searchName, { keyPath: 'idx' });
                 }
-                localStorage.setItem(VERSION_KEY, version.toString());
-            };
+            });
+            localStorage.setItem(VERSION_KEY, version.toString());
             openRequest.onsuccess = event => resolve((event.target as IDBOpenDBRequest).result);
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));

@@ -1,5 +1,5 @@
 
-export type Database = { public: { Tables: { [key: string]: any } } };
+export type Database = { public: { Tables: { [K in string]: { Row: any, Insert: any, Update: any } } } };
 export type TableName<D extends Database> = keyof D["public"]["Tables"] & string;
 export type Table<D extends Database, T extends TableName<D>> = D["public"]["Tables"][T]
 export type AnyCalculatedValues = Record<string, unknown>;
@@ -13,6 +13,14 @@ export type SupaSyncCalculatedMap<
 };
 
 export type Column<D extends Database, T extends TableName<D>> = keyof RemoteRow<D, T> & string;
+
+type KeysOfType<T, U> = { [K in keyof T]: NonNullable<T[K]> extends U ? K : never }[keyof T];
+
+export type IdColumn<D extends Database, T extends TableName<D>> =
+  Extract<Column<D, T>, KeysOfType<RemoteRow<D, T>, number>>;
+
+export type BooleanColumn<D extends Database, T extends TableName<D>> =
+  Extract<Column<D, T>, KeysOfType<RemoteRow<D, T>, boolean>>;
 
 export type RemoteRow<D extends Database, T extends TableName<D>> = Table<D, T>["Row"];
 export type Insert<D extends Database, T extends TableName<D>> = Table<D, T>["Insert"];
@@ -59,6 +67,7 @@ export type LocalRow<
     T extends TableName<D>,
     C extends AnyCalculatedValues = NoCalculatedValues,
 > = RemoteRow<D, T> & {
+    id: number;
     _calculated: C;
 };
 
@@ -71,11 +80,10 @@ export type SupaSyncTableInfo<
     T extends TableName<D>,
     C extends AnyCalculatedValues = NoCalculatedValues,
 > = {
-    idKey?: Column<D, T>; // default: 'id'
-    compositeIdKeys?: Column<D, T>[]; // default: none
+    idKeys?: IdColumn<D, T> | IdColumn<D, T>[]; // default: 'id'
     updatedAtPath?: Column<D, T>; // default: 'updated_at'
     deletable?: boolean; // default: true
-    deletedPath?: Column<D, T>; // default: 'deleted'
+    deletedPath?: BooleanColumn<D, T>; // default: 'deleted'
     createOffline?: boolean; // default: false
     updateOffline?: boolean; // default: true
     indexed?: Indexed<D, T>;

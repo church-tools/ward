@@ -1,8 +1,8 @@
 import { Component, inject, input } from "@angular/core";
 import type { PromiseOrValue } from "../../../shared/types";
-import { Profile } from "../../profile/profile";
+import type { Profile } from "../../profile/profile";
 import { ProfileService } from "../../profile/profile.service";
-import { Insert, TableName } from "../table.types";
+import type { Insert, TableName } from "../table.types";
 
 @Component({
     selector: 'app-list-insert',
@@ -17,10 +17,11 @@ export abstract class ListInsertComponent<T extends TableName, C = unknown> {
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly context = input<C>();
 
-    protected async submit() {
+    protected async submit(event?: UIEvent | null) {
         const profile = await this.profileService.own.asPromise();
         const rowInfo = this.getRowInfo(profile);
         if (!rowInfo) {
+            event?.stopPropagation();
             this.cancel()();
             return;
         }

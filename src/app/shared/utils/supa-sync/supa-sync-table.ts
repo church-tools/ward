@@ -4,7 +4,7 @@ import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { IDBSearchIndex } from "./idb/idb-search-index";
 import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { AnyCalculatedValues, Change, Column, Database, DependentRows, Indexed, IndexType, Insert, NoCalculatedValues, RemoteRow, LocalRow, SearchNode, SupaSyncTableInfo, TableName, Update } from "./supa-sync.types";
+import type { AnyCalculatedValues, Change, Column, Database, DependentRows, Indexed, IndexType, Insert, NoCalculatedValues, RemoteRow, LocalRow, SearchNode, SupaSyncTableInfo, TableName, Update, IdColumn, BooleanColumn } from "./supa-sync.types";
 
 const SENT_CACHE_SIZE = 8;
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
@@ -16,7 +16,7 @@ function getRandomId() {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 
-function getCombinedIdFn<D extends Database, T extends TableName<D>>(idKeys: Column<D, T>[]) {
+function getCombinedIdFn<D extends Database, T extends TableName<D>>(idKeys: ReadonlyArray<IdColumn<D, T>>) {
     const idSpace = Math.floor(Number.MAX_SAFE_INTEGER / idKeys.length);
     return (row: RemoteRow<D, T>) => {
         let combined = 0;
@@ -42,6 +42,14 @@ function equal(a: any, b: any): boolean {
     return keys.length === Object.keys(b).length && keys.every(k => Object.prototype.hasOwnProperty.call(b, k) && equal(a[k], b[k]));
 }
 
+function classifyArray<T, T2 = T>(array: T[], predicate: (item: T) => boolean): { matched: T[]; unmatched: T2[] } {
+    const matched: T[] = [], unmatched: T2[] = [];
+    for (const item of array) (predicate(item) ? matched : unmatched).push(item as any);
+    return { matched, unmatched };
+}
+
+type PendingUpdate<D extends Database, T extends TableName<D>> = Update<D, T> & { __new?: boolean; __index?: number; _calculated?: any };
+
 type CalculatedFieldInfo<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues> = {
     key: keyof C & string;
     dependsOn: [keyof RemoteRow<D, T>, TableName<D>][];
@@ -51,14 +59,14 @@ type CalculatedFieldInfo<D extends Database, T extends TableName<D>, C extends A
 export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues = NoCalculatedValues, IA = {}> {
     
     public readonly _storeAdapter: IDBStoreAdapter<LocalRow<D, T, C>>;
-    public readonly _pendingAdapter: IDBStoreAdapter<Update<D, T>>;
+    public readonly _pendingAdapter: IDBStoreAdapter<PendingUpdate<D, T>>;
     public readonly updatedAtKey: Column<D, T>;
-    public readonly deletedKey: Column<D, T>;
+    public readonly deletedKey: BooleanColumn<D, T>;
     public readonly indexNeedsUpgrade: boolean;
     public readonly searchNeedsUpgrade: boolean = false;
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
-    public readonly _indexed: Indexed<D, T>;
+    public readonly indexed: Indexed<D, T>;
     public readonly _summaryInfo: {
         index: IDBSearchIndex;
         adapter: IDBStoreAdapter<SearchNode>;
@@ -67,8 +75,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly _calculatedInfo: CalculatedFieldInfo<D, T, C>[];
     public readonly _reverseDependencies: { table: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>, key: string }[] = [];
     
-    private readonly compositeIdKeys: Column<D, T>[] | undefined;
-    private readonly idKey: Column<D, T>;
+    public readonly idKeys: ReadonlyArray<IdColumn<D, T>>;
+    public readonly hasCompositeKeys: boolean;
     
     public readonly getId: (row: RemoteRow<D, T>) => number;
     
@@ -85,20 +93,21 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         public readonly info: SupaSyncTableInfo<D, T, C> & IA,
         private readonly resync: () => Promise<void>,
     ) {
-        this.compositeIdKeys = info.compositeIdKeys;
-        this.idKey = info.idKey ?? 'id';
-        this.getId = this.compositeIdKeys
-            ? getCombinedIdFn(this.compositeIdKeys)
-            : (row: RemoteRow<D, T>) => row[this.idKey] as number;
+        this.idKeys = info.idKeys ? (Array.isArray(info.idKeys) ? info.idKeys : [info.idKeys]) : ['id'] as IdColumn<D, T>[];
+        this.hasCompositeKeys = this.idKeys.length > 1;
+        const firstIdKey = this.idKeys[0];
+        this.getId = this.hasCompositeKeys
+            ? getCombinedIdFn(this.idKeys)
+            : (row: RemoteRow<D, T>) => row[firstIdKey] as number;
         this.updatedAtKey = info.updatedAtPath ?? 'updated_at';
-        this.deletedKey = info.deletedPath ?? 'deleted';
+        this.deletedKey = info.deletedPath ?? 'deleted' as BooleanColumn<D, T>;
         this.createOffline = info.createOffline ?? false;
         this.updateOffline = info.updateOffline ?? true;
         this._calculatedInfo = info.calculated
             ? Object.entries(info.calculated).map(
                 ([key, { dependsOn, calculation }]) => ({ key, dependsOn: Object.entries(dependsOn ?? {}), calculation }))
             : [];
-        this._indexed = info.indexed ?? {};
+        this.indexed = info.indexed ?? {};
         if (info.getSummaryString) {
             const adapter = new IDBStoreAdapter<SearchNode>(name + SEARCH_SUFFIX);
             this._summaryInfo = {
@@ -109,27 +118,26 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         }
         this.onlineState = onlineState;
         this._storeAdapter = new IDBStoreAdapter<LocalRow<D, T, C>>(name);
-        this._pendingAdapter = new IDBStoreAdapter<any>(name + PENDING_SUFFIX);
-        this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this._indexed);
-        const indexEntries = Object.entries(this._indexed ?? {}) as [Column<D, T>, IndexType][];
+        this._pendingAdapter = new IDBStoreAdapter<PendingUpdate<D, T>>(name + PENDING_SUFFIX);
+        this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed);
+        const indexEntries = Object.entries(this.indexed) as [Column<D, T>, IndexType][];
         const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
         if (boolKeys.length) {
-            this._storeAdapter.mappingInFunction = (row: RemoteRow<D, T>) => {
+            this._storeAdapter.mappingInFunction = (row: LocalRow<D, T, C>) => {
                 for (const key of boolKeys)
                     if (key in row)
-                        row[key] = idbBoolToNumber(row[key]);
+                        row[key] = idbBoolToNumber(row[key] as boolean | null) as any;
                 return row;
             };
-            this._storeAdapter.mappingOutFunction = (row: RemoteRow<D, T>) => {
+            this._storeAdapter.mappingOutFunction = (row: LocalRow<D, T, C>) => {
                 for (const key of boolKeys)
                     if (key in row)
-                        row[key] = idbNumberToBool(row[key]);
+                        row[key] = idbNumberToBool(row[key] as number | null) as any;
                 return row;
             };
         }
-        const searchInfo = this._summaryInfo;
-        if (searchInfo) {
-            const { index, toString } = searchInfo;
+        if (this._summaryInfo) {
+            const { index, toString } = this._summaryInfo;
             this.searchNeedsUpgrade = localStorage.getItem(SEARCH_VERSION_PREFIX + name) !== (this.info.searchIndexVersion ?? 0).toString();
             this._storeAdapter.writeCallback = async changes => {
                 const updates = changes.map(change => {
@@ -156,14 +164,13 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this._pendingAdapter.init(idb);
         this._summaryInfo?.adapter.init(idb);
         if (this.indexNeedsUpgrade) {
-            const indexedFieldsStr = serializeIndexedFields(this._indexed);
+            const indexedFieldsStr = serializeIndexedFields(this.indexed);
             localStorage.setItem(INDEXED_FIELDS_PREFIX + this.name, indexedFieldsStr);
         }
         if (this.searchNeedsUpgrade) {
             localStorage.setItem(SEARCH_VERSION_PREFIX + this.name, (this.info.searchIndexVersion ?? 0).toString());
-            const summaryInfo = this._summaryInfo;
-            if (summaryInfo) {
-                const { index, toString } = summaryInfo;
+            if (this._summaryInfo) {
+                const { index, toString } = this._summaryInfo;
                 await index.clear();
                 const allItems = await this.readAll().dontWaitForFirstSync().get();
                 const updates = allItems.map(item => ({
@@ -208,15 +215,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public find(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C>[]> {
-        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this._indexed);
+        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this.indexed);
     }
     
     public findKeys(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C>[]> {
-        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this._indexed);
+        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows, this.indexed);
     }
 
     public findOne(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C> | null> {
-        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows.length ? rows[0] : null, this._indexed);
+        return new IDBFilterBuilder(this._storeAdapter, this._summaryInfo?.index, rows => rows.length ? rows[0] : null, this.indexed);
     }
 
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(
@@ -224,31 +231,36 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     ): Promise<I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>> {
         await this.firstSynced;
         const isArray = Array.isArray(row);
-        const rows: Insert<D, T>[] = isArray ? row : [row];
+        const rows = (isArray ? row : [row]) as Insert<D, T>[];
         if (this.createOffline) {
-            if (!this.compositeIdKeys)
+            if (!this.hasCompositeKeys) {
+                const idKey = this.idKeys[0];
                 for (const row of rows)
-                    row[this.idKey] ??= getRandomId();
-            const rowsWithCalculatedValues = await this.applyCalculatedValues(rows);
+                    row[idKey] ??= getRandomId();
+            }
+            const rowsWithCalculatedValues = await this.addCalculatedValues(rows);
             this._storeAdapter.writeMany(rowsWithCalculatedValues as Insert<D, T>[]);
             await this.writePending(rows);
             return (isArray
                 ? rowsWithCalculatedValues
                 : rowsWithCalculatedValues[0]) as I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>;
         } else {
-            if (!this.compositeIdKeys) {
-                if (rows.some(r => r[this.idKey] == null)) {
+            if (!this.hasCompositeKeys) {
+                const idKey = this.idKeys[0];
+                if (rows.some(r => r[idKey] == null)) {
                     let largestId = await this.findLargestId() ?? 0;
-                    for (const row of rows)
-                        if (row[this.idKey] == null)
-                            row[this.idKey] = ++largestId;
+                    for (const row of rows as PendingUpdate<D, T>[])
+                        if (row[idKey] == null) {
+                            row[idKey] = ++largestId;
+                            row.__new = true;
+                        }
                 }
             }
             const { data } = await this.supabaseClient.from(this.name)
                 .insert(rows)
                 .select("*")
                 .throwOnError();
-            const rowsWithCalculatedValues = await this.applyCalculatedValues(data as LocalRow<D, T, C>[]);
+            const rowsWithCalculatedValues = await this.addCalculatedValues(data as LocalRow<D, T, C>[]);
             await this._storeAdapter.writeMany(rowsWithCalculatedValues);
             return (isArray
                 ? rowsWithCalculatedValues
@@ -281,12 +293,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
 
     public async delete(row: RemoteRow<D, T> | number | string) {
         const id = typeof row === 'object' ? this.getId(row) : row as any;
+        let query = (this.updateOffline
+            ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
+            : this.supabaseClient.from(this.name).delete());
+        for (const idKey of this.idKeys)
+            query = query.eq(idKey, id);
         await Promise.all([
             this._storeAdapter.delete(id),
-            (this.updateOffline
-                ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
-                : this.supabaseClient.from(this.name).delete()
-            ).eq(this.idKey, id).throwOnError()
+            query.throwOnError()
         ]);
     }
     
@@ -298,7 +312,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         const sentRow = this.latestSents.find(r => this.getId(r) === this.getId(row));
         if (!sentRow) return false;
         for (const key in sentRow) {
-            if (key === this.idKey) continue;
+            if (this.idKeys.includes(key as any)) continue;
             const received = row[key];
             const sent = sentRow[key];
             if (key === this.updatedAtKey && received > sent)
@@ -310,12 +324,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
-        const updated = rows.filter(update => !update[this.deletedKey]);
-        const deletedIds = rows.filter(update => update[this.deletedKey]).map(update => update[this.idKey] as number);
-        const rowsWithCalc = await this.applyCalculatedValues(updated);
+        const { matched: deleted, unmatched: updated } = classifyArray(rows, row => row[this.deletedKey]);
+        const rowsWithCalc = await this.addCalculatedValues(updated);
         return await (this._storeAdapter.onChange.hasSubscriptions || alwaysGetChanges
-            ? this._storeAdapter.writeAndGet(rowsWithCalc, deletedIds)
-            : this._storeAdapter.writeMany(rowsWithCalc, deletedIds));
+            ? this._storeAdapter.writeAndGet(rowsWithCalc, deleted.map(this.getId))
+            : this._storeAdapter.writeMany(rowsWithCalc, deleted.map(this.getId)));
     }
 
     public async _updateDependentCalculatedValues(changes: Change<any>[]) {
@@ -324,7 +337,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         await Promise.all(this._reverseDependencies.map(async target => {
             const rows = await target.table.find().in(target.key, ids).get();
             if (!rows.length) return;
-            const updatedRows = await this.applyCalculatedValues(rows);
+            const updatedRows = await this.addCalculatedValues(rows);
             const dependentChanges = target.table._storeAdapter.onChange.hasSubscriptions
                 ? await target.table._storeAdapter.writeAndGet(updatedRows)
                 : await target.table._storeAdapter.writeMany(updatedRows);
@@ -365,33 +378,41 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         });
     }
 
-    private async trySend(rows: Update<D, T>[]) {
-        if (!this.onlineState.unsafeGet()) return false;
+    private async trySend(rows: PendingUpdate<D, T>[]): Promise<boolean> {
         if (!rows.length) return true;
+        if (!this.onlineState.unsafeGet()) return false;
         try {
-            const sendRows = rows.map(row => {
-                const sendRow = { ...row } as Partial<RemoteRow<D, T>> & { __index?: number; _calculated?: C };
-                delete sendRow.__index;
-                delete sendRow._calculated;
-                if (this.compositeIdKeys?.length) delete sendRow[this.idKey];
-                return sendRow as Insert<D, T>;
+            const { matched: inserts, unmatched: updates } = classifyArray<Insert<D, T>, Update<D, T>>(rows, row => {
+                const isNew = row.__new;
+                if (isNew) delete row.__new;
+                delete row.__index;
+                delete row._calculated;
+                if (this.hasCompositeKeys && 'id' in row) delete row.id;
+                return isNew;
             });
-            const onConflict = this.compositeIdKeys?.length ? this.compositeIdKeys.join(',') : this.idKey;
-            const { data: returnedRows } = await this.supabaseClient.from(this.name)
-                .upsert(sendRows, { onConflict })
-                .select(this.updatedAtKey ?? '')
-                .throwOnError();
-            const returnedById = Object.fromEntries(returnedRows.map(row => [this.getId(row), row]));
-            if (this.updatedAtKey) {
-                for (const sentRow of sendRows) {
-                    const returned = returnedById[this.getId(sentRow)];
-                    if (!returned) continue;
-                    sentRow[this.updatedAtKey] = returned[this.updatedAtKey];
-                    this.latestSents.unshift(sentRow);
-                    if (this.latestSents.length > SENT_CACHE_SIZE)
-                        this.latestSents.pop();
-                }
-            }
+            await Promise.all([
+                this.supabaseClient.from(this.name).insert(inserts)
+                    .select([...this.idKeys, this.updatedAtKey].join(',')).throwOnError().then(async ({ data }) => {
+                        if (!data?.length) return
+                        const insertedById = Object.fromEntries(data.map(row => [this.getId(row), row]));
+                        for (const row of inserts) {
+                            const inserted = insertedById[this.getId(row)];
+                            if (!inserted) continue;
+                            row[this.updatedAtKey] = inserted[this.updatedAtKey];
+                            this.latestSents.unshift(row);
+                        }
+                    }),
+                Promise.all(updates.map(async row => {
+                    let query = this.supabaseClient.from(this.name).update(row);
+                    for (const idKey of this.idKeys)
+                        query = query.eq(idKey, row[idKey]);
+                    const { data } = await query.select(this.updatedAtKey).single().throwOnError();
+                    row[this.updatedAtKey] = data[this.updatedAtKey];
+                    this.latestSents.unshift(row);
+                })),
+            ]);
+            while (this.latestSents.length > SENT_CACHE_SIZE)
+                this.latestSents.pop();
             return true;
         } catch (error: any) {
             if (error.code === 'PGRST204') this.resync();
@@ -400,8 +421,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         }
     }
 
-    private async applyCalculatedValues(rows: RemoteRow<D, T>[]) {
-        if (!rows.length) return rows;
+    private async addCalculatedValues(rows: RemoteRow<D, T>[]): Promise<LocalRow<D, T, C>[]> {
+        if (!rows.length) return [];
         const rowsWithCalc = rows as LocalRow<D, T, C>[];
         if (this._calculatedInfo.length) {
             for (const field of this._calculatedInfo) {
@@ -416,10 +437,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                     }
                     return calculation(row, dependencies as unknown as DependentRows<D, T>);
                 });
-                rowsWithCalc.forEach((row, index) => {
-                    const local = (this.ensureCalculatedContainer(row) as AnyCalculatedValues);
-                    local[field.key] = values[index];
-                    row._calculated = local;
+                rowsWithCalc.forEach((row: LocalRow<D, T, C>, index) => {
+                    const calculated = row._calculated ??= {} as C;
+                    calculated[field.key] = values[index] as any;
                 });
             }
         } else {
@@ -449,13 +469,5 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             dependency.rowsById = Object.fromEntries(rows.map(row => [row.id as number, row]));
         }));
         return dependencies;
-    }
-
-    private ensureCalculatedContainer(row: LocalRow<D, T, C>) {
-        const existing = row._calculated as C | undefined;
-        if (existing) return existing;
-        const created = {} as C;
-        row._calculated = created;
-        return created;
     }
 }
