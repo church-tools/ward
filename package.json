@@ -39,12 +39,12 @@
     "@angular/compiler": "^21.2.4",
     "@angular/compiler-cli": "^21.2.4",
     "@angular/language-service": "^21.2.4",
-    "@cloudflare/workers-types": "^4.20260312.1",
+    "@cloudflare/workers-types": "^4.20260313.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "concurrently": "^9.2.1",
     "postcss": "^8.5.8",
     "supabase": "^2.78.1",
     "typescript": "^5.9.3",
-    "wrangler": "^4.72.0"
+    "wrangler": "^4.73.0"
   }
 }

@@ -49,7 +49,7 @@ export class RelatedRowSelectComponent<
 		return this.supabase.sync.from(relationTable).find().eq(parentIdKey, parentTable.getId(parent) as any);
 	});
 
-	protected readonly selectedRelatedIds = xcomputed([this.selectedRelations, this.parentIdKey],
+	protected readonly selectedRelatedIds = xcomputed([this.selectedRelations, this.relatedIdKey],
 		(relations, relatedIdKey) => relations.map(relation => Number(relation[relatedIdKey])));
 	
 	protected async onRelatedRowsChange(value: number | number[] | null) {
@@ -57,7 +57,7 @@ export class RelatedRowSelectComponent<
 		const newRelatedIds = assureArray(value);
 		const newRelatedIdSet = new Set(newRelatedIds);
 		const addedRelatedIds = newRelatedIds.filter(id => !currentRelatedIdSet.has(id));
-		const relatedIdKey = this.parentIdKey();
+		const relatedIdKey = this.relatedIdKey();
 		const removedRelationRows = this.selectedRelations().filter(relation =>
 			!newRelatedIdSet.has(Number(relation[relatedIdKey])));
 		const relationTable = this.supabase.sync.from(this.relationTable());
