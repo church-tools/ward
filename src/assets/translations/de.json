@@ -118,7 +118,6 @@
     "FIRST_NAME": "Vorname",
     "NICK_NAME": "Spitzname",
     "LAST_NAME": "Nachname",
-    "NOTES": "Notizen",
     "BROTHER_SHORT": "Brd.",
     "SISTER_SHORT": "Schw."
   },
@@ -200,6 +199,7 @@
     "6": "Samstag"
   },
   "OR": "oder",
+  "NOTES": "Notizen",
   "DELETE": "Löschen",
   "CONFIRM_DELETE": "Sicher löschen?",
   "B": "F",

@@ -117,8 +117,7 @@
     "SALUTATION": "Anrede",
     "FIRST_NAME": "First Name",
     "NICK_NAME": "Nickname",
-    "LAST_NAME": "Last Name",
-    "NOTES": "Notes"
+    "LAST_NAME": "Last Name"
   },
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organizations"
@@ -203,6 +202,7 @@
     "6": "Saturday"
   },
   "OR": "or",
+  "NOTES": "Notes",
   "DELETE": "Delete",
   "CONFIRM_DELETE": "Confirm Delete?",
   "B": "B",

@@ -1,6 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { MemberViewService } from '../../modules/member/member-view.service';
+import { RichText } from "../../shared/form/rich-text/rich-text";
 import { Select } from "../../shared/form/select/select";
 import { SelectResult } from "../../shared/form/select/select-result";
 import { TextInput } from '../../shared/form/text/text-input';
@@ -30,12 +31,14 @@ import { RowPage } from '../shared/row-page';
             <app-text-input [syncedRow]="syncedRow" column="last_name"
                 class="col-12" name="last_name"
                 label="{{ 'MEMBER_PAGE.LAST_NAME' | translate }}"/>
+            <app-rich-text [syncedRow]="syncedRow" column="notes" name="notes"
+                class="col-12" label="{{ 'NOTES' | translate }}"/>
         </div>
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
     imports: [TranslateModule, TextInput, RowHistory,
-        SyncedFieldDirective, Select, SelectResult],
+    SyncedFieldDirective, Select, SelectResult, RichText],
 })
 export class MemberPage extends RowPage<'member'> {
 

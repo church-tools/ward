@@ -5,7 +5,6 @@ import { CallingListInsert } from '../../../modules/calling/calling-list-insert'
 import { CallingListRow } from '../../../modules/calling/calling-list-row';
 import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
 import { Insert, Row, Table } from '../../../modules/shared/table.types';
-import { SelectOption } from '../../../shared/form/select/select';
 import { WindowService } from '../../../shared/service/window.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { getRowRoute } from '../../private.routes';
@@ -17,7 +16,7 @@ import { AdminService } from '../../shared/admin.service';
 		<div class="column p-2 pt-0">
 			<app-row-card-list #callingList
 				tableName="calling"
-				[gap]="1" [columns]="windowService.isSmall() ? 2 : 3"
+				[gap]="1" [columns]="windowService.isSmall() ? 1 : 3"
 				[getQuery]="getQuery()"
 				[prepareInsert]="prepareInsert"
 				cardClasses=""

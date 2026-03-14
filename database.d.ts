@@ -413,6 +413,7 @@ export type Database = {
           created_at: string
           deleted: boolean
           member: number
+          notes: string | null
           state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at: string
@@ -422,6 +423,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           member: number
+          notes?: string | null
           state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at?: string
@@ -431,6 +433,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           member?: number
+          notes?: string | null
           state?: Database["public"]["Enums"]["member_calling_state"]
           unit?: number
           updated_at?: string
