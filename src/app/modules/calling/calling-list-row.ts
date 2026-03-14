@@ -16,6 +16,7 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
                 relationTable="member_calling"
                 [getRelatedQuery]="getMemberQuery"
 				relatedIdKey="member"
+				[multiple]="!row().is_unique"
                 [mapInsert]="mapMemberCallingInsert"/>
         </div>
     `,

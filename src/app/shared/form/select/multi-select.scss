@@ -1,0 +1,15 @@
+.value-btn {
+	max-width: 100%;
+
+	> span {
+		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+	}
+
+	.delete-btn {
+		flex: 0 0 auto;
+		width: auto;
+		min-width: 1.5rem;
+	}
+}

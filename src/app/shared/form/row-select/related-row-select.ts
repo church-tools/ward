@@ -1,4 +1,4 @@
-import { Component, inject, input } from '@angular/core';
+import { booleanAttribute, Component, inject, input } from '@angular/core';
 import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '../../../modules/shared/table.types';
 import { RowSelectComponent } from './row-select';
 import { SupabaseService } from '../../service/supabase.service';
@@ -15,7 +15,8 @@ type RelationInsertMapper<RelationTable extends TableName> =
 @Component({
 	selector: 'app-related-row-select',
 	template: `
-		<app-row-select [table]="relatedTable()" multiple
+		<app-row-select [table]="relatedTable()"
+			[multiple]="multiple()"
 			[getQuery]="relatedQuery()"
 			[label]="label()"
 			[value]="selectedRelatedIds()"
@@ -39,6 +40,7 @@ export class RelatedRowSelectComponent<
 	readonly relatedIdKey = input.required<NumberColumn<RelationTable>>();
 	readonly mapInsert = input.required<RelationInsertMapper<RelationTable>>();
 	readonly label = input<string>()
+	readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
 
 	protected readonly relatedQuery = xcomputed([this.parent, this.getRelatedQuery], (parent, getRelatedQuery) =>
 		(table: Table<RelatedTable>) => getRelatedQuery?.(table, parent) ?? table.readAll());

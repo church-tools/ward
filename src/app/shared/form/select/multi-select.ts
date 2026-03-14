@@ -8,6 +8,7 @@ import { SelectComponent, SelectOption } from './select';
 @Component({
 	selector: 'app-multi-select',
 	imports: [SelectComponent, IconComponent],
+	styleUrls: ['./multi-select.scss'],
 	providers: getProviders(() => MultiSelectComponent),
 	template: `
 		<app-select #select

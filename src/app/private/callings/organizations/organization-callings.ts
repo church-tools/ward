@@ -4,6 +4,7 @@ import { CallingListInsertComponent } from '../../../modules/calling/calling-lis
 import { CallingListRowComponent } from '../../../modules/calling/calling-list-row';
 import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
 import { Insert, Table } from '../../../modules/shared/table.types';
+import { WindowService } from '../../../shared/service/window.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AdminService } from '../../shared/admin.service';
 
@@ -13,7 +14,7 @@ import { AdminService } from '../../shared/admin.service';
 		<div class="column p-2 pt-0">
 			<app-row-card-list #callingList
 				tableName="calling"
-				[gap]="1" [columns]="3"
+				[gap]="1" [columns]="windowService.isSmall() ? 2 : 3"
 				[getQuery]="getQuery()"
 				[prepareInsert]="prepareInsert"
 				cardClasses=""
@@ -37,6 +38,7 @@ import { AdminService } from '../../shared/admin.service';
 })
 export class OrganizationCallingsComponent {
 
+    protected readonly windowService = inject(WindowService);
     protected readonly adminService = inject(AdminService);
 
 	readonly organization = input.required<number>();

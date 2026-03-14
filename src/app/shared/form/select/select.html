@@ -8,7 +8,7 @@
                     @if (valueTemplate) {
                         <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption!)"/>
                     } @else {
-                        <span class="{{selectedOption!.color}}-text">
+                        <span class="{{selectedOption!.color}}-text fit-content-width">
                             @if (translateOptions()) {
                                 {{ selectedOption.view | translate }}
                             } @else {

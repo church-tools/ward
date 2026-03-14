@@ -183,8 +183,8 @@ ul {
     .quarter-#{$direction} { #{$direction}: 25%; }
     .min-content-#{$direction} { #{$direction}: min-content; }
     .fit-content-#{$direction} {
-        #{$direction}: -moz-fit-content;
-        #{$direction}: fit-content;
+        min-#{$direction}: -moz-fit-content;
+        min-#{$direction}: fit-content;
     }
 }
 .fullscreen {
