@@ -1,7 +1,8 @@
-import { Component } from '@angular/core';
-import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
+import { Component, input } from '@angular/core';
 import { RelatedRowSelectComponent } from '../../shared/form/row-select/related-row-select';
+import { SelectOption } from '../../shared/form/select/select';
 import { ListRow } from '../shared/row-card-list/list-row';
+import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 
 @Component({
     selector: 'app-calling-list-row',
@@ -17,12 +18,16 @@ import { ListRow } from '../shared/row-card-list/list-row';
                 [getRelatedQuery]="getMemberQuery"
 				relatedIdKey="member"
 				[multiple]="!row().is_unique"
-                [mapInsert]="mapMemberCallingInsert"/>
+                [mapInsert]="mapMemberCallingInsert"
+				[onRelationClick]="onMemberCallingClick()"
+				hideClear/>
         </div>
     `,
     imports: [RelatedRowSelectComponent],
 })
 export class CallingListRow extends ListRow<'calling'> {
+
+	readonly onMemberCallingClick = input<(memberCallingId: number) => void>();
 
 	protected readonly getCallingId = (calling: Row<'calling'>) => calling.id;
 

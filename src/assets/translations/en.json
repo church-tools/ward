@@ -178,7 +178,8 @@
     "FULL_CREATED_AT": "Created at",
     "UPDATED_BY": "Updated by",
     "UPDATED_AT": "at",
-    "FULL_UPDATED_AT": "Updated at"
+    "FULL_UPDATED_AT": "Updated at",
+    "UNSAVED": "Unsaved"
   },
   "ORGANIZATION_TYPE": {
     "BISHOPRIC": { "NAME": "Bishopric", "SHORT": "Bish." },

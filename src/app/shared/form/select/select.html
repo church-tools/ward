@@ -4,7 +4,9 @@
         @let selectedOption = this.selectedOption();
         @if (selectedOption && !withoutValue()) {
             <div class="value-container row gap-1">
-                <div class="value-btn subtle row no-wrap items-center gap-1">
+                <div class="value-btn subtle row no-wrap items-center gap-1"
+                    [class.clickable]="!disabled() && onOptionClick()"
+                    (click)="onOptionClick() ? onOptionClick()!(selectedOption, $event) : null">
                     @if (valueTemplate) {
                         <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption!)"/>
                     } @else {

@@ -79,7 +79,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     
     public readonly getId: (row: RemoteRow<D, T>) => number;
     
-    private readonly latestSents: RemoteRow<D, T>[] = [];
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
     private _firstSynced: () => void = null!;
     public readonly firstSynced = new Promise<void>(resolve => this._firstSynced = resolve);
@@ -237,8 +236,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 for (const row of rows)
                     row[idKey] ??= getRandomId();
             }
-            for (const row of rows)
+            for (const row of rows) {
                 row.__new = true;
+            }
             const rowsWithCalculatedValues = await this.addCalculatedValues(rows);
             this._storeAdapter.writeMany(rowsWithCalculatedValues as Insert<D, T>[]);
             await this.writePending(rows);
@@ -306,21 +306,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     
     public async findLargestId() {
         return this._storeAdapter.findLargestId();
-    }
-
-    public _wasSentLately(row: RemoteRow<D, T>) {
-        const sentRow = this.latestSents.find(r => this.getId(r) === this.getId(row));
-        if (!sentRow) return false;
-        for (const key in sentRow) {
-            if (this.idKeys.includes(key as any)) continue;
-            const received = row[key];
-            const sent = sentRow[key];
-            if (key === this.updatedAtKey && received > sent)
-                return false;
-            if (!equal(received, sent))
-                return false;
-        }
-        return true;
     }
 
     public async _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
@@ -394,28 +379,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 return isNew;
             });
             await Promise.all([
-                inserts.length ? this.supabaseClient.from(this.name).upsert(inserts)
-                    .select([...this.idKeys, this.updatedAtKey].join(',')).throwOnError().then(async ({ data }) => {
-                        if (!data?.length) return
-                        const insertedById = Object.fromEntries(data.map(row => [this.getId(row), row]));
-                        for (const row of inserts) {
-                            const inserted = insertedById[this.getId(row)];
-                            if (!inserted) continue;
-                            row[this.updatedAtKey] = inserted[this.updatedAtKey];
-                            this.latestSents.unshift(row);
-                        }
-                    }) : Promise.resolve(),
+                inserts.length ? this.supabaseClient.from(this.name).upsert(inserts).throwOnError() : Promise.resolve(),
                 Promise.all(updates.map(async row => {
                     let query = this.supabaseClient.from(this.name).update(row);
                     for (const idKey of this.idKeys)
                         query = query.eq(idKey, row[idKey]);
-                    const { data } = await query.select(this.updatedAtKey).single().throwOnError();
-                    row[this.updatedAtKey] = data[this.updatedAtKey];
-                    this.latestSents.unshift(row);
+                    await query.single().throwOnError();
                 })),
             ]);
-            while (this.latestSents.length > SENT_CACHE_SIZE)
-                this.latestSents.pop();
             return true;
         } catch (error: any) {
             if (error.code === 'PGRST204') this.resync();

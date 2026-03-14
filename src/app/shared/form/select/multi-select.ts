@@ -31,7 +31,9 @@ import { Select, SelectOption } from './select';
 			@if (selectedOptions().length) {
 				<div class="value-container row wrap gap-1">
 					@for (option of selectedOptions(); track (option.id ?? option.value)) {
-						<div class="value-btn subtle row no-wrap items-center">
+						<div class="value-btn subtle row no-wrap items-center"
+							[class.clickable]="!disabled() && onOptionClick()"
+							(click)="onOptionClick() ? onOptionClick()!(option, $event) : null">
 							<span class="{{option.color}}-text">{{ option.view }}</span>
 							@if (!disabled() && !hideClear()) {
 								<button class="delete-btn subtle icon-only tiny" type="button" aria-label="Remove selection" (click)="removeSelection(option.value, $event)">
@@ -51,6 +53,7 @@ export class MultiSelect<T> extends InputBase<T[]> {
 	readonly onGroupClick = input<(group: { id: string; label: string; color?: string }) => void>();
 	readonly mapSearch = input<(search: string) => string>();
 	readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly onOptionClick = input<(option: SelectOption<T>, event: MouseEvent) => void>();
 
 	private readonly allOptions = signal<SelectOption<T>[]>([]);
 	protected readonly select = viewChild.required(Select<T>);

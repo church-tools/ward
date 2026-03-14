@@ -82,7 +82,7 @@ export class MeetingsPage extends PrivatePage {
     protected readonly getAgendaQuery = { query: (table: Table<'agenda'>) => table.readAll(), id: 'agendas' };
     
     protected getItemUrl = (item: AgendaItem.Row | null) => item
-        ? `/meetings/${item.id}`
+        ? getRowRoute({ table: 'agenda_item', row: item, currentPage: 'MeetingsPage' })
         : "/meetings";
 
     protected getAgendaUrl = (agenda: Agenda.Row | null) => agenda

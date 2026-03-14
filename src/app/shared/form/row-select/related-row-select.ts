@@ -1,10 +1,11 @@
 import { booleanAttribute, Component, inject, input } from '@angular/core';
 import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '../../../modules/shared/table.types';
-import { RowSelect } from './row-select';
 import { SupabaseService } from '../../service/supabase.service';
+import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
 import { syncedArraySignal } from '../../utils/supa-sync/synced-array';
-import { assureArray } from '../../utils/array-utils';
+import { SelectOption } from '../select/select';
+import { RowSelect } from './row-select';
 
 type RelatedQueryFactory<ParentTable extends TableName, RelatedTable extends TableName> =
 	(table: Table<RelatedTable>, parent: Row<ParentTable>) => TableQuery<RelatedTable, Row<RelatedTable>[]>;
@@ -20,7 +21,9 @@ type RelationInsertMapper<RelationTable extends TableName> =
 			[getQuery]="relatedQuery()"
 			[label]="label()"
 			[value]="selectedRelatedIds()"
-			(valueChange)="onRelatedRowsChange($event)"/>
+			(valueChange)="onRelatedRowsChange($event)"
+			[onOptionClick]="onRelatedClick()"
+			[hideClear]="hideClear()"/>
 	`,
 	imports: [RowSelect],
 })
@@ -41,6 +44,22 @@ export class RelatedRowSelectComponent<
 	readonly mapInsert = input.required<RelationInsertMapper<RelationTable>>();
 	readonly label = input<string>()
 	readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
+	readonly onRelationClick = input<(relationId: number) => void>();
+    readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
+
+	protected readonly onRelatedClick = xcomputed([this.parentTable, this.parentIdKey, this.relatedIdKey, this.relationTable, this.onRelationClick],
+		(parentTable, parentIdKey, relatedIdKey, relationTable, onRelationClick) => {
+			if (!onRelationClick) return;
+			return (option: SelectOption<number>, event: MouseEvent) => {
+				event.stopPropagation();
+				event.preventDefault();
+				const parentId = this.supabase.sync.from(parentTable).getId(this.parent());
+				const relationRow = { [parentIdKey]: parentId, [relatedIdKey]: option.value } as unknown as Row<RelationTable>;
+				const relationid = this.supabase.sync.from(relationTable).getId(relationRow);
+				onRelationClick(relationid);
+			};
+		}
+	);
 
 	protected readonly relatedQuery = xcomputed([this.parent, this.getRelatedQuery], (parent, getRelatedQuery) =>
 		(table: Table<RelatedTable>) => getRelatedQuery?.(table, parent) ?? table.readAll());

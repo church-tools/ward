@@ -11,19 +11,23 @@ import { xcomputed } from '../../shared/utils/signal-utils';
     selector: 'app-row-history',
     template: `
         <div class="translucent-text tiny-text text-align-end">
-            @if (updatedBy()) {
-                {{ 'HISTORY.UPDATED_BY' | translate }} {{ updatedBy() }}
-            }
-            @if (updatedAt()) {
-                {{ (updatedBy() ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | translate }}
-                {{ updatedAt() | date:'medium':undefined:locale() }}
+            @let updatedBy = this.updatedBy();
+            @if (updatedBy) { {{ 'HISTORY.UPDATED_BY' | translate }} {{ updatedBy }} }
+            @let updatedAt = this.updatedAt();
+            @if (updatedAt) {
+                {{ (updatedBy ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | translate }}
+                {{ updatedAt | date:'medium':undefined:locale() }}
             }
             <br/>
-            @if (createdBy()) {
-                {{ 'HISTORY.CREATED_BY' | translate }} {{ createdBy() }}
+            @let createdBy = this.createdBy();
+            @let createdAt = this.createdAt();
+            @if (createdBy) { {{ 'HISTORY.CREATED_BY' | translate }} {{ createdBy }} }
+            @if (createdAt) {
+                {{ (createdBy ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | translate }}
+                {{ createdAt | date:'medium':undefined:locale() }}
+            } @else {
+                {{ 'HISTORY.UNSAVED' | translate }}
             }
-            {{ (createdBy() ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | translate }}
-            {{ createdAt() | date:'medium':undefined:locale() }}
         </div>
     `,
     imports: [DatePipe, TranslatePipe],

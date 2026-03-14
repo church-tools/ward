@@ -75,7 +75,7 @@ export class CardListComponent<T, ID extends number | string> {
     protected readonly _dragDropGroup = xcomputed([this.dragDropGroup],
         group => group ? this.dragDrop.ensureGroup<T>(group) : undefined);
     protected readonly targetDropLists = xcomputed([this._dragDropGroup],
-        group => group?.targets() ?? []);
+        group => group?.targets() ?? [], { trackInner: true });
     protected readonly multiColumn = xcomputed([this.columns], columns => columns > 1);
     protected readonly dropListOrientation = xcomputed([this.multiColumn],
         multiColumn => multiColumn ? 'mixed' : 'vertical');

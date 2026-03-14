@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { ViewService } from "../shared/view.service";
-import { Agenda } from "./agenda";
+import type { Agenda } from "./agenda";
 
 @Injectable({ providedIn: 'root' })
 export class AgendaViewService extends ViewService<'agenda'> {

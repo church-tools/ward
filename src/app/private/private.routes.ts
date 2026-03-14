@@ -43,10 +43,15 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         loadComponent: () => import('./callings/callings-page').then(m => m.CallingsPage),
         organizations: {
             loadComponent: () => import('./callings/organizations/organizations-page').then(m => m.OrganizationsPage),
-            ':organization': {
+            'settings/:organization': {
                 insideParent: true,
                 loadComponent: () => import('./callings/organizations/organization-page').then(m => m.OrganizationPage),
+            },
+            'member-calling/:member_calling': {
+                insideParent: true,
+                loadComponent: () => import('./member-calling/member-calling-page').then(m => m.MemberCallingPage),
             }
+
         },
     },
     'church-service': {
@@ -73,15 +78,31 @@ export async function getPrivateRoutes() {
     }];
 }
 
-export type TableRow = { [T in TableName]: { table: T, row: Row<T> } }[TableName];
+export type TableRow = { [T in TableName]: {
+    table: T,
+    row: Row<T>,
+    currentPage?: 'OrganizationsPage' | 'MeetingsPage'
+} }[TableName];
 
 export function getRowRoute(tableRow: TableRow): string {
-    const { table, row } = tableRow;
+    const { table, row, currentPage } = tableRow;
     switch (table) {
         case 'member': return `/members/${row.id}`;
         case 'agenda': return `/meetings/agenda/${row.id}`;
-        case 'agenda_item': return `/meetings/agenda/${row.agenda}/item/${row.id}`;
-        case 'organization': return `/callings/organizations/${row.id}`;
+        case 'agenda_item':
+            switch (currentPage) {
+                case 'MeetingsPage':
+                    return `/meetings/${row.id}`;
+                default:
+                    return `/meetings/agenda/${row.agenda}/item/${row.id}`;
+            }
+        case 'organization': return `/callings/organizations/settings/${row.id}`;
+        case 'member_calling':
+            switch (currentPage) {
+                case 'OrganizationsPage':
+                default:
+                    return `/callings/organizations/member-calling/${row.id}`;
+            }
     }
     throw new Error(`No route defined for table ${table}`);
 }

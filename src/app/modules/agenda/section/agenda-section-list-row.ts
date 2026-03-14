@@ -52,7 +52,8 @@ export class AgendaSectionListRow extends ListRow<'agenda_section'> {
     protected readonly adminService = inject(AdminService);
 
     protected readonly agenda = xcomputed([this.page],
-        page => (page as AgendaPage).syncedRow.value())
+        page => (page as AgendaPage).syncedRow.value(),
+        { trackInner: true });
 
     remove() {
         return this.onRemove()?.(this.row());

@@ -3,7 +3,7 @@
         @if (windowService.backUrl(); as url) {
             <app-back-button [url]="url"/>
         }
-        <div class="handle full-width items-center row no-wrap gap-5 p-2 ps-0 ms-3">
+        <div class="handle full-width items-center row no-wrap gap-5 p-2 ms-3">
             @if (!(windowService.backUrl() && windowService.isSmall())) {
                 <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
             }

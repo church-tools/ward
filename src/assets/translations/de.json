@@ -175,7 +175,8 @@
     "FULL_CREATED_AT": "Erstellt am",
     "UPDATED_BY": "Aktualisiert von",
     "UPDATED_AT": "am",
-    "FULL_UPDATED_AT": "Aktualisiert am"
+    "FULL_UPDATED_AT": "Aktualisiert am",
+    "UNSAVED": "Ungespeichert"
   },
   "ORGANIZATION_TYPE": {
     "BISHOPRIC": { "NAME": "Bischofschaft", "SHORT": "Bisch." },

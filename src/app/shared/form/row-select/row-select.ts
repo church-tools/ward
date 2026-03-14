@@ -23,6 +23,7 @@ import { getProviders, InputBase } from "../shared/input-base";
                 [subtle]="subtle()"
                 [disabled]="disabled()"
                 [hideClear]="hideClear()"
+                [onOptionClick]="onOptionClick()"
                 (valueChange)="setViewValue($event)">
                 <ng-content/>
             </app-multi-select>
@@ -38,6 +39,7 @@ import { getProviders, InputBase } from "../shared/input-base";
                 [subtle]="subtle()"
                 [disabled]="disabled()"
                 [hideClear]="hideClear()"
+                [onOptionClick]="onOptionClick()"
                 (valueChange)="setViewValue($event)">
                 <ng-content/>
             </app-select>
@@ -57,6 +59,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
     readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly allowCustom = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly onOptionClick = input<(option: SelectOption<number>, event: MouseEvent) => void>();
 
     private readonly _table = xcomputed([this.table], t => this.supabase.sync.from(t));
     private readonly optionList = signal<SelectOption<number>[]>([]);

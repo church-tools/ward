@@ -1,13 +1,14 @@
 @use "animation";
 @use "input";
 @use "shadow";
+@use "card";
+@use "button";
 
 .value-container {
     margin-left: -0.55rem;
     
     .value-btn {
         padding: 0 input.$padding-x;
-        padding-right: 0;
         gap: 0.125rem;
         width: auto;
         min-height: 2rem;
@@ -15,6 +16,22 @@
         opacity: 1;
         @starting-style {
             opacity: 0;
+        }
+
+        &.clickable {
+            cursor: pointer;
+            // background-color: card.$hover-background-transparent-color;
+            background-color: input.$border-color-transparent;
+            border-radius: input.$border-radius;
+            &:focus, &:hover {
+                background-color: card.$hover-background-transparent-color;
+                @include card.vibrant(300%);
+            }
+            &:active, &.active {
+                scale: button.$active-scale;
+                background-color: card.$active-background-transparent-color;
+                @include card.vibrant(400%);
+            }
         }
         
         .delete-btn {

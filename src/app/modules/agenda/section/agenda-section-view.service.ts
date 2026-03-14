@@ -5,7 +5,7 @@ import { IconCode } from "../../../shared/icon/icon";
 import { CallingViewService } from "../../calling/calling-view.service";
 import { AgendaItemViewService } from "../../item/agenda-item-view.service";
 import { ViewService } from "../../shared/view.service";
-import { AgendaSection } from "./agenda-section";
+import type { AgendaSection } from "./agenda-section";
 
 @Injectable({ providedIn: 'root' })
 export class AgendaSectionViewService extends ViewService<'agenda_section'> {

@@ -79,6 +79,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     readonly hideClear = input<boolean, unknown>(true, { transform: booleanAttribute });
     readonly mapSearch = input<(search: string) => string>();
     readonly translateOptions = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly onOptionClick = input<(option: SelectOption<T>, event: MouseEvent) => void>();
 
     protected readonly optionsLoading = signal<boolean>(false);
     protected readonly visibleOptions = signal<VisibleOption<T>[]>([]);
