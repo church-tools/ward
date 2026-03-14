@@ -2,18 +2,18 @@ import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Agenda } from '../../modules/agenda/agenda';
-import { AgendaListInsertComponent } from '../../modules/agenda/agenda-list-insert';
-import { AgendaListRowComponent } from '../../modules/agenda/agenda-list-row';
+import { AgendaListInsert } from '../../modules/agenda/agenda-list-insert';
+import { AgendaListRow } from '../../modules/agenda/agenda-list-row';
 import { AgendaItem } from '../../modules/item/agenda-item';
-import { AgendaItemListInsertComponent } from '../../modules/item/agenda-item-list-insert';
-import { AgendaItemListRowComponent } from '../../modules/item/agenda-item-list-row';
+import { AgendaItemListInsert } from '../../modules/item/agenda-item-list-insert';
+import { AgendaItemListRow } from '../../modules/item/agenda-item-list-row';
 import { ProfileService } from '../../modules/profile/profile.service';
-import { RowCardListComponent } from '../../modules/shared/row-card-list/row-card-list';
+import { RowCardList } from '../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../modules/shared/table.types';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { getRowRoute } from '../private.routes';
-import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
-import { PrivatePageComponent } from '../shared/private-page';
+import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
+import { PrivatePage } from '../shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
@@ -61,11 +61,11 @@ import { PrivatePageComponent } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, AgendaItemListRowComponent, AgendaItemListInsertComponent,
-        AgendaListRowComponent, AgendaListInsertComponent, DrawerRouterOutletComponent],
+    imports: [TranslateModule, RowCardList, AgendaItemListRow, AgendaItemListInsert,
+        AgendaListRow, AgendaListInsert, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
-export class MeetingsPageComponent extends PrivatePageComponent {
+export class MeetingsPage extends PrivatePage {
 
     private readonly router = inject(Router);
     private readonly profileService = inject(ProfileService);

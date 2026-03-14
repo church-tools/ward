@@ -2,12 +2,12 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Profile } from '../../modules/profile/profile';
-import { ProfileListInsertComponent } from '../../modules/profile/profile-list-insert';
-import { ProfileListRowComponent } from '../../modules/profile/profile-list-row';
-import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
+import { ProfileListInsert } from '../../modules/profile/profile-list-insert';
+import { ProfileListRow } from '../../modules/profile/profile-list-row';
+import { RowCardList } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
-import { PrivatePageComponent } from '../shared/private-page';
-import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
+import { PrivatePage } from '../shared/private-page';
+import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { NewUnitsComponent } from "./new-units";
 
 @Component({
@@ -42,11 +42,11 @@ import { NewUnitsComponent } from "./new-units";
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, ProfileListRowComponent, ProfileListInsertComponent,
-        DrawerRouterOutletComponent, NewUnitsComponent],
+    imports: [TranslateModule, RowCardList, ProfileListRow, ProfileListInsert,
+        DrawerRouterOutlet, NewUnitsComponent],
     host: { class: 'full-width' },
 })
-export class UsersPageComponent extends PrivatePageComponent {
+export class UsersPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);

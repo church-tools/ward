@@ -3,7 +3,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Icon, IconComponent } from '../../icon/icon';
+import { IconCode, Icon } from '../../icon/icon';
 import { DragDropService, DropData } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
@@ -12,7 +12,7 @@ import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
 import { waitForNextChange, xcomputed, xeffect } from '../../utils/signal-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
-import { SwapContainerComponent } from '../swap-container/swap-container';
+import { SwapContainer } from '../swap-container/swap-container';
 
 type ItemCard<T, ID extends number | string> = {
     id: ID;
@@ -24,7 +24,7 @@ type ItemCard<T, ID extends number | string> = {
 
 @Component({
     selector: 'app-card-list',
-    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, IconComponent, SwapContainerComponent, WatchChildrenDirective],
+    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, Icon, SwapContainer, WatchChildrenDirective],
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
@@ -49,7 +49,7 @@ export class CardListComponent<T, ID extends number | string> {
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
-    readonly emptyIcon = input<Icon | null>(null);
+    readonly emptyIcon = input<IconCode | null>(null);
 
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();

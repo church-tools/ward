@@ -1,10 +1,10 @@
 import { booleanAttribute, Component, ElementRef, input, signal, viewChild } from '@angular/core';
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { xcomputed } from '../../utils/signal-utils';
-import ErrorMessageComponent from '../../widget/error-message/error-message';
-import ButtonComponent from "../button/button";
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from "../shared/input-label";
+import ErrorMessage from '../../widget/error-message/error-message';
+import Button from "../button/button";
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from "../shared/input-label";
 
 @Component({
     selector: 'app-text-input',
@@ -28,10 +28,10 @@ import InputLabelComponent from "../shared/input-label";
             <app-error-message/>
         </label>
     `,
-    providers: getProviders(() => TextInputComponent),
-    imports: [InputLabelComponent, ButtonComponent, ErrorMessageComponent]
+    providers: getProviders(() => TextInput),
+    imports: [InputLabel, Button, ErrorMessage]
 })
-export class TextInputComponent extends InputBaseComponent<string> {
+export class TextInput extends InputBase<string> {
     
     readonly characterLimit = input<number>(0);
     readonly autocomplete = input<string>('off');

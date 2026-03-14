@@ -1,4 +1,4 @@
-import { Icon } from "../icon/icon";
+import { IconCode } from "../icon/icon";
 import { PaletteColor } from "./color-utils";
 
 export enum FileType {
@@ -23,7 +23,7 @@ export type FileInfo = {
     value: string;
     fullName: string;
     name: string;
-    icon: Icon;
+    icon: IconCode;
     key: FileKey;
     url?: FileUrl;
     unsaved?: boolean;
@@ -95,7 +95,7 @@ export function getTypeFromName(ending: string): FileType | undefined {
     return undefined;
 }
 
-export function getIcon(type: FileType | undefined): Icon {
+export function getIcon(type: FileType | undefined): IconCode {
     switch (type) {
         case FileType.word: return 'document_text';
         case FileType.excel: return 'table';

@@ -1,9 +1,9 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { IconComponent } from '../../shared/icon/icon';
-import { PageComponent } from '../../shared/page/page';
-import LinkButtonComponent from '../../shared/form/button/link/link-button';
-import AsyncButtonComponent from '../../shared/form/button/async/async-button';
+import { Icon } from '../../shared/icon/icon';
+import { Page } from '../../shared/page/page';
+import LinkButton from '../../shared/form/button/link/link-button';
+import AsyncButton from '../../shared/form/button/async/async-button';
 import { SupabaseService } from '../../shared/service/supabase.service';
 import { Router } from '@angular/router';
 
@@ -21,10 +21,10 @@ import { Router } from '@angular/router';
             </app-async-button>
         </div>
     `,
-    imports: [IconComponent, TranslateModule, AsyncButtonComponent],
+    imports: [Icon, TranslateModule, AsyncButton],
     host: { class: 'page portrait' },
 })
-export class SetupPendingPageComponent extends PageComponent {
+export class SetupPendingPage extends Page {
 
     private readonly supabase = inject(SupabaseService);
     private readonly router = inject(Router);

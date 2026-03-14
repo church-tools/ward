@@ -4,9 +4,9 @@ import { getViewService } from "../../../modules/shared/view.service";
 import { SupabaseService } from "../../service/supabase.service";
 import { assureArray } from "../../utils/array-utils";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
-import { MultiSelectComponent } from "../select/multi-select";
-import { SelectComponent, SelectOption } from "../select/select";
-import { getProviders, InputBaseComponent } from "../shared/input-base";
+import { MultiSelect } from "../select/multi-select";
+import { Select, SelectOption } from "../select/select";
+import { getProviders, InputBase } from "../shared/input-base";
 
 @Component({
     selector: 'app-row-select',
@@ -43,10 +43,10 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
             </app-select>
         }
     `,
-    providers: getProviders(() => RowSelectComponent),
-    imports: [SelectComponent, MultiSelectComponent],
+    providers: getProviders(() => RowSelect),
+    imports: [Select, MultiSelect],
 })
-export class RowSelectComponent<T extends TableName> extends InputBaseComponent<number | number[]> {
+export class RowSelect<T extends TableName> extends InputBase<number | number[]> {
 
     private readonly supabase = inject(SupabaseService);
     private readonly injector = inject(Injector);

@@ -1,18 +1,18 @@
 import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import ButtonComponent from "../../../shared/form/button/button";
-import { PageComponent } from "../../../shared/page/page";
+import Button from "../../../shared/form/button/button";
+import { Page } from "../../../shared/page/page";
 import { WindowService } from "../../../shared/service/window.service";
 import { transitionStyle } from "../../../shared/utils/dom-utils";
 import { wait } from "../../../shared/utils/flow-control-utils";
 import { xeffect } from "../../../shared/utils/signal-utils";
 import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "../../../shared/utils/style";
-import { RowPageComponent } from "../row-page";
+import { RowPage } from "../row-page";
 
 @Component({
     selector: 'app-drawer-router-outlet',
     templateUrl: './drawer-router-outlet.html',
-    imports: [RouterOutlet, ButtonComponent],
+    imports: [RouterOutlet, Button],
     styleUrl: './drawer-router-outlet.scss',
     host: {
         'animate.enter': 'show-gap',
@@ -22,7 +22,7 @@ import { RowPageComponent } from "../row-page";
         '[class.dense]': '!windowService.isLarge()',
     },
 })
-export class DrawerRouterOutletComponent implements OnDestroy {
+export class DrawerRouterOutlet implements OnDestroy {
 
     private static readonly DRAG_THRESHOLD = 10;
     private static readonly SWIPE_TIME_LIMIT = 100;
@@ -34,7 +34,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
 
     readonly activated = output<string | null>();
 
-    protected readonly activeChild = signal<PageComponent | null>(null);
+    protected readonly activeChild = signal<Page | null>(null);
     protected readonly closing = signal(false);
     protected readonly contentChanging = signal(false);
     protected readonly onBottom = this.windowService.isSmall;
@@ -71,7 +71,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         });
     }
 
-    protected async onActivate(page: PageComponent) {
+    protected async onActivate(page: Page) {
         this.cancelPendingAnimations();
         const token = ++this.transitionToken;
         this.emitCurrentRoute();
@@ -79,7 +79,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         await this.animateDrawerOpen(token);
         if (token !== this.transitionToken)
             return;
-        if (page instanceof RowPageComponent) {
+        if (page instanceof RowPage) {
             page.onIdChange = async _ => {
                 if (token !== this.transitionToken)
                     return;
@@ -98,10 +98,10 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         }
     }
 
-    protected onDeactivate(page: PageComponent) {
+    protected onDeactivate(page: Page) {
         this.activated.emit(null);
         this.animateDrawerClose();
-        if (page instanceof RowPageComponent)
+        if (page instanceof RowPage)
             delete page.onIdChange;
     }
 
@@ -146,7 +146,7 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         const page = this.activeChild();
         if (!page) return;
         this.closing.set(true);
-        if (page instanceof RowPageComponent)
+        if (page instanceof RowPage)
             page.close();
         const element = this.drawerView().nativeElement;
         const card = element.querySelector('.drawer-card')! as HTMLElement;
@@ -190,13 +190,13 @@ export class DrawerRouterOutletComponent implements OnDestroy {
             this.dragState.delayTimeout = window.setTimeout(() => {
                 if (this.dragState && !this.dragState.isDragActive)
                     delete this.dragState;
-            }, DrawerRouterOutletComponent.SWIPE_TIME_LIMIT);
+            }, DrawerRouterOutlet.SWIPE_TIME_LIMIT);
         }
     }
 
     private isCardBackground(element: HTMLElement): boolean {
         const tagName = element.tagName.toLowerCase();
-        return !DrawerRouterOutletComponent.INTERACTIVE_ELEMENTS.has(tagName);
+        return !DrawerRouterOutlet.INTERACTIVE_ELEMENTS.has(tagName);
     }
 
     private clearDragTimeout() {
@@ -225,9 +225,9 @@ export class DrawerRouterOutletComponent implements OnDestroy {
         const deltaY = current.clientY - startY;
         const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
         const timeElapsed = Date.now() - startTime;
-        if (distance > DrawerRouterOutletComponent.DRAG_THRESHOLD || startedOnBackground) {
+        if (distance > DrawerRouterOutlet.DRAG_THRESHOLD || startedOnBackground) {
             this.clearDragTimeout();
-            if (timeElapsed <= DrawerRouterOutletComponent.SWIPE_TIME_LIMIT || startedOnBackground)
+            if (timeElapsed <= DrawerRouterOutlet.SWIPE_TIME_LIMIT || startedOnBackground)
                 this.activateDrag(event);
             else
                 delete this.dragState;

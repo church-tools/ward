@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { ListRowComponent } from '../shared/row-card-list/list-row';
+import { ListRow } from '../shared/row-card-list/list-row';
 
 @Component({
     selector: 'app-organization-list-row',
@@ -12,6 +12,6 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
         </div>
     `,
 })
-export class OrganizationListRowComponent extends ListRowComponent<'organization'> {
+export class OrganizationListRow extends ListRow<'organization'> {
 
 }

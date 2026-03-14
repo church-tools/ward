@@ -9,7 +9,7 @@ export const LEAVE_ANIMATION = 'page-leave-animation';
         class: "page column gap-3",
     }
 })
-export abstract class PageComponent {
+export abstract class Page {
 
     readonly el = inject(ElementRef).nativeElement as HTMLElement;
 

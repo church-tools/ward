@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { IconComponent } from '../../shared/icon/icon';
-import { ListRowComponent } from '../shared/row-card-list/list-row';
+import { Icon } from '../../shared/icon/icon';
+import { ListRow } from '../shared/row-card-list/list-row';
 
 @Component({
     selector: 'app-profile-list-row',
@@ -20,8 +20,8 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
             }
         </div>
     `,
-    imports: [IconComponent],
+    imports: [Icon],
 })
-export class ProfileListRowComponent extends ListRowComponent<'profile'> {
+export class ProfileListRow extends ListRow<'profile'> {
     
 }

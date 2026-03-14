@@ -1,5 +1,5 @@
 import { Component, ComponentRef, createComponent, EnvironmentInjector, output, signal, Type, viewChild, ViewContainerRef } from "@angular/core";
-import ButtonComponent from "../../form/button/button";
+import Button from "../../form/button/button";
 import { animationDurationMs } from "../../utils/style";
 import { wait } from "../../utils/flow-control-utils";
 
@@ -20,10 +20,10 @@ export class PopoverPage {
             <ng-container #contentContainer/>
         </dialog>
     `,
-    imports: [ButtonComponent],
+    imports: [Button],
     styleUrl: './popover.scss',
 })
-export class PopoverComponent {
+export class Popover {
 
     readonly onClose = output<void>();
 

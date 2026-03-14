@@ -1,9 +1,9 @@
 import { booleanAttribute, Component, input, model } from "@angular/core";
-import { Icon, IconComponent } from "../../icon/icon";
+import { IconCode, Icon } from "../../icon/icon";
 import { PALETTE_COLORS, PaletteColor } from "../../utils/color-utils";
 import MenuButtonComponent from "../button/menu/menu-button";
 import { ButtonType } from "../button/shared/button-base";
-import { getProviders, InputBaseComponent } from "../shared/input-base";
+import { getProviders, InputBase } from "../shared/input-base";
 
 @Component({
     selector: 'app-icon-picker',
@@ -32,13 +32,13 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
             </div>
         </app-menu-button>
     `,
-    providers: getProviders(() => IconPickerComponent),
-    imports: [MenuButtonComponent, IconComponent],
+    providers: getProviders(() => IconPicker),
+    imports: [MenuButtonComponent, Icon],
     styleUrl: './icon-picker.scss',
 })
-export class IconPickerComponent extends InputBaseComponent<Icon> {
+export class IconPicker extends InputBase<IconCode> {
 
-    readonly iconOptions = input.required<readonly Icon[]>();
+    readonly iconOptions = input.required<readonly IconCode[]>();
     readonly color = model<PaletteColor | null>();
     readonly buttonType = input<ButtonType>('subtle');
     readonly filled = input<boolean, unknown>(false, { transform: booleanAttribute });

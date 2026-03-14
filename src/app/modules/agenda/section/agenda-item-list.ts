@@ -3,10 +3,10 @@ import { getRowRoute } from '../../../private/private.routes';
 import { RowPageService } from '../../../private/row-page.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AgendaItem } from '../../item/agenda-item';
-import { AgendaItemListInsertComponent } from '../../item/agenda-item-list-insert';
-import { AgendaItemListRowComponent } from '../../item/agenda-item-list-row';
+import { AgendaItemListInsert } from '../../item/agenda-item-list-insert';
+import { AgendaItemListRow } from '../../item/agenda-item-list-row';
 import { ProfileService } from '../../profile/profile.service';
-import { RowCardListComponent } from '../../shared/row-card-list/row-card-list';
+import { RowCardList } from '../../shared/row-card-list/row-card-list';
 import { Table } from '../../shared/table.types';
 import { Agenda } from '../agenda';
 
@@ -33,10 +33,10 @@ import { Agenda } from '../agenda';
             </ng-template>
         </app-row-card-list>
     `,
-    imports: [RowCardListComponent, AgendaItemListRowComponent, AgendaItemListInsertComponent],
+    imports: [RowCardList, AgendaItemListRow, AgendaItemListInsert],
     host: { class: 'full-width' },
 })
-export class AgendaItemListComponent {
+export class AgendaItemList {
     
     private readonly profileService = inject(ProfileService);
     private readonly rowPageService = inject(RowPageService);

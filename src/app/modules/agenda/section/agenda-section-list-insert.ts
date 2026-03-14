@@ -1,10 +1,10 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import ButtonComponent from '../../../shared/form/button/button';
+import Button from '../../../shared/form/button/button';
 import { SupabaseRow, SupabaseService } from '../../../shared/service/supabase.service';
 import { asyncComputed } from '../../../shared/utils/signal-utils';
 import { Profile } from '../../profile/profile';
-import { ListInsertComponent } from '../../shared/row-card-list/list-insert';
+import { ListInsert } from '../../shared/row-card-list/list-insert';
 import { AgendaSection } from './agenda-section';
 import { AgendaSectionViewService } from './agenda-section-view.service';
 
@@ -20,9 +20,9 @@ import { AgendaSectionViewService } from './agenda-section-view.service';
             }
         </div>
     `,
-    imports: [ButtonComponent, AsyncPipe],
+    imports: [Button, AsyncPipe],
 })
-export class AgendaSectionListInsertComponent extends ListInsertComponent<'agenda_section', SupabaseRow<'agenda'>> {
+export class AgendaSectionListInsert extends ListInsert<'agenda_section', SupabaseRow<'agenda'>> {
 
     protected readonly agendaSectionView = inject(AgendaSectionViewService);
     private readonly supabase = inject(SupabaseService);

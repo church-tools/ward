@@ -1,19 +1,19 @@
 import { booleanAttribute, Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import { IconComponent } from "../../../icon/icon";
+import { Icon } from "../../../icon/icon";
 import { AnchoredPopoverComponent, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
-import ButtonBaseComponent from "../shared/button-base";
+import ButtonBase from "../shared/button-base";
 
 @Component({
     selector: 'app-menu-button',
-    imports: [TranslateModule, IconComponent, AnchoredPopoverComponent],
+    imports: [TranslateModule, Icon, AnchoredPopoverComponent],
     templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
     host: {
         '[style.anchor-name]': 'popover().anchorNameCss',
     },
 })
-export default class MenuButtonComponent extends ButtonBaseComponent implements OnDestroy {
+export default class MenuButton extends ButtonBase implements OnDestroy {
 
     private readonly elementRef = inject(ElementRef);
     protected readonly popover = viewChild.required(AnchoredPopoverComponent);

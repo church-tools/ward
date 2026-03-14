@@ -1,6 +1,6 @@
 import { Component, OnDestroy, booleanAttribute, inject, input } from "@angular/core";
 import { Subscription } from "rxjs";
-import { Icon, IconSize } from "../../../icon/icon";
+import { IconCode, IconSize } from "../../../icon/icon";
 import { WindowService } from "../../../service/window.service";
 import { ColorName } from "../../../utils/color-utils";
 import { xcomputed, xeffect } from "../../../utils/signal-utils";
@@ -11,9 +11,9 @@ export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';
 @Component({
     template: '',
 })
-export default abstract class ButtonBaseComponent implements OnDestroy {
+export default abstract class ButtonBase implements OnDestroy {
 
-    readonly icon = input<Icon>();
+    readonly icon = input<IconCode>();
     readonly iconSize = input<IconSize>('smaller');
     readonly iconFilled = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly iconColored = input<boolean, unknown>(false, { transform: booleanAttribute });

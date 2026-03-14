@@ -21,7 +21,7 @@ import { xcomputed, xeffect } from "../../utils/signal-utils";
         '[class]': 'animationClass()',
     }
 })
-export class SwapContainerComponent {
+export class SwapContainer {
 
     private readonly element = inject(ElementRef);
 

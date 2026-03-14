@@ -1,7 +1,7 @@
 import { inject, Injectable, Injector } from "@angular/core";
 import { TranslateService, Translation } from "@ngx-translate/core";
 import type { Observable } from "rxjs";
-import type { Icon } from "../../shared/icon/icon";
+import type { IconCode } from "../../shared/icon/icon";
 import type { Row, TableName } from "./table.types";
 
 export async function getViewService<T extends TableName>(injector: Injector, tableName: T): Promise<ViewService<T>> {
@@ -28,7 +28,7 @@ export abstract class ViewService<T extends TableName> {
 
     readonly name: Observable<Translation>;
     readonly namePlural: Observable<Translation>;
-    abstract readonly icon: Icon;
+    abstract readonly icon: IconCode;
 
     constructor(tableName: T) {
         this.name = this.translate.stream(`VIEW.${tableName.toUpperCase()}`);

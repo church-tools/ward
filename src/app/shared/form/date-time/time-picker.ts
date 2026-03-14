@@ -1,14 +1,14 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
-import ErrorMessageComponent from '../../widget/error-message/error-message';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from '../shared/input-label';
+import ErrorMessage from '../../widget/error-message/error-message';
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from '../shared/input-label';
 import { PromiseOrValue } from '../../types';
 
 @Component({
     selector: 'app-time-picker',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [InputLabelComponent, ErrorMessageComponent],
-    providers: getProviders(() => TimePickerComponent),
+    imports: [InputLabel, ErrorMessage],
+    providers: getProviders(() => TimePicker),
     template: `
         <label class="column">
             <app-input-label/>
@@ -24,7 +24,7 @@ import { PromiseOrValue } from '../../types';
         </label>
     `,
 })
-export default class TimePickerComponent extends InputBaseComponent<string, number> {
+export default class TimePicker extends InputBase<string, number> {
 
     override readonly debounceTime = 300;
 

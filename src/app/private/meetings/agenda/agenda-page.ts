@@ -1,20 +1,20 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { AgendaSectionListInsertComponent } from '../../../modules/agenda/section/agenda-section-list-insert';
-import { AgendaSectionListRowComponent } from '../../../modules/agenda/section/agenda-section-list-row';
 import { AgendaSection } from '../../../modules/agenda/section/agenda-section';
+import { AgendaSectionListInsert } from '../../../modules/agenda/section/agenda-section-list-insert';
+import { AgendaSectionListRow } from '../../../modules/agenda/section/agenda-section-list-row';
 import { AgendaItem } from '../../../modules/item/agenda-item';
 import { ProfileService } from '../../../modules/profile/profile.service';
-import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
+import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
-import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
-import LinkButtonComponent from '../../../shared/form/button/link/link-button';
-import { IconComponent } from "../../../shared/icon/icon";
+import AsyncButton from '../../../shared/form/button/async/async-button';
+import LinkButton from '../../../shared/form/button/link/link-button';
+import { Icon } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
-import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
-import { RowPageComponent } from '../../shared/row-page';
-import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
+import { DrawerRouterOutlet } from "../../shared/drawer-router-outlet/drawer-router-outlet";
+import { RowPage } from '../../shared/row-page';
+import { AgendaDropZone } from "./drop-zone/agenda-drop-zone";
 
 @Component({
     selector: 'app-agenda-page',
@@ -68,11 +68,11 @@ import { AgendaDropZoneComponent } from "./drop-zone/agenda-drop-zone";
         </app-drawer-router-outlet>
         <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
-    imports: [TranslateModule, RowCardListComponent, AgendaSectionListRowComponent, AgendaSectionListInsertComponent, DrawerRouterOutletComponent, AgendaDropZoneComponent,
-        IconComponent, AsyncButtonComponent, LinkButtonComponent],
+    imports: [TranslateModule, RowCardList, AgendaSectionListRow, AgendaSectionListInsert, DrawerRouterOutlet,
+        AgendaDropZone, Icon, AsyncButton, LinkButton],
     host: { class: 'full-width' },
 })
-export class AgendaPageComponent extends RowPageComponent<'agenda'> {
+export class AgendaPage extends RowPage<'agenda'> {
     
     private readonly dragDrop = inject(DragDropService);
     private readonly profileService = inject(ProfileService);
@@ -83,7 +83,7 @@ export class AgendaPageComponent extends RowPageComponent<'agenda'> {
     protected readonly draggedAgendaItem = xcomputed([this.itemDragDrop.dragged],
         drag => drag?.data && 'agenda' in drag.data ? drag : null);
 
-    protected readonly sectionList = viewChild.required<RowCardListComponent<'agenda_section'>>('sectionList');
+    protected readonly sectionList = viewChild.required<RowCardList<'agenda_section'>>('sectionList');
     
     protected readonly activeItemId = signal<number | null>(null);
     protected readonly tableName = 'agenda';

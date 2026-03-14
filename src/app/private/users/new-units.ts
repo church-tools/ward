@@ -1,7 +1,7 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import AsyncButtonComponent from "../../shared/form/button/async/async-button";
-import { IconComponent } from "../../shared/icon/icon";
+import AsyncButton from "../../shared/form/button/async/async-button";
+import { Icon } from "../../shared/icon/icon";
 import { FunctionsService, UnitInfo } from "../../shared/service/functions.service";
 
 @Component({
@@ -40,7 +40,7 @@ import { FunctionsService, UnitInfo } from "../../shared/service/functions.servi
             }
         }
     `,
-    imports: [TranslateModule, AsyncButtonComponent, IconComponent],
+    imports: [TranslateModule, AsyncButton, Icon],
     host: { class: 'column gap-2' },
 })
 export class NewUnitsComponent implements OnInit {

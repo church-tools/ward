@@ -1,5 +1,5 @@
 import { Component, inject, model } from '@angular/core';
-import { RichTextComponent } from "../../../../shared/form/rich-text/rich-text";
+import { RichText } from "../../../../shared/form/rich-text/rich-text";
 import { SupabaseService } from '../../../../shared/service/supabase.service';
 import { SupaSyncedRow } from '../../../../shared/utils/supa-sync/supa-synced-row';
 import { SyncedFieldDirective } from '../../../../shared/utils/supa-sync/synced-field.directive';
@@ -11,9 +11,9 @@ import { AgendaSection } from '../agenda-section';
         <app-rich-text #richtextInput [syncedRow]="syncedSection" column="content"
             [class.subtle]="richtextInput.value()"/>
     `,
-    imports: [RichTextComponent, SyncedFieldDirective],
+    imports: [RichText, SyncedFieldDirective],
 })
-export class AgendaSectionTextComponent {
+export class AgendaSectionText {
 
     private readonly supabase = inject(SupabaseService);
 

@@ -3,9 +3,9 @@ import { WindowService } from '../../service/window.service';
 import { transitionStyle } from '../../utils/dom-utils';
 import { wait } from '../../utils/flow-control-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
-import ErrorMessageComponent from '../../widget/error-message/error-message';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from "../shared/input-label";
+import ErrorMessage from '../../widget/error-message/error-message';
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from "../shared/input-label";
 
 @Component({
     selector: 'app-textarea',
@@ -44,10 +44,10 @@ import InputLabelComponent from "../shared/input-label";
 
         }
     `],
-    providers: getProviders(() => TextareaComponent),
-    imports: [InputLabelComponent, ErrorMessageComponent]
+    providers: getProviders(() => Textarea),
+    imports: [InputLabel, ErrorMessage]
 })
-export class TextareaComponent extends InputBaseComponent<string> implements OnDestroy {
+export class Textarea extends InputBase<string> implements OnDestroy {
     
     private readonly windowService = inject(WindowService);
 

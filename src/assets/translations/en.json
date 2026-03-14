@@ -57,6 +57,9 @@
     "MESSAGE": "This Page does not exist (yet?)",
     "GO_HOME": "Go back Home"
   },
+  "BULLETIN_BOARD": {
+    "TITLE": "Bulletin Board"
+  },
   "NAV_BAR_TAB": {
     "MEETINGS": "Meetings",
     "MEMBERS": "Members",

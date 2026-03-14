@@ -1,10 +1,10 @@
 import { Component, OnDestroy, output } from "@angular/core";
-import { IconComponent } from "../../icon/icon";
-import ButtonBaseComponent from "./shared/button-base";
+import { Icon } from "../../icon/icon";
+import ButtonBase from "./shared/button-base";
 
 @Component({
     selector: 'app-button',
-    imports: [IconComponent],
+    imports: [Icon],
     template: `
         <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" [class]="classes()">
             @if (icon()) { <app-icon [icon]="icon()!" [filled]="iconFilled()"/> }
@@ -12,7 +12,7 @@ import ButtonBaseComponent from "./shared/button-base";
         </button>
     `,
 })
-export default class ButtonComponent extends ButtonBaseComponent implements OnDestroy {
+export default class Button extends ButtonBase implements OnDestroy {
 
     protected readonly onClick = output<UIEvent | null>();
 

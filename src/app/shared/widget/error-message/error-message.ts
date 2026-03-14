@@ -1,11 +1,11 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { InterpolationParameters, TranslateService } from '@ngx-translate/core';
-import { IconComponent } from '../../icon/icon';
-import CollapseComponent from '../collapse/collapse';
+import { Icon } from '../../icon/icon';
+import Collapse from '../collapse/collapse';
 
 @Component({
     selector: 'app-error-message',
-    imports: [CollapseComponent, IconComponent],
+    imports: [Collapse, Icon],
     template: `
         <app-collapse>
             <div class="row no-wrap danger-text">
@@ -16,11 +16,11 @@ import CollapseComponent from '../collapse/collapse';
     `,
     styleUrl: './error-message.scss'
 })
-export default class ErrorMessageComponent {
+export default class ErrorMessage {
 
     protected readonly translateService = inject(TranslateService);
 
-    private readonly collapse = viewChild.required(CollapseComponent);
+    private readonly collapse = viewChild.required(Collapse);
     
     private hasError = false;
     protected readonly error = signal<string | null>(null);

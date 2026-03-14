@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
-import { ListRowComponent } from '../shared/row-card-list/list-row';
-import { Icon, IconComponent } from "../../shared/icon/icon";
+import { ListRow } from '../shared/row-card-list/list-row';
+import { IconCode, Icon } from "../../shared/icon/icon";
 import { xcomputed } from '../../shared/utils/signal-utils';
-import { MeetingsPageComponent } from '../../private/meetings/meetings-page';
+import { MeetingsPage } from '../../private/meetings/meetings-page';
 
 @Component({
     selector: 'app-agenda-list-row',
@@ -20,15 +20,15 @@ import { MeetingsPageComponent } from '../../private/meetings/meetings-page';
             }
         </div>
     `,
-    imports: [IconComponent],
+    imports: [Icon],
     host: {
         class: 'full-width row items-center',
     }
 })
-export class AgendaListRowComponent extends ListRowComponent<'agenda'> {
+export class AgendaListRow extends ListRow<'agenda'> {
     
-    protected readonly icon = xcomputed([this.row], row => row.shape as Icon);
+    protected readonly icon = xcomputed([this.row], row => row.shape as IconCode);
 
     protected readonly showChevron = xcomputed([this.page],
-        page => page instanceof MeetingsPageComponent);
+        page => page instanceof MeetingsPage);
 }

@@ -1,8 +1,8 @@
 import { Type } from "@angular/core";
 import { Route, Routes } from "@angular/router";
-import { PageComponent } from "../page/page";
+import { Page } from "../page/page";
 
-export type RouteObject<P extends PageComponent = PageComponent> = {
+export type RouteObject<P extends Page = Page> = {
     admin?: boolean;
     loadComponent: () => Promise<Type<P>>;
     insideParent?: true; // On child: true to render inside parent

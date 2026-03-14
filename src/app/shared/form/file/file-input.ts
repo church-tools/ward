@@ -4,24 +4,24 @@ import { FileStorageService } from "../../service/file-storage.service";
 import { assureArray } from "../../utils/array-utils";
 import { compressTimestamp } from "../../utils/date-utils";
 import { FileInfo, FileKey, getColor, getIcon, getTypeFromName, needsIframe, viewedByService } from "../../utils/file-utils";
-import { xcomputed } from "../../utils/signal-utils";
-import ErrorMessageComponent from "../../widget/error-message/error-message";
-import { FilePopoverComponent } from "../../widget/popover/file-popover";
-import { PopoverService } from "../../widget/popover/popover.service";
-import AsyncButtonComponent from "../button/async/async-button";
-import FileButtonComponent from "../button/file/file-button";
-import { getProviders, InputBaseComponent } from "../shared/input-base";
-import InputLabelComponent from "../shared/input-label";
 import { wait } from "../../utils/flow-control-utils";
+import { xcomputed } from "../../utils/signal-utils";
+import ErrorMessage from "../../widget/error-message/error-message";
+import { FilePopover } from "../../widget/popover/file-popover";
+import { PopoverService } from "../../widget/popover/popover.service";
+import AsyncButton from "../button/async/async-button";
+import FileButtonComponent from "../button/file/file-button";
+import { getProviders, InputBase } from "../shared/input-base";
+import InputLabel from "../shared/input-label";
 
 @Component({
     selector: 'app-file-input',
-    imports: [TranslateModule, InputLabelComponent, ErrorMessageComponent,
-        AsyncButtonComponent, FileButtonComponent],
+    imports: [TranslateModule, InputLabel, ErrorMessage,
+        AsyncButton, FileButtonComponent],
     templateUrl: './file-input.html',
-    providers: getProviders(() => FileInputComponent)
+    providers: getProviders(() => FileInput)
 })
-export default class FileInputComponent extends InputBaseComponent<FileInfo[], string[]> {
+export default class FileInput extends InputBase<FileInfo[], string[]> {
 
     private readonly fileStorage = inject(FileStorageService);
     private readonly popoverService = inject(PopoverService);
@@ -75,7 +75,7 @@ export default class FileInputComponent extends InputBaseComponent<FileInfo[], s
                 } else
                     fileInfo.data = await this.fileStorage.read(fileInfo.key, fileInfo.name);
             }
-            this.popoverService.open(FilePopoverComponent)
+            this.popoverService.open(FilePopover)
                 .then(popover => {
                     popover.instance.file.set(fileInfo);
                     if (!this.disabled())

@@ -1,10 +1,10 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
-import { Icon } from '../../icon/icon';
-import ButtonComponent from '../button/button';
+import { IconCode } from '../../icon/icon';
+import Button from '../button/button';
 import MenuButtonComponent from '../button/menu/menu-button';
 
 export type RichTextToolbarItem<T> = {
-    icon: Icon;
+    icon: IconCode;
     title: string;
     shortcut?: string;
     action: T;
@@ -61,13 +61,13 @@ export type RichTextToolbarItem<T> = {
     host: {
         class: 'row no-wrap'
     },
-    imports: [ButtonComponent, MenuButtonComponent],
+    imports: [Button, MenuButtonComponent],
 })
 export class RichTextToolbarGroupComponent<T> {
 
     readonly items = input.required<RichTextToolbarItem<T>[]>();
     readonly asMenuButton = input<boolean, unknown>(false, { transform: booleanAttribute });
-    readonly icon = input<Icon>();
+    readonly icon = input<IconCode>();
     readonly title = input<string>();
     readonly press = output<T>();
     readonly isActiveCheck = input<(type: T) => boolean>();

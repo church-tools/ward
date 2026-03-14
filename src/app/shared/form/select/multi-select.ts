@@ -1,15 +1,15 @@
 import { booleanAttribute, Component, input, signal, viewChild } from '@angular/core';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
-import { IconComponent } from '../../icon/icon';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import { SelectComponent, SelectOption } from './select';
+import { Icon } from '../../icon/icon';
+import { getProviders, InputBase } from '../shared/input-base';
+import { Select, SelectOption } from './select';
 
 @Component({
 	selector: 'app-multi-select',
-	imports: [SelectComponent, IconComponent],
+	imports: [Select, Icon],
 	styleUrls: ['./multi-select.scss'],
-	providers: getProviders(() => MultiSelectComponent),
+	providers: getProviders(() => MultiSelect),
 	template: `
 		<app-select #select
 			[options]="getOptions"
@@ -45,7 +45,7 @@ import { SelectComponent, SelectOption } from './select';
 		</app-select>
 	`,
 })
-export class MultiSelectComponent<T> extends InputBaseComponent<T[]> {
+export class MultiSelect<T> extends InputBase<T[]> {
 
 	readonly options = input.required<SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
 	readonly onGroupClick = input<(group: { id: string; label: string; color?: string }) => void>();
@@ -53,7 +53,7 @@ export class MultiSelectComponent<T> extends InputBaseComponent<T[]> {
 	readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
 
 	private readonly allOptions = signal<SelectOption<T>[]>([]);
-	protected readonly select = viewChild.required(SelectComponent<T>);
+	protected readonly select = viewChild.required(Select<T>);
 
 	protected readonly selectedOptions = xcomputed([this.allOptions, this.viewValue], (options, value) => {
 		const selected = new Set(assureArray(value ?? []));

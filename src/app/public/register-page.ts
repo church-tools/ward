@@ -1,13 +1,13 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButtonComponent from '../shared/form/button/async/async-button';
-import ButtonComponent from "../shared/form/button/button";
-import LinkButtonComponent from '../shared/form/button/link/link-button';
-import { PageComponent } from '../shared/page/page';
+import AsyncButton from '../shared/form/button/async/async-button';
+import Button from "../shared/form/button/button";
+import LinkButton from '../shared/form/button/link/link-button';
+import { Page } from '../shared/page/page';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { CaptchaComponent } from './shared/captcha';
-import { CredentialsComponent } from './shared/credentials';
+import { Credentials } from './shared/credentials';
 
 @Component({
     selector: 'app-register-page',
@@ -41,8 +41,8 @@ import { CredentialsComponent } from './shared/credentials';
             </div>
         </div>
     `,
-    imports: [TranslateModule, ButtonComponent, LinkButtonComponent, AsyncButtonComponent,
-        CredentialsComponent, CaptchaComponent],
+    imports: [TranslateModule, Button, LinkButton, AsyncButton,
+        Credentials, CaptchaComponent],
     styles: [`
         .provider-icon {
             width: 64px;
@@ -51,11 +51,11 @@ import { CredentialsComponent } from './shared/credentials';
     `],
     host: { class: 'portrait' },
 })
-export class RegisterPageComponent extends PageComponent {
+export class RegisterPage extends Page {
 
     private readonly supabase = inject(SupabaseService);
     private readonly router = inject(Router);
-    private readonly credentials = viewChild.required(CredentialsComponent); 
+    private readonly credentials = viewChild.required(Credentials); 
 
     protected turnstileToken: string | null = null;
 

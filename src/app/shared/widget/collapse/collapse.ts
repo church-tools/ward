@@ -6,7 +6,7 @@ import { wait } from '../../utils/flow-control-utils';
     template: `<div #measuring class="measuring"><ng-content/></div>`,
     styleUrl: './collapse.scss',
 })
-export default class CollapseComponent {
+export default class Collapse {
 
     private readonly element = inject(ElementRef);
 

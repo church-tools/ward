@@ -1,13 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProfileService } from '../../modules/profile/profile.service';
-import AsyncButtonComponent from '../../shared/form/button/async/async-button';
-import SwitchComponent from '../../shared/form/switch/switch';
+import AsyncButton from '../../shared/form/button/async/async-button';
+import Switch from '../../shared/form/switch/switch';
 import { FunctionsService } from '../../shared/service/functions.service';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
-import { RowHistoryComponent } from "../shared/row-history";
-import { RowPageComponent } from '../shared/row-page';
+import { RowHistory } from "../shared/row-history";
+import { RowPage } from '../shared/row-page';
 
 @Component({
     selector: 'app-user-page',
@@ -48,10 +48,10 @@ import { RowPageComponent } from '../shared/row-page';
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, RowHistoryComponent, SyncedFieldDirective,
-        SwitchComponent, AsyncButtonComponent],
+    imports: [TranslateModule, RowHistory, SyncedFieldDirective,
+        Switch, AsyncButton],
 })
-export class UserPageComponent extends RowPageComponent<'profile'> {
+export class UserPage extends RowPage<'profile'> {
 
     protected readonly tableName = 'profile';
 

@@ -2,11 +2,11 @@ import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { Icon, IconComponent } from '../../../../shared/icon/icon';
+import { IconCode, Icon } from '../../../../shared/icon/icon';
 import { ColorName } from '../../../../shared/utils/color-utils';
 
 export type InnerNavBarTab = {
-    icon: Icon;
+    icon: IconCode;
     translateId: string;
     path: string;
     index: number;
@@ -17,7 +17,7 @@ export type InnerNavBarTab = {
 
 @Component({
     selector: 'app-nav-bar-tab',
-    imports: [RouterModule, TranslateModule, IconComponent],
+    imports: [RouterModule, TranslateModule, Icon],
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <div class="icon-area">

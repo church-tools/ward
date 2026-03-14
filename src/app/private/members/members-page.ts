@@ -2,15 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Member } from '../../modules/member/member';
-import { MemberListInsertComponent } from '../../modules/member/member-list-insert';
-import { MemberListRowComponent } from '../../modules/member/member-list-row';
-import { RowCardListComponent } from "../../modules/shared/row-card-list/row-card-list";
+import { MemberListInsert } from '../../modules/member/member-list-insert';
+import { MemberListRow } from '../../modules/member/member-list-row';
+import { RowCardList } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
-import ButtonComponent from '../../shared/form/button/button';
-import LinkButtonComponent from '../../shared/form/button/link/link-button';
+import Button from '../../shared/form/button/button';
+import LinkButton from '../../shared/form/button/link/link-button';
 import { getRowRoute } from '../private.routes';
-import { DrawerRouterOutletComponent } from "../shared/drawer-router-outlet/drawer-router-outlet";
-import { PrivatePageComponent } from '../shared/private-page';
+import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
+import { PrivatePage } from '../shared/private-page';
 
 @Component({
     selector: 'app-members-page',
@@ -53,11 +53,11 @@ import { PrivatePageComponent } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardListComponent, MemberListRowComponent, MemberListInsertComponent, ButtonComponent,
-    LinkButtonComponent, DrawerRouterOutletComponent],
+    imports: [TranslateModule, RowCardList, MemberListRow, MemberListInsert, Button,
+    LinkButton, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
-export class MembersPageComponent extends PrivatePageComponent {
+export class MembersPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
@@ -70,8 +70,8 @@ export class MembersPageComponent extends PrivatePageComponent {
     };
 
     protected async openImportDialog() {
-        const { MembersImportComponent } = await import('./import/members-import');
-        this.popoverService.open(MembersImportComponent);
+        const { MembersImport } = await import('./import/members-import');
+        this.popoverService.open(MembersImport);
     }
         
     protected getUrl = (member: Member.Row | null) =>  member

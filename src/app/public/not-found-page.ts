@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { PageComponent } from '../shared/page/page';
-import LinkButtonComponent from '../shared/form/button/link/link-button';
+import { Page } from '../shared/page/page';
+import LinkButton from '../shared/form/button/link/link-button';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
@@ -14,9 +14,9 @@ import { TranslateModule } from '@ngx-translate/core';
             </app-link-button>
         </div>
     `,
-    imports: [LinkButtonComponent, TranslateModule],
+    imports: [LinkButton, TranslateModule],
     host: { class: 'page narrow' },
 })
-export class NotFoundPageComponent extends PageComponent {
+export class NotFoundPage extends Page {
 
 }

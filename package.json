@@ -42,6 +42,7 @@
     "@angular/language-service": "^21.2.4",
     "@cloudflare/workers-types": "^4.20260313.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
+    "@typescript/native-preview": "^7.0.0-dev.20260314.1",
     "concurrently": "^9.2.1",
     "postcss": "^8.5.8",
     "supabase": "^2.78.1",

@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 import { RelatedRowSelectComponent } from '../../shared/form/row-select/related-row-select';
-import { ListRowComponent } from '../shared/row-card-list/list-row';
+import { ListRow } from '../shared/row-card-list/list-row';
 
 @Component({
     selector: 'app-calling-list-row',
@@ -22,7 +22,7 @@ import { ListRowComponent } from '../shared/row-card-list/list-row';
     `,
     imports: [RelatedRowSelectComponent],
 })
-export class CallingListRowComponent extends ListRowComponent<'calling'> {
+export class CallingListRow extends ListRow<'calling'> {
 
 	protected readonly getCallingId = (calling: Row<'calling'>) => calling.id;
 

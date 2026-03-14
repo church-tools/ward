@@ -4,8 +4,8 @@ import { PALETTE_COLORS } from '../../utils/color-utils';
 import { xeffect } from '../../utils/signal-utils';
 import { AnchoredPopoverComponent } from '../anchored-popover/anchored-popover';
 import MenuButtonComponent from '../button/menu/menu-button';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from "../shared/input-label";
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from "../shared/input-label";
 import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 import { Heading, QuillWrapper } from './quill-wrapper';
 import { RichTextToolbarGroupComponent, RichTextToolbarItem } from './rich-text-toolbar-group';
@@ -14,15 +14,15 @@ import { RichTextToolbarGroupComponent, RichTextToolbarItem } from './rich-text-
     selector: 'app-rich-text',
     styleUrl: './rich-text.scss',
     templateUrl: './rich-text.html',
-    providers: getProviders(() => RichTextComponent),
-    imports: [TranslateModule, InputLabelComponent, RichTextToolbarGroupComponent,
+    providers: getProviders(() => RichText),
+    imports: [TranslateModule, InputLabel, RichTextToolbarGroupComponent,
         AnchoredPopoverComponent, MenuButtonComponent],
     host: {
         class: 'column',
         '[style.anchor-name]': 'toolbar().anchorNameCss',
     }
 })
-export class RichTextComponent extends InputBaseComponent<HTMLString, string> {
+export class RichText extends InputBase<HTMLString, string> {
     
     readonly characterLimit = input<number>(0);
     readonly minLines = input<number>(3);

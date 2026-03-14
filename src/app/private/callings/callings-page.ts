@@ -2,8 +2,8 @@ import { Component, inject } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { OrganizationViewService } from '../../modules/organization/organization-view.service';
-import { IconComponent } from "../../shared/icon/icon";
-import { PrivatePageComponent } from '../shared/private-page';
+import { Icon } from "../../shared/icon/icon";
+import { PrivatePage } from '../shared/private-page';
 
 @Component({
     selector: 'app-callings-page',
@@ -20,10 +20,10 @@ import { PrivatePageComponent } from '../shared/private-page';
         </a>
         <p>Callings component content goes here.</p>
     `,
-    imports: [TranslateModule, RouterModule, IconComponent],
+    imports: [TranslateModule, RouterModule, Icon],
     host: { class: 'page narrow' },
 })
-export class CallingsPageComponent extends PrivatePageComponent {
+export class CallingsPage extends PrivatePage {
 
     protected readonly organizationView = inject(OrganizationViewService);
     

@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { SelectResultComponent } from "../../shared/form/select/select-result";
-import { ListRowComponent } from '../shared/row-card-list/list-row';
+import { SelectResult } from "../../shared/form/select/select-result";
+import { ListRow } from '../shared/row-card-list/list-row';
 import { MemberViewService } from './member-view.service';
 
 @Component({
@@ -13,9 +13,9 @@ import { MemberViewService } from './member-view.service';
             </h4>
         </div>
     `,
-    imports: [SelectResultComponent],
+    imports: [SelectResult],
 })
-export class MemberListRowComponent extends ListRowComponent<'member'> {
+export class MemberListRow extends ListRow<'member'> {
 
     protected readonly memberView = inject(MemberViewService);
 }

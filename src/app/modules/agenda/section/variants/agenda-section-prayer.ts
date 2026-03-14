@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { RowSelectComponent } from "../../../../shared/form/row-select/row-select";
+import { RowSelect } from "../../../../shared/form/row-select/row-select";
 import { SupabaseService } from '../../../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../../../shared/utils/signal-utils';
 import { Agenda } from '../../agenda';
@@ -16,9 +16,9 @@ import { AgendaSection } from '../agenda-section';
             }
         </div>
     `,
-    imports: [TranslateModule, RowSelectComponent],
+    imports: [TranslateModule, RowSelect],
 })
-export class AgendaSectionPrayerComponent {
+export class AgendaSectionPrayer {
 
     protected readonly supabase = inject(SupabaseService);
     protected readonly table = this.supabase.sync.from('agenda_section');

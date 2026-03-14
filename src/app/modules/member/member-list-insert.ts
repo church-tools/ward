@@ -1,10 +1,10 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import ButtonComponent from '../../shared/form/button/button';
-import { SelectComponent } from "../../shared/form/select/select";
-import { TextInputComponent } from '../../shared/form/text/text-input';
+import Button from '../../shared/form/button/button';
+import { Select } from "../../shared/form/select/select";
+import { TextInput } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';
-import { ListInsertComponent } from '../shared/row-card-list/list-insert';
+import { ListInsert } from '../shared/row-card-list/list-insert';
 import { Member } from './member';
 import { MemberViewService } from './member-view.service';
 
@@ -25,15 +25,15 @@ import { MemberViewService } from './member-view.service';
                 (ngModelChange)="updateValidity()"/>
         </div>
     `,
-    imports: [TranslateModule, SelectComponent, TextInputComponent, ButtonComponent],
+    imports: [TranslateModule, Select, TextInput, Button],
 })
-export class MemberListInsertComponent extends ListInsertComponent<'member'> {
+export class MemberListInsert extends ListInsert<'member'> {
 
     protected readonly memberView = inject(MemberViewService);
 
-    private readonly genderView = viewChild.required<SelectComponent<Member.Gender>>('gender');
-    private readonly firstNameView = viewChild.required<TextInputComponent>('firstName');
-    private readonly lastNameView = viewChild.required<TextInputComponent>('lastName');
+    private readonly genderView = viewChild.required<Select<Member.Gender>>('gender');
+    private readonly firstNameView = viewChild.required<TextInput>('firstName');
+    private readonly lastNameView = viewChild.required<TextInput>('lastName');
 
     protected readonly isValid = signal(false);
 

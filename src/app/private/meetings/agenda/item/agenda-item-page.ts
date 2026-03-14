@@ -1,12 +1,12 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButtonComponent from '../../../../shared/form/button/async/async-button';
-import FileInputComponent from '../../../../shared/form/file/file-input';
-import { RichTextComponent } from "../../../../shared/form/rich-text/rich-text";
-import { TextareaComponent } from '../../../../shared/form/text/textarea';
+import AsyncButton from '../../../../shared/form/button/async/async-button';
+import FileInput from '../../../../shared/form/file/file-input';
+import { RichText } from "../../../../shared/form/rich-text/rich-text";
+import { Textarea } from '../../../../shared/form/text/textarea';
 import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
-import { RowHistoryComponent } from "../../../shared/row-history";
-import { RowPageComponent } from '../../../shared/row-page';
+import { RowHistory } from "../../../shared/row-history";
+import { RowPage } from '../../../shared/row-page';
 
 @Component({
     selector: 'app-agenda-item-page',
@@ -25,10 +25,10 @@ import { RowPageComponent } from '../../../shared/row-page';
         <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, TextareaComponent, RichTextComponent, RowHistoryComponent, SyncedFieldDirective,
-        FileInputComponent, AsyncButtonComponent],
+    imports: [TranslateModule, Textarea, RichText, RowHistory, SyncedFieldDirective,
+        FileInput, AsyncButton],
 })
-export class AgendaItemPageComponent extends RowPageComponent<'agenda_item'> {
+export class AgendaItemPage extends RowPage<'agenda_item'> {
 
     protected readonly tableName = 'agenda_item';
 

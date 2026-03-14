@@ -1,11 +1,11 @@
 import { Component, input, signal } from '@angular/core';
-import { Icon, IconComponent, IconSize } from '../../icon/icon';
+import { IconCode, Icon, IconSize } from '../../icon/icon';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
 
 @Component({
     selector: 'app-tooltip',
-    imports: [IconComponent],
+    imports: [Icon],
     template: `
         <app-icon [size]="size()" [icon]="icon()" [class]="color()"
             (mouseenter)="onMouseEnter()"
@@ -19,9 +19,9 @@ import { wait } from '../../utils/flow-control-utils';
         }`,
     styleUrl: './tooltip.scss'
 })
-export class TooltipComponent {
+export class Tooltip {
 
-    protected readonly icon = input<Icon>('info');
+    protected readonly icon = input<IconCode>('info');
     protected readonly color = input<ColorName>('accent');
     protected readonly size = input<IconSize>('xs');
 

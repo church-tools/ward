@@ -1,9 +1,9 @@
 import { Component, signal } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButtonComponent from '../../shared/form/button/async/async-button';
-import { TextInputComponent } from '../../shared/form/text/text-input';
-import { ListInsertComponent } from '../shared/row-card-list/list-insert';
+import AsyncButton from '../../shared/form/button/async/async-button';
+import { TextInput } from '../../shared/form/text/text-input';
+import { ListInsert } from '../shared/row-card-list/list-insert';
 import { Profile } from './profile';
 
 @Component({
@@ -17,9 +17,9 @@ import { Profile } from './profile';
                 [type]="emailForm().valid() ? 'primary' : 'subtle'"/>
         </div>
     `,
-    imports: [FormField, TranslateModule, TextInputComponent, AsyncButtonComponent],
+    imports: [FormField, TranslateModule, TextInput, AsyncButton],
 })
-export class ProfileListInsertComponent extends ListInsertComponent<'profile'> {
+export class ProfileListInsert extends ListInsert<'profile'> {
 
     private readonly email = signal<string>('');
 

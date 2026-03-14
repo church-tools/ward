@@ -2,31 +2,30 @@ import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import type { Organization } from '../../../modules/organization/organization';
-import { OrganizationListInsertComponent } from '../../../modules/organization/organization-list-insert';
-import { OrganizationListRowComponent } from '../../../modules/organization/organization-list-row';
+import { OrganizationListInsert } from '../../../modules/organization/organization-list-insert';
+import { OrganizationListRow } from '../../../modules/organization/organization-list-row';
 import { ProfileService } from '../../../modules/profile/profile.service';
-import { RowCardListComponent } from "../../../modules/shared/row-card-list/row-card-list";
+import { RowCardList } from "../../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../../modules/shared/table.types';
-import AsyncButtonComponent from '../../../shared/form/button/async/async-button';
-import LinkButtonComponent from '../../../shared/form/button/link/link-button';
-import { IconComponent } from "../../../shared/icon/icon";
+import AsyncButton from '../../../shared/form/button/async/async-button';
+import LinkButton from '../../../shared/form/button/link/link-button';
+import { Icon } from "../../../shared/icon/icon";
 import { SupabaseService } from '../../../shared/service/supabase.service';
-import CollapseComponent from '../../../shared/widget/collapse/collapse';
+import Collapse from '../../../shared/widget/collapse/collapse';
 import { getRowRoute } from '../../private.routes';
-import { DrawerRouterOutletComponent } from "../../shared/drawer-router-outlet/drawer-router-outlet";
-import { PrivatePageComponent } from '../../shared/private-page';
-import { OrganizationCallingsComponent } from './organization-callings';
+import { DrawerRouterOutlet } from "../../shared/drawer-router-outlet/drawer-router-outlet";
+import { PrivatePage } from '../../shared/private-page';
+import { OrganizationCallings } from './organization-callings';
 
 @Component({
     selector: 'app-organizations-page',
     templateUrl: './organizations-page.html',
-    imports: [TranslateModule, RowCardListComponent, OrganizationListRowComponent, OrganizationListInsertComponent,
-    DrawerRouterOutletComponent, AsyncButtonComponent, LinkButtonComponent, CollapseComponent,
-    IconComponent, OrganizationCallingsComponent],
+    imports: [TranslateModule, RowCardList, OrganizationListRow, OrganizationListInsert,
+        DrawerRouterOutlet, AsyncButton, LinkButton, Collapse, Icon, OrganizationCallings],
     styleUrl: './organizations-page.scss',
     host: { class: 'full-width' },
 })
-export class OrganizationsPageComponent extends PrivatePageComponent {
+export class OrganizationsPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
@@ -46,7 +45,7 @@ export class OrganizationsPageComponent extends PrivatePageComponent {
         this.router.navigate(['.'], { relativeTo: this.route });
     }
 
-    protected getCollapseToggleFn(collapse: CollapseComponent) {
+    protected getCollapseToggleFn(collapse: Collapse) {
         return (_: Organization.Row) => collapse.toggle();
     }
 

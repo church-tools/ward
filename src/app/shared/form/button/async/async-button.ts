@@ -1,14 +1,14 @@
 import { booleanAttribute, Component, input, signal, viewChild } from "@angular/core";
-import { IconComponent } from "../../../icon/icon";
+import { Icon } from "../../../icon/icon";
 import { xcomputed, xeffect } from "../../../utils/signal-utils";
-import ErrorMessageComponent from "../../../widget/error-message/error-message";
-import ButtonBaseComponent from "../shared/button-base";
+import ErrorMessage from "../../../widget/error-message/error-message";
+import ButtonBase from "../shared/button-base";
 
 export type ProgressCallback = (progress: number) => void;
 
 @Component({
     selector: 'app-async-button',
-    imports: [IconComponent, ErrorMessageComponent],
+    imports: [Icon, ErrorMessage],
     template: `
         <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"
             [title]="windowService.isOnline() ? title() : 'Server kann nicht erreicht werden'"
@@ -29,9 +29,9 @@ export type ProgressCallback = (progress: number) => void;
     `,
     styleUrl: './async-button.scss'
 })
-export default class AsyncButtonComponent extends ButtonBaseComponent {
+export default class AsyncButton extends ButtonBase {
     
-    protected readonly errorMessage = viewChild.required(ErrorMessageComponent);
+    protected readonly errorMessage = viewChild.required(ErrorMessage);
 
     readonly onClick = input.required<(event?: UIEvent, progressCallback?: ProgressCallback) => Promise<any>>();
     readonly needsInternet = input<boolean, unknown>(false, { transform: booleanAttribute });

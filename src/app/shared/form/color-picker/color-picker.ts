@@ -1,9 +1,9 @@
 import { Component, input } from "@angular/core";
-import { IconComponent } from "../../icon/icon";
+import { Icon } from "../../icon/icon";
 import { PALETTE_COLORS, PaletteColor } from "../../utils/color-utils";
 import MenuButtonComponent from "../button/menu/menu-button";
 import { ButtonType } from "../button/shared/button-base";
-import { getProviders, InputBaseComponent } from "../shared/input-base";
+import { getProviders, InputBase } from "../shared/input-base";
 
 @Component({
     selector: 'app-color-picker',
@@ -26,11 +26,11 @@ import { getProviders, InputBaseComponent } from "../shared/input-base";
             </div>
         </app-menu-button>
     `,
-    providers: getProviders(() => ColorPickerComponent),
-    imports: [MenuButtonComponent, IconComponent],
+    providers: getProviders(() => ColorPicker),
+    imports: [MenuButtonComponent, Icon],
     styleUrl: './color-picker.scss',
 })
-export class ColorPickerComponent extends InputBaseComponent<PaletteColor | null> {
+export class ColorPicker extends InputBase<PaletteColor | null> {
 
     readonly buttonType = input<ButtonType>('subtle');
 

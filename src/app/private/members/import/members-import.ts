@@ -3,16 +3,16 @@ import { TranslateModule } from "@ngx-translate/core";
 import { Member } from "../../../modules/member/member";
 import { MemberViewService } from "../../../modules/member/member-view.service";
 import { ProfileService } from "../../../modules/profile/profile.service";
-import AsyncButtonComponent from "../../../shared/form/button/async/async-button";
-import FileButtonComponent from "../../../shared/form/button/file/file-button";
-import LinkButtonComponent from "../../../shared/form/button/link/link-button";
-import CheckboxComponent from "../../../shared/form/checkbox/checkbox";
-import { IconComponent } from "../../../shared/icon/icon";
+import AsyncButton from "../../../shared/form/button/async/async-button";
+import FileButton from "../../../shared/form/button/file/file-button";
+import LinkButton from "../../../shared/form/button/link/link-button";
+import Checkbox from "../../../shared/form/checkbox/checkbox";
+import { Icon } from "../../../shared/icon/icon";
 import { SupabaseService } from "../../../shared/service/supabase.service";
 import { FileType } from "../../../shared/utils/file-utils";
 import { extractTextFromPdf } from "../../../shared/utils/pdf-utils";
 import { xeffect } from "../../../shared/utils/signal-utils";
-import CollapseComponent from "../../../shared/widget/collapse/collapse";
+import Collapse from "../../../shared/widget/collapse/collapse";
 import { PopoverPage } from "../../../shared/widget/popover/popover";
 import { TagComponent } from "../../../shared/widget/tag/tag";
 
@@ -22,12 +22,12 @@ type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
 @Component({
     selector: 'app-members-import',
     templateUrl: './members-import.html',
-    imports: [TranslateModule, FileButtonComponent, LinkButtonComponent, AsyncButtonComponent,
-        IconComponent, CheckboxComponent, CollapseComponent, TagComponent],
+    imports: [TranslateModule, FileButton, LinkButton, AsyncButton,
+        Icon, Checkbox, Collapse, TagComponent],
     host: { class: 'page' },
     styleUrl: './members-import.scss',
 })
-export class MembersImportComponent extends PopoverPage {
+export class MembersImport extends PopoverPage {
 
     private readonly supabase = inject(SupabaseService);
     protected readonly memberView = inject(MemberViewService);

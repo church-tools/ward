@@ -1,13 +1,13 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButtonComponent from '../shared/form/button/async/async-button';
-import LinkButtonComponent from '../shared/form/button/link/link-button';
-import { PageComponent } from '../shared/page/page';
+import AsyncButton from '../shared/form/button/async/async-button';
+import LinkButton from '../shared/form/button/link/link-button';
+import { Page } from '../shared/page/page';
 import { FunctionsService } from '../shared/service/functions.service';
 import { SupabaseService } from '../shared/service/supabase.service';
 import { wait } from '../shared/utils/flow-control-utils';
-import { CredentialsComponent } from './shared/credentials';
+import { Credentials } from './shared/credentials';
 
 @Component({
     selector: 'app-login-page',
@@ -46,7 +46,7 @@ import { CredentialsComponent } from './shared/credentials';
             </div>
         </div>
     `,
-    imports: [TranslateModule, LinkButtonComponent, AsyncButtonComponent, CredentialsComponent],
+    imports: [TranslateModule, LinkButton, AsyncButton, Credentials],
     styles: [`
         .provider-btn {
             min-width: 6rem;
@@ -58,12 +58,12 @@ import { CredentialsComponent } from './shared/credentials';
     `],
     host: { class: 'portrait' },
 })
-export class LoginPageComponent extends PageComponent {
+export class LoginPage extends Page {
 
     private readonly router = inject(Router);
     private readonly supabase = inject(SupabaseService);
     private readonly functions = inject(FunctionsService);
-    private readonly credentials = viewChild.required(CredentialsComponent);
+    private readonly credentials = viewChild.required(Credentials);
 
     protected readonly loginWithCredentials = async () => {
         if (!this.credentials().valid())

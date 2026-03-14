@@ -2,7 +2,7 @@ import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { AgendaItemViewService } from '../../../item/agenda-item-view.service';
 import { AgendaSection } from '../agenda-section';
-import { AgendaItemListComponent } from '../agenda-item-list';
+import { AgendaItemList } from '../agenda-item-list';
 
 @Component({
     selector: 'app-agenda-section-topics',
@@ -10,9 +10,9 @@ import { AgendaItemListComponent } from '../agenda-item-list';
         <h1 class="mb-3">{{ agendaItemView.topic.namePlural | async }}</h1>
         <app-agenda-item-list [agendaId]="section().agenda" [types]="['topic']"/>
     `,
-    imports: [AgendaItemListComponent, AsyncPipe],
+    imports: [AgendaItemList, AsyncPipe],
 })
-export class AgendaSectionTopicsComponent {
+export class AgendaSectionTopics {
 
     protected readonly agendaItemView = inject(AgendaItemViewService);
     

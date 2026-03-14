@@ -1,6 +1,6 @@
 import { booleanAttribute, Component, inject, input } from '@angular/core';
 import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '../../../modules/shared/table.types';
-import { RowSelectComponent } from './row-select';
+import { RowSelect } from './row-select';
 import { SupabaseService } from '../../service/supabase.service';
 import { xcomputed } from '../../utils/signal-utils';
 import { syncedArraySignal } from '../../utils/supa-sync/synced-array';
@@ -22,7 +22,7 @@ type RelationInsertMapper<RelationTable extends TableName> =
 			[value]="selectedRelatedIds()"
 			(valueChange)="onRelatedRowsChange($event)"/>
 	`,
-	imports: [RowSelectComponent],
+	imports: [RowSelect],
 })
 export class RelatedRowSelectComponent<
 	ParentTable extends TableName,

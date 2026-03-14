@@ -1,7 +1,7 @@
 import { ApplicationRef, ComponentRef, createComponent, EnvironmentInjector, inject, Injectable, signal, Type } from "@angular/core";
-import { PopoverComponent, PopoverPage } from "./popover";
+import { Popover, PopoverPage } from "./popover";
 import { xcomputed } from "../../utils/signal-utils";
-import { ConfirmPopoverComponent } from "./confirm-popover";
+import { ConfirmPopover } from "./confirm-popover";
 
 @Injectable({
     providedIn: 'root',
@@ -11,12 +11,12 @@ export class PopoverService {
     private readonly appRef = inject(ApplicationRef);
     private readonly injector = inject(EnvironmentInjector);
 
-    private readonly hostRef = signal<ComponentRef<PopoverComponent> | null>(null);
+    private readonly hostRef = signal<ComponentRef<Popover> | null>(null);
     readonly isOpen = xcomputed([this.hostRef], hostRef => hostRef !== null);
 
     async open<T extends PopoverPage>(component: Type<T>, onClose?: () => void): Promise<ComponentRef<T>> {
         await this.close();
-        const hostRef = createComponent(PopoverComponent, { environmentInjector: this.injector });
+        const hostRef = createComponent(Popover, { environmentInjector: this.injector });
         document.body.appendChild(hostRef.location.nativeElement);
         this.appRef.attachView(hostRef.hostView);
         hostRef.instance.onClose.subscribe(() => {
@@ -39,7 +39,7 @@ export class PopoverService {
 
     async confirm(title: string, message: string, confirm: string, cancelText: string): Promise<boolean> {
         return new Promise<boolean>(async resolve => {
-            const confirmPopoverRef = await this.open(ConfirmPopoverComponent, () => resolve(false));
+            const confirmPopoverRef = await this.open(ConfirmPopover, () => resolve(false));
             const confirmPopover = confirmPopoverRef.instance;
             confirmPopover.title.set(title);
             confirmPopover.message.set(message);

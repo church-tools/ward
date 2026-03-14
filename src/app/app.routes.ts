@@ -1,5 +1,5 @@
 import { ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { AppComponent } from './app.component';
+import { App } from './app.component';
 
 export const routes: Routes = [
     { path: '', canActivate: [hasUnit], loadChildren: () => import('./private/private.routes').then(m => m.getPrivateRoutes()) },
@@ -8,7 +8,7 @@ export const routes: Routes = [
 ];
 
 async function hasUnit(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-    const session = await AppComponent.supabase?.getSession();
+    const session = await App.supabase?.getSession();
     if (!session) {
         window.location.href = '/login';
         return false;

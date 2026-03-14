@@ -21,7 +21,7 @@ type SelectOptionsByValue<T extends PropertyKey> = Partial<Record<T, SelectOptio
 		}
 	`,
 })
-export class SelectResultComponent<T> {
+export class SelectResult<T> {
 
 	readonly optionsByValue = input.required<SelectOptionsByValue<T & PropertyKey>>();
 	readonly value = input.required<T | null>();

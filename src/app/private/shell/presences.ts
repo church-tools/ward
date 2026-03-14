@@ -25,7 +25,7 @@ import { PaletteColor } from '../../shared/utils/color-utils';
         }
     `],
 })
-export class PresencesComponent {
+export class Presences {
 
     protected readonly presences = signal<{ initials: string, name: string, path: string, color1: PaletteColor, color2: PaletteColor }[]>([
         // {

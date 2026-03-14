@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ColorPickerComponent } from "../../../shared/form/color-picker/color-picker";
-import { TextInputComponent } from '../../../shared/form/text/text-input';
+import { ColorPicker } from "../../../shared/form/color-picker/color-picker";
+import { TextInput } from '../../../shared/form/text/text-input';
 import { SyncedFieldDirective } from '../../../shared/utils/supa-sync/synced-field.directive';
-import { RowHistoryComponent } from '../../shared/row-history';
-import { RowPageComponent } from '../../shared/row-page';
+import { RowHistory } from '../../shared/row-history';
+import { RowPage } from '../../shared/row-page';
 
 @Component({
     selector: 'app-organization-page',
@@ -20,10 +20,9 @@ import { RowPageComponent } from '../../shared/row-page';
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, TextInputComponent, RowHistoryComponent,
-        SyncedFieldDirective, ColorPickerComponent],
+    imports: [TranslateModule, TextInput, RowHistory, SyncedFieldDirective, ColorPicker],
 })
-export class OrganizationPageComponent extends RowPageComponent<'organization'> {
+export class OrganizationPage extends RowPage<'organization'> {
 
     protected readonly tableName = 'organization';
 }

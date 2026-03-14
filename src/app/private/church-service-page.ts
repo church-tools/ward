@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { PrivatePageComponent } from './shared/private-page';
+import { PrivatePage } from './shared/private-page';
 
 @Component({
     selector: 'app-meetings-page',
@@ -11,7 +11,7 @@ import { PrivatePageComponent } from './shared/private-page';
     imports: [TranslateModule],
     host: { class: 'page narrow' },
 })
-export class ChurchServicePageComponent extends PrivatePageComponent {
+export class ChurchServicePage extends PrivatePage {
 
     constructor() {
         super();

@@ -1,9 +1,9 @@
 import { ComponentRef, Directive, ElementRef, EnvironmentInjector, inject, Injector, input, Signal, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts, ROUTER_OUTLET_DATA, RouterOutlet } from '@angular/router';
-import { RowPageComponent } from '../../private/shared/row-page';
+import { RowPage } from '../../private/shared/row-page';
 import { wait } from '../utils/flow-control-utils';
 import { animationDurationLgMs } from '../utils/style';
-import { PageComponent } from './page';
+import { Page } from './page';
 
 @Directive({ selector: 'app-page-router-outlet' })
 export class PageRouterOutlet extends RouterOutlet {
@@ -14,7 +14,7 @@ export class PageRouterOutlet extends RouterOutlet {
     private transitionTimeout: number | undefined;
     private contentChangeTimeout: number | undefined;
     private transitionToken = 0;
-    private leavingPageRef: ComponentRef<PageComponent> | undefined;
+    private leavingPageRef: ComponentRef<Page> | undefined;
 
     public readonly saveScrollPosition = input<boolean, unknown>(false, { transform: value => value !== null });
 
@@ -35,7 +35,7 @@ export class PageRouterOutlet extends RouterOutlet {
         if (this.saveScrollPosition() && previousPath != null)
             this.scrollPositions.set(previousPath, currentScrollTop);
 
-        const oldPageRef = this['activated'] as ComponentRef<PageComponent> | null;
+        const oldPageRef = this['activated'] as ComponentRef<Page> | null;
         this.leavingPageRef = oldPageRef ?? undefined;
         const location = this['location'] as ViewContainerRef;
         const newPageRef = location.createComponent(activatedRoute.snapshot.component!, {
@@ -57,7 +57,7 @@ export class PageRouterOutlet extends RouterOutlet {
         oldPage?.el.classList.remove('enter', 'fade', 'left', 'right');
         oldPage?.el.classList.add('page-router-child', 'page-transitioning', 'leave', animation);
         oldPage?.onLeaving();
-        if (oldPage instanceof RowPageComponent)
+        if (oldPage instanceof RowPage)
             delete oldPage.onIdChange;
         this.transitionTimeout = window.setTimeout(() => {
             if (token !== this.transitionToken)
@@ -78,7 +78,7 @@ export class PageRouterOutlet extends RouterOutlet {
             }
             if (this.saveScrollPosition() && animation === 'left' && previousPath != null)
                 this.scrollPositions.delete(previousPath);
-            if (newPage instanceof RowPageComponent) {
+            if (newPage instanceof RowPage) {
                 newPage.onIdChange = async _ => {
                     newPage.el.classList.add('page-transitioning', 'content-changing');
                     if (this.contentChangeTimeout)
@@ -116,7 +116,7 @@ export class PageRouterOutlet extends RouterOutlet {
         }
 
         const location = this['location'] as ViewContainerRef;
-        const activePageRef = this['activated'] as ComponentRef<PageComponent> | null;
+        const activePageRef = this['activated'] as ComponentRef<Page> | null;
         const activePage = activePageRef?.instance;
         activePage?.el.classList.remove('page-transitioning', 'enter', 'leave', 'fade', 'left', 'right', 'content-changing');
         activePage?.el.style.removeProperty('top');

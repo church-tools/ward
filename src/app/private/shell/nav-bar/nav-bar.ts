@@ -35,7 +35,7 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
         '[class.pill-mode]': 'pillMode()',
     }
 })
-export class NavBarComponent {
+export class NavBar {
 
     protected readonly windowService = inject(WindowService);
 

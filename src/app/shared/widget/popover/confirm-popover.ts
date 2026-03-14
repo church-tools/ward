@@ -1,6 +1,6 @@
 import { Component, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import ButtonComponent from "../../form/button/button";
+import Button from "../../form/button/button";
 import { PopoverPage } from "./popover";
 
 @Component({
@@ -15,10 +15,10 @@ import { PopoverPage } from "./popover";
             </div>
         <div>
     `,
-    imports: [TranslateModule, ButtonComponent],
+    imports: [TranslateModule, Button],
     styleUrl: './popover.scss',
 })
-export class ConfirmPopoverComponent extends PopoverPage {
+export class ConfirmPopover extends PopoverPage {
 
     readonly title = signal('');
     readonly message = signal('');

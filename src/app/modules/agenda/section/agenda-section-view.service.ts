@@ -1,7 +1,7 @@
 import { inject, Injectable } from "@angular/core";
 import { Translation } from '@ngx-translate/core';
 import { Observable } from "rxjs";
-import { Icon } from "../../../shared/icon/icon";
+import { IconCode } from "../../../shared/icon/icon";
 import { CallingViewService } from "../../calling/calling-view.service";
 import { AgendaItemViewService } from "../../item/agenda-item-view.service";
 import { ViewService } from "../../shared/view.service";
@@ -15,7 +15,7 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
     
     readonly icon = 'center_vertical';
 
-    public readonly typeOptions: { type: AgendaSection.Type, label: Observable<Translation>, icon?: Icon}[] = [
+    public readonly typeOptions: { type: AgendaSection.Type, label: Observable<Translation>, icon?: IconCode}[] = [
         { type: 'text', icon: 'text_description', label: this.translate.stream('AGENDA_SECTION_TYPE.TEXT') },
         { type: 'callings', icon: this.callingView.icon, label: this.callingView.namePlural },
         { type: 'suggestions', icon: this.agendaItemView.suggestion.icon, label: this.agendaItemView.suggestion.namePlural },

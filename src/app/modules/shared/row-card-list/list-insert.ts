@@ -8,7 +8,7 @@ import type { Insert, TableName } from "../table.types";
     selector: 'app-list-insert',
     template: '',
 })
-export abstract class ListInsertComponent<T extends TableName, C = unknown> {
+export abstract class ListInsert<T extends TableName, C = unknown> {
     
     private readonly profileService = inject(ProfileService);
     

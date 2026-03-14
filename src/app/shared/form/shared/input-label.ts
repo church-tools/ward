@@ -1,10 +1,10 @@
 import { Component, model, signal } from '@angular/core';
-import { TooltipComponent } from '../../widget/tooltip/tooltip';
-import { Icon, IconComponent } from '../../icon/icon';
+import { Tooltip } from '../../widget/tooltip/tooltip';
+import { IconCode, Icon } from '../../icon/icon';
 
 @Component({
     selector: 'app-input-label',
-    imports: [IconComponent, TooltipComponent],
+    imports: [Icon, Tooltip],
     template: `
         @if (label()) {
             @if (icon()) { <app-icon [icon]="icon()!" filled size="sm"/> }
@@ -33,9 +33,9 @@ import { Icon, IconComponent } from '../../icon/icon';
         }
     `]
 })
-export default class InputLabelComponent {
+export default class InputLabel {
 
-    readonly icon = model<Icon | undefined>();
+    readonly icon = model<IconCode | undefined>();
     readonly label = model<string | undefined>();
     readonly required = model(false);
     readonly info = signal<string | undefined>(undefined);

@@ -1,12 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { MemberViewService } from '../../modules/member/member-view.service';
-import { SelectComponent } from "../../shared/form/select/select";
-import { SelectResultComponent } from "../../shared/form/select/select-result";
-import { TextInputComponent } from '../../shared/form/text/text-input';
+import { Select } from "../../shared/form/select/select";
+import { SelectResult } from "../../shared/form/select/select-result";
+import { TextInput } from '../../shared/form/text/text-input';
 import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
-import { RowHistoryComponent } from "../shared/row-history";
-import { RowPageComponent } from '../shared/row-page';
+import { RowHistory } from "../shared/row-history";
+import { RowPage } from '../shared/row-page';
 
 @Component({
     selector: 'app-member-page',
@@ -34,10 +34,10 @@ import { RowPageComponent } from '../shared/row-page';
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, TextInputComponent, RowHistoryComponent,
-    SyncedFieldDirective, SelectComponent, SelectResultComponent],
+    imports: [TranslateModule, TextInput, RowHistory,
+        SyncedFieldDirective, Select, SelectResult],
 })
-export class MemberPageComponent extends RowPageComponent<'member'> {
+export class MemberPage extends RowPage<'member'> {
 
     protected readonly memberView = inject(MemberViewService);
 

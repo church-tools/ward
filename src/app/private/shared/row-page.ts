@@ -7,7 +7,7 @@ import { SupabaseService } from '../../shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '../../shared/utils/signal-utils';
 import { SupaSyncedRow } from '../../shared/utils/supa-sync/supa-synced-row';
 import { RowPageService } from '../row-page.service';
-import { PrivatePageComponent } from './private-page';
+import { PrivatePage } from './private-page';
 
 @Component({
     selector: 'app-row-page',
@@ -16,7 +16,7 @@ import { PrivatePageComponent } from './private-page';
         class: "column gap-4",
     },
 })
-export abstract class RowPageComponent<T extends TableName> extends PrivatePageComponent implements OnInit, OnDestroy {
+export abstract class RowPage<T extends TableName> extends PrivatePage implements OnInit, OnDestroy {
     
     private readonly rowPageService = inject(RowPageService);
     protected readonly route = inject(ActivatedRoute);

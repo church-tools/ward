@@ -1,6 +1,6 @@
 import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 import { Agenda } from '../../../../modules/agenda/agenda';
-import { AgendaListRowComponent } from "../../../../modules/agenda/agenda-list-row";
+import { AgendaListRow } from "../../../../modules/agenda/agenda-list-row";
 import { AgendaItem } from '../../../../modules/item/agenda-item';
 import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
 import { SupabaseService } from "../../../../shared/service/supabase.service";
@@ -10,12 +10,12 @@ import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
     selector: 'app-agenda-drop-zone',
     templateUrl: './agenda-drop-zone.html',
     styleUrl: './agenda-drop-zone.scss',
-    imports: [AgendaListRowComponent],
+    imports: [AgendaListRow],
     host: {
         '[class.visible]': 'draggedAgendaItem()',
     }
 })
-export class AgendaDropZoneComponent implements OnDestroy {
+export class AgendaDropZone implements OnDestroy {
 
     private readonly supabase = inject(SupabaseService);
     private readonly dragDrop = inject(DragDropService);

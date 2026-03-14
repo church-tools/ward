@@ -12,7 +12,7 @@ const LANGUAGE_STORAGE_KEY = 'language';
 	imports: [RouterOutlet],
 	template: '<router-outlet/>',
 })
-export class AppComponent {
+export class App {
 
     public static supabase: SupabaseService | undefined;
     private readonly translate = inject(TranslateService);
@@ -22,7 +22,7 @@ export class AppComponent {
     constructor() {
         const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
         this.translate.use(browserLang);
-        AppComponent.supabase = inject(SupabaseService);
+        App.supabase = inject(SupabaseService);
 
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';

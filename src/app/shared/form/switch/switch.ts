@@ -1,13 +1,13 @@
 import { booleanAttribute, ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ColorName } from '../../utils/color-utils';
-import ErrorMessageComponent from '../../widget/error-message/error-message';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from '../shared/input-label';
+import ErrorMessage from '../../widget/error-message/error-message';
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from '../shared/input-label';
 
 @Component({
     selector: 'app-switch',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [InputLabelComponent, ErrorMessageComponent],
+    imports: [InputLabel, ErrorMessage],
     template: `
         <div class="column">
             <label class="items-center"
@@ -28,9 +28,9 @@ import InputLabelComponent from '../shared/input-label';
             <app-error-message/>
         </div>`,
     styleUrl: './switch.scss',
-    providers: getProviders(() => SwitchComponent)
+    providers: getProviders(() => Switch)
 })
-export default class SwitchComponent extends InputBaseComponent<boolean> {
+export default class Switch extends InputBase<boolean> {
 
     readonly color = input<ColorName>('accent');
     readonly forceLabelOnTop = input<boolean, unknown>(false, { transform: booleanAttribute });

@@ -1,16 +1,16 @@
 import { Component, computed, signal, viewChild } from '@angular/core';
 import { FormField, email, form, minLength, pattern, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { TextInputComponent } from '../../shared/form/text/text-input';
+import { TextInput } from '../../shared/form/text/text-input';
 
-export type Credentials = {
+export type CredentialInfo = {
 	email: string;
 	password: string;
 };
 
 @Component({
 	selector: 'app-credentials',
-	imports: [FormField, TextInputComponent, TranslateModule],
+	imports: [FormField, TextInput, TranslateModule],
 	template: `
 		<div class="column-grid">
 			<app-text-input #emailInput class="col-12"
@@ -31,14 +31,14 @@ export type Credentials = {
 		</div>
 	`,
 })
-export class CredentialsComponent {
+export class Credentials {
 
 	private static readonly SUPABASE_MIN_PASSWORD_LENGTH = 8;
 	private static readonly SUPABASE_SYMBOL_REGEX = /[!@#$%^&*()_+\-=\[\]{};':"\\|<>?,.\/`~]/;
 
-	private readonly emailInput = viewChild.required<TextInputComponent>('emailInput');
+	private readonly emailInput = viewChild.required<TextInput>('emailInput');
 
-	private readonly credentialsModel = signal<Credentials>({
+	private readonly credentialsModel = signal<CredentialInfo>({
 		email: '',
 		password: '',
 	});
@@ -47,16 +47,16 @@ export class CredentialsComponent {
 		required(credentials.email, { message: 'CREDENTIALS.ERROR_MSG.EMAIL_REQUIRED' });
 		email(credentials.email, { message: 'CREDENTIALS.ERROR_MSG.INVALID_EMAIL' });
 		required(credentials.password, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIRED' });
-		minLength(credentials.password, CredentialsComponent.SUPABASE_MIN_PASSWORD_LENGTH, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
+		minLength(credentials.password, Credentials.SUPABASE_MIN_PASSWORD_LENGTH, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 		pattern(credentials.password, /[a-z]/, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 		pattern(credentials.password, /[A-Z]/, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 		pattern(credentials.password, /\d/, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
-		pattern(credentials.password, CredentialsComponent.SUPABASE_SYMBOL_REGEX, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
+		pattern(credentials.password, Credentials.SUPABASE_SYMBOL_REGEX, { message: 'CREDENTIALS.ERROR_MSG.PASSWORD_REQUIREMENTS' });
 	});
 
 	readonly valid = computed(() => this.credentialsForm().valid());
 
-	getCredentials(): Credentials {
+	getCredentials(): CredentialInfo {
 		return this.credentialsModel();
 	}
 

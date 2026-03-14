@@ -6,7 +6,7 @@ export type IconPath = keyof typeof IconPathMap;
 
 export type IconSize = 'xs' | 'ns' | 'sm' | 'smaller' | 'md' | 'lg' | 'xl' | 'xxl' | 'xxxl' | 'xxxxl';
 
-export type Icon = keyof typeof iconCodes;
+export type IconCode = keyof typeof iconCodes;
 
 export enum IconPathMap {
     throbber = 'assets/img/throbber.svg',
@@ -24,9 +24,9 @@ export enum IconPathMap {
         '[class]': 'size()',
     },
 })
-export class IconComponent  {
+export class Icon {
     
-    readonly icon = input.required<Icon | IconPath>();
+    readonly icon = input.required<IconCode | IconPath>();
     readonly size = input<IconSize>('md');
     readonly filled = input<boolean, unknown>(false, { transform: booleanAttribute });
 
@@ -39,7 +39,7 @@ export class IconComponent  {
 
     protected readonly content = xcomputed([this.icon, this.filled], (icon, filled) => {
         if (icon in IconPathMap || !icon) return '';
-        const code = iconCodes[icon as Icon];
+        const code = iconCodes[icon as IconCode];
         return String.fromCodePoint(filled ? code - 1 : code);
     });
 }

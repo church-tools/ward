@@ -1,8 +1,8 @@
 import { Component, inject, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import AsyncButtonComponent from "../../form/button/async/async-button";
-import ButtonComponent from "../../form/button/button";
+import AsyncButton from "../../form/button/async/async-button";
+import Button from "../../form/button/button";
 import { FileStorageService } from "../../service/file-storage.service";
 import { download, downloadUrl, FileInfo, FileType, FileUrl, getEmbedUrl, openFileInfoInNewTab, viewedByService } from "../../utils/file-utils";
 import { asyncComputed, xcomputed } from "../../utils/signal-utils";
@@ -35,7 +35,7 @@ import { PopoverPage } from "./popover";
             }
         <div>
     `,
-    imports: [TranslateModule, ButtonComponent, AsyncButtonComponent],
+    imports: [TranslateModule, Button, AsyncButton],
     styleUrl: './popover.scss',
     styles: [`
         .title-bar {
@@ -58,7 +58,7 @@ import { PopoverPage } from "./popover";
         }
     `]
 })
-export class FilePopoverComponent extends PopoverPage {
+export class FilePopover extends PopoverPage {
 
     private readonly sanitizer = inject(DomSanitizer);
     private readonly fileStorage = inject(FileStorageService);

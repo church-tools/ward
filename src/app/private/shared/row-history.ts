@@ -28,7 +28,7 @@ import { xcomputed } from '../../shared/utils/signal-utils';
     `,
     imports: [DatePipe, TranslatePipe],
 })
-export class RowHistoryComponent<T extends TableName> {
+export class RowHistory<T extends TableName> {
 
     readonly row = input.required<Row<T> | null>();
 

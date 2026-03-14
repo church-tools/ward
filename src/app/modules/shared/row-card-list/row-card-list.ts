@@ -1,8 +1,8 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, output, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { Icon } from "../../../shared/icon/icon";
-import { PageComponent } from "../../../shared/page/page";
+import { IconCode } from "../../../shared/icon/icon";
+import { Page } from "../../../shared/page/page";
 import { SupabaseService } from "../../../shared/service/supabase.service";
 import { PromiseOrValue } from "../../../shared/types";
 import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "../../../shared/utils/signal-utils";
@@ -13,7 +13,7 @@ import { getViewService } from "../view.service";
 
 type RowTemplateContext<T extends TableName> = {
     $implicit: Row<T>;
-    page: PageComponent | undefined;
+    page: Page | undefined;
     onRemove: (row: Row<T>) => Promise<void>;
 }
 
@@ -31,7 +31,7 @@ type InsertTemplateContext<T extends TableName> = {
     templateUrl: './row-card-list.html',
     imports: [CommonModule, CardListComponent],
 })
-export class RowCardListComponent<T extends TableName> implements OnInit, OnDestroy {
+export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
 
     readonly injector = inject(Injector);
     private readonly router = inject(Router);
@@ -48,8 +48,8 @@ export class RowCardListComponent<T extends TableName> implements OnInit, OnDest
     readonly insertContext = input<unknown>(null);
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly activeId = input<number | null>(null);
-    readonly page = input<PageComponent>();
-    readonly emptyIcon = input<Icon | null>(null);
+    readonly page = input<Page>();
+    readonly emptyIcon = input<IconCode | null>(null);
     readonly rowClicked = input<(row: Row<T>) => void>();
 
     protected readonly cardListView = viewChild(CardListComponent<Row<T>, number>);

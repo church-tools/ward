@@ -1,74 +1,74 @@
-import { AppComponent } from "../app.component";
+import { App } from "../app.component";
 import type { Row, TableName } from "../modules/shared/table.types";
-import type { Icon } from "../shared/icon/icon";
+import type { IconCode } from "../shared/icon/icon";
 import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
-import type { PrivatePageComponent } from "./shared/private-page";
+import type { PrivatePage } from "./shared/private-page";
 
-export type PrivateTab = RouteObject<PrivatePageComponent> & {
+export type PrivateTab = RouteObject<PrivatePage> & {
     translateId: string;
-    icon: Icon;
+    icon: IconCode;
     onBottom?: boolean;
 };
 
 export const privateTabs: { [path: string]: PrivateTab } = {
     meetings: {
         translateId: 'MEETINGS', icon: 'comment_checkmark',
-        loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPageComponent),
+        loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPage),
         ':agenda_item': {
             insideParent: true,
-            loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
+            loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPage),
         },
         'agenda/:agenda': {
-            loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPageComponent),
+            loadComponent: () => import('./meetings/agenda/agenda-page').then(m => m.AgendaPage),
             settings: {
                 insideParent: true,
-                loadComponent: () => import('./meetings/agenda/settings/agenda-settings-page').then(m => m.AgendaSettingsPageComponent),
+                loadComponent: () => import('./meetings/agenda/settings/agenda-settings-page').then(m => m.AgendaSettingsPage),
             },
             'item/:agenda_item': {
                 insideParent: true,
-                loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPageComponent),
+                loadComponent: () => import('./meetings/agenda/item/agenda-item-page').then(m => m.AgendaItemPage),
             }
         },
     },
     members: {
         translateId: 'MEMBERS', icon: 'people_community',
-        loadComponent: () => import('./members/members-page').then(m => m.MembersPageComponent),
+        loadComponent: () => import('./members/members-page').then(m => m.MembersPage),
         ':member': {
             insideParent: true,
-            loadComponent: () => import('./members/member-page').then(m => m.MemberPageComponent),
+            loadComponent: () => import('./members/member-page').then(m => m.MemberPage),
         },
     },
     callings: {
         translateId: 'CALLINGS', icon: 'briefcase',
-        loadComponent: () => import('./callings/callings-page').then(m => m.CallingsPageComponent),
+        loadComponent: () => import('./callings/callings-page').then(m => m.CallingsPage),
         organizations: {
-            loadComponent: () => import('./callings/organizations/organizations-page').then(m => m.OrganizationsPageComponent),
+            loadComponent: () => import('./callings/organizations/organizations-page').then(m => m.OrganizationsPage),
             ':organization': {
                 insideParent: true,
-                loadComponent: () => import('./callings/organizations/organization-page').then(m => m.OrganizationPageComponent),
+                loadComponent: () => import('./callings/organizations/organization-page').then(m => m.OrganizationPage),
             }
         },
     },
     'church-service': {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
-        loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePageComponent)
+        loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePage)
     },
     users: {
         admin: true, onBottom: true,
         translateId: 'USERS', icon: 'person',
-        loadComponent: () => import('./users/users-page').then(m => m.UsersPageComponent),
+        loadComponent: () => import('./users/users-page').then(m => m.UsersPage),
         ':profile': {
             insideParent: true,
-            loadComponent: () => import('./users/user-page').then(m => m.UserPageComponent),
+            loadComponent: () => import('./users/user-page').then(m => m.UserPage),
         }
     },
 };
 
 export async function getPrivateRoutes() {
-    const session = await AppComponent.supabase?.getSession();
+    const session = await App.supabase?.getSession();
     return [{
         path: '',
-        loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShellComponent), 
+        loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShell), 
         children: mapRouteObject(privateTabs, session?.is_admin),
     }];
 }

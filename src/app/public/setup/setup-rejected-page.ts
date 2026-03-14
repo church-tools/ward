@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { IconComponent } from '../../shared/icon/icon';
-import { PageComponent } from '../../shared/page/page';
+import { Icon } from '../../shared/icon/icon';
+import { Page } from '../../shared/page/page';
 
 @Component({
     selector: 'app-setup-rejected-page',
@@ -12,9 +12,9 @@ import { PageComponent } from '../../shared/page/page';
             <app-icon icon="dismiss" size="xxxxl" filled class="accent-text"/>
         </div>
     `,
-    imports: [IconComponent, TranslateModule],
+    imports: [Icon, TranslateModule],
     host: { class: 'page portrait' },
 })
-export class SetupRejectedPageComponent extends PageComponent {
+export class SetupRejectedPage extends Page {
 
 }

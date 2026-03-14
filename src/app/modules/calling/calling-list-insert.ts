@@ -1,7 +1,7 @@
 import { Component, viewChild } from '@angular/core';
-import { TextInputComponent } from '../../shared/form/text/text-input';
+import { TextInput } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';
-import { ListInsertComponent } from '../shared/row-card-list/list-insert';
+import { ListInsert } from '../shared/row-card-list/list-insert';
 import { Calling } from './calling';
 
 @Component({
@@ -9,11 +9,11 @@ import { Calling } from './calling';
     template: `
         <app-text-input #name (onBlur)="submit()"/>
     `,
-    imports: [TextInputComponent],
+    imports: [TextInput],
 })
-export class CallingListInsertComponent extends ListInsertComponent<'calling'> {
+export class CallingListInsert extends ListInsert<'calling'> {
 
-    private readonly nameView = viewChild.required<TextInputComponent>('name');
+    private readonly nameView = viewChild.required<TextInput>('name');
 
     protected override getRowInfo(profile: Profile.Row) {
         const name = this.nameView().getValue();

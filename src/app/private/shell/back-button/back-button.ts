@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { IconComponent } from '../../../shared/icon/icon';
+import { Icon } from '../../../shared/icon/icon';
 
 @Component({
     selector: 'app-back-button',
@@ -10,11 +10,11 @@ import { IconComponent } from '../../../shared/icon/icon';
             <app-icon icon="arrow_left" size="sm"/>
         </a>
         `,
-    imports: [RouterModule, TranslateModule, IconComponent],
+    imports: [RouterModule, TranslateModule, Icon],
     host: { 'animate.leave': 'leave' },
     styleUrl: './back-button.scss',
 })
-export class BackButtonComponent {
+export class BackButton {
 
     readonly url = input.required<string>();
     

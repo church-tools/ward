@@ -1,16 +1,15 @@
-import { Component, inject, input } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { AgendaPage } from '../../../private/meetings/agenda/agenda-page';
 import { AdminService } from '../../../private/shared/admin.service';
-import ButtonComponent from '../../../shared/form/button/button';
-import { ListRowComponent } from '../../shared/row-card-list/list-row';
-import { Agenda } from '../agenda';
-import { AgendaSectionPrayerComponent } from "./variants/agenda-section-prayer";
-import { AgendaSectionResolutionsComponent } from './variants/agenda-section-resolutions';
-import { AgendaSectionSpiritualThoughtComponent } from "./variants/agenda-section-spiritual-thought";
-import { AgendaSectionSuggestionsComponent } from "./variants/agenda-section-suggestions";
-import { AgendaSectionTextComponent } from "./variants/agenda-section-text";
-import { AgendaSectionTopicsComponent } from "./variants/agenda-section-topics";
-import { AgendaPageComponent } from '../../../private/meetings/agenda/agenda-page';
+import Button from '../../../shared/form/button/button';
 import { xcomputed } from '../../../shared/utils/signal-utils';
+import { ListRow } from '../../shared/row-card-list/list-row';
+import { AgendaSectionPrayer } from "./variants/agenda-section-prayer";
+import { AgendaSectionResolutions } from './variants/agenda-section-resolutions';
+import { AgendaSectionSpiritualThought } from "./variants/agenda-section-spiritual-thought";
+import { AgendaSectionSuggestions } from "./variants/agenda-section-suggestions";
+import { AgendaSectionText } from "./variants/agenda-section-text";
+import { AgendaSectionTopics } from "./variants/agenda-section-topics";
 
 @Component({
     selector: 'app-agenda-section-list-row',
@@ -44,16 +43,16 @@ import { xcomputed } from '../../../shared/utils/signal-utils';
         </div>
     `,
     host: { class: 'full-width' },
-    imports: [AgendaSectionTextComponent, AgendaSectionPrayerComponent, AgendaSectionTopicsComponent,
-        AgendaSectionResolutionsComponent, AgendaSectionSuggestionsComponent, ButtonComponent,
-        AgendaSectionSpiritualThoughtComponent],
+    imports: [AgendaSectionText, AgendaSectionPrayer, AgendaSectionTopics,
+        AgendaSectionResolutions, AgendaSectionSuggestions, Button,
+        AgendaSectionSpiritualThought],
 })
-export class AgendaSectionListRowComponent extends ListRowComponent<'agenda_section'> {
+export class AgendaSectionListRow extends ListRow<'agenda_section'> {
 
     protected readonly adminService = inject(AdminService);
 
     protected readonly agenda = xcomputed([this.page],
-        page => (page as AgendaPageComponent).syncedRow.value())
+        page => (page as AgendaPage).syncedRow.value())
 
     remove() {
         return this.onRemove()?.(this.row());

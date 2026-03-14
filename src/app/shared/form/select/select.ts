@@ -4,15 +4,15 @@ import { booleanAttribute, Component, ContentChild, ElementRef, inject, input, m
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { AnchoredPopoverComponent, PopoverPosition } from '../anchored-popover/anchored-popover';
-import { IconComponent } from "../../icon/icon";
+import { Icon } from "../../icon/icon";
 import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
 import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from "../shared/input-label";
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from "../shared/input-label";
 
 export type SelectOption<T> = {
     value: T;
@@ -51,12 +51,12 @@ type SelectValueTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [TranslateModule, InputLabelComponent, IconComponent, NgTemplateOutlet, AnchoredPopoverComponent],
+    imports: [TranslateModule, InputLabel, Icon, NgTemplateOutlet, AnchoredPopoverComponent],
     templateUrl: './select.html',
     styleUrl: './select.scss',
-    providers: getProviders(() => SelectComponent),
+    providers: getProviders(() => Select),
 })
-export class SelectComponent<T> extends InputBaseComponent<T> implements OnDestroy {
+export class Select<T> extends InputBase<T> implements OnDestroy {
 
     private readonly windowService = inject(WindowService);
     private readonly translateService = inject(TranslateService);

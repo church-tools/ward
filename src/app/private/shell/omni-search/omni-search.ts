@@ -4,8 +4,8 @@ import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import type { Row } from '../../../modules/shared/table.types';
 import { getViewService } from '../../../modules/shared/view.service';
-import { SelectComponent } from '../../../shared/form/select/select';
-import { IconComponent } from "../../../shared/icon/icon";
+import { Select } from '../../../shared/form/select/select';
+import { Icon } from "../../../shared/icon/icon";
 import { SupabaseService } from '../../../shared/service/supabase.service';
 import { WindowService } from '../../../shared/service/window.service';
 import { getRowRoute, TableRow } from '../../private.routes';
@@ -27,7 +27,7 @@ type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<
             <app-icon icon="search" size="sm"/>
         </app-select>
     `,
-    imports: [TranslateModule, SelectComponent, IconComponent],
+    imports: [TranslateModule, Select, Icon],
     styleUrl: './omni-search.scss',
 })
 export class OmniSearchComponent implements OnDestroy {
@@ -43,7 +43,7 @@ export class OmniSearchComponent implements OnDestroy {
         agenda_item: () => this.supabase.sync.from('agenda_item').find(),
     } as const;
     private readonly searchedTables = signal<Set<SearchedTableName>>(new Set(['member', 'agenda_item']));
-    protected readonly select = viewChild.required(SelectComponent<SearchValue<SearchedTableName>>);
+    protected readonly select = viewChild.required(Select<SearchValue<SearchedTableName>>);
     private readonly keySubscription: Subscription;
 
     constructor() {

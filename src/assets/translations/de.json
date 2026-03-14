@@ -57,6 +57,9 @@
     "MESSAGE": "Diese Seite existiert (noch?) nicht",
     "GO_HOME": "Zur Startseite"
   },
+  "BULLETIN_BOARD": {
+    "TITLE": "Schwarzes Brett"
+  },
   "NAV_BAR_TAB": {
     "MEETINGS": "Sitzungen",
     "MEMBERS": "Mitglieder",

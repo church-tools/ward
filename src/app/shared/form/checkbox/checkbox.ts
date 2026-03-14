@@ -1,13 +1,13 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import { ColorName } from '../../utils/color-utils';
-import ErrorMessageComponent from '../../widget/error-message/error-message';
-import { getProviders, InputBaseComponent } from '../shared/input-base';
-import InputLabelComponent from '../shared/input-label';
+import ErrorMessage from '../../widget/error-message/error-message';
+import { getProviders, InputBase } from '../shared/input-base';
+import InputLabel from '../shared/input-label';
 
 @Component({
     selector: 'app-checkbox',
     changeDetection: ChangeDetectionStrategy.OnPush,
-    imports: [InputLabelComponent, ErrorMessageComponent],
+    imports: [InputLabel, ErrorMessage],
     template: `
         <div class="column">
             <label class="row reverse no-wrap items-center"
@@ -26,9 +26,9 @@ import InputLabelComponent from '../shared/input-label';
             <app-error-message/>
         </div>`,
     styleUrl: './checkbox.scss',
-    providers: getProviders(() => CheckboxComponent)
+    providers: getProviders(() => Checkbox)
 })
-export default class CheckboxComponent extends InputBaseComponent<boolean> {
+export default class Checkbox extends InputBase<boolean> {
 
     readonly color = input<ColorName>('accent');
     readonly labelSide = input<'left' | 'right'>('right');

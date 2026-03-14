@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
-import { RichTextComponent } from '../shared/form/rich-text/rich-text';
-import { PageComponent } from '../shared/page/page';
+import { RichText } from '../shared/form/rich-text/rich-text';
+import { Page } from '../shared/page/page';
 import { PALETTE_COLORS } from '../shared/utils/color-utils';
 
 @Component({
@@ -29,10 +29,10 @@ import { PALETTE_COLORS } from '../shared/utils/color-utils';
         </p>
             
     `,
-    imports: [RichTextComponent],
+    imports: [RichText],
     host: { class: 'page narrow' },
 })
-export class TestComponent extends PageComponent {
+export class Test extends Page {
 
     protected readonly markdownContent = signal('**Bold text** and _italic text_\n\n## Heading 2\n\n- List item 1\n- List item 2');
 

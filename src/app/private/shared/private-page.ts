@@ -1,5 +1,5 @@
 import { Component, inject, OnDestroy } from '@angular/core';
-import { PageComponent } from '../../shared/page/page';
+import { Page } from '../../shared/page/page';
 import { WindowService } from '../../shared/service/window.service';
 import { PopoverService } from '../../shared/widget/popover/popover.service';
 import { AdminService } from './admin.service';
@@ -8,7 +8,7 @@ import { AdminService } from './admin.service';
     selector: 'app-private-page',
     template: ``,
 })
-export abstract class PrivatePageComponent extends PageComponent implements OnDestroy {
+export abstract class PrivatePage extends Page implements OnDestroy {
     
     protected readonly adminService = inject(AdminService);
     protected readonly windowService = inject(WindowService);

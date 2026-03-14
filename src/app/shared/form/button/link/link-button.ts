@@ -1,12 +1,12 @@
 import { booleanAttribute, Component, DOCUMENT, inject, input, OnDestroy } from "@angular/core";
 import { Params, Router, RouterModule } from "@angular/router";
-import { IconComponent } from "../../../icon/icon";
+import { Icon } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
-import ButtonBaseComponent from "../shared/button-base";
+import ButtonBase from "../shared/button-base";
 
 @Component({
     selector: 'app-link-button',
-    imports: [RouterModule, IconComponent],
+    imports: [RouterModule, Icon],
     template: `
         @if (outside()) {
             <a [href]="href()" type="button"
@@ -42,7 +42,7 @@ import ButtonBaseComponent from "../shared/button-base";
     `,
     styleUrl: './link-button.scss',
 })
-export default class LinkButtonComponent extends ButtonBaseComponent implements OnDestroy {
+export default class LinkButton extends ButtonBase implements OnDestroy {
 
     private readonly router = inject(Router);
     private readonly document = inject<Document>(DOCUMENT);

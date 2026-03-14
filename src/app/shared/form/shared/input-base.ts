@@ -1,15 +1,15 @@
 import { Component, ElementRef, ForwardRefFn, booleanAttribute, forwardRef, inject, input, model, output, signal, viewChild } from "@angular/core";
 import { ValidationError } from "@angular/forms/signals";
-import { Icon } from "../../icon/icon";
+import { IconCode } from "../../icon/icon";
 import { PromiseOrValue } from "../../types";
 import { xeffect } from "../../utils/signal-utils";
 import { HasFormValueControl } from "../../utils/supa-sync/synced-field.directive";
-import ErrorMessageComponent from "../../widget/error-message/error-message";
-import InputLabelComponent from "./input-label";
+import ErrorMessage from "../../widget/error-message/error-message";
+import InputLabel from "./input-label";
 
 export function getProviders(forwardRefFn: ForwardRefFn) {
     return [
-        { provide: InputBaseComponent, useExisting: forwardRef(forwardRefFn) },
+        { provide: InputBase, useExisting: forwardRef(forwardRefFn) },
         { provide: HasFormValueControl, useExisting: forwardRef(forwardRefFn) },
     ]
 }
@@ -23,14 +23,14 @@ export function getProviders(forwardRefFn: ForwardRefFn) {
         '(focusout)': 'onHostFocusOut($event)',
     },
 })
-export class InputBaseComponent<TIn, TOut = TIn> extends HasFormValueControl<TOut | null> {
+export class InputBase<TIn, TOut = TIn> extends HasFormValueControl<TOut | null> {
 
     private readonly host = inject(ElementRef<HTMLElement>);
-    private readonly labelView = viewChild(InputLabelComponent);
-    protected readonly errorView = viewChild(ErrorMessageComponent);
+    private readonly labelView = viewChild(InputLabel);
+    protected readonly errorView = viewChild(ErrorMessage);
 
     readonly label = model<string | undefined>();
-    readonly labelIcon = input<Icon | undefined>();
+    readonly labelIcon = input<IconCode | undefined>();
     readonly info = input<string | undefined>();
     readonly placeholder = input<string>('');
     readonly required = input<boolean>(false);

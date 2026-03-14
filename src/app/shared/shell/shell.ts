@@ -14,7 +14,7 @@ import { WindowService } from '../service/window.service';
         '[class.narrow]': 'windowService.isSmall()',
     }
 })
-export abstract class ShellComponent implements AfterViewInit {
+export abstract class Shell implements AfterViewInit {
 
     protected readonly profileService = inject(ProfileService);
     protected readonly windowService = inject(WindowService);

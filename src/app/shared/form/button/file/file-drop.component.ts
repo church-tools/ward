@@ -12,7 +12,7 @@ import { ChangeDetectionStrategy, Component, ElementRef, input, output, signal, 
     host: { '[class.drag-hovered]': "dragHover()" },
     styleUrl: './file-drop.component.scss'
 })
-export default class FileDropComponent {
+export default class FileDrop {
 
     private readonly fileInput = viewChild.required('fileInput', { read: ElementRef });
     

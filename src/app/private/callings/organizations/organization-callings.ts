@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { CallingListInsertComponent } from '../../../modules/calling/calling-list-insert';
-import { CallingListRowComponent } from '../../../modules/calling/calling-list-row';
-import { RowCardListComponent } from '../../../modules/shared/row-card-list/row-card-list';
+import { CallingListInsert } from '../../../modules/calling/calling-list-insert';
+import { CallingListRow } from '../../../modules/calling/calling-list-row';
+import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
 import { Insert, Table } from '../../../modules/shared/table.types';
 import { WindowService } from '../../../shared/service/window.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
@@ -33,10 +33,10 @@ import { AdminService } from '../../shared/admin.service';
 			</app-row-card-list>
 		</div>
 	`,
-	imports: [TranslateModule, RowCardListComponent, CallingListRowComponent, CallingListInsertComponent],
+	imports: [TranslateModule, RowCardList, CallingListRow, CallingListInsert],
 	host: { class: 'full-width' },
 })
-export class OrganizationCallingsComponent {
+export class OrganizationCallings {
 
     protected readonly windowService = inject(WindowService);
     protected readonly adminService = inject(AdminService);

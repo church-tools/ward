@@ -1,20 +1,20 @@
 import { Component, input, output, signal, viewChild } from "@angular/core";
-import { Icon, IconComponent } from "../../../icon/icon";
+import { IconCode, Icon } from "../../../icon/icon";
 import { xcomputed } from "../../../utils/signal-utils";
-import ButtonBaseComponent from "../shared/button-base";
-import FileDropComponent from "./file-drop.component";
+import ButtonBase from "../shared/button-base";
+import FileDrop from "./file-drop.component";
 
 @Component({
     selector: 'app-file-button',
-    imports: [IconComponent, FileDropComponent],
+    imports: [Icon, FileDrop],
     templateUrl: './file-button.html',
     styleUrl: './file-button.scss'
 })
-export default class FileButtonComponent extends ButtonBaseComponent {
+export default class FileButton extends ButtonBase {
 
-    private readonly fileDrop = viewChild(FileDropComponent);
+    private readonly fileDrop = viewChild(FileDrop);
     
-    override readonly icon = input<Icon | undefined>('folder_arrow_up');
+    override readonly icon = input<IconCode | undefined>('folder_arrow_up');
     readonly description = input('Dateien hochladen');
     readonly accept = input<string>(); // Filetypes to accept
     readonly capture = input<string>();

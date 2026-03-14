@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { AppComponent } from '../../app.component';
+import { App } from '../../app.component';
 import MenuButtonComponent from '../form/button/menu/menu-button';
 
 @Component({
@@ -30,7 +30,7 @@ import MenuButtonComponent from '../form/button/menu/menu-button';
         }
     `],
 })
-export class LanguageSelectComponent {
+export class LanguageSelect {
 
     private readonly translateService = inject(TranslateService);
 
@@ -51,6 +51,6 @@ export class LanguageSelectComponent {
     protected setLanguage = (lang: string) => {
         this.translateService.use(lang);
         this.activeLanguage.set(lang);
-        AppComponent.saveLanguage(lang);
+        App.saveLanguage(lang);
     };
 }
