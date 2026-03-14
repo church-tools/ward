@@ -237,6 +237,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 for (const row of rows)
                     row[idKey] ??= getRandomId();
             }
+            for (const row of rows)
+                row.__new = true;
             const rowsWithCalculatedValues = await this.addCalculatedValues(rows);
             this._storeAdapter.writeMany(rowsWithCalculatedValues as Insert<D, T>[]);
             await this.writePending(rows);
@@ -367,7 +369,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             }
             const sendUpdates = Array.from(pendingById.values());
             for (const update of sendUpdates) delete update.__index;
-            const sent = await this.trySend(sendUpdates);
+            const sent = await this.trySendPending(sendUpdates);
             if (!sent) {
                 setTimeout(() => this.sendPending(iteration + 1), Math.min(iteration * 3000, 15000));
                 return;
@@ -376,20 +378,23 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         });
     }
 
-    private async trySend(rows: PendingUpdate<D, T>[]): Promise<boolean> {
+    private async trySendPending(rows: PendingUpdate<D, T>[]): Promise<boolean> {
         if (!rows.length) return true;
         if (!this.onlineState.unsafeGet()) return false;
         try {
             const { matched: inserts, unmatched: updates } = classifyArray<Insert<D, T>, Update<D, T>>(rows, row => {
                 const isNew = row.__new;
-                if (isNew) delete row.__new;
+                if (isNew) {
+                    delete row.__new;
+                    row[this.deletedKey] = false;
+                }
                 delete row.__index;
                 delete row._calculated;
                 if (this.hasCompositeKeys && 'id' in row) delete row.id;
                 return isNew;
             });
             await Promise.all([
-                inserts.length ? this.supabaseClient.from(this.name).insert(inserts)
+                inserts.length ? this.supabaseClient.from(this.name).upsert(inserts)
                     .select([...this.idKeys, this.updatedAtKey].join(',')).throwOnError().then(async ({ data }) => {
                         if (!data?.length) return
                         const insertedById = Object.fromEntries(data.map(row => [this.getId(row), row]));
