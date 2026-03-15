@@ -1,6 +1,6 @@
-import { BadRequestError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { BadRequestError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runAuthenticatedFunction<{ key?: string; method?: string }>(async req => {
+export const onRequest = runFunction<{ key?: string; method?: string }>(async req => {
     const { session } = req;
     if (!session.unit)
         throw new BadRequestError("session.unit missing");

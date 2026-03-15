@@ -49,6 +49,10 @@ export class FunctionsService {
         return this.call<{ url: FileUrl }>('presign-file-access', { key, method });
     }
 
+    listPosters(key: string) {
+        return this.call<{ posters: any[] }>('list-posters', { key });
+    }
+
     private async call<T>(fn: string, body?: Record<string, unknown>, file?: File): Promise<T> {
         const session = await this.supabase.getSessionToken();
         const accessToken = session?.access_token;

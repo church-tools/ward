@@ -1,6 +1,8 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Page } from '../../shared/page/page';
+import { FunctionsService } from '../../shared/service/functions.service';
 
 @Component({
     selector: 'app-bulletin-board-page',
@@ -12,4 +14,13 @@ import { Page } from '../../shared/page/page';
 })
 export class BulletinBoardPage extends Page {
 
+    private readonly route = inject(ActivatedRoute);
+    private readonly functions = inject(FunctionsService);
+
+    async ngOnInit() {
+        const key = this.route.snapshot.queryParamMap.get('key') ?? localStorage.getItem('BULLETIN_BOARD_KEY');
+        if (!key) return;
+        const posters = await this.functions.listPosters(key);
+        console.log(posters);
+    }
 }

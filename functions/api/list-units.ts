@@ -1,6 +1,6 @@
-import { getSupabaseService, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runAuthenticatedFunction(async req => {
+export const onRequest = runFunction(async req => {
     const { user } = req;
 
     // Check email confirmed

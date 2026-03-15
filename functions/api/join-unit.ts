@@ -1,6 +1,6 @@
-import { BadRequestError, getSupabaseService, NotFoundError, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { BadRequestError, getSupabaseService, NotFoundError, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runAuthenticatedFunction<{ unit_id: number }>(async req => {
+export const onRequest = runFunction<{ unit_id: number }>(async req => {
 
     const { params: { unit_id }, user } = req;
     if (!unit_id)

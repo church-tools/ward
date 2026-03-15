@@ -4,4 +4,6 @@ export namespace MemberCalling {
     export type Insert = Table.Insert<"member_calling">;
     export type Update = Table.Update<"member_calling">;
     export type Row = Table.Row<"member_calling">;
+
+    export type State = Table.Row<"member_calling">["state"];
 }

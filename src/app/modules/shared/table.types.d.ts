@@ -2,9 +2,11 @@ import type { Database } from "../../../../database";
 import type { IDBQueryBase } from "../../shared/utils/supa-sync/idb/idb-query-base";
 import type { SupaSyncTable } from "../../shared/utils/supa-sync/supa-sync-table";
 import type { LocalRow, SupaSyncCalculatedMap } from "../../shared/utils/supa-sync/supa-sync.types";
+import type { CallingCalculatedValues } from "../calling/calling-calculated";
 import type { MemberCallingCalculatedValues } from "../member-calling/member-calling-calculated";
 
 export type CalculatedMap = SupaSyncCalculatedMap<Database, {
+    calling: CallingCalculatedValues;
     member_calling: MemberCallingCalculatedValues;
 }>;
 export type TableName = keyof Database["public"]["Tables"];

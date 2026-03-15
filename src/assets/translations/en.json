@@ -119,6 +119,19 @@
     "NICK_NAME": "Nickname",
     "LAST_NAME": "Last Name"
   },
+  "MEMBER_CALLING_PAGE": {
+    "STATE": {
+      "PROPOSED": "Proposed",
+      "DECIDED": "Decided",
+      "ACCEPTED": "Accepted",
+      "REJECTED": "Rejected",
+      "SUSTAINED": "Sustained",
+      "SET_APART": "Set Apart",
+      "RELEASE_PROPOSED": "Release Proposed",
+      "RELEASE_ISSUED": "Release Issued",
+      "RELEASE_SUSTAINED": "Release Sustained"
+    }
+  },
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organizations"
   },
@@ -202,6 +215,7 @@
     "6": "Saturday"
   },
   "OR": "or",
+  "STATE": "State",
   "NOTES": "Notes",
   "DELETE": "Delete",
   "CONFIRM_DELETE": "Confirm Delete?",

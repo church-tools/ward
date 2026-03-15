@@ -41,7 +41,7 @@ export class CallingListRow extends ListRow<'calling'> {
 	protected readonly mapMemberCallingInsert = (callingId: number, memberId: number): Insert<'member_calling'> => ({
 		calling: callingId,
 		member: memberId,
+		state: 'set_apart',
 		unit: this.row().unit,
-		state: 'proposed',
 	});
 }

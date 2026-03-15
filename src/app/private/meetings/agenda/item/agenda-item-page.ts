@@ -1,10 +1,10 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButton from '../../../../shared/form/button/async/async-button';
 import FileInput from '../../../../shared/form/file/file-input';
 import { RichText } from "../../../../shared/form/rich-text/rich-text";
 import { Textarea } from '../../../../shared/form/text/textarea';
 import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
+import { RowDeleteButton } from "../../../shared/row-delete-button";
 import { RowHistory } from "../../../shared/row-history";
 import { RowPage } from '../../../shared/row-page';
 
@@ -17,24 +17,16 @@ import { RowPage } from '../../../shared/row-page';
         <!-- <app-row-select [syncedRow]="syncedRow" column="assigned_to" name="assigned_to"
             table="profiles" [multiple]="true"/> -->
         <div class="row end-content mt-auto">
-            <app-async-button type="secondary" icon="delete"
-                [onClick]="deleteItem">
-                {{ 'DELETE' | translate }}
-            </app-async-button>
+            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
         </div>
         <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, Textarea, RichText, RowHistory, SyncedFieldDirective,
-        FileInput, AsyncButton],
+    imports: [TranslateModule, Textarea, RichText, RowHistory,
+        SyncedFieldDirective, FileInput, RowDeleteButton],
 })
 export class AgendaItemPage extends RowPage<'agenda_item'> {
 
     protected readonly tableName = 'agenda_item';
 
-    protected deleteItem = async () => {
-        const row = this.syncedRow.value();
-        await this.syncedRow.write({ deleted: true });
-        this.router.navigate([`meetings/agenda/${row?.agenda}`]);
-    };
 }

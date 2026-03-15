@@ -1,6 +1,6 @@
-import { BadRequestError, getSupabaseService, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { BadRequestError, getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runAuthenticatedFunction<{ unit_id: number; approved: boolean }>(async req => {
+export const onRequest = runFunction<{ unit_id: number; approved: boolean }>(async req => {
 
     const { unit_id, approved } = req.params;
     if (!unit_id || typeof approved !== "boolean")

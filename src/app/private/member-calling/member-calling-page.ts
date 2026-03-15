@@ -1,9 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
+import { MemberCallingViewService } from '../../modules/member-calling/member-calling-view.service';
 import { MemberViewService } from '../../modules/member/member-view.service';
 import { RichText } from "../../shared/form/rich-text/rich-text";
 import { RowSelect } from "../../shared/form/row-select/row-select";
+import { Select } from "../../shared/form/select/select";
 import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
+import { RowDeleteButton } from "../shared/row-delete-button";
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
 
@@ -14,6 +17,11 @@ import { RowPage } from '../shared/row-page';
             {{ syncedRow.value()?._calculated?.memberName }} • {{ syncedRow.value()?._calculated?.callingName }}
         </h1>
         <div class="column-grid">
+            <div class="col-12">
+                <app-select class="col-md-6" [syncedRow]="syncedRow" column="state"
+                    [options]="memberCallingView.stateOptions" translateOptions name="state"
+                    label="{{ 'STATE' | translate }}"/>
+            </div>
             <app-row-select class="col-md-6" [syncedRow]="syncedRow" column="member"
                 table="member" label="{{ 'VIEW.MEMBER' | translate }}" name="member"/>
             <app-row-select class="col-md-6" [syncedRow]="syncedRow" column="calling"
@@ -21,15 +29,18 @@ import { RowPage } from '../shared/row-page';
             <app-rich-text class="col-12" [syncedRow]="syncedRow" column="notes" name="notes"
                 label="{{ 'NOTES' | translate }}" rows="5"/>
         </div>
-        <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
+        <div class="row end-content mt-auto">
+            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
+        </div>
+        <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, RowHistory, RowSelect, SyncedFieldDirective, RichText],
+    imports: [TranslateModule, RowHistory, RowSelect, SyncedFieldDirective, RichText, RowDeleteButton, Select],
 })
 export class MemberCallingPage extends RowPage<'member_calling'> {
 
     protected readonly memberView = inject(MemberViewService);
+    protected readonly memberCallingView = inject(MemberCallingViewService);
 
     protected readonly tableName = 'member_calling';
-    
 }

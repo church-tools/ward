@@ -12,8 +12,8 @@ export type FunctionRequest<P> = Request & { env: Env; params: P };
 export type AuthenticatedFunctionRequest<P> = FunctionRequest<P> & { user: User; session: SupabaseSession };
 export type Env = Context["env"] & Record<string, string>;
 
-export function runAuthenticatedFunction<P extends object, R extends object = any>(fn: (req: AuthenticatedFunctionRequest<P>) => Promise<R>) {
-    return runFunction(fn as (req: FunctionRequest<P>) => Promise<R>, async context => {
+export function runFunction<P extends object, R extends object = any>(fn: (req: AuthenticatedFunctionRequest<P>) => Promise<R>) {
+    return runUnauthenticatedFunction(fn as (req: FunctionRequest<P>) => Promise<R>, async context => {
         const { user, session } = await authenticateRequest(context);
         const request = context.request as AuthenticatedFunctionRequest<P>;
         request.user = user;
@@ -21,7 +21,7 @@ export function runAuthenticatedFunction<P extends object, R extends object = an
     });
 }
 
-export function runFunction<P extends object, R extends object = any>(
+export function runUnauthenticatedFunction<P extends object, R extends object = any>(
     fn: (req: FunctionRequest<P>) => Promise<R>,
     authenticate?: (context: Context) => Promise<void>
 ) {

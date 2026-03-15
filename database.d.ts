@@ -414,6 +414,7 @@ export type Database = {
           deleted: boolean
           member: number
           notes: string | null
+          responsible: number | null
           state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at: string
@@ -424,6 +425,7 @@ export type Database = {
           deleted?: boolean
           member: number
           notes?: string | null
+          responsible?: number | null
           state: Database["public"]["Enums"]["member_calling_state"]
           unit: number
           updated_at?: string
@@ -434,11 +436,19 @@ export type Database = {
           deleted?: boolean
           member?: number
           notes?: string | null
+          responsible?: number | null
           state?: Database["public"]["Enums"]["member_calling_state"]
           unit?: number
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "member_calling_responsible_unit_fkey"
+            columns: ["responsible", "unit"]
+            isOneToOne: false
+            referencedRelation: "profile"
+            referencedColumns: ["id", "unit"]
+          },
           {
             foreignKeyName: "member_calling_unit_calling_fkey"
             columns: ["unit", "calling"]
@@ -545,6 +555,45 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "organization_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      poster: {
+        Row: {
+          files: string[]
+          id: number
+          organization: number | null
+          unit: number
+          updated_at: string
+        }
+        Insert: {
+          files: string[]
+          id?: number
+          organization?: number | null
+          unit: number
+          updated_at?: string
+        }
+        Update: {
+          files?: string[]
+          id?: number
+          organization?: number | null
+          unit?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "poster_organization_unit_fkey"
+            columns: ["organization", "unit"]
+            isOneToOne: false
+            referencedRelation: "organization"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "poster_unit_fkey"
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "unit"
@@ -688,6 +737,7 @@ export type Database = {
       unit: {
         Row: {
           approved: boolean | null
+          bulletin_board_key: string
           created_by: string
           id: number
           invitation_issue_date: string | null
@@ -698,6 +748,7 @@ export type Database = {
         }
         Insert: {
           approved?: boolean | null
+          bulletin_board_key?: string
           created_by: string
           id?: number
           invitation_issue_date?: string | null
@@ -708,6 +759,7 @@ export type Database = {
         }
         Update: {
           approved?: boolean | null
+          bulletin_board_key?: string
           created_by?: string
           id?: number
           invitation_issue_date?: string | null
@@ -779,8 +831,12 @@ export type Database = {
         | "proposed"
         | "decided"
         | "accepted"
-        | "confirmed"
+        | "rejected"
+        | "sustained"
         | "set_apart"
+        | "release_proposed"
+        | "release_issued"
+        | "release_sustained"
       organization_type:
         | "bishopric"
         | "relief_society"
@@ -1019,8 +1075,12 @@ export const Constants = {
         "proposed",
         "decided",
         "accepted",
-        "confirmed",
+        "rejected",
+        "sustained",
         "set_apart",
+        "release_proposed",
+        "release_issued",
+        "release_sustained",
       ],
       organization_type: [
         "bishopric",

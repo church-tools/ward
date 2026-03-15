@@ -5,9 +5,10 @@ import { environment } from '../../../environments/environment';
 import { AgendaViewService } from '../../modules/agenda/agenda-view.service';
 import { CallingViewService } from '../../modules/calling/calling-view.service';
 import { AgendaItemViewService } from '../../modules/item/agenda-item-view.service';
-import { MemberViewService } from '../../modules/member/member-view.service';
 import { MemberCallingCalculated } from '../../modules/member-calling/member-calling-calculated';
 import { MemberCallingViewService } from '../../modules/member-calling/member-calling-view.service';
+import { MemberCalculated } from '../../modules/member/member-calculated';
+import { MemberViewService } from '../../modules/member/member-view.service';
 import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 import { ProfileViewService } from '../../modules/profile/profile-view.service';
 import type { CalculatedMap, TableInfoAdditions, TableName } from '../../modules/shared/table.types';
@@ -37,6 +38,7 @@ export class SupabaseService {
             indexed: { agenda: Number, type: String, assigned_to: Number },
             getSummaryString: inject(AgendaItemViewService).toString },
         calling: { orderKey: 'position', indexed: { organization: Number },
+            calculated: MemberCalculated,
             getSummaryString: inject(CallingViewService).toString },
         member: { indexed: { profile: Number },
             getSummaryString: inject(MemberViewService).toString },

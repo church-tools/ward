@@ -8,7 +8,8 @@ import { MemberViewService } from './member-view.service';
     template: `
         <div class="row m-4">
             <h4>
-                <app-select-result [optionsByValue]="memberView.salutationOptionsByGender" [value]="row().gender" translateOptions/>
+                <app-select-result [optionsByValue]="memberView.salutationOptionsByGender"
+                    [value]="row().gender" translateOptions/>
                 {{ memberView.toString(row()) }}
             </h4>
         </div>

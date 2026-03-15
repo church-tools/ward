@@ -20,7 +20,9 @@ export const publicRoutes: Routes = [{
     loadComponent: () => import('./shell/public-shell').then(m => m.PublicShell),
     children: [
         ...mapRouteObject(publicTabs),
-        { path: '', redirectTo: 'login', pathMatch: 'full' },
+        localStorage.getItem('BULLETIN_BOARD_KEY')
+            ? { path: '', redirectTo: 'bulletin-board', pathMatch: 'full' }
+            : { path: '', redirectTo: 'login', pathMatch: 'full' },
         { path: '**', redirectTo: 'not-found' }
     ],
     pathMatch: 'prefix' 

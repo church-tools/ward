@@ -12,24 +12,30 @@
         gap: 0.125rem;
         width: auto;
         min-height: 2rem;
-        transition: opacity animation.$duration-xs animation.$ease-out;
+        transition: opacity animation.$duration-sm animation.$ease-out,
+            translate animation.$duration-xs animation.$ease-out,
+            background-color animation.$duration-sm ease;
         opacity: 1;
+        translate: 0;
         @starting-style {
             opacity: 0;
+            translate: 0 input.$padding-y;
         }
 
         &.clickable {
             cursor: pointer;
+            min-height: 1.75rem;
+            margin: calc(input.$padding-y / 2) 0;
             // background-color: card.$hover-background-transparent-color;
             background-color: input.$border-color-transparent;
             border-radius: input.$border-radius;
             &:focus, &:hover {
-                background-color: card.$hover-background-transparent-color;
+                background-color: input.$border-color;
                 @include card.vibrant(300%);
             }
             &:active, &.active {
                 scale: button.$active-scale;
-                background-color: card.$active-background-transparent-color;
+                background-color: input.$border-color-transparent;
                 @include card.vibrant(400%);
             }
         }

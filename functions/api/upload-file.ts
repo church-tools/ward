@@ -1,8 +1,8 @@
-import { BadRequestError, getS3Client, PayloadTooLargeError, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { BadRequestError, getS3Client, PayloadTooLargeError, PermissionError, runFunction } from "../shared/functions-utils";
 
 const MAX_UPLOAD_BYTES_CAP = 10_000_000;
 
-export const onRequest = runAuthenticatedFunction<{ key?: string }>(async req => {
+export const onRequest = runFunction<{ key?: string }>(async req => {
     const { session } = req;
     if (!session.unit)
         throw new BadRequestError("session.unit missing");

@@ -121,6 +121,19 @@
     "BROTHER_SHORT": "Brd.",
     "SISTER_SHORT": "Schw."
   },
+  "MEMBER_CALLING_PAGE": {
+    "STATE": {
+      "PROPOSED": "Vorgeschlagen",
+      "DECIDED": "Beschlossen",
+      "ACCEPTED": "Angenommen",
+      "REJECTED": "Abgelehnt",
+      "SUSTAINED": "Bestätigt",
+      "SET_APART": "Eingesetzt",
+      "RELEASE_PROPOSED": "Entlassung vorgeschlagen",
+      "RELEASE_ISSUED": "Entlassung ausgesprochen",
+      "RELEASE_SUSTAINED": "Entlassung bestätigt"
+    }
+  },
   "ORGANIZATIONS_PAGE": {
     "TITLE": "Organisationen"
   },
@@ -199,6 +212,7 @@
     "6": "Samstag"
   },
   "OR": "oder",
+  "STATE": "Status",
   "NOTES": "Notizen",
   "DELETE": "Löschen",
   "CONFIRM_DELETE": "Sicher löschen?",

@@ -1,6 +1,8 @@
-import { getSupabaseService, PermissionError, runAuthenticatedFunction } from "../shared/functions-utils";
+import { getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runAuthenticatedFunction<{ name: string }>(async req => {
+const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
+
+export const onRequest = runFunction<{ name: string }>(async req => {
 
     const { user, params: { name } } = req;
 
@@ -15,10 +17,15 @@ export const onRequest = runAuthenticatedFunction<{ name: string }>(async req =>
     if (unitCount! >= 3)
         throw new PermissionError("Limit of 3 units reached");
 
+    // create 6 digit string with 0-9 and a-z characters
+    let bulletin_board_key = "";
+    for (let i = 0; i < 6; i++)
+        bulletin_board_key += CHARS[Math.floor(Math.random() * CHARS.length)];
+
     // Create unit
     const { data: unit } = await supabase
         .from("unit")
-        .insert({ name, created_by: user.id })
+        .insert({ name, created_by: user.id, bulletin_board_key })
         .select("id")
         .single()
         .throwOnError();

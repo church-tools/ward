@@ -17,8 +17,8 @@ import { xcomputed } from '../../shared/utils/signal-utils';
             @if (updatedAt) {
                 {{ (updatedBy ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | translate }}
                 {{ updatedAt | date:'medium':undefined:locale() }}
+                <br/>
             }
-            <br/>
             @let createdBy = this.createdBy();
             @let createdAt = this.createdAt();
             @if (createdBy) { {{ 'HISTORY.CREATED_BY' | translate }} {{ createdBy }} }
