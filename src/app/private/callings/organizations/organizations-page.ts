@@ -45,16 +45,16 @@ export class OrganizationsPage extends PrivatePage {
         this.router.navigate(['.'], { relativeTo: this.route });
     }
 
+    protected onActivate(id: string | null) {
+        this.activeOrganizationId.set(id ? +id : null);
+    }
+
     protected getCollapseToggleFn(collapse: Collapse) {
         return (_: Organization.Row) => collapse.toggle();
     }
 
     protected getSettingsUrl = (org: Organization.Row) => getRowRoute({ table: 'organization', row: org })
 
-    protected onActivate(id: string | null) {
-        this.activeOrganizationId.set(id ? +id : null);
-    }
-    
     protected enableEditMode = async () => {
         const profile = await this.profileService.own.asPromise();
         const organizationTable = this.supabase.sync.from('organization');

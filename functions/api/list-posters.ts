@@ -1,3 +1,6 @@
+import {
+    signFileAccessUrl
+} from "../shared/file-signing-utils";
 import { BadRequestError, getSupabaseService, runUnauthenticatedFunction } from "../shared/functions-utils";
 
 export const onRequest = runUnauthenticatedFunction<{ key: string }>(async req => {
@@ -12,5 +15,10 @@ export const onRequest = runUnauthenticatedFunction<{ key: string }>(async req =
         .eq("unit.approved", true)
         .throwOnError();
 
-    return { posters: data };
+    const posters = await Promise.all((data ?? []).map(async poster => ({
+        ...poster,
+        files: await Promise.all(poster.files.map(key => signFileAccessUrl(req.env, poster.unit.id, key, "GET"))),
+    })));
+
+    return { posters };
 });

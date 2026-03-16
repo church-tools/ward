@@ -161,7 +161,10 @@
     "TITLE": "Meetings",
     "MY_TASKS": "My Tasks"
   },
-  "CALLINGS_PAGE.TITLE": "Callings",
+  "CALLINGS_PAGE": {
+    "TITLE": "Callings",
+    "CURRENT_TITLE": "Current Processes"
+  },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {
       "TITLE": "Update Available",

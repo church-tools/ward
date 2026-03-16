@@ -14,7 +14,7 @@ type ClosestCondition = { operator: "closest"; value: string; limit: number; };
 type GtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "gt"; value: ConditionValue<T, C> };
 type LtCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "lt"; value: ConditionValue<T, C> };
 type NotCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "not"; value: ConditionValue<T, C> };
-type InCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "in"; value: ConditionValue<T, C>[] };
+type InCondition<T, C extends keyof T> = FieldCondition<T> & { operator: "in"; value: readonly ConditionValue<T, C>[] };
 type Condition<T, C extends keyof T> = EqCondition<T, C> | NotCondition<T, C> | InCondition<T, C>
     | GtCondition<T, C> | LtCondition<T, C> | ContainsCondition<T, C> | ContainsAnyCondition<T, C>;
 export type SearchCondition = ContainsTextCondition | StartsWithCondition | ClosestCondition;
@@ -43,7 +43,7 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
         return this;
     }
 
-    public in<K extends Column<D, T>>(field: K, values: RemoteRow<D, T>[K][]): this {
+    public in<K extends Column<D, T>>(field: K, values: readonly RemoteRow<D, T>[K][]): this {
         this.conditions.push({ field, operator: "in", value: values });
         return this;
     }

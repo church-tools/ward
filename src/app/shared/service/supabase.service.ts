@@ -43,7 +43,7 @@ export class SupabaseService {
         member: { indexed: { profile: Number },
             getSummaryString: inject(MemberViewService).toString },
         member_calling: { idKeys: ['member', 'calling'], createOffline: true,
-            indexed: { member: Number, calling: Number },
+            indexed: { member: Number, calling: Number, state: String },
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },
         organization: { orderKey: 'position',

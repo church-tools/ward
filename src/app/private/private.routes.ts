@@ -53,6 +53,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
             }
 
         },
+        'member-calling/:member_calling': {
+            insideParent: true,
+            loadComponent: () => import('./member-calling/member-calling-page').then(m => m.MemberCallingPage),
+        }
     },
     'church-service': {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
@@ -81,7 +85,7 @@ export async function getPrivateRoutes() {
 export type TableRow = { [T in TableName]: {
     table: T,
     row: Row<T>,
-    currentPage?: 'OrganizationsPage' | 'MeetingsPage'
+    currentPage?: 'CallingsPage' | 'OrganizationsPage' | 'MeetingsPage'
 } }[TableName];
 
 export function getRowRoute(tableRow: TableRow): string {
@@ -99,6 +103,8 @@ export function getRowRoute(tableRow: TableRow): string {
         case 'organization': return `/callings/organizations/settings/${row.id}`;
         case 'member_calling':
             switch (currentPage) {
+                case 'CallingsPage':
+                    return `/callings/member-calling/${row.id}`;
                 case 'OrganizationsPage':
                 default:
                     return `/callings/organizations/member-calling/${row.id}`;

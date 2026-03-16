@@ -161,7 +161,10 @@
     "TITLE": "Sitzungen",
     "MY_TASKS": "Meine Aufgaben"
   },
-  "CALLINGS_PAGE.TITLE": "Berufungen",
+  "CALLINGS_PAGE": {
+    "TITLE": "Berufungen",
+    "CURRENT_TITLE": "Laufende Prozesse"
+  },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {
       "TITLE": "Update verfügbar",
