@@ -20,7 +20,9 @@
 
 html,
 body {
+    height: var(--app-viewport-height);
     min-height: var(--app-viewport-height);
+    overflow: hidden;
 }
 
 body {
@@ -28,4 +30,11 @@ body {
     margin: 0;
     interpolate-size: allow-keywords;
     @media (prefers-color-scheme: dark) { color-scheme: dark; }
+}
+
+app-root {
+    display: block;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
 }
