@@ -18,6 +18,19 @@
             [columns]="windowService.isSmall() ? 1 : 3"
             [getQuery]="getCurrentMemberCallingsQuery"
             [getUrl]="getMemberCallingUrl"
+            [activeId]="activeMemberCallingId()"
+            emptyIcon="checkmark_circle">
+            <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
+                <app-member-calling-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+            </ng-template>
+        </app-row-card-list>
+        <h1 class="mt-8">{{ 'CALLINGS_PAGE.RELEASES_TITLE' | translate }}</h1>
+        <app-row-card-list
+            tableName="member_calling"
+            [columns]="windowService.isSmall() ? 1 : 3"
+            [getQuery]="getReleaseMemberCallingsQuery"
+            [getUrl]="getMemberCallingUrl"
+            [activeId]="activeMemberCallingId()"
             emptyIcon="checkmark_circle">
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
                 <app-member-calling-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>

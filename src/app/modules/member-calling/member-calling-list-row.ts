@@ -6,10 +6,9 @@ import { MemberCallingViewService } from './member-calling-view.service';
 @Component({
     selector: 'app-member-calling-list-row',
     template: `
-        <div class="row m-4 gap-2 items-center">
-            <h4 class="grow-1 overflow-ellipsis">
-                {{ row()._calculated.memberName }} • {{ row()._calculated.callingName }}
-            </h4>
+        <div class="col m-4 gap-1">
+            <h4 class="overflow-ellipsis">{{ row()._calculated.memberName }}</h4>
+            <span class="overflow-ellipsis">{{ row()._calculated.callingName }}</span>
             <span class="{{ stateOption().color }}-text">
                 {{ stateOption().view | translate }}
             </span>

@@ -25,19 +25,27 @@ export class CallingsPage extends PrivatePage {
 
     protected readonly activeMemberCallingId = signal<number | null>(null);
 
-    private readonly currentStates = [
+    private readonly callingStates = [
         'decided',
         'accepted',
         'rejected',
         'sustained',
         'set_apart',
+    ] as const satisfies readonly MemberCalling.State[];
+
+    private readonly releaseStates = [
         'release_issued',
         'release_sustained',
     ] as const satisfies readonly MemberCalling.State[];
 
     protected readonly getCurrentMemberCallingsQuery = {
-        query: (table: Table<'member_calling'>) => table.find().in('state', this.currentStates),
-        id: 'callings_current',
+        query: (table: Table<'member_calling'>) => table.find().in('state', this.callingStates),
+        id: 'current_callings',
+    };
+
+    protected readonly getReleaseMemberCallingsQuery = {
+        query: (table: Table<'member_calling'>) => table.find().in('state', this.releaseStates),
+        id: 'current_releases',
     };
 
     protected navigateHere() {
@@ -45,7 +53,7 @@ export class CallingsPage extends PrivatePage {
     }
 
     protected onActivate(id: string | null) {
-        this.activeMemberCallingId.set(id ? +id : null);
+        this.activeMemberCallingId.set(id ? +id.split('/')[1] : null);
     }
 
     protected readonly getMemberCallingUrl = (memberCalling: MemberCalling.Row | null) => memberCalling

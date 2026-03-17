@@ -163,7 +163,8 @@
   },
   "CALLINGS_PAGE": {
     "TITLE": "Callings",
-    "CURRENT_TITLE": "Current Processes"
+    "CURRENT_TITLE": "Current Callings",
+    "RELEASES_TITLE": "Current Releases"
   },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {

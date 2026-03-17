@@ -163,7 +163,8 @@
   },
   "CALLINGS_PAGE": {
     "TITLE": "Berufungen",
-    "CURRENT_TITLE": "Laufende Prozesse"
+    "CURRENT_TITLE": "Laufende Berufungen",
+    "RELEASES_TITLE": "Laufende Entlassungen"
   },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {
