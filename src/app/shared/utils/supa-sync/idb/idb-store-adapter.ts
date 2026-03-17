@@ -1,4 +1,5 @@
 import { EventEmitter } from "../event-emitter";
+import { DeferredPromise } from "../deferred-promise";
 import type { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
 
 export function idbBoolToNumber(value: boolean | null) {
@@ -25,8 +26,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     public writeCallback?: (changes: Change<T>[]) => Promise<void>;
     public mappingOutFunction?: (changes: T) => T;
     
-    private idbSet: (idb: IDBDatabase) => void = null!;
-    private readonly idb = new Promise<IDBDatabase>(resolve => this.idbSet = resolve);
+    private readonly idb = new DeferredPromise<IDBDatabase>();
     private readonly abortCallbacks: (() => void)[] = [];
     
     constructor(
@@ -35,7 +35,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     ) {}
 
     public init(idb: Promise<IDBDatabase>) {
-        idb.then(this.idbSet);
+        idb.then(db => this.idb.resolve(db));
     }
 
     public assureIDBStore(transaction: IDBTransaction, options?: { autoIncrement?: boolean, clear?: boolean, indexedKeys?: (keyof T & string)[] }) {
@@ -56,7 +56,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async write(item: T) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         if (this.mappingInFunction)
             item = this.mappingInFunction(item);
         const prevItem = await idb.transaction(this.storeName, "readwrite")
@@ -73,7 +73,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
 
     public async writeMany(items: T[], deleteIds?: IDBValidKey[]): Promise<undefined> {
         if (!items.length && !deleteIds?.length) return;
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const mapping = this.mappingInFunction;
         if (mapping) items = items.map(item => mapping(item));
         const prevItems = await idb.transaction(this.storeName, "readwrite")
@@ -91,7 +91,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
 
     public async writeAndGet(items: T[], deleteIds?: IDBValidKey[]): Promise<Change<T>[]> {
         if (!items.length && !deleteIds?.length) return [];
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const mapping = this.mappingInFunction;
         if (mapping) items = items.map(item => mapping(item));
         return await idb.transaction(this.storeName, 'readwrite')
@@ -120,7 +120,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async read<I = T>(key: IDBValidKey) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .toPromise(store => store.get(key).toPromise<I>())
@@ -129,7 +129,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
 
     public async readMany(keys: IDBValidKey[], abortSignal?: AbortSignal) {
         if (keys.length === 0) return Promise.resolve([]);
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
@@ -138,7 +138,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async readAll(abortSignal?: AbortSignal) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const mapping = this.mappingOutFunction;
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
@@ -147,14 +147,14 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async readAllKeys(abortSignal?: AbortSignal) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
             .toPromise(store => store.getAllKeys().toPromise());
     }
 
     public async findLargestId() {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         return await idb.transaction(this.storeName, "readonly")
             .toPromise(store => store.index('id')
                 .openKeyCursor(null, 'prev').toPromise()
@@ -162,20 +162,20 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async delete(key: IDBValidKey) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => store.delete(key).toPromise());
     }
 
     public async deleteMany(keys: IDBValidKey[]) {
         if (keys.length === 0) return Promise.resolve();
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => keys.forEach(key => store.delete(key)));
     }
 
     public async clear() {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         await idb.transaction(this.storeName, "readwrite")
             .toPromise(store => store.clear());
     }
@@ -191,7 +191,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     }
 
     public async getIndex(indexName: keyof T & string) {
-        const idb = await this.idb;
+        const idb = await this.idb.promise;
         const store = idb.transaction(this.storeName, "readonly").objectStore(this.storeName);
         if (!store.indexNames.contains(indexName))
             throw new Error(`"${this.storeName}" store doesn't have an index for "${indexName}".\n

@@ -83,10 +83,9 @@ export class SupaSync<
             this.onlineState);
         const lastUpdatedAt = migrate ? new Date(0).toISOString() : this.getLastSync();
         const now = new Date().toISOString();
-        await Promise.all(tables.map(async table => {
-            await table._init(idb);
-            await table._sync(lastUpdatedAt);
-        }));
+        await Promise.all(tables.map(table => table._init(idb)));
+        await this.syncTables(lastUpdatedAt, false);
+        await Promise.all(tables.map(table => table.cascadeSynced));
         this.setLastSync(now);
     }
 
@@ -95,7 +94,7 @@ export class SupaSync<
             await this.clear();
             const lastUpdatedAt = this.getLastSync();
             const now = new Date().toISOString();
-            await Promise.all(Object.values(this.tablesByName).map(table => table._sync(lastUpdatedAt)));
+            await this.syncTables(lastUpdatedAt, true);
             this.setLastSync(now);
         }, 5000);
     }
@@ -122,6 +121,64 @@ export class SupaSync<
 
     private getTables() {
         return Object.values(this.tablesByName) as SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>[];
+    }
+
+    private async syncTables(lastUpdatedAt: string, awaitDependentUpdates: boolean) {
+        const layers = this.getSyncLayers();
+        for (const layer of layers)
+            await Promise.all(layer.map(table => table._sync(lastUpdatedAt, awaitDependentUpdates)));
+    }
+
+    private getSyncLayers() {
+        const tables = this.getTables();
+        const byName = new Map(tables.map(table => [table.name, table]));
+        const outgoing = new Map(tables.map(table => [table.name, new Set<TableName<D>>() ]));
+        const inDegree = new Map(tables.map(table => [table.name, 0]));
+
+        for (const table of tables) {
+            const dependencies = new Set<TableName<D>>(
+                table._calculatedInfo
+                    .flatMap(field => field.dependsOn.map(([, sourceTable]) => sourceTable as TableName<D>))
+                    .filter(sourceTable => sourceTable !== table.name)
+            );
+            for (const dependency of dependencies) {
+                const edges = outgoing.get(dependency)!;
+                if (edges.has(table.name)) continue;
+                edges.add(table.name);
+                inDegree.set(table.name, (inDegree.get(table.name) ?? 0) + 1);
+            }
+        }
+
+        let queue = tables
+            .filter(table => (inDegree.get(table.name) ?? 0) === 0)
+            .map(table => table.name);
+        const layers: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>[][] = [];
+        let visited = 0;
+
+        while (queue.length) {
+            const current = queue;
+            queue = [];
+            const layer = current.map(name => byName.get(name)!).filter(Boolean);
+            visited += layer.length;
+            for (const table of layer) {
+                for (const dependent of outgoing.get(table.name) ?? []) {
+                    const nextDegree = (inDegree.get(dependent) ?? 0) - 1;
+                    inDegree.set(dependent, nextDegree);
+                    if (nextDegree === 0)
+                        queue.push(dependent);
+                }
+            }
+            layers.push(layer);
+        }
+
+        if (visited !== tables.length) {
+            const cycleTables = tables
+                .map(table => table.name)
+                .filter(name => (inDegree.get(name) ?? 0) > 0);
+            throw new Error(`SupaSync sync dependency cycle detected: ${cycleTables.join(', ')}`);
+        }
+
+        return layers;
     }
     
     private async processChanges(payload: SupaSyncPayload<D>) {
