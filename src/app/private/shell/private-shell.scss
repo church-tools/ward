@@ -4,6 +4,7 @@
 @use "animation";
 
 .header {
+    flex-shrink: 0;
     .handle {
         .app-name {
             transition: color animation.$duration-sm ease;
@@ -26,10 +27,16 @@
 
 .nav-and-canvas {
     position: relative;
-    height: 100%;
+    flex: 1 1 auto;
+    min-height: 0;
+    min-width: 0;
     contain: size;
     @include layout.row;
+    app-nav-bar {
+        flex-shrink: 0;
+    }
     .canvas-container {
+        min-height: 0;
         border-top: 0.25px inset color.$canvas-transparent-border;
     }
 }

@@ -120,7 +120,7 @@
         display: none;
     }
     .drawer-card {
-        max-height: 100vh;
+        max-height: var(--app-viewport-height);
         border-bottom-left-radius: 0;
         border-bottom-right-radius: 0;
         border-bottom: none;

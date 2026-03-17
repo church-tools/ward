@@ -64,7 +64,7 @@
     @each $tab in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12) {
         &.tab-#{$tab} {
             &.bottom {
-                transform: translateY(calc(100vh - 92px - 4.25rem * #{$tab}));
+                transform: translateY(calc(var(--app-viewport-height) - 92px - 4.25rem * #{$tab}));
             }
             &:not(.bottom) {
                 transform: translateY(calc(1.25rem + 4.25rem * #{$tab}));

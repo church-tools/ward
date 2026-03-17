@@ -8,9 +8,23 @@
 @forward "./form-classes";
 @forward "./button-classes";
 
+:root {
+    --app-viewport-height: 100vh;
+}
+
+@supports (height: 100dvh) {
+    :root {
+        --app-viewport-height: 100dvh;
+    }
+}
+
+html,
+body {
+    min-height: var(--app-viewport-height);
+}
+
 body {
     position: relative;
-    min-height: 100vh;
     margin: 0;
     interpolate-size: allow-keywords;
     @media (prefers-color-scheme: dark) { color-scheme: dark; }

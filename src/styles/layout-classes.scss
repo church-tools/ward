@@ -196,10 +196,10 @@ ul {
 }
 
 .canvas-height {
-    height: calc(100vh - 14.5rem);
+    height: calc(var(--app-viewport-height) - 14.5rem);
 }
 .max-popover-height {
-    max-height: calc(100vh - 8.5rem);
+    max-height: calc(var(--app-viewport-height) - 8.5rem);
 }
 
 .overflow-scroll {
