@@ -45,7 +45,7 @@
     "@typescript/native-preview": "^7.0.0-dev.20260315.1",
     "concurrently": "^9.2.1",
     "postcss": "^8.5.8",
-    "supabase": "^2.81.2",
+    "supabase": "^2.81.3",
     "typescript": "^5.9.3",
     "wrangler": "^4.75.0"
   }

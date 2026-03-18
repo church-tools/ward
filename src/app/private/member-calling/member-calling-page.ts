@@ -13,7 +13,7 @@ import { RowPage } from '../shared/row-page';
 @Component({
     selector: 'app-member-calling-page',
     template: `
-        <h1>
+        <h2>
             @let calculated = syncedRow.value()?._calculated;
             {{ calculated?.memberName }} •
             @let organization = calculated?.calling?.organization;
@@ -21,7 +21,7 @@ import { RowPage } from '../shared/row-page';
                 {{ organization?.name }}
             </span>
             {{ calculated?.calling?.name }}
-        </h1>
+        </h2>
         <div class="column-grid">
             <div class="col-12">
                 <app-select class="col-md-6" [syncedRow]="syncedRow" column="state"

@@ -23,15 +23,13 @@ import { AgendaDropZone } from "./drop-zone/agenda-drop-zone";
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
-                <div class="row no-wrap spread-content items-center">
-                    <span class="h0">
-                        @let row = syncedRow.value();
-                        @if (row && row.shape && windowService.isLarge()) {
-                            <app-icon [icon]="row.shape" filled size="xl"
-                                class="{{syncedRow.value()?.color}}-active ms--12"></app-icon>
-                        }
-                        {{title()}}
-                    </span>
+                <div class="row no-wrap spread-content items-center mb-4">
+                    @let row = syncedRow.value();
+                    @if (row && row.shape && windowService.isLarge()) {
+                        <app-icon [icon]="row.shape" filled size="xl"
+                            class="position-absolute {{syncedRow.value()?.color}}-active ms--12"></app-icon>
+                    }
+                    <span class="h0 mb-0">{{title()}}</span>
                     @if (adminService.editMode()) {
                         <app-link-button icon="settings" size="large" href="./settings" type="secondary" class="icon-only" hideNewTab/>
                     }
