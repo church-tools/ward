@@ -28,7 +28,7 @@ export class MemberCallingViewService extends ViewService<'member_calling'> {
     }
 
     override toString(memberCalling: MemberCalling.Row): string {
-        const { memberName, callingName } = memberCalling._calculated;
-        return `${memberName} - ${callingName}`;
+        const { memberName, calling } = memberCalling._calculated;
+        return `${memberName} - ${calling?.organization?.name} ${calling?.name}`;
     }
 }

@@ -8,7 +8,7 @@ import { MemberCallingViewService } from './member-calling-view.service';
     template: `
         <div class="col m-4 gap-1">
             <h4 class="overflow-ellipsis">{{ row()._calculated.memberName }}</h4>
-            <span class="overflow-ellipsis">{{ row()._calculated.callingName }}</span>
+            <span class="overflow-ellipsis">{{ 'AS' | translate }} {{ row()._calculated.calling?.name }}</span>
             <span class="{{ stateOption().color }}-text">
                 {{ stateOption().view | translate }}
             </span>

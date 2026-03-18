@@ -45,6 +45,7 @@ export type DependentRows<
 
 export type CalculatedField<D extends Database, T extends TableName<D>, V = unknown> = {
     dependsOn?: Dependencies<D, T>;
+    version?: number; // increment to force recalculation of this calculated field
     calculation: (row: RemoteRow<D, T>, dependencies: DependentRows<D, T>) => V;
 };
 

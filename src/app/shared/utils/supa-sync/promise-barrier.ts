@@ -1,5 +1,5 @@
 
-export class DeferredPromise<T = void> {
+export class PromiseBarrier<T = void> {
     private settled = false;
     private resolveFunc!: (value: T | PromiseLike<T>) => void;
     private rejectFunc!: (reason?: any) => void;

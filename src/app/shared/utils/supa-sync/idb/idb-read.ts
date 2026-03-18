@@ -8,7 +8,7 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
 
     constructor(
         store: IDBStoreAdapter<LocalRow<D, T, C>, 'id'>,
-        private readonly dataSynced: Promise<void>,
+        private readonly syncGate: Promise<void>,
         private readonly ids: IDBValidKey[] | undefined,
         resultMapping: (rows: LocalRow<D, T, C>[]) => R,
     ) {
@@ -25,7 +25,7 @@ export class IDBRead<D extends Database, T extends TableName<D>, C extends AnyCa
             ? this.store.readMany(this.ids, this.abortSignal)
             : this.store.readAll(this.abortSignal));
         if (!items.length && !this.skipDataSyncWait) {
-            await this.dataSynced;
+            await this.syncGate;
             items = await (this.ids
                 ? this.store.readMany(this.ids, this.abortSignal)
                 : this.store.readAll(this.abortSignal));

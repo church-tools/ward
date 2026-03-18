@@ -1,6 +1,6 @@
 import { SupabaseClient } from "@supabase/supabase-js";
 import type { AsyncState } from "../async-state";
-import { DeferredPromise } from "./deferred-promise";
+import { PromiseBarrier } from "./promise-barrier";
 import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { IDBSearchIndex } from "./idb/idb-search-index";
@@ -9,6 +9,7 @@ import type { AnyCalculatedValues, Change, Column, Database, DependentRows, Inde
 
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
 const SEARCH_VERSION_PREFIX = "search_version_";
+const CALCULATED_VERSION_PREFIX = "calc_version_";
 const PENDING_SUFFIX = "_pending";
 const SEARCH_SUFFIX = "_search";
 
@@ -33,6 +34,16 @@ function serializeIndexedFields<D extends Database, T extends TableName<D>>(inde
     return indexEntries.map(([key, type]) => `${key}_${type}`).join(',');
 }
 
+function serializeCalculatedVersions<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues>(
+    calculated?: Partial<Record<keyof C & string, { version?: number }>>,
+) {
+    const fields = calculated ? Object.entries(calculated) as [keyof C & string, { version?: number }][] : [];
+    return fields
+        .map(([key, field]) => `${key}_${field?.version ?? 0}`)
+        .sort()
+        .join(',');
+}
+
 function classifyArray<T, T2 = T>(array: T[], predicate: (item: T) => boolean): { matched: T[]; unmatched: T2[] } {
     const matched: T[] = [], unmatched: T2[] = [];
     for (const item of array) (predicate(item) ? matched : unmatched).push(item as any);
@@ -55,6 +66,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly deletedKey: BooleanColumn<D, T>;
     public readonly indexNeedsUpgrade: boolean;
     public readonly searchNeedsUpgrade: boolean = false;
+    public readonly calculatedNeedsUpgrade: boolean;
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
     public readonly indexed: Indexed<D, T>;
@@ -72,10 +84,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly getId: (row: RemoteRow<D, T>) => number;
     
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
-    private readonly _dataSynced = new DeferredPromise<void>();
-    public readonly dataSynced = this._dataSynced.promise;
-    private readonly _cascadeSynced = new DeferredPromise<void>();
-    public readonly cascadeSynced = this._cascadeSynced.promise;
+    private readonly syncingBarrier = new PromiseBarrier<void>();
+    public readonly _syncingBarrier = this.syncingBarrier.promise;
 
     constructor(
         public readonly name: T,
@@ -112,6 +122,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this._storeAdapter = new IDBStoreAdapter<LocalRow<D, T, C>, 'id'>(name, 'id');
         this._pendingAdapter = new IDBStoreAdapter<PendingUpdate<D, T>, '__index'>(name + PENDING_SUFFIX, '__index');
         this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed);
+        this.calculatedNeedsUpgrade = localStorage.getItem(CALCULATED_VERSION_PREFIX + name)
+            !== serializeCalculatedVersions<D, T, C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined);
         const indexEntries = Object.entries(this.indexed) as [Column<D, T>, IndexType][];
         const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
         if (boolKeys.length) {
@@ -173,6 +185,23 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 await index.update(updates);
             }
         }
+        if (this.calculatedNeedsUpgrade) {
+            localStorage.setItem(
+                CALCULATED_VERSION_PREFIX + this.name,
+                serializeCalculatedVersions<D, T, C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined),
+            );
+            if (this._calculatedInfo.length) {
+                const allItems = await this.readAll().dontWaitForDataSync().get();
+                if (allItems.length) {
+                    const updatedRows = await this.addCalculatedValues(allItems);
+                    const changes = await this._storeAdapter.writeAndGet(updatedRows);
+                    if (changes.length) {
+                        this._storeAdapter.onChange.emit(changes);
+                        await this._updateDependentCalculatedValues(changes as Change<any>[]);
+                    }
+                }
+            }
+        }
         this.sendPending();
     }
 
@@ -192,24 +221,23 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 dependentUpdatesPromise = this._updateDependentCalculatedValues(changes);
             }
         }
-        this._dataSynced.resolve();
-        const cascadeSyncedPromise = dependentUpdatesPromise.then(
-            () => this._cascadeSynced.settle(),
-            error => this._cascadeSynced.settle(error),
+        const syncedPromise = dependentUpdatesPromise.then(
+            () => this.syncingBarrier.settle(),
+            error => this.syncingBarrier.settle(error),
         );
-        if (awaitDependentUpdates) await cascadeSyncedPromise;
+        if (awaitDependentUpdates) await syncedPromise;
     }
     
     public read(id: IDBValidKey): IDBRead<D, T, C, LocalRow<D, T, C> | null> {
-        return new IDBRead(this._storeAdapter, this.cascadeSynced, [id], rows => rows.length ? rows[0] : null);
+        return new IDBRead(this._storeAdapter, this._syncingBarrier, [id], rows => rows.length ? rows[0] : null);
     }
 
     public readMany(ids: IDBValidKey[]): IDBRead<D, T, C, LocalRow<D, T, C>[]> {
-        return new IDBRead(this._storeAdapter, this.cascadeSynced, ids, rows => rows);
+        return new IDBRead(this._storeAdapter, this._syncingBarrier, ids, rows => rows);
     }
 
     public readAll(): IDBRead<D, T, C, LocalRow<D, T, C>[]> {
-        return new IDBRead(this._storeAdapter, this.cascadeSynced, undefined, rows => rows);
+        return new IDBRead(this._storeAdapter, this._syncingBarrier, undefined, rows => rows);
     }
 
     public find(): IDBFilterBuilder<D, T, C, LocalRow<D, T, C>[]> {
@@ -227,7 +255,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public async insert<I extends Insert<D, T> | Insert<D, T>[]>(
         row: I
     ): Promise<I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>> {
-        await this.dataSynced;
+        await this._syncingBarrier;
         const isArray = Array.isArray(row);
         const rows = (isArray ? row : [row]) as Insert<D, T>[];
         if (this.createOffline) {
@@ -270,7 +298,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async update(update: Update<D, T> | Update<D, T>[], debounce?: number) {
-        await this.dataSynced;
+        await this._syncingBarrier;
         const updates = Array.isArray(update) ? update : [update];
         const missingIds = updates.filter(u => !this.getId(u));
         if (missingIds.length) throw new Error(`Missing IDs for updates: ${JSON.stringify(missingIds)}`);
@@ -320,7 +348,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         if (!this._reverseDependencies.length) return;
         const ids = changes.map(change => this.getId(change.old ?? change.new));
         await Promise.all(this._reverseDependencies.map(async target => {
-            await target.table.dataSynced;
             const rows = await target.table.find().in(target.key, ids).get();
             if (!rows.length) return;
             const updatedRows = await target.table.addCalculatedValues(rows);
@@ -441,7 +468,6 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 if (dependencyId) ids.add(dependencyId);
             }
         await Promise.all(dependencies.map(async dependency => {
-            await dependency.table.dataSynced;
             const ids = [...dependency.ids];
             if (!ids.length) return;
             const rows = await dependency.table.find().in('id', ids).get();

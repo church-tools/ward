@@ -12,6 +12,6 @@ export class CallingViewService extends ViewService<'calling'> {
     }
 
     override toString(row: Calling.Row): string {
-        return row.name;
+        return `${row._calculated.organization?.name} ${row.name}`;
     }
 }

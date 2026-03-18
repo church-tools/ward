@@ -14,7 +14,13 @@ import { RowPage } from '../shared/row-page';
     selector: 'app-member-calling-page',
     template: `
         <h1>
-            {{ syncedRow.value()?._calculated?.memberName }} • {{ syncedRow.value()?._calculated?.callingName }}
+            @let calculated = syncedRow.value()?._calculated;
+            {{ calculated?.memberName }} •
+            @let organization = calculated?.calling?.organization;
+            <span class="{{ organization?.color }}-text">
+                {{ organization?.name }}
+            </span>
+            {{ calculated?.calling?.name }}
         </h1>
         <div class="column-grid">
             <div class="col-12">

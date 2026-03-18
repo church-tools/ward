@@ -1,5 +1,5 @@
 import { EventEmitter } from "../event-emitter";
-import { DeferredPromise } from "../deferred-promise";
+import { PromiseBarrier } from "../promise-barrier";
 import type { Change, DeleteChange, UpdateChange } from "../supa-sync.types";
 
 export function idbBoolToNumber(value: boolean | null) {
@@ -26,7 +26,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
     public writeCallback?: (changes: Change<T>[]) => Promise<void>;
     public mappingOutFunction?: (changes: T) => T;
     
-    private readonly idb = new DeferredPromise<IDBDatabase>();
+    private readonly idb = new PromiseBarrier<IDBDatabase>();
     private readonly abortCallbacks: (() => void)[] = [];
     
     constructor(

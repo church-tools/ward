@@ -85,7 +85,7 @@ export class SupaSync<
         const now = new Date().toISOString();
         await Promise.all(tables.map(table => table._init(idb)));
         await this.syncTables(lastUpdatedAt, false);
-        await Promise.all(tables.map(table => table.cascadeSynced));
+        await Promise.all(tables.map(table => table._syncingBarrier));
         this.setLastSync(now);
     }
 
