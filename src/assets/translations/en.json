@@ -82,10 +82,18 @@
     "MEETINGS": "Meetings",
     "MEMBER": "Member",
     "MEMBERS": "Members",
+    "SACRAMENT_MEETING": "Sacrament Meeting",
+    "SACRAMENT_MEETINGS": "Sacrament Meetings",
     "AGENDA_SECTION": "Agenda Section",
     "AGENDA_SECTIONS": "Agenda Sections",
     "ORGANIZATION": "Organization",
     "ORGANIZATIONS": "Organizations"
+  },
+  "MEETING_TYPE": {
+    "FAST_AND_TESTIMONY": "Fast and Testimony",
+    "GENERAL_CONFERENCE": "General Conference",
+    "STAKE_CONFERENCE": "Stake Conference",
+    "WARD_CONFERENCE": "Ward Conference"
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Pre-assign Prayer",
@@ -156,7 +164,13 @@
   "SELECT_ALL": "Select All",
   "BROTHER_SHORT": "Bro.",
   "SISTER_SHORT": "Sis.",
-  "CHURCH_SERVICE_PAGE.TITLE": "Church Service",
+  "CHURCH_SERVICE_PAGE": {
+    "TITLE": "Church Service"
+  },
+  "CHURCH_SERVICE_PLANING_PAGE": {
+    "TITLE": "Church Service Planning",
+    "SHOW_PAST": "Show past"
+  },
   "MEETINGS_PAGE": {
     "TITLE": "Meetings",
     "MY_TASKS": "My Tasks"
@@ -208,6 +222,12 @@
     "MISSION_WORK": { "NAME": "Mission Work", "SHORT": "Mission" },
     "TEMPLE_WORK": { "NAME": "Family History & Temple Work", "SHORT": "Temple" },
     "OTHER": { "NAME": "Other", "SHORT": "" }
+  },
+  "CLASS": {
+    "SUNDAY_SCHOOL": "Sunday School",
+    "RELIEF_SOCIETY": "Relief Society",
+    "ELDERS_QUORUM": "Elders Quorum",
+    "BISHOPRIC": "Bishopric"
   },
   "WEEKDAYS": {
     "0": "Sunday",

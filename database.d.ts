@@ -658,40 +658,51 @@ export type Database = {
         Row: {
           announcements: string[] | null
           baptised_members: string[] | null
-          classes: Database["public"]["Enums"]["class"][] | null
+          classes: string | null
           created_at: string
-          date: string
           further_meetings: string[] | null
           greetings: string[] | null
           moved_member: string[] | null
           type: Database["public"]["Enums"]["meeting_type"] | null
+          unit: number
           updated_at: string
+          week: number
         }
         Insert: {
           announcements?: string[] | null
           baptised_members?: string[] | null
-          classes?: Database["public"]["Enums"]["class"][] | null
+          classes?: string | null
           created_at?: string
-          date: string
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
+          unit: number
           updated_at?: string
+          week: number
         }
         Update: {
           announcements?: string[] | null
           baptised_members?: string[] | null
-          classes?: Database["public"]["Enums"]["class"][] | null
+          classes?: string | null
           created_at?: string
-          date?: string
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
+          unit?: number
           updated_at?: string
+          week?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "sacrament_meeting_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       talk: {
         Row: {
@@ -701,8 +712,9 @@ export type Database = {
           id: number
           member: number | null
           modified_at: string
-          sacrament_meeting: string | null
+          sacrament_meeting: number | null
           topic: string | null
+          unit: number
         }
         Insert: {
           created_at?: string
@@ -711,8 +723,9 @@ export type Database = {
           id?: number
           member?: number | null
           modified_at?: string
-          sacrament_meeting?: string | null
+          sacrament_meeting?: number | null
           topic?: string | null
+          unit: number
         }
         Update: {
           created_at?: string
@@ -721,16 +734,24 @@ export type Database = {
           id?: number
           member?: number | null
           modified_at?: string
-          sacrament_meeting?: string | null
+          sacrament_meeting?: number | null
           topic?: string | null
+          unit?: number
         }
         Relationships: [
           {
-            foreignKeyName: "talk_sacrament_meeting_fkey"
-            columns: ["sacrament_meeting"]
+            foreignKeyName: "talk_sacrament_meeting_unit_fkey"
+            columns: ["sacrament_meeting", "unit"]
             isOneToOne: false
             referencedRelation: "sacrament_meeting"
-            referencedColumns: ["date"]
+            referencedColumns: ["week", "unit"]
+          },
+          {
+            foreignKeyName: "talk_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -795,7 +816,7 @@ export type Database = {
         | "callings"
       callability: "callable" | "other_needs" | "retired"
       calling_caller: "bishopric" | "elders_quorum" | "stake_presidency"
-      class: "sunday_school" | "relief_society" | "elders_quorum"
+      class: "sunday_school" | "relief_society" | "elders_quorum" | "bishopric"
       color:
         | "palevioletred"
         | "red"
@@ -1037,7 +1058,7 @@ export const Constants = {
       ],
       callability: ["callable", "other_needs", "retired"],
       calling_caller: ["bishopric", "elders_quorum", "stake_presidency"],
-      class: ["sunday_school", "relief_society", "elders_quorum"],
+      class: ["sunday_school", "relief_society", "elders_quorum", "bishopric"],
       color: [
         "palevioletred",
         "red",

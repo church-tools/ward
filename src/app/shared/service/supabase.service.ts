@@ -11,6 +11,7 @@ import { MemberCallingViewService } from '../../modules/member-calling/member-ca
 import { MemberViewService } from '../../modules/member/member-view.service';
 import { OrganizationViewService } from '../../modules/organization/organization-view.service';
 import { ProfileViewService } from '../../modules/profile/profile-view.service';
+import { SacramentMeetingViewService } from '../../modules/sacrament-meeting/sacrament-meeting-view.service';
 import type { CalculatedMap, TableInfoAdditions, TableName } from '../../modules/shared/table.types';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
 import type { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
@@ -46,6 +47,9 @@ export class SupabaseService {
             indexed: { member: Number, calling: Number, state: String },
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },
+        sacrament_meeting: { idKeys: ['week', 'unit'],
+            indexed: { week: Number, type: String },
+            getSummaryString: inject(SacramentMeetingViewService).toString },
         organization: { orderKey: 'position',
             getSummaryString: inject(OrganizationViewService).toString },
     } as SupaSyncTableInfos<Database, TableInfoMap, CalculatedMap>);

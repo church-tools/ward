@@ -58,6 +58,16 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
         return this;
     }
 
+    public gt<K extends Column<D, T>>(field: K, value: RemoteRow<D, T>[K]): this {
+        this.conditions.push({ field, operator: "gt", value });
+        return this;
+    }
+
+    public lt<K extends Column<D, T>>(field: K, value: RemoteRow<D, T>[K]): this {
+        this.conditions.push({ field, operator: "lt", value });
+        return this;
+    }
+
     public startsWith(value: string): this {
         this.conditions.push({ operator: "startsWith", value: value.toLowerCase() });
         return this;

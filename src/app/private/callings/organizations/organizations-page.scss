@@ -3,6 +3,6 @@
 .chevron {
     transition: transform animation.$duration-lg animation.$ease-out;
     &.rotated {
-        transform: rotate(-180deg);
+        transform: rotate(180deg);
     }
 }

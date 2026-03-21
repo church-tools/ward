@@ -82,10 +82,18 @@
     "MEETINGS": "Sitzungen",
     "MEMBER": "Mitglied",
     "MEMBERS": "Mitglieder",
+    "SACRAMENT_MEETING": "Abendmahlsversammlung",
+    "SACRAMENT_MEETINGS": "Abendmahlsversammlungen",
     "AGENDA_SECTION": "Sitzungsabschnitt",
     "AGENDA_SECTIONS": "Sitzungsabschnitte",
     "ORGANIZATION": "Organisation",
     "ORGANIZATIONS": "Organisationen"
+  },
+  "MEETING_TYPE": {
+    "FAST_AND_TESTIMONY": "Fast- und Zeugnisversammlung",
+    "GENERAL_CONFERENCE": "Generalkonferenz",
+    "STAKE_CONFERENCE": "Pfahlkonferenz",
+    "WARD_CONFERENCE": "Gemeindekonferenz"
   },
   "AGENDA_SETTINGS": {
     "PRE_ASSIGN_PRAYER": "Gebet vorab einteilen",
@@ -156,7 +164,13 @@
     "REMOVE_ADMIN": "Als Administrator entfernen"
   },
   "SELECT_ALL": "Alle auswählen",
-  "CHURCH_SERVICE_PAGE.TITLE": "Gottesdienst",
+  "CHURCH_SERVICE_PAGE": {
+    "TITLE": "Gottesdienst"
+  },
+  "CHURCH_SERVICE_PLANING_PAGE": {
+    "TITLE": "Gottesdienst Planung",
+    "SHOW_PAST": "Vergangene anzeigen"
+  },
   "MEETINGS_PAGE": {
     "TITLE": "Sitzungen",
     "MY_TASKS": "Meine Aufgaben"
@@ -205,6 +219,12 @@
     "MISSION_WORK": { "NAME": "Missionsarbeit", "SHORT": "Mission" },
     "TEMPLE_WORK": { "NAME": "Familiengeschichte & Tempelarbeit", "SHORT": "Tempel" },
     "OTHER": { "NAME": "Sonstige", "SHORT": "" }
+  },
+  "CLASS": {
+    "SUNDAY_SCHOOL": "Sonntagsschule",
+    "RELIEF_SOCIETY": "Frauenhilfsvereinigung",
+    "ELDERS_QUORUM": "Ältestenkollegium",
+    "BISHOPRIC": "Bischofschaft"
   },
   "WEEKDAYS": {
     "0": "Sonntag",

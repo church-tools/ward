@@ -1,10 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import { map } from 'rxjs/operators';
 import type { Row, TableName } from '../../modules/shared/table.types';
-import { mapLangToLocale } from '../../shared/utils/language-utils';
+import { createTranslateLocaleSignal } from '../../shared/utils/language-utils';
 import { xcomputed } from '../../shared/utils/signal-utils';
 
 @Component({
@@ -37,14 +35,8 @@ export class RowHistory<T extends TableName> {
     readonly row = input.required<Row<T> | null>();
 
     protected readonly translate = inject(TranslateService);
-    
-    protected readonly locale = toSignal(this.translate.onLangChange.pipe(
-        map(({ lang }) => {
-            const currentLang = lang || this.translate.getCurrentLang() || this.translate.getFallbackLang() || 'en';
-            return mapLangToLocale(currentLang);
-        })),
-        { initialValue: mapLangToLocale(this.translate.getCurrentLang() || this.translate.getFallbackLang() || 'en') }
-    );
+
+    protected readonly locale = createTranslateLocaleSignal(this.translate);
 
     protected readonly createdBy = xcomputed([this.row],
         row => row && 'created_by' in row ? row['created_by'] : null);

@@ -51,7 +51,6 @@ export const privateTabs: { [path: string]: PrivateTab } = {
                 insideParent: true,
                 loadComponent: () => import('./member-calling/member-calling-page').then(m => m.MemberCallingPage),
             }
-
         },
         'member-calling/:member_calling': {
             insideParent: true,
@@ -60,7 +59,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     },
     'church-service': {
         translateId: 'CHURCH_SERVICE', icon: 'presenter',
-        loadComponent: () => import('./church-service-page').then(m => m.ChurchServicePage)
+        loadComponent: () => import('./church-service/church-service-page').then(m => m.ChurchServicePage),
+        planning: {
+            loadComponent: () => import('./church-service/planning/church-service-planning-page').then(m => m.ChurchServicePlanningPage),
+        },
     },
     users: {
         admin: true, onBottom: true,
