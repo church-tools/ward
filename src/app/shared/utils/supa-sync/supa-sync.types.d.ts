@@ -88,6 +88,7 @@ export type SupaSyncTableInfo<
     createOffline?: boolean; // default: false
     updateOffline?: boolean; // default: true
     indexed?: Indexed<D, T>;
+    version?: number; // increment to force full refetch and reindexing of this table
     getSummaryString?: (row: LocalRow<D, T, C>) => string;
     calculated?: Partial<CalculatedFields<D, T, C>>;
     searchIndexVersion?: number; // increment to reset search index, default: 0

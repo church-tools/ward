@@ -10,6 +10,7 @@ import type { AnyCalculatedValues, Change, Column, Database, DependentRows, Inde
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
 const SEARCH_VERSION_PREFIX = "search_version_";
 const CALCULATED_VERSION_PREFIX = "calc_version_";
+const TABLE_VERSION_PREFIX = "table_version_";
 const PENDING_SUFFIX = "_pending";
 const SEARCH_SUFFIX = "_search";
 
@@ -67,6 +68,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly indexNeedsUpgrade: boolean;
     public readonly searchNeedsUpgrade: boolean = false;
     public readonly calculatedNeedsUpgrade: boolean;
+    public readonly tableVersionNeedsUpgrade: boolean;
     public readonly createOffline: boolean;
     public readonly updateOffline: boolean;
     public readonly indexed: Indexed<D, T>;
@@ -84,6 +86,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly getId: (row: RemoteRow<D, T>) => number;
     
     private sendPendingTimeout?: ReturnType<typeof setTimeout> | undefined;
+    private forceFullSync = false;
     private readonly syncingBarrier = new PromiseBarrier<void>();
     public readonly _syncingBarrier = this.syncingBarrier.promise;
 
@@ -122,6 +125,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this._storeAdapter = new IDBStoreAdapter<LocalRow<D, T, C>, 'id'>(name, 'id');
         this._pendingAdapter = new IDBStoreAdapter<PendingUpdate<D, T>, '__index'>(name + PENDING_SUFFIX, '__index');
         this.indexNeedsUpgrade = localStorage.getItem(INDEXED_FIELDS_PREFIX + name) !== serializeIndexedFields(this.indexed);
+        this.tableVersionNeedsUpgrade = this.info.version != null
+            && localStorage.getItem(TABLE_VERSION_PREFIX + name) !== this.info.version.toString();
         this.calculatedNeedsUpgrade = localStorage.getItem(CALCULATED_VERSION_PREFIX + name)
             !== serializeCalculatedVersions<D, T, C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined);
         const indexEntries = Object.entries(this.indexed) as [Column<D, T>, IndexType][];
@@ -167,6 +172,14 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this._storeAdapter.init(idb);
         this._pendingAdapter.init(idb);
         this._summaryInfo?.adapter.init(idb);
+        if (this.tableVersionNeedsUpgrade) {
+            await Promise.all([
+                this._storeAdapter.clear(),
+                this._pendingAdapter.clear(),
+                this._summaryInfo?.adapter.clear(),
+            ]);
+            this.forceFullSync = true;
+        }
         if (this.indexNeedsUpgrade) {
             const indexedFieldsStr = serializeIndexedFields(this.indexed);
             localStorage.setItem(INDEXED_FIELDS_PREFIX + this.name, indexedFieldsStr);
@@ -206,10 +219,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async _sync(lastUpdatedAt: string, awaitDependentUpdates = true) {
+        const effectiveLastUpdatedAt = this.forceFullSync ? new Date(0).toISOString() : lastUpdatedAt;
         let query = this.supabaseClient.from(this.name)
             .select('*')
-            .gt(this.updatedAtKey, lastUpdatedAt);
-        if (lastUpdatedAt.startsWith('1970-') && this.info.deletable)
+            .gt(this.updatedAtKey, effectiveLastUpdatedAt);
+        if (effectiveLastUpdatedAt.startsWith('1970-') && this.info.deletable)
             query = query.eq(this.deletedKey, false as any);
         await this.onlineState.get();
         const { data } = await query.throwOnError();
@@ -225,6 +239,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             () => this.syncingBarrier.settle(),
             error => this.syncingBarrier.settle(error),
         );
+        if (this.forceFullSync && this.info.version != null)
+            localStorage.setItem(TABLE_VERSION_PREFIX + this.name, this.info.version.toString());
+        this.forceFullSync = false;
         if (awaitDependentUpdates) await syncedPromise;
     }
     

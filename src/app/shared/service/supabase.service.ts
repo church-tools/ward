@@ -47,7 +47,7 @@ export class SupabaseService {
             indexed: { member: Number, calling: Number, state: String },
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },
-        sacrament_meeting: { idKeys: ['week'],
+        sacrament_meeting: { version: 1, idKeys: ['week'],
             indexed: { week: Number, type: String },
             getSummaryString: inject(SacramentMeetingViewService).toString },
         organization: { orderKey: 'position',
