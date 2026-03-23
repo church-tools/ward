@@ -35,7 +35,7 @@
                             [value]="member.import || member.duplicate === true" (valueChange)="member.import = $event!; onImportChange()">
                             <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
                                 <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
-                                    {{ (member.gender === 'male' ? 'MEMBER_PAGE.BROTHER_SHORT' : 'MEMBER_PAGE.SISTER_SHORT') | translate }}
+                                    {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | translate }}
                                 </span>
                                 {{ member.first_name }} {{ member.last_name }}
                             </span>

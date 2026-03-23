@@ -22,7 +22,7 @@ export function getStartOfWeek() {
 }
 
 export function sundayIndexToDate(sundayIndex: SundayIndex): Date {
-    return new Date(FIRST_SUNDAY_DATE.getTime() + (sundayIndex - 1) * WEEK);
+    return new Date(FIRST_SUNDAY_DATE.getTime() + sundayIndex * WEEK);
 }
 
 export function getUpcomingSundayIndex(date = new Date()): SundayIndex {
@@ -33,7 +33,7 @@ export function getUpcomingSundayIndex(date = new Date()): SundayIndex {
 }
 
 export function getSundayIndexInMonth(weekIndex: SundayIndex) {
-    const date = new Date(FIRST_SUNDAY_DATE.getTime() + (weekIndex - 1) * WEEK);
+    const date = sundayIndexToDate(weekIndex);
     const sundayOfWeek = new Date(date.setDate(date.getDate() - date.getDay()));
     sundayOfWeek.setHours(0, 0, 0, 0);
     return Math.ceil(sundayOfWeek.getDate() / 7) as WeekInMonth;

@@ -9,8 +9,7 @@ type SelectOptionsByValue<T extends PropertyKey> = Partial<Record<T, SelectOptio
 	selector: 'app-select-result',
 	imports: [TranslateModule],
 	template: `
-		@let selectedOption = this.selectedOption();
-		@if (selectedOption) {
+		@if (this.selectedOption(); as selectedOption) {
 			<span [class]="selectedOption.color ? selectedOption.color + '-text' : ''">
 				@if (translateOptions()) {
 					{{ selectedOption.view | translate }}

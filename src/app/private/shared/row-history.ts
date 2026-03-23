@@ -23,7 +23,7 @@ import { xcomputed } from '../../shared/utils/signal-utils';
             @if (createdAt) {
                 {{ (createdBy ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | translate }}
                 {{ createdAt | date:'medium':undefined:locale() }}
-            } @else {
+            } @else if (!updatedAt) {
                 {{ 'HISTORY.UNSAVED' | translate }}
             }
         </div>

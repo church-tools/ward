@@ -10,12 +10,11 @@ import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
 @Component({
     selector: 'app-sacrament-meeting-list-row',
     template: `
-        <div class="column full-width m-6-8 gap-1">
-            <h4 class="grow-1 overflow-ellipsis">
+        <div class="row full-width m-6-8 row-gap-1 column-gap-4 items-center">
+            <h4>
                 {{ date() | date : 'dd MMM yyyy' : undefined : locale() }}
             </h4>
-            @let type = row().type;
-            @if (type) {
+            @if (row().type; as type) {
                 <span class="text-secondary">{{ meetingView.getTypeLabel(type) }}</span>
             }
         </div>

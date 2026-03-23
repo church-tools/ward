@@ -64,7 +64,7 @@
     "MEETINGS": "Meetings",
     "MEMBERS": "Members",
     "CALLINGS": "Callings",
-    "CHURCH_SERVICE": "Service",
+    "SACRAMENT_MEETING": "Sacram. M.",
     "USERS": "Users"
   },
   "VIEW": {
@@ -164,11 +164,14 @@
   "SELECT_ALL": "Select All",
   "BROTHER_SHORT": "Bro.",
   "SISTER_SHORT": "Sis.",
-  "CHURCH_SERVICE_PAGE": {
-    "TITLE": "Church Service"
+  "SACRAMENT_MEETING_PAGE": {
+    "TITLE": "Sacrament Meeting",
+    "TYPE": "Type",
+    "WEEK": "Week",
+    "CLASSES": "Classes"
   },
-  "CHURCH_SERVICE_PLANING_PAGE": {
-    "TITLE": "Church Service Planning",
+  "SACRAMENT_MEETING_PLANING_PAGE": {
+    "TITLE": "Sacrament Meeting Planning",
     "SHOW_PAST": "Show past"
   },
   "MEETINGS_PAGE": {

@@ -8,16 +8,16 @@ import { DrawerRouterOutlet } from '../shared/drawer-router-outlet/drawer-router
 import { PrivatePage } from '../shared/private-page';
 
 @Component({
-    selector: 'app-meetings-page',
+    selector: 'app-current-sacrament-meeting-page',
     template: `
         <app-drawer-router-outlet (onClose)="navigateHere()">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'CHURCH_SERVICE_PAGE.TITLE' | translate }}</span>
-                <a class="stealth card canvas-card selectable-card" routerLink="/church-service/planning">
+                <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | translate }}</span>
+                <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning">
                     <div class="row no-wrap items-center m-6-8">
                         <h3 class="grow-1">
                             <app-icon icon="text_bullet_list_square_edit" filled/>
-                            <span class="overflow-ellipsis">{{ 'CHURCH_SERVICE_PLANING_PAGE.TITLE' | translate }}</span>
+                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PLANING_PAGE.TITLE' | translate }}</span>
                         </h3>
                         <app-icon class="ms-auto" icon="chevron_right"/>
                     </div>
@@ -28,7 +28,7 @@ import { PrivatePage } from '../shared/private-page';
     imports: [TranslateModule, RouterModule, Icon, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
-export class ChurchServicePage extends PrivatePage {
+export class CurrentSacramentMeetingPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);

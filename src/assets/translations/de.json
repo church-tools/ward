@@ -64,7 +64,7 @@
     "MEETINGS": "Sitzungen",
     "MEMBERS": "Mitglieder",
     "CALLINGS": "Berufungen",
-    "CHURCH_SERVICE": "Gottesdienst",
+    "SACRAMENT_MEETING": "Gottesdienst",
     "USERS": "Benutzer"
   },
   "VIEW": {
@@ -125,9 +125,7 @@
     "SALUTATION": "Anrede",
     "FIRST_NAME": "Vorname",
     "NICK_NAME": "Spitzname",
-    "LAST_NAME": "Nachname",
-    "BROTHER_SHORT": "Brd.",
-    "SISTER_SHORT": "Schw."
+    "LAST_NAME": "Nachname"
   },
   "MEMBER_CALLING_PAGE": {
     "STATE": {
@@ -164,11 +162,16 @@
     "REMOVE_ADMIN": "Als Administrator entfernen"
   },
   "SELECT_ALL": "Alle auswählen",
-  "CHURCH_SERVICE_PAGE": {
-    "TITLE": "Gottesdienst"
+  "BROTHER_SHORT": "Brd.",
+  "SISTER_SHORT": "Schw.",
+  "SACRAMENT_MEETING_PAGE": {
+    "TITLE": "Abendmahlsversammlung",
+    "TYPE": "Art",
+    "WEEK": "Woche",
+    "CLASSES": "Klassen"
   },
-  "CHURCH_SERVICE_PLANING_PAGE": {
-    "TITLE": "Gottesdienst Planung",
+  "SACRAMENT_MEETING_PLANING_PAGE": {
+    "TITLE": "Abendmahlsvers. Planung",
     "SHOW_PAST": "Vergangene anzeigen"
   },
   "MEETINGS_PAGE": {

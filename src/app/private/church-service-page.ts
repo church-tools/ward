@@ -12,8 +12,8 @@ import { PrivatePage } from './shared/private-page';
     template: `
         <app-drawer-router-outlet (onClose)="navigateHere()">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'CHURCH_SERVICE_PAGE.TITLE' | translate }}</span>
-                <a class="stealth card canvas-card selectable-card" routerLink="/church-service/planning">
+                <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | translate }}</span>
+                <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning">
                     <div class="row no-wrap items-center m-6-8">
                         <h3 class="grow-1">
                             <app-icon [icon]="sacramentMeetingView.icon" filled/>
@@ -28,7 +28,7 @@ import { PrivatePage } from './shared/private-page';
     imports: [TranslateModule, RouterModule, Icon, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
-export class ChurchServicePage extends PrivatePage {
+export class CurrentSacramentMeetingPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);

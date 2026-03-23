@@ -11,15 +11,17 @@ import { getUpcomingSundayIndex } from '../../../shared/utils/date-utils';
 import { xcomputed, xsignal } from '../../../shared/utils/signal-utils';
 import { DrawerRouterOutlet } from '../../shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from '../../shared/private-page';
+import { SacramentMeeting } from '../../../modules/sacrament-meeting/sacrament-meeting';
+import { getRowRoute } from '../../private.routes';
 
 @Component({
     selector: 'app-planning-page',
-    templateUrl: './church-service-planning-page.html',
+    templateUrl: './sacrament-meeting-planning-page.html',
     imports: [TranslateModule, Switch, RowCardList, SacramentMeetingListRow,
         SacramentMeetingListInsert, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
-export class ChurchServicePlanningPage extends PrivatePage {
+export class SacramentMeetingPlanningPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
@@ -40,6 +42,12 @@ export class ChurchServicePlanningPage extends PrivatePage {
             };
     });
 
+    protected readonly activeChurchServiceId = xsignal<number | null>(null);
+
+    protected getChurchServiceUrl = (row: SacramentMeeting.Row | null) => {
+        return row ? getRowRoute({ table: 'sacrament_meeting', row }) : '/sacrament-meeting/planning';
+    }
+
     constructor() {
         super();
         this.sacramentMeetingService.assureUpcomingMeeting();
@@ -49,7 +57,8 @@ export class ChurchServicePlanningPage extends PrivatePage {
         this.router.navigate(['.'], { relativeTo: this.route });
     }
 
-    onActivate(component: any): void {
-        // Handle component activation if needed
+
+    protected onActivate(id: string | null) {
+        this.activeChurchServiceId.set(id ? +id : null);
     }
 }

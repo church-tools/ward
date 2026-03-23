@@ -57,11 +57,15 @@ export const privateTabs: { [path: string]: PrivateTab } = {
             loadComponent: () => import('./member-calling/member-calling-page').then(m => m.MemberCallingPage),
         }
     },
-    'church-service': {
-        translateId: 'CHURCH_SERVICE', icon: 'presenter',
-        loadComponent: () => import('./church-service/church-service-page').then(m => m.ChurchServicePage),
+    'sacrament-meeting': {
+        translateId: 'SACRAMENT_MEETING', icon: 'presenter',
+        loadComponent: () => import('./sacrament-meeting/current-sacrament-meeting-page').then(m => m.CurrentSacramentMeetingPage),
         planning: {
-            loadComponent: () => import('./church-service/planning/church-service-planning-page').then(m => m.ChurchServicePlanningPage),
+            loadComponent: () => import('./sacrament-meeting/planning/sacrament-meeting-planning-page').then(m => m.SacramentMeetingPlanningPage),
+            ':sacrament_meeting': {
+                insideParent: true,
+                loadComponent: () => import('./sacrament-meeting/planning/sacrament-meeting-page').then(m => m.SacramentMeetingPage),
+            },
         },
     },
     users: {
@@ -111,6 +115,7 @@ export function getRowRoute(tableRow: TableRow): string {
                 default:
                     return `/callings/organizations/member-calling/${row.id}`;
             }
+        case 'sacrament_meeting': return `/sacrament-meeting/planning/${row.id}`;
     }
     throw new Error(`No route defined for table ${table}`);
 }
