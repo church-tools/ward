@@ -3,17 +3,17 @@
   "version": "0.2.0",
   "compounds": [
     {
-      "name": "Edge + Wrangler",
+      "name": "Editor Browser + Wrangler",
       "configurations": [
-        "Launch Headless Edge",
+        "Launch Editor Browser",
         "Attach Wrangler"
       ]
     }
   ],
   "configurations": [
     {
-      "name": "Launch Headless Edge",
-      "type": "msedge",
+      "name": "Launch Editor Browser",
+      "type": "editor-browser",
       "request": "launch",
       "url": "http://localhost:4201",
       "webRoot": "${workspaceFolder}"

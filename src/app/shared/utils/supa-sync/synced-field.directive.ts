@@ -34,12 +34,12 @@ export class SyncedFieldDirective<
             const column = this.column();
             const row = syncedRow.value();
             if (!row) return;
+            const value = row[column];
+            if (this.ignoreUpdates.has(value)) {
+                setTimeout(() => this.ignoreUpdates.delete(value), 500);
+                return;
+            }
             untracked(() => {
-                const value = row[column];
-                if (this.ignoreUpdates.has(value)) {
-                    setTimeout(() => this.ignoreUpdates.delete(value), 500);
-                    return;
-                }
                 const innerValue = this.mapIn()(value);
                 if (this.inputBase.value() === innerValue) return;
                 this.inputBase.value.set(innerValue);

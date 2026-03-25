@@ -659,10 +659,11 @@ export type Database = {
           announcements: string[] | null
           baptised_members: string[] | null
           classes: string | null
-          created_at: string
+          closing_prayer: string | null
           further_meetings: string[] | null
           greetings: string[] | null
           moved_member: string[] | null
+          opening_prayer: string | null
           type: Database["public"]["Enums"]["meeting_type"] | null
           unit: number
           updated_at: string
@@ -672,10 +673,11 @@ export type Database = {
           announcements?: string[] | null
           baptised_members?: string[] | null
           classes?: string | null
-          created_at?: string
+          closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
+          opening_prayer?: string | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
           unit: number
           updated_at?: string
@@ -685,10 +687,11 @@ export type Database = {
           announcements?: string[] | null
           baptised_members?: string[] | null
           classes?: string | null
-          created_at?: string
+          closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
+          opening_prayer?: string | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
           unit?: number
           updated_at?: string
@@ -816,7 +819,6 @@ export type Database = {
         | "callings"
       callability: "callable" | "other_needs" | "retired"
       calling_caller: "bishopric" | "elders_quorum" | "stake_presidency"
-      class: "sunday_school" | "relief_society" | "elders_quorum" | "bishopric"
       color:
         | "palevioletred"
         | "red"
@@ -1058,7 +1060,6 @@ export const Constants = {
       ],
       callability: ["callable", "other_needs", "retired"],
       calling_caller: ["bishopric", "elders_quorum", "stake_presidency"],
-      class: ["sunday_school", "relief_society", "elders_quorum", "bishopric"],
       color: [
         "palevioletred",
         "red",

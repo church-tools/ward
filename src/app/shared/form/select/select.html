@@ -35,20 +35,23 @@
                 [attr.title]="label() || placeholder() || 'Select option'"
                 [placeholder]="selectedOption ? '' : placeholder()"
                 (focus)="onFocus()"
-                (input)="onSearch($event)">
+                (input)="onSearch($event)"
+                (keydown)="onKeyDown($event)">
         }
     </div>
-    <app-anchored-popover #popover
-        [position]="popoverPosition()"
-        alignment="center"
+    <app-select-options #popover
         [anchorElement]="inputContainer"
-        [offsetY]="2"
-        (visibilityChange)="onPopoverVisibilityChange($event)">
+        [contentVisible]="optionsVisible()"
+        [options]="visibleOptions()"
+        [searchText]="search()"
+        [useDefaultTemplate]="false"
+        (closed)="onPopoverClosed()"
+        (optionClick)="selectOption($event)">
         <div class="options-card"
             [class.visible]="optionsVisible()"
-            [class.position-top]="popoverPosition() === 'top'"
-            [class.position-bottom]="popoverPosition() === 'bottom'"
-            [style.width.px]="popoverWidth()">
+            [class.position-top]="popover.position() === 'top'"
+            [class.position-bottom]="popover.position() === 'bottom'"
+            [style.width.px]="popover.width()">
             @if (optionsLoading()) {
                 <div>
                     <app-icon icon="throbber" size="xs" class="loading-icon"/>
@@ -63,7 +66,8 @@
                             {{ group.label }}:
                         </div>
                         @for (option of group.options; track (option.id ?? option.value)) {
-                            <div #option class="option option-group-item {{option.color}}-text"
+                            <div class="option option-group-item {{option.color}}-text"
+                                [class.focused]="popover.focusedOption() === option"
                                 (click)="selectOption(option, $event)">
                                 @if (optionTemplate) {
                                     <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
@@ -78,7 +82,8 @@
                 }
             } @else {
                 @for (option of visibleOptions(); track (option.id ?? option.value)) {
-                    <div #option class="option {{option.color}}-text"
+                    <div class="option {{option.color}}-text"
+                        [class.focused]="popover.focusedOption() === option"
                         (click)="selectOption(option, $event)">
                         @if (optionTemplate) {
                             <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
@@ -91,5 +96,5 @@
                 }
             }
         </div>
-    </app-anchored-popover>
+    </app-select-options>
 </div>

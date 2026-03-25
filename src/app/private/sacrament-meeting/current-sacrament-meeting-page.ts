@@ -17,7 +17,7 @@ import { PrivatePage } from '../shared/private-page';
                     <div class="row no-wrap items-center m-6-8">
                         <h3 class="grow-1">
                             <app-icon icon="text_bullet_list_square_edit" filled/>
-                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PLANING_PAGE.TITLE' | translate }}</span>
+                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHORT_TITLE' | translate }}</span>
                         </h3>
                         <app-icon class="ms-auto" icon="chevron_right"/>
                     </div>

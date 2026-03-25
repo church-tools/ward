@@ -1,12 +1,12 @@
 import { booleanAttribute, Component, inject, Injector, input, signal } from "@angular/core";
 import type { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
-import { getViewService } from "../../../modules/shared/view.service";
 import { SupabaseService } from "../../service/supabase.service";
 import { assureArray } from "../../utils/array-utils";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { MultiSelect } from "../select/multi-select";
 import { Select, SelectOption } from "../select/select";
 import { getProviders, InputBase } from "../shared/input-base";
+import { getRowViewToString, resolveRowQuery } from "./row-select-utils";
 
 @Component({
     selector: 'app-row-select',
@@ -57,7 +57,6 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
     readonly getQuery = input<((table: Table<T>) => TableQuery<T, Row<T>[]>) | null>(null);
 
     readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
-    readonly allowCustom = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly onOptionClick = input<(option: SelectOption<number>, event: MouseEvent) => void>();
 
@@ -83,7 +82,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
     protected getOptions = async (search: string) => {
         if (this.optionList().length)
             return this.optionList();
-        const query = this.getQuery()?.(this._table()) ?? this._table().readAll();
+        const query = resolveRowQuery(this._table(), this.getQuery());
         const rows = await query.get();
         const options = await this.mapRowsToOptions(rows);
         this.optionList.set(options);
@@ -143,8 +142,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
 
     private async getToString() {
         if (!this.viewToString) {
-            const viewService = await getViewService(this.injector, this.table());
-            this.viewToString = viewService.toString;
+            this.viewToString = await getRowViewToString(this.injector, this.table());
         }
         return this.viewToString;
     }

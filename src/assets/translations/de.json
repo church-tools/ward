@@ -90,7 +90,7 @@
     "ORGANIZATIONS": "Organisationen"
   },
   "MEETING_TYPE": {
-    "FAST_AND_TESTIMONY": "Fast- und Zeugnisversammlung",
+    "FAST_AND_TESTIMONY": "Fast- & Zeugnisversammlung",
     "GENERAL_CONFERENCE": "Generalkonferenz",
     "STAKE_CONFERENCE": "Pfahlkonferenz",
     "WARD_CONFERENCE": "Gemeindekonferenz"
@@ -168,10 +168,13 @@
     "TITLE": "Abendmahlsversammlung",
     "TYPE": "Art",
     "WEEK": "Woche",
+    "OPENING_PRAYER": "Anfangsgebet",
+    "CLOSING_PRAYER": "Schlussgebet",
     "CLASSES": "Klassen"
   },
-  "SACRAMENT_MEETING_PLANING_PAGE": {
-    "TITLE": "Abendmahlsvers. Planung",
+  "SACRAMENT_MEETING_PLANNING_PAGE": {
+    "SHORT_TITLE": "Planung",
+    "TITLE": "Planung von Abendmahlsvers.",
     "SHOW_PAST": "Vergangene anzeigen"
   },
   "MEETINGS_PAGE": {
@@ -244,6 +247,7 @@
   "NOTES": "Notizen",
   "DELETE": "Löschen",
   "CONFIRM_DELETE": "Sicher löschen?",
+  "NO_MATCHES": "Keine Übereinstimmungen",
   "B": "F",
   "I": "K",
   "U": "U",

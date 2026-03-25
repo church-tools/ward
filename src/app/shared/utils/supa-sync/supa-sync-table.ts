@@ -81,6 +81,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public readonly _reverseDependencies: { table: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>, key: string }[] = [];
     
     public readonly idKeys: ReadonlyArray<IdColumn<D, T>>;
+    public readonly firstIdKey: IdColumn<D, T>;
     public readonly hasCompositeKeys: boolean;
     
     public readonly getId: (row: RemoteRow<D, T>) => number;
@@ -99,11 +100,11 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         private readonly resync: () => Promise<void>,
     ) {
         this.idKeys = info.idKeys ? (Array.isArray(info.idKeys) ? info.idKeys : [info.idKeys]) : ['id'] as IdColumn<D, T>[];
+        this.firstIdKey = this.idKeys[0];
         this.hasCompositeKeys = this.idKeys.length > 1;
-        const firstIdKey = this.idKeys[0];
         this.getId = this.hasCompositeKeys
             ? getCombinedIdFn(this.idKeys)
-            : (row: RemoteRow<D, T>) => row[firstIdKey] as number;
+            : (row: RemoteRow<D, T>) => row[this.firstIdKey] as number;
         this.updatedAtKey = info.updatedAtPath ?? 'updated_at';
         this.deletedKey = info.deletedPath ?? 'deleted' as BooleanColumn<D, T>;
         this.createOffline = info.createOffline ?? false;
@@ -277,7 +278,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         const rows = (isArray ? row : [row]) as Insert<D, T>[];
         if (this.createOffline) {
             if (!this.hasCompositeKeys) {
-                const idKey = this.idKeys[0];
+                const idKey = this.firstIdKey;
                 for (const row of rows)
                     row[idKey] ??= getRandomId();
             }
@@ -292,9 +293,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 : rowsWithCalculatedValues[0]) as I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>;
         } else {
             if (!this.hasCompositeKeys) {
-                const idKey = this.idKeys[0];
+                const idKey = this.firstIdKey;
                 if (rows.some(r => r[idKey] == null)) {
-                    let largestId = await this.findLargestId() ?? 0;
+                    let largestId = await this.findLargestId(idKey) ?? 0;
                     for (const row of rows as PendingUpdate<D, T>[])
                         if (row[idKey] == null) {
                             row[idKey] = ++largestId;
@@ -349,8 +350,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         ]);
     }
     
-    public async findLargestId() {
-        return this._storeAdapter.findLargestId();
+    public async findLargestId(idKey: IdColumn<D, T> = this.firstIdKey) {
+        return this._storeAdapter.findLargestId(idKey as unknown as keyof LocalRow<D, T, C> & string);
     }
 
     public async _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
@@ -420,7 +421,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 }
                 delete row.__index;
                 delete row._calculated;
-                if (this.hasCompositeKeys && 'id' in row) delete row.id;
+                if ('id' in row && !this.idKeys.includes('id' as any)) delete row.id;
                 return isNew;
             });
             await Promise.all([
@@ -487,8 +488,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         await Promise.all(dependencies.map(async dependency => {
             const ids = [...dependency.ids];
             if (!ids.length) return;
-            const rows = await dependency.table.find().in('id', ids).get();
-            dependency.rowsById = Object.fromEntries(rows.map(row => [row.id as number, row]));
+            const rows = await dependency.table.find().in(dependency.table.firstIdKey as string, ids).get();
+            dependency.rowsById = Object.fromEntries(rows.map(row => [dependency.table.getId(row as RemoteRow<D, any>), row]));
         }));
         return dependencies;
     }

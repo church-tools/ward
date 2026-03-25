@@ -1,18 +1,16 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
-    OnDestroy, OutputRefSubscription, Signal, signal, TemplateRef, viewChild, viewChildren } from '@angular/core';
+    OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
-import { AnchoredPopoverComponent, PopoverPosition } from '../anchored-popover/anchored-popover';
 import { Icon } from "../../icon/icon";
-import { WindowService } from '../../service/window.service';
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
-import { xcomputed, xeffect } from '../../utils/signal-utils';
+import { createPendingValueTracker, xcomputed, xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
+import { SelectOptions } from './select-options';
 
 export type SelectOption<T> = {
     value: T;
@@ -51,20 +49,17 @@ type SelectValueTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [TranslateModule, InputLabel, Icon, NgTemplateOutlet, AnchoredPopoverComponent],
+    imports: [TranslateModule, InputLabel, Icon, NgTemplateOutlet, SelectOptions],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => Select),
 })
 export class Select<T> extends InputBase<T> implements OnDestroy {
 
-    private readonly windowService = inject(WindowService);
     private readonly translateService = inject(TranslateService);
 
     private readonly input = viewChild('input', { read: ElementRef });
-    private readonly inputContainer = viewChild.required('inputContainer', { read: ElementRef });
-    protected readonly popover = viewChild.required(AnchoredPopoverComponent);
-    private readonly optionRefs: Signal<ReadonlyArray<ElementRef<HTMLDivElement>>> = viewChildren('option', { read: ElementRef });
+    protected readonly popover = viewChild.required(SelectOptions<VisibleOption<T>>);
 
     @ContentChild('optionTemplate', { read: TemplateRef })
     protected optionTemplate: TemplateRef<SelectOptionTemplateContext<T>> | null = null;
@@ -87,30 +82,22 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     protected readonly showOptionGroups = signal<boolean>(false);
     protected readonly search = model<string>("");
     protected readonly selectedOption = model<SelectOption<T> | null>(null);
-    protected readonly popoverPosition = signal<PopoverPosition>('bottom');
-    protected readonly popoverWidth = signal<number>(0);
-    private readonly closing = signal(false);
-    private readonly popoverRequested = signal(false);
+    readonly optionsVisible = xcomputed([this.visibleOptions, this.optionsLoading],
+        (options, loading) => loading || options.length > 0);
 
-    readonly optionsVisible = xcomputed([this.visibleOptions, this.closing, this.optionsLoading, this.popoverRequested],
-        (options, closing, loading, popoverRequested) => popoverRequested && !closing && (loading || options.length > 0));
-
-    private keySubscriptions: Subscription[] = [];
     private readonly blurSubscription: OutputRefSubscription;
-    private focusedIndex = -1;
     private suppressNextFocusOpen = false;
+    private readonly pendingValueTracker = createPendingValueTracker<T | null>(150);
 
     constructor() {
         super();
         xeffect([this.viewValue, this.options], (value, options) => {
+            if (this.pendingValueTracker.shouldIgnore(value))
+                return;
             this.syncSelectedOption(value, options);
         });
-        xeffect([this.popover, this.optionsVisible], (popover, optionsVisible) => {
-            if (!popover) return;
-            if (optionsVisible) popover.show();
-            else popover.hide();
-        });
         this.blurSubscription = this.onBlur.subscribe(async () => {
+            this.pendingValueTracker.clear();
             await wait(150);
             this.closeOptionsContainer();
         });
@@ -135,6 +122,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         this.search.set("");
         this.input()?.nativeElement.focus();
         this.setViewValue(null);
+        this.pendingValueTracker.mark(null);
     }
 
     focusInput(openOptions = true) {
@@ -160,7 +148,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
 
     setSearch(search: string, keepOpen = true) {
         this.search.set(search ?? '');
-        if (!this.popoverRequested() && keepOpen)
+        if (!this.popover().isRequested() && keepOpen)
             this.createOptionsContainer();
         this.updateVisibleOptions();
         this.input()?.nativeElement.focus();
@@ -184,70 +172,28 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         } else {
             this.selectedOption.set(option);
             this.setViewValue(option.value);
+            this.pendingValueTracker.mark(option.value);
             this.closeOptionsContainer();
         }
     }
 
     protected closeOptionsContainer() {
-        this.keySubscriptions.forEach(sub => sub.unsubscribe());
-        this.keySubscriptions = [];
-        if (!this.popoverRequested()) return;
-        this.popoverRequested.set(false);
-        this.closing.set(true);
+        if (!this.popover().isRequested()) return;
+        this.popover().close();
         setTimeout(() => {
-            if (this.popoverRequested()) return;
-            this.closing.set(false);
+            if (this.popover().isRequested()) return;
             this.visibleOptions.set([]);
             this.visibleOptionGroups.set([]);
         }, 100);
     }
 
     private createOptionsContainer() {
-        if (this.popoverRequested()) return;
-        this.focusedIndex = -1;
-        const inputContainerPosition = this.inputContainer().nativeElement.getBoundingClientRect();
-        const inputMiddle = inputContainerPosition.top + (inputContainerPosition.height / 2);
-        const isInUpperHalf = inputMiddle < (window.innerHeight / 2);
-        this.popoverPosition.set(isInUpperHalf ? 'bottom' : 'top');
-        this.popoverWidth.set(inputContainerPosition.width);
-        this.popoverRequested.set(true);
+        if (this.popover().isRequested()) return;
+        this.popover().open();
         this.updateVisibleOptions();
-        this.keySubscriptions.forEach(sub => sub.unsubscribe());
-        this.keySubscriptions = [
-            this.windowService.onKeyPressed('Escape').subscribe(() => this.closeOptionsContainer()),
-            this.windowService.onKeyPressed('Enter').subscribe(() => this.selectFocusedOption()),
-            this.windowService.onKeyPressed('ArrowUp').subscribe(() => this.focusNextOption(-1)),
-            this.windowService.onKeyPressed('ArrowDown').subscribe(() => this.focusNextOption(1)),
-            this.windowService.onKeyPressed('Backspace').subscribe(() => this.deleteLastSelection()),
-        ];
     }
 
-    protected onPopoverVisibilityChange(visible: boolean) {
-        if (visible) return;
-        this.keySubscriptions.forEach(sub => sub.unsubscribe());
-        this.keySubscriptions = [];
-        this.popoverRequested.set(false);
-        this.closing.set(false);
-        this.focusedIndex = -1;
-    }
-
-    private focusNextOption(offset: number) {
-        const options = this.visibleOptions();
-        if (!options.length) return;
-        const optionRefs = this.optionRefs();
-        optionRefs[this.focusedIndex]?.nativeElement.classList.remove('focused');;
-        this.focusedIndex = this.focusedIndex < 0
-            ? offset > 0 ? 0 : -1
-            : this.focusedIndex + offset;
-        this.focusedIndex = (this.focusedIndex + options.length) % options.length;
-        optionRefs[this.focusedIndex]?.nativeElement.classList.add('focused');
-    }
-
-    private selectFocusedOption() {
-        const options = this.visibleOptions();
-        if (!options.length) return;
-        const focusedOption = options[this.focusedIndex >= 0 ? this.focusedIndex : 0];
-        this.selectOption(focusedOption);
+    protected onPopoverClosed() {
     }
 
     private deleteLastSelection() {
@@ -256,12 +202,21 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         if (!this.selectedOption()) return;
         this.selectedOption.set(null);
         this.setViewValue(null);
+        this.pendingValueTracker.mark(null);
     }
 
     protected onSearch(event: Event) {
         const target = event.target as HTMLInputElement;
         this.search.set(target.value ?? '');
         this.updateVisibleOptions();
+    }
+
+    protected onKeyDown(event: KeyboardEvent) {
+        const handled = this.popover().handleKeyDown(event);
+        if (handled)
+            return;
+        if (event.key === 'Backspace')
+            this.deleteLastSelection();
     }
 
     protected onGroupTitleMouseDown(event: MouseEvent) {
@@ -279,7 +234,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
             $implicit: option,
             option,
             group,
-            focused: this.isOptionFocused(option),
+            focused: this.popover().focusedOption() === option,
         };
     }
 
@@ -290,14 +245,25 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         };
     }
 
-    private isOptionFocused(option: VisibleOption<T>) {
-        const options = this.visibleOptions();
-        if (this.focusedIndex < 0 || this.focusedIndex >= options.length)
-            return false;
-        return options[this.focusedIndex] === option;
+    private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
+        const allOptions = await this.resolveAllOptions(search);
+        const textKey = this.resolveTextKey();
+        this.prepareSearchText(allOptions, textKey);
+        const normalizedSearch = search.toLocaleLowerCase();
+        const searchWords = this.getSearchWords(normalizedSearch);
+        if (!searchWords.length)
+            return allOptions.map(option => this.toVisibleOption(option, textKey, searchWords));
+        const startsWith = allOptions.filter(option => option.lcText!.startsWith(normalizedSearch));
+        if (startsWith.length)
+            return startsWith.map(option => this.toVisibleOption(option, textKey, searchWords));
+        const contains = allOptions.filter(option => option.lcText!.includes(normalizedSearch));
+        if (contains.length)
+            return contains.map(option => this.toVisibleOption(option, textKey, searchWords));
+        return getLowest(allOptions, option => levenshteinDistance(normalizedSearch, option.lcText!), 1)
+            .map(option => this.toVisibleOption(option, textKey, searchWords));
     }
 
-    private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
+    private async resolveAllOptions(search: string) {
         const options = this.options();
         const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), 200);
         const allOptions = typeof options === 'function'
@@ -305,27 +271,27 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
             : options;
         clearTimeout(loadingTimeout);
         this.optionsLoading.set(false);
+        return allOptions;
+    }
+
+    private resolveTextKey() {
+        return this.translateOptions() ? 'translatedText' : 'view' as const;
+    }
+
+    private prepareSearchText(allOptions: readonly SelectOption<T>[], textKey: 'translatedText' | 'view') {
         if (this.translateOptions())
             for (const option of allOptions)
                 option.translatedText = this.translateService.instant(option.view);
-        const textKey = this.translateOptions() ? 'translatedText' : 'view' as const;
-        search = search.toLocaleLowerCase();
-        const searchWords = search.split(/\s+/).filter(Boolean);
-        const addHighlights = (option: SelectOption<T>): VisibleOption<T> =>
-            ({ ...option, highlights: highlightWords(option[textKey]!, searchWords) });
-        if (!searchWords.length) return allOptions.map(addHighlights);
         for (const option of allOptions)
             option.lcText = option[textKey]!.toLocaleLowerCase();
-        let filteredOptions = allOptions
-            .filter(o => o.lcText!.startsWith(search))
-            .map(addHighlights);
-        if (filteredOptions.length) return filteredOptions;
-        filteredOptions = allOptions
-            .filter(o => o.lcText!.includes(search))
-            .map(addHighlights);
-        if (filteredOptions.length) return filteredOptions;
-        return getLowest(allOptions, o => levenshteinDistance(search, o.lcText!), 1)
-            .map(addHighlights);
+    }
+
+    private getSearchWords(search: string) {
+        return search.split(/\s+/).filter(Boolean);
+    }
+
+    private toVisibleOption(option: SelectOption<T>, textKey: 'translatedText' | 'view', searchWords: string[]): VisibleOption<T> {
+        return { ...option, highlights: highlightWords(option[textKey]!, searchWords) };
     }
 
     private setVisibleOptionGroups(options: VisibleOption<T>[]) {
@@ -353,4 +319,5 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         const match = allOptions.find(option => option.value === value) ?? null;
         this.selectedOption.set(match);
     }
+
 }

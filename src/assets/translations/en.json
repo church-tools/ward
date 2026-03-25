@@ -90,7 +90,7 @@
     "ORGANIZATIONS": "Organizations"
   },
   "MEETING_TYPE": {
-    "FAST_AND_TESTIMONY": "Fast and Testimony",
+    "FAST_AND_TESTIMONY": "Fast & Testimony",
     "GENERAL_CONFERENCE": "General Conference",
     "STAKE_CONFERENCE": "Stake Conference",
     "WARD_CONFERENCE": "Ward Conference"
@@ -168,10 +168,13 @@
     "TITLE": "Sacrament Meeting",
     "TYPE": "Type",
     "WEEK": "Week",
+    "OPENING_PRAYER": "Opening Prayer",
+    "CLOSING_PRAYER": "Closing Prayer",
     "CLASSES": "Classes"
   },
-  "SACRAMENT_MEETING_PLANING_PAGE": {
-    "TITLE": "Sacrament Meeting Planning",
+  "SACRAMENT_MEETING_PLANNING_PAGE": {
+    "SHORT_TITLE": "Planning",
+    "TITLE": "Planning of Sacrament Meetings",
     "SHOW_PAST": "Show past"
   },
   "MEETINGS_PAGE": {
@@ -247,6 +250,7 @@
   "NOTES": "Notes",
   "DELETE": "Delete",
   "CONFIRM_DELETE": "Confirm Delete?",
+  "NO_MATCHES": "No matches",
   "B": "B",
   "I": "I",
   "U": "U",

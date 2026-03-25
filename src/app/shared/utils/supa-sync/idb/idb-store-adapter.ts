@@ -153,12 +153,17 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
             .toPromise(store => store.getAllKeys().toPromise());
     }
 
-    public async findLargestId() {
+    public async findLargestId(indexName: keyof T & string = 'id' as keyof T & string) {
         const idb = await this.idb.promise;
         return await idb.transaction(this.storeName, "readonly")
-            .toPromise(store => store.index('id')
+            .toPromise(store => {
+                if (!store.indexNames.contains(indexName))
+                    throw new Error(`"${this.storeName}" store doesn't have an index for "${indexName}".\n
+                        Add "${indexName}" to the indexed array of the tableInfo that is passed to the SupaSync constructor.`);
+                return store.index(indexName)
                 .openKeyCursor(null, 'prev').toPromise()
-                .then(cursor => cursor?.key as number | undefined));
+                .then(cursor => cursor?.key as number | undefined);
+            });
     }
 
     public async delete(key: IDBValidKey) {

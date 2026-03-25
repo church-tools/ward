@@ -2,11 +2,11 @@
     (onClose)="navigateHere()"
     (activated)="onActivate($event)">
     <div class="page narrow gap-4">
-        <span class="h0">{{ 'SACRAMENT_MEETING_PLANING_PAGE.TITLE' | translate }}</span>
+        <span class="h0">{{ 'SACRAMENT_MEETING_PLANNING_PAGE.TITLE' | translate }}</span>
         <app-switch
             [value]="showPastMeetings()"
             (valueChange)="showPastMeetings.set($event ?? false)"
-            label="{{ 'SACRAMENT_MEETING_PLANING_PAGE.SHOW_PAST' | translate }}"/>
+            label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHOW_PAST' | translate }}"/>
         <app-row-card-list
             tableName="sacrament_meeting"
             [getQuery]="getQuery()"

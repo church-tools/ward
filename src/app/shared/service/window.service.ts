@@ -1,5 +1,5 @@
 import { DOCUMENT, EventEmitter, inject, Injectable, signal } from "@angular/core";
-import { NavigationEnd, Router } from "@angular/router";
+import { NavigationEnd, NavigationStart, Router } from "@angular/router";
 import { filter, tap } from "rxjs";
 import { AsyncState } from "../utils/async-state";
 import { executeOnce } from "../utils/flow-control-utils";
@@ -48,20 +48,23 @@ export class WindowService {
     readonly titleBarColors = signal<{ focused: { light: string, dark: string }, unfocused: { light: string, dark: string } } | null>(null);
 
     private allRoutePaths: { path: string, parent: string | null }[] | null = null;
+    private isHandlingMobileBack = false;
 
     constructor() {
         this.document.addEventListener('DOMContentLoaded', () => {
             this._focused.set(this.document.hasFocus?.());
         }, { once: true });
-        this.document.defaultView!.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
+        const defaultView = this.document.defaultView;
+        if (!defaultView) throw new Error("WindowService requires access to the defaultView of the document.");
+        defaultView.matchMedia?.('(prefers-color-scheme: dark)').addEventListener('change', event => {
             this._darkColorScheme.set(event.matches);
         });
-        this.document.defaultView!.addEventListener?.('keydown', async event => {
+        defaultView.addEventListener?.('keydown', async event => {
             executeOnce(() => this.onKeyPress.emit(event), this.timeout);
         });
-        this.document.defaultView!.addEventListener?.('resize', async event => {
+        defaultView.addEventListener?.('resize', async event => {
             executeOnce(() => {
-                const newSize = this.getSize(this.document.defaultView!.innerWidth);
+                const newSize = this.getSize(defaultView.innerWidth);
                 if (this.size() !== newSize) {
                     this._size.set(newSize);
                     this.onResizeBreakpoint.emit(newSize);
@@ -71,29 +74,34 @@ export class WindowService {
         });
         if (navigator.onLine)
             this.onlineState.set(true);
-        this.document.defaultView!.addEventListener?.('online', () => { this.isOnline.set(true); this.onlineState.set(true); });
-        this.document.defaultView!.addEventListener?.('offline', () => { this.isOnline.set(false); this.onlineState.unset(); });
+        defaultView.addEventListener?.('online', () => { this.isOnline.set(true); this.onlineState.set(true); });
+        defaultView.addEventListener?.('offline', () => { this.isOnline.set(false); this.onlineState.unset(); });
+        this.router.events.pipe(filter((e): e is NavigationStart => e instanceof NavigationStart)).subscribe(res => {
+            if (this.isHandlingMobileBack || res.navigationTrigger !== 'popstate' || !this.shouldHandleMobileBack()) return;
+            const parentUrl = this.backUrl();
+            if (!parentUrl || parentUrl === this.currentRoute()) return;
+            this.isHandlingMobileBack = true;
+            this.router.navigateByUrl(parentUrl, { replaceUrl: true })
+                .finally(() => {
+                    this.isHandlingMobileBack = false;
+                });
+        });
         this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(async res => {
             this._currentRoute.set(res.urlAfterRedirects);
-            this.allRoutePaths ??= [
-                ...getRoutePaths((await import('../../private/private.routes')).privateTabs),
-                ...getRoutePaths((await import('../../public/public.routes')).publicTabs)
-            ];
+            this.allRoutePaths ??= await this.getAllRoutePaths();
             this.backUrl.set(getParentUrl(res.urlAfterRedirects, this.allRoutePaths));
         });
-        if (this.document.defaultView) {
-            this.document.defaultView.onfocus = () => {
-                const activeElement = this.document.activeElement as HTMLElement | null;
-                if (activeElement)
-                    activeElement["blur"]?.(); // Prevents automatic focus on input fields
-                this._focused.set(true);
-                this.onFocusChange.emit(true);
-            };
-            this.document.defaultView.onblur = () => {
-                this._focused.set(false);
-                this.onFocusChange.emit(false);
-            };
-        }
+        defaultView.onfocus = () => {
+            const activeElement = this.document.activeElement as HTMLElement | null;
+            if (activeElement)
+                activeElement["blur"]?.(); // Prevents automatic focus on input fields
+            this._focused.set(true);
+            this.onFocusChange.emit(true);
+        };
+        defaultView.onblur = () => {
+            this._focused.set(false);
+            this.onFocusChange.emit(false);
+        };
         xeffect([this._focused, this.titleBarColors], (focused, colors) => {
             if (!colors) return;
             const color = focused ? colors.focused : colors.unfocused;
@@ -124,6 +132,17 @@ export class WindowService {
         if (width < BREAKPOINT_MD) return WindowSize.md;
         if (width < BREAKPOINT_LG) return WindowSize.lg;
         return WindowSize.xl;
+    }
+
+    private shouldHandleMobileBack(): boolean {
+        return this.isSmall() && (this.mobileOS || this.hasTouch);
+    }
+
+    private async getAllRoutePaths() {
+        return [
+            ...getRoutePaths((await import('../../private/private.routes')).privateTabs),
+            ...getRoutePaths((await import('../../public/public.routes')).publicTabs)
+        ];
     }
 
 }

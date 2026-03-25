@@ -1,7 +1,8 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import WeekInput from '../../../shared/form/date-time/week-input';
+import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/sacrament-meeting-view.service';
+import { CustomRowSelect } from '../../../shared/form/row-select/custom-row-select';
 import { Select } from '../../../shared/form/select/select';
 import { TextInput } from '../../../shared/form/text/text-input';
 import { SundayIndex, sundayIndexToDate } from '../../../shared/utils/date-utils';
@@ -10,7 +11,6 @@ import { xcomputed } from '../../../shared/utils/signal-utils';
 import { SyncedFieldDirective } from '../../../shared/utils/supa-sync/synced-field.directive';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
-import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/sacrament-meeting-view.service';
 
 @Component({
     selector: 'app-sacrament-meeting-page',
@@ -28,6 +28,16 @@ import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/
                 [options]="meetingView.typeOptions" translateOptions
                 label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | translate }}"/>
 
+            <app-custom-row-select class="col-md-6"
+                [syncedRow]="syncedRow" column="opening_prayer"
+                table="member"
+                label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | translate }}"/>
+
+            <app-custom-row-select class="col-md-6"
+                [syncedRow]="syncedRow" column="closing_prayer"
+                table="member"
+                label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | translate }}"/>
+
             <app-text-input class="col-12"
                 [syncedRow]="syncedRow" column="classes"
                 label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | translate }}"/>
@@ -36,7 +46,7 @@ import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     imports: [TranslateModule, SyncedFieldDirective, Select,
-        TextInput, DatePipe, RowHistory],
+        CustomRowSelect, TextInput, DatePipe, RowHistory],
     host: { class: 'page narrow full-height' },
 })
 export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
