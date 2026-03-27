@@ -1,11 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ProfileService } from '../../modules/profile/profile.service';
-import { AsyncButton } from '../../shared/form/button/async/async-button';
-import Switch from '../../shared/form/switch/switch';
-import { FunctionsService } from '../../shared/service/functions.service';
-import { xcomputed } from '../../shared/utils/signal-utils';
-import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
+import { ProfileService } from '@/modules/profile/profile.service';
+import { AsyncButton } from '@/shared/form/button/async/async-button';
+import Switch from '@/shared/form/switch/switch';
+import { FunctionsService } from '@/shared/service/functions.service';
+import { xcomputed } from '@/shared/utils/signal-utils';
+import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
 

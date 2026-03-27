@@ -1,11 +1,11 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { AsyncButton } from '../shared/form/button/async/async-button';
-import LinkButton from '../shared/form/button/link/link-button';
+import { AsyncButton } from '@/shared/form/button/async/async-button';
+import LinkButton from '@/shared/form/button/link/link-button';
 import { Page } from '../shared/page/page';
-import { FunctionsService } from '../shared/service/functions.service';
-import { SupabaseService } from '../shared/service/supabase.service';
+import { FunctionsService } from '@/shared/service/functions.service';
+import { SupabaseService } from '@/shared/service/supabase.service';
 import { wait } from '../shared/utils/flow-control-utils';
 import { Credentials } from './shared/credentials';
 

@@ -1,5 +1,5 @@
 import { Routes } from "@angular/router";
-import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
+import { mapRouteObject, RouteObject } from "@/shared/utils/route-utils";
 
 export const publicTabs: RouteObject = {
     login: { loadComponent: () => import('./login-page').then(m => m.LoginPage) },

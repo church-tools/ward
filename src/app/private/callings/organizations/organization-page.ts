@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { ColorPicker } from "../../../shared/form/color-picker/color-picker";
-import { TextInput } from '../../../shared/form/text/text-input';
-import { SyncedFieldDirective } from '../../../shared/utils/supa-sync/synced-field.directive';
+import { ColorPicker } from "@/shared/form/color-picker/color-picker";
+import { TextInput } from '@/shared/form/text/text-input';
+import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
 

@@ -1,7 +1,7 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { RowSelect } from "../../../../shared/form/row-select/row-select";
-import { SupabaseService } from '../../../../shared/service/supabase.service';
+import { RowSelect } from "@/shared/form/row-select/row-select";
+import { SupabaseService } from '@/shared/service/supabase.service';
 import { AgendaSection } from '../agenda-section';
 
 @Component({

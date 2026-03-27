@@ -1,14 +1,14 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/sacrament-meeting-view.service';
-import { CustomRowSelect } from '../../../shared/form/row-select/custom-row-select';
-import { MultiSelect } from '../../../shared/form/select/multi-select';
-import { Select } from '../../../shared/form/select/select';
-import { SundayIndex, sundayIndexToDate } from '../../../shared/utils/date-utils';
-import { createTranslateLocaleSignal } from '../../../shared/utils/language-utils';
-import { xcomputed } from '../../../shared/utils/signal-utils';
-import { SyncedFieldDirective } from '../../../shared/utils/supa-sync/synced-field.directive';
+import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
+import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
+import { MultiSelect } from '@/shared/form/select/multi-select';
+import { Select } from '@/shared/form/select/select';
+import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
+import { createTranslateLocaleSignal } from '@/shared/utils/language-utils';
+import { xcomputed } from '@/shared/utils/signal-utils';
+import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
 

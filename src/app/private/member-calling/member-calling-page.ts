@@ -1,11 +1,11 @@
+import { MemberCallingViewService } from '@/modules/member-calling/member-calling-view.service';
+import { MemberViewService } from '@/modules/member/member-view.service';
+import { RichText } from "@/shared/form/rich-text/rich-text";
+import { RowSelect } from "@/shared/form/row-select/row-select";
+import { Select } from "@/shared/form/select/select";
+import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { MemberCallingViewService } from '../../modules/member-calling/member-calling-view.service';
-import { MemberViewService } from '../../modules/member/member-view.service';
-import { RichText } from "../../shared/form/rich-text/rich-text";
-import { RowSelect } from "../../shared/form/row-select/row-select";
-import { Select } from "../../shared/form/select/select";
-import { SyncedFieldDirective } from "../../shared/utils/supa-sync/synced-field.directive";
 import { RowDeleteButton } from "../shared/row-delete-button";
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';

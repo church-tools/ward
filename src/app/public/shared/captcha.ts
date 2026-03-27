@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, DOCUMENT, ElementRef, inject, OnDestroy, output, Signal, viewChild } from '@angular/core';
 import { environment } from '../../../environments/environment';
-import { WindowService } from '../../shared/service/window.service';
+import { WindowService } from '@/shared/service/window.service';
 import { attachScript } from '../../shared/utils/dom-utils';
 
 @Component({

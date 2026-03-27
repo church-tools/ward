@@ -1,12 +1,12 @@
 import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import { Button } from "../../../shared/form/button/button";
-import { Page } from "../../../shared/page/page";
-import { WindowService } from "../../../shared/service/window.service";
-import { transitionStyle } from "../../../shared/utils/dom-utils";
-import { wait } from "../../../shared/utils/flow-control-utils";
-import { xeffect } from "../../../shared/utils/signal-utils";
-import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "../../../shared/utils/style";
+import { Button } from "@/shared/form/button/button";
+import { Page } from "@/shared/page/page";
+import { WindowService } from "@/shared/service/window.service";
+import { transitionStyle } from "@/shared/utils/dom-utils";
+import { wait } from "@/shared/utils/flow-control-utils";
+import { xeffect } from "@/shared/utils/signal-utils";
+import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "@/shared/utils/style";
 import { RowPage } from "../row-page";
 
 @Component({

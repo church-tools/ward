@@ -1,13 +1,13 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, output, TemplateRef, viewChild } from "@angular/core";
 import { Router } from "@angular/router";
-import { IconCode } from "../../../shared/icon/icon";
-import { Page } from "../../../shared/page/page";
-import { SupabaseService } from "../../../shared/service/supabase.service";
-import { PromiseOrValue } from "../../../shared/types";
-import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "../../../shared/utils/signal-utils";
-import { Subscription } from "../../../shared/utils/supa-sync/event-emitter";
-import { CardListComponent } from "../../../shared/widget/card-list/card-list";
+import { IconCode } from "@/shared/icon/icon";
+import { Page } from "@/shared/page/page";
+import { SupabaseService } from "@/shared/service/supabase.service";
+import { PromiseOrValue } from "@/shared/types";
+import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "@/shared/utils/signal-utils";
+import { Subscription } from "@/shared/utils/supa-sync/event-emitter";
+import { CardListComponent } from "@/shared/widget/card-list/card-list";
 import type { Insert, Row, Table, TableName, TableQuery } from "../table.types";
 import { getViewService } from "../view.service";
 

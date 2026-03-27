@@ -1,10 +1,10 @@
+import { CalculatedMap, TableName } from "@/modules/shared/table.types";
+import { AsyncButton } from "@/shared/form/button/async/async-button";
+import { SupaSyncedRow } from "@/shared/utils/supa-sync/supa-synced-row";
 import { Component, inject, input } from "@angular/core";
 import { Router } from "@angular/router";
 import { TranslateModule } from "@ngx-translate/core";
-import { Database } from "../../../../database";
-import { CalculatedMap, TableName } from "../../modules/shared/table.types";
-import { AsyncButton } from "../../shared/form/button/async/async-button";
-import { SupaSyncedRow } from "../../shared/utils/supa-sync/supa-synced-row";
+import { Database } from "@root/database";
 
 @Component({
     selector: 'app-row-delete-button',

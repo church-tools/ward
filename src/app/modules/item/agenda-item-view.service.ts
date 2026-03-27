@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import type { IconCode } from "../../shared/icon/icon";
+import type { IconCode } from "@/shared/icon/icon";
 import { ViewService } from "../shared/view.service";
 import type { AgendaItem } from "./agenda-item";
 

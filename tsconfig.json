@@ -23,7 +23,8 @@
     "declaration": false,
     "declarationMap": false,
     "paths": {
-      "@/*": ["./src/app/*"]
+      "@/*": ["./src/app/*"],
+      "@root/*": ["./*"],
     },
   },
   "angularCompilerOptions": {

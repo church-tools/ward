@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from "@angular/core";
-import { ProfileService } from "../../modules/profile/profile.service";
-import { xcomputed } from "../../shared/utils/signal-utils";
+import { ProfileService } from "@/modules/profile/profile.service";
+import { xcomputed } from "@/shared/utils/signal-utils";
 
 @Injectable({ providedIn: 'root' })
 export class AdminService {

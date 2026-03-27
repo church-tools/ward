@@ -1,5 +1,5 @@
 import { Component, signal } from '@angular/core';
-import { RichText } from '../shared/form/rich-text/rich-text';
+import { RichText } from '@/shared/form/rich-text/rich-text';
 import { Page } from '../shared/page/page';
 import { PALETTE_COLORS } from '../shared/utils/color-utils';
 

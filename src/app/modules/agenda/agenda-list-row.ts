@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ListRow } from '../shared/row-card-list/list-row';
-import { IconCode, Icon } from "../../shared/icon/icon";
-import { xcomputed } from '../../shared/utils/signal-utils';
+import { IconCode, Icon } from "@/shared/icon/icon";
+import { xcomputed } from '@/shared/utils/signal-utils';
 import { MeetingsPage } from '@/private/meetings/meetings-page';
 
 @Component({

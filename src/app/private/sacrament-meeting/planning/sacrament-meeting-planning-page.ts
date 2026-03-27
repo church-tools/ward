@@ -1,17 +1,17 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { SacramentMeetingListInsert } from '../../../modules/sacrament-meeting/sacrament-meeting-list-insert';
-import { SacramentMeetingListRow } from '../../../modules/sacrament-meeting/sacrament-meeting-list-row';
-import { SacramentMeetingService } from '../../../modules/sacrament-meeting/sacrament-meeting.service';
-import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
-import { Table } from '../../../modules/shared/table.types';
-import Switch from '../../../shared/form/switch/switch';
-import { getUpcomingSundayIndex } from '../../../shared/utils/date-utils';
-import { xcomputed, xsignal } from '../../../shared/utils/signal-utils';
+import { SacramentMeetingListInsert } from '@/modules/sacrament-meeting/sacrament-meeting-list-insert';
+import { SacramentMeetingListRow } from '@/modules/sacrament-meeting/sacrament-meeting-list-row';
+import { SacramentMeetingService } from '@/modules/sacrament-meeting/sacrament-meeting.service';
+import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
+import { Table } from '@/modules/shared/table.types';
+import Switch from '@/shared/form/switch/switch';
+import { getUpcomingSundayIndex } from '@/shared/utils/date-utils';
+import { xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { DrawerRouterOutlet } from '../../shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from '../../shared/private-page';
-import { SacramentMeeting } from '../../../modules/sacrament-meeting/sacrament-meeting';
+import { SacramentMeeting } from '@/modules/sacrament-meeting/sacrament-meeting';
 import { getRowRoute } from '../../private.routes';
 
 @Component({

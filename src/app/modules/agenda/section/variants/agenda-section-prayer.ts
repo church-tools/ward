@@ -1,8 +1,8 @@
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import { RowSelect } from "../../../../shared/form/row-select/row-select";
-import { SupabaseService } from '../../../../shared/service/supabase.service';
-import { asyncComputed, xcomputed } from '../../../../shared/utils/signal-utils';
+import { RowSelect } from "@/shared/form/row-select/row-select";
+import { SupabaseService } from '@/shared/service/supabase.service';
+import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
 import { Agenda } from '../../agenda';
 import { AgendaSection } from '../agenda-section';
 

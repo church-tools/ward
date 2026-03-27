@@ -1,4 +1,4 @@
-import { Database } from '../../../../database';
+import { Database } from '@root/database';
 import type Table from '../shared/table.types';
 
 export namespace SacramentMeeting {

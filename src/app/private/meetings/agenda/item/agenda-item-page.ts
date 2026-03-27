@@ -1,9 +1,9 @@
 import { Component } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import FileInput from '../../../../shared/form/file/file-input';
-import { RichText } from "../../../../shared/form/rich-text/rich-text";
-import { Textarea } from '../../../../shared/form/text/textarea';
-import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
+import FileInput from '@/shared/form/file/file-input';
+import { RichText } from "@/shared/form/rich-text/rich-text";
+import { Textarea } from '@/shared/form/text/textarea';
+import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { RowDeleteButton } from "../../../shared/row-delete-button";
 import { RowHistory } from "../../../shared/row-history";
 import { RowPage } from '../../../shared/row-page';

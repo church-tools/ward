@@ -1,13 +1,13 @@
 import { Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { CallingListInsert } from '../../../modules/calling/calling-list-insert';
-import { CallingListRow } from '../../../modules/calling/calling-list-row';
-import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
-import { Insert, Row, Table } from '../../../modules/shared/table.types';
-import { WindowService } from '../../../shared/service/window.service';
-import { xcomputed } from '../../../shared/utils/signal-utils';
-import { getRowRoute } from '../../private.routes';
+import { CallingListInsert } from '@/modules/calling/calling-list-insert';
+import { CallingListRow } from '@/modules/calling/calling-list-row';
+import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
+import { Insert, Row, Table } from '@/modules/shared/table.types';
+import { WindowService } from '@/shared/service/window.service';
+import { xcomputed } from '@/shared/utils/signal-utils';
+import { getRowRoute } from '@/private/private.routes';
 import { AdminService } from '../../shared/admin.service';
 
 @Component({

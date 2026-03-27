@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Page } from '../../shared/page/page';
-import { FunctionsService } from '../../shared/service/functions.service';
+import { FunctionsService } from '@/shared/service/functions.service';
 
 @Component({
     selector: 'app-bulletin-board-page',

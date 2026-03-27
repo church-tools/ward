@@ -1,5 +1,5 @@
 import { booleanAttribute, Component, inject, Injector, input, signal } from "@angular/core";
-import type { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
+import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
 import { SupabaseService } from "../../service/supabase.service";
 import { assureArray } from "../../utils/array-utils";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
@@ -80,7 +80,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
         });
     }
 
-    protected getOptions = async (search: string) => {
+    protected getOptions = async (_search: string) => {
         if (this.optionList().length)
             return this.optionList();
         const query = resolveRowQuery(this._table(), this.getQuery());
@@ -101,10 +101,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
     protected override async mapIn(value: number | number[] | null): Promise<number | number[] | null> {
         if (value == null)
             return value;
-        const normalized = this.multiple()
-            ? [...assureArray(value)]
-            : (Array.isArray(value) ? (value[0] ?? null) : value) as number | null;
-        const selectedIds = assureArray(normalized).filter(v => v != null);
+        const selectedIds = this.normalizeSelectedIds(value, this.multiple());
         if (selectedIds.length)
             await this.ensureOptionsForValues(selectedIds);
         const aligned = this.alignValuesToOptions(selectedIds);
@@ -116,9 +113,10 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
     protected override mapOut(value: number | number[] | null): number | number[] | null {
         if (value == null)
             return value;
+        const selectedIds = this.normalizeSelectedIds(value, this.multiple());
         return this.multiple()
-            ? [...assureArray(value)]
-            : (Array.isArray(value) ? (value[0] ?? null) : value);
+            ? [...selectedIds]
+            : (selectedIds[0] ?? null);
     }
 
     private async ensureOptionsForValues(values: number[]) {
@@ -131,16 +129,7 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
         const rows = await table.readMany(missingValues as unknown as IDBValidKey[]).get();
         if (!rows.length) return;
         const missingOptions = await this.mapRowsToOptions(rows);
-        const dedupe = new Set(currentOptions.map(option => option.value));
-        this.optionList.set([
-            ...currentOptions,
-            ...missingOptions.filter(option => {
-                if (dedupe.has(option.value))
-                    return false;
-                dedupe.add(option.value);
-                return true;
-            }),
-        ]);
+        this.optionList.set(this.mergeOptions(currentOptions, missingOptions));
     }
 
     private async mapRowsToOptions(rows: Row<T>[]) {
@@ -155,7 +144,28 @@ export class RowSelect<T extends TableName> extends InputBase<number | number[]>
         const options = this.optionList();
         if (!options.length)
             return values;
-        return values.map(value =>
-            options.find(option => String(option.value) === String(value))?.value ?? value);
+        const optionValueByStringValue = new Map(options.map(option => [String(option.value), option.value]));
+        return values.map(value => optionValueByStringValue.get(String(value)) ?? value);
+    }
+
+    private normalizeSelectedIds(value: number | number[] | null, multiple: boolean) {
+        if (multiple)
+            return [...assureArray(value)].filter((item): item is number => item != null);
+        if (Array.isArray(value))
+            return value[0] != null ? [value[0]] : [];
+        return value != null ? [value] : [];
+    }
+
+    private mergeOptions(currentOptions: SelectOption<number>[], incomingOptions: SelectOption<number>[]) {
+        const dedupe = new Set(currentOptions.map(option => option.value));
+        return [
+            ...currentOptions,
+            ...incomingOptions.filter(option => {
+                if (dedupe.has(option.value))
+                    return false;
+                dedupe.add(option.value);
+                return true;
+            }),
+        ];
     }
 }

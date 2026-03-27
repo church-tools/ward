@@ -2,8 +2,8 @@ import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { IconCode, Icon } from '../../../../shared/icon/icon';
-import { ColorName } from '../../../../shared/utils/color-utils';
+import { IconCode, Icon } from '@/shared/icon/icon';
+import { ColorName } from '@/shared/utils/color-utils';
 
 export type InnerNavBarTab = {
     icon: IconCode;

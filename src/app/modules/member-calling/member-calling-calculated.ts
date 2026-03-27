@@ -1,5 +1,5 @@
-import type { Database } from "../../../../database";
-import type { CalculatedField, CalculatedValuesFromFields } from "../../shared/utils/supa-sync/supa-sync.types";
+import type { Database } from "@root/database";
+import type { CalculatedField, CalculatedValuesFromFields } from "@/shared/utils/supa-sync/supa-sync.types";
 import type Table from "../shared/table.types";
 
 export const MemberCallingCalculated = {

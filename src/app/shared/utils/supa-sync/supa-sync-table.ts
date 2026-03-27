@@ -225,7 +225,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             .select('*')
             .gt(this.updatedAtKey, effectiveLastUpdatedAt);
         if (effectiveLastUpdatedAt.startsWith('1970-') && this.info.deletable)
-            query = query.eq(this.deletedKey, false as any);
+            query = query.eq(this.deletedKey as any, false as any);
         await this.onlineState.get();
         const { data } = await query.throwOnError();
         let dependentUpdatesPromise: Promise<void> = Promise.resolve();
@@ -343,7 +343,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
             : this.supabaseClient.from(this.name).delete());
         for (const idKey of this.idKeys)
-            query = query.eq(idKey, row[idKey] as any);
+            query = query.eq(idKey as any, row[idKey]);
         await Promise.all([
             this._storeAdapter.delete(this.getId(row)),
             query.throwOnError()
@@ -429,7 +429,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 Promise.all(updates.map(async row => {
                     let query = this.supabaseClient.from(this.name).update(row);
                     for (const idKey of this.idKeys)
-                        query = query.eq(idKey, row[idKey]);
+                        query = query.eq(idKey as any, row[idKey]);
                     await query.single().throwOnError();
                 })),
             ]);

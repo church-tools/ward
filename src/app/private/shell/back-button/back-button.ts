@@ -1,7 +1,7 @@
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Icon } from '../../../shared/icon/icon';
+import { Icon } from '@/shared/icon/icon';
 
 @Component({
     selector: 'app-back-button',

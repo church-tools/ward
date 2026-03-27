@@ -81,25 +81,7 @@ export class MultiSelect<T> extends InputBase<MultiSelectValue<T>[], MultiSelect
 
 	protected readonly selectedOptions = xcomputed([this.allOptions, this.viewValue], (options, value) => {
 		const optionByValue = new Map<T, SelectOption<T>>(options.map(option => [option.value, option]));
-		return assureArray(value ?? []).map(item => {
-			if (typeof item === 'string') {
-				return {
-					value: item,
-					id: this.getCustomOptionId(item),
-					view: item,
-					isCustom: true,
-				} as MultiSelectChip<T>;
-			}
-			const option = optionByValue.get(item);
-			if (option)
-				return option as MultiSelectChip<T>;
-			return {
-				value: item,
-				id: this.getCustomOptionId(item),
-				view: this.stringifyCustomValue(item),
-				isCustom: true,
-			} as MultiSelectChip<T>;
-		});
+		return assureArray(value ?? []).map(item => this.toChip(item, optionByValue));
 	});
 
 	protected readonly getOptions = async (search: string) => {
@@ -156,7 +138,8 @@ export class MultiSelect<T> extends InputBase<MultiSelectValue<T>[], MultiSelect
 		const normalized = [...assureArray(value ?? [])]
 			.map(item => typeof item === 'string' ? item.trim() : item)
 			.filter(item => item != null && item !== '');
-		if (this.optionValuesByValue()) {
+		const optionValuesByValue = this.optionValuesByValue();
+		if (optionValuesByValue) {
 			if (!normalized.length)
 				return null;
 			const customText = normalized.find(item => typeof item === 'string');
@@ -200,6 +183,24 @@ export class MultiSelect<T> extends InputBase<MultiSelectValue<T>[], MultiSelect
 		if (typeof value === 'string')
 			return value;
 		return String(value ?? '');
+	}
+
+	private toChip(item: MultiSelectValue<T>, optionByValue: Map<T, SelectOption<T>>) {
+		if (typeof item === 'string')
+			return this.createCustomChip(item, item);
+		const option = optionByValue.get(item);
+		if (option)
+			return option as MultiSelectChip<T>;
+		return this.createCustomChip(item, this.stringifyCustomValue(item));
+	}
+
+	private createCustomChip(value: MultiSelectValue<T>, view: string): MultiSelectChip<T> {
+		return {
+			value,
+			id: this.getCustomOptionId(value),
+			view,
+			isCustom: true,
+		};
 	}
 
 	private getCustomOptionId(value: MultiSelectValue<T>) {

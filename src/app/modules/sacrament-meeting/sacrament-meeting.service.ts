@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
-import { SupabaseService } from "../../shared/service/supabase.service";
-import { getSundayIndexInMonth, getUpcomingSundayIndex, SundayIndex } from "../../shared/utils/date-utils";
+import { SupabaseService } from "@/shared/service/supabase.service";
+import { getSundayIndexInMonth, getUpcomingSundayIndex, SundayIndex } from "@/shared/utils/date-utils";
 import { ProfileService } from "../profile/profile.service";
 import type { SacramentMeeting } from "./sacrament-meeting";
 

@@ -140,8 +140,8 @@ export class WindowService {
 
     private async getAllRoutePaths() {
         return [
-            ...getRoutePaths((await import('../../private/private.routes')).privateTabs),
-            ...getRoutePaths((await import('../../public/public.routes')).publicTabs)
+            ...getRoutePaths((await import('@/private/private.routes')).privateTabs),
+            ...getRoutePaths((await import('@/public/public.routes')).publicTabs)
         ];
     }
 

@@ -1,8 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { SacramentMeetingViewService } from '../modules/sacrament-meeting/sacrament-meeting-view.service';
-import { SacramentMeetingService } from '../modules/sacrament-meeting/sacrament-meeting.service';
+import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
+import { SacramentMeetingService } from '@/modules/sacrament-meeting/sacrament-meeting.service';
 import { Icon } from '../shared/icon/icon';
 import { DrawerRouterOutlet } from './shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from './shared/private-page';

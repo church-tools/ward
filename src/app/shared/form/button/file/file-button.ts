@@ -1,6 +1,6 @@
 import { Component, input, output, signal, viewChild } from "@angular/core";
-import { IconCode, Icon } from "../../../icon/icon";
-import { xcomputed } from "../../../utils/signal-utils";
+import { IconCode, Icon } from "@/shared/icon/icon";
+import { xcomputed } from "@/shared/utils/signal-utils";
 import ButtonBase from "../shared/button-base";
 import FileDrop from "./file-drop.component";
 

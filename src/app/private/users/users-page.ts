@@ -1,13 +1,13 @@
+import { Profile } from '@/modules/profile/profile';
+import { ProfileListInsert } from '@/modules/profile/profile-list-insert';
+import { ProfileListRow } from '@/modules/profile/profile-list-row';
+import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
+import { Table } from '@/modules/shared/table.types';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { Profile } from '../../modules/profile/profile';
-import { ProfileListInsert } from '../../modules/profile/profile-list-insert';
-import { ProfileListRow } from '../../modules/profile/profile-list-row';
-import { RowCardList } from "../../modules/shared/row-card-list/row-card-list";
-import { Table } from '../../modules/shared/table.types';
-import { PrivatePage } from '../shared/private-page';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
+import { PrivatePage } from '../shared/private-page';
 import { NewUnitsComponent } from "./new-units";
 
 @Component({

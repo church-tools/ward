@@ -1,20 +1,20 @@
 import { Component, inject, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import { Member } from "../../../modules/member/member";
-import { MemberViewService } from "../../../modules/member/member-view.service";
-import { ProfileService } from "../../../modules/profile/profile.service";
-import { AsyncButton } from "../../../shared/form/button/async/async-button";
-import FileButton from "../../../shared/form/button/file/file-button";
-import LinkButton from "../../../shared/form/button/link/link-button";
-import Checkbox from "../../../shared/form/checkbox/checkbox";
-import { Icon } from "../../../shared/icon/icon";
-import { SupabaseService } from "../../../shared/service/supabase.service";
-import { FileType } from "../../../shared/utils/file-utils";
-import { extractTextFromPdf } from "../../../shared/utils/pdf-utils";
-import { xeffect } from "../../../shared/utils/signal-utils";
-import Collapse from "../../../shared/widget/collapse/collapse";
-import { PopoverPage } from "../../../shared/widget/popover/popover";
-import { TagComponent } from "../../../shared/widget/tag/tag";
+import { Member } from "@/modules/member/member";
+import { MemberViewService } from "@/modules/member/member-view.service";
+import { ProfileService } from "@/modules/profile/profile.service";
+import { AsyncButton } from "@/shared/form/button/async/async-button";
+import FileButton from "@/shared/form/button/file/file-button";
+import LinkButton from "@/shared/form/button/link/link-button";
+import Checkbox from "@/shared/form/checkbox/checkbox";
+import { Icon } from "@/shared/icon/icon";
+import { SupabaseService } from "@/shared/service/supabase.service";
+import { FileType } from "@/shared/utils/file-utils";
+import { extractTextFromPdf } from "@/shared/utils/pdf-utils";
+import { xeffect } from "@/shared/utils/signal-utils";
+import Collapse from "@/shared/widget/collapse/collapse";
+import { PopoverPage } from "@/shared/widget/popover/popover";
+import { TagComponent } from "@/shared/widget/tag/tag";
 
 type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
     & { duplicate?: boolean, import: boolean };

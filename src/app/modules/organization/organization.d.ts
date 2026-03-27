@@ -1,4 +1,4 @@
-import type { Database } from "../../../../database";
+import type { Database } from "@root/database";
 import type Table from "../shared/table.types";
 
 export namespace Organization {

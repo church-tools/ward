@@ -1,10 +1,10 @@
 import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
-import { Agenda } from '../../../../modules/agenda/agenda';
-import { AgendaListRow } from "../../../../modules/agenda/agenda-list-row";
-import { AgendaItem } from '../../../../modules/item/agenda-item';
-import { DragData, DragDropService } from '../../../../shared/service/drag-drop.service';
-import { SupabaseService } from "../../../../shared/service/supabase.service";
-import { asyncComputed, xeffect } from "../../../../shared/utils/signal-utils";
+import { Agenda } from '@/modules/agenda/agenda';
+import { AgendaListRow } from "@/modules/agenda/agenda-list-row";
+import { AgendaItem } from '@/modules/item/agenda-item';
+import { DragData, DragDropService } from '@/shared/service/drag-drop.service';
+import { SupabaseService } from "@/shared/service/supabase.service";
+import { asyncComputed, xeffect } from "@/shared/utils/signal-utils";
 
 @Component({
     selector: 'app-agenda-drop-zone',

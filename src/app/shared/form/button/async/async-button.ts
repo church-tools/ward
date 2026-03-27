@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, input, signal, viewChild } from "@angular/core";
-import { Icon } from "../../../icon/icon";
-import { xcomputed, xeffect } from "../../../utils/signal-utils";
-import ErrorMessage from "../../../widget/error-message/error-message";
+import { Icon } from "@/shared/icon/icon";
+import { xcomputed, xeffect } from "@/shared/utils/signal-utils";
+import ErrorMessage from "@/shared/widget/error-message/error-message";
 import ButtonBase from "../shared/button-base";
 
 export type ProgressCallback = (progress: number) => void;

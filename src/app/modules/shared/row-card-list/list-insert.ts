@@ -1,5 +1,5 @@
 import { Component, inject, input } from "@angular/core";
-import type { PromiseOrValue } from "../../../shared/types";
+import type { PromiseOrValue } from "@/shared/types";
 import type { Profile } from "../../profile/profile";
 import { ProfileService } from "../../profile/profile.service";
 import type { Insert, TableName } from "../table.types";

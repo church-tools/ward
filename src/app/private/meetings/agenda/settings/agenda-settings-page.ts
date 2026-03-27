@@ -1,14 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { DbConstants } from '../../../../shared/db-constants';
-import TimePicker from '../../../../shared/form/date-time/time-picker';
-import { IconPicker } from "../../../../shared/form/icon-picker/icon-picker";
-import { RowSelect } from "../../../../shared/form/row-select/row-select";
-import { Select } from "../../../../shared/form/select/select";
-import Switch from '../../../../shared/form/switch/switch';
-import { TextInput } from "../../../../shared/form/text/text-input";
-import { range } from '../../../../shared/utils/array-utils';
-import { SyncedFieldDirective } from "../../../../shared/utils/supa-sync/synced-field.directive";
+import { DbConstants } from '@/shared/db-constants';
+import TimePicker from '@/shared/form/date-time/time-picker';
+import { IconPicker } from "@/shared/form/icon-picker/icon-picker";
+import { RowSelect } from "@/shared/form/row-select/row-select";
+import { Select } from "@/shared/form/select/select";
+import Switch from '@/shared/form/switch/switch';
+import { TextInput } from "@/shared/form/text/text-input";
+import { range } from '@/shared/utils/array-utils';
+import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { RowPage } from '../../../shared/row-page';
 
 @Component({

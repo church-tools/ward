@@ -1,11 +1,11 @@
 import { Component, inject, model } from '@angular/core';
 import { Router } from '@angular/router';
-import { AsyncButton } from '../../shared/form/button/async/async-button';
+import { AsyncButton } from '@/shared/form/button/async/async-button';
 import { Select, SelectOption } from "../../shared/form/select/select";
 import { TextInput } from "../../shared/form/text/text-input";
 import { Page } from '../../shared/page/page';
-import { FunctionsService } from '../../shared/service/functions.service';
-import { SupabaseService } from '../../shared/service/supabase.service';
+import { FunctionsService } from '@/shared/service/functions.service';
+import { SupabaseService } from '@/shared/service/supabase.service';
 import { asyncComputed } from '../../shared/utils/signal-utils';
 
 @Component({

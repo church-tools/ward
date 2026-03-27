@@ -1,7 +1,7 @@
 import { booleanAttribute, Component, DOCUMENT, inject, input, OnDestroy } from "@angular/core";
 import { Params, Router, RouterModule } from "@angular/router";
-import { Icon } from "../../../icon/icon";
-import { xcomputed } from "../../../utils/signal-utils";
+import { Icon } from "@/shared/icon/icon";
+import { xcomputed } from "@/shared/utils/signal-utils";
 import ButtonBase from "../shared/button-base";
 
 @Component({

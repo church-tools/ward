@@ -1,5 +1,5 @@
 import { booleanAttribute, Component, inject, input } from '@angular/core';
-import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '../../../modules/shared/table.types';
+import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '@/modules/shared/table.types';
 import { SupabaseService } from '../../service/supabase.service';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
@@ -42,10 +42,10 @@ export class RelatedRowSelectComponent<
 	readonly getRelatedQuery = input<RelatedQueryFactory<ParentTable, RelatedTable> | null>(null);
 	readonly relatedIdKey = input.required<NumberColumn<RelationTable>>();
 	readonly mapInsert = input.required<RelationInsertMapper<RelationTable>>();
-	readonly label = input<string>()
+	readonly label = input<string>();
 	readonly multiple = input<boolean, unknown>(false, { transform: booleanAttribute });
 	readonly onRelationClick = input<(relationId: number) => void>();
-    readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
+	readonly hideClear = input<boolean, unknown>(false, { transform: booleanAttribute });
 
 	protected readonly onRelatedClick = xcomputed([this.parentTable, this.parentIdKey, this.relatedIdKey, this.relationTable, this.onRelationClick],
 		(parentTable, parentIdKey, relatedIdKey, relationTable, onRelationClick) => {
@@ -55,10 +55,8 @@ export class RelatedRowSelectComponent<
 				event.preventDefault();
 				if (typeof option.value !== 'number')
 					return;
-				const parentId = this.supabase.sync.from(parentTable).getId(this.parent());
-				const relationRow = { [parentIdKey]: parentId, [relatedIdKey]: option.value } as unknown as Row<RelationTable>;
-				const relationid = this.supabase.sync.from(relationTable).getId(relationRow);
-				onRelationClick(relationid);
+				const relationId = this.getRelationId(parentTable, relationTable, parentIdKey, relatedIdKey, option.value);
+				onRelationClick(relationId);
 			};
 		}
 	);
@@ -84,8 +82,7 @@ export class RelatedRowSelectComponent<
 		const removedRelationRows = this.selectedRelations().filter(relation =>
 			!newRelatedIdSet.has(Number(relation[relatedIdKey])));
 		const relationTable = this.supabase.sync.from(this.relationTable());
-		const parentTable = this.supabase.sync.from(this.parentTable());
-		const parentId = parentTable.getId(this.parent());
+		const parentId = this.getParentId(this.parentTable());
 
 		await Promise.all([
 			addedRelatedIds.length
@@ -93,5 +90,22 @@ export class RelatedRowSelectComponent<
 				: Promise.resolve([]),
 			...removedRelationRows.map(relation => relationTable.delete(relation)),
 		]);
+	}
+
+	private getParentId(parentTableName: ParentTable) {
+		const parentTable = this.supabase.sync.from(parentTableName);
+		return parentTable.getId(this.parent());
+	}
+
+	private getRelationId(
+		parentTableName: ParentTable,
+		relationTableName: RelationTable,
+		parentIdKey: NumberColumn<RelationTable>,
+		relatedIdKey: NumberColumn<RelationTable>,
+		relatedId: number,
+	) {
+		const parentId = this.getParentId(parentTableName);
+		const relationRow = { [parentIdKey]: parentId, [relatedIdKey]: relatedId } as unknown as Row<RelationTable>;
+		return this.supabase.sync.from(relationTableName).getId(relationRow);
 	}
 }

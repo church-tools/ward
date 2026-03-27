@@ -1,7 +1,7 @@
 import { Component, computed, signal, viewChild } from '@angular/core';
 import { FormField, email, form, minLength, pattern, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import { TextInput } from '../../shared/form/text/text-input';
+import { TextInput } from '@/shared/form/text/text-input';
 
 export type CredentialInfo = {
 	email: string;

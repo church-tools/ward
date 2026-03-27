@@ -1,8 +1,8 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { AsyncButton } from "../../shared/form/button/async/async-button";
-import { Icon } from "../../shared/icon/icon";
-import { FunctionsService, UnitInfo } from "../../shared/service/functions.service";
+import { Icon } from "@/shared/icon/icon";
+import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
 
 @Component({
     selector: 'app-new-units',

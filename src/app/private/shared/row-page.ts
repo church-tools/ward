@@ -1,11 +1,11 @@
+import { TableName } from '@/modules/shared/table.types';
+import { getViewService } from '@/modules/shared/view.service';
+import { SupabaseService } from '@/shared/service/supabase.service';
+import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
+import { SupaSyncedRow } from '@/shared/utils/supa-sync/supa-synced-row';
 import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { TableName } from '../../modules/shared/table.types';
-import { getViewService } from '../../modules/shared/view.service';
-import { SupabaseService } from '../../shared/service/supabase.service';
-import { asyncComputed, xcomputed } from '../../shared/utils/signal-utils';
-import { SupaSyncedRow } from '../../shared/utils/supa-sync/supa-synced-row';
 import { RowPageService } from '../row-page.service';
 import { PrivatePage } from './private-page';
 

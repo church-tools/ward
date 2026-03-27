@@ -1,6 +1,6 @@
+import type { Row, Table, TableName, TableQuery } from '@/modules/shared/table.types';
+import { getViewService } from '@/modules/shared/view.service';
 import { Injector } from '@angular/core';
-import { getViewService } from '../../../modules/shared/view.service';
-import type { Row, Table, TableName, TableQuery } from '../../../modules/shared/table.types';
 
 export function resolveRowQuery<T extends TableName>(
     table: Table<T>,

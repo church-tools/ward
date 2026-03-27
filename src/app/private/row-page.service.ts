@@ -1,5 +1,5 @@
 import { Injectable, signal } from "@angular/core";
-import { TableName } from "../modules/shared/table.types";
+import { TableName } from "@/modules/shared/table.types";
 
 @Injectable({
     providedIn: 'root',

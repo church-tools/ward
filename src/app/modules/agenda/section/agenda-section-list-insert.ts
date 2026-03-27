@@ -1,8 +1,8 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { Button } from '../../../shared/form/button/button';
-import { SupabaseRow, SupabaseService } from '../../../shared/service/supabase.service';
-import { asyncComputed } from '../../../shared/utils/signal-utils';
+import { Button } from '@/shared/form/button/button';
+import { SupabaseRow, SupabaseService } from '@/shared/service/supabase.service';
+import { asyncComputed } from '@/shared/utils/signal-utils';
 import { Profile } from '../../profile/profile';
 import { ListInsert } from '../../shared/row-card-list/list-insert';
 import { AgendaSection } from './agenda-section';

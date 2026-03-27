@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { ProfileService } from '../../modules/profile/profile.service';
+import { ProfileService } from '@/modules/profile/profile.service';
 import MenuButtonComponent from '../form/button/menu/menu-button';
 import { SupabaseService } from '../service/supabase.service';
 import { WindowService } from '../service/window.service';

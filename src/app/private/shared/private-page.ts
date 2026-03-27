@@ -1,6 +1,6 @@
 import { Component, inject, OnDestroy } from '@angular/core';
 import { Page } from '../../shared/page/page';
-import { WindowService } from '../../shared/service/window.service';
+import { WindowService } from '@/shared/service/window.service';
 import { PopoverService } from '../../shared/widget/popover/popover.service';
 import { AdminService } from './admin.service';
 

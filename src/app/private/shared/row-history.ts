@@ -1,9 +1,9 @@
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import type { Row, TableName } from '../../modules/shared/table.types';
-import { createTranslateLocaleSignal } from '../../shared/utils/language-utils';
-import { xcomputed } from '../../shared/utils/signal-utils';
+import type { Row, TableName } from '@/modules/shared/table.types';
+import { createTranslateLocaleSignal } from '@/shared/utils/language-utils';
+import { xcomputed } from '@/shared/utils/signal-utils';
 
 @Component({
     selector: 'app-row-history',

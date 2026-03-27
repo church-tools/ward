@@ -1,6 +1,6 @@
 import { booleanAttribute, Component, ElementRef, inject, Injector, input, OutputRefSubscription, signal, viewChild } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import type { Row, Table, TableName, TableQuery } from "../../../modules/shared/table.types";
+import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
 import { SupabaseService } from "../../service/supabase.service";
 import { Icon } from "../../icon/icon";
 import { wait } from "../../utils/flow-control-utils";
@@ -101,20 +101,14 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
         (values, options, multiple) => {
         const optionById = new Map(options.map(option => [option.id, option]));
         return values
-            .map(value => {
-                const option = optionById.get(value);
-                if (option)
-                    return { id: option.id, value: option.id, view: option.view };
-                if (!multiple)
-                    return null;
-                return { id: `custom-${value}`, value, view: value, isCustom: true };
-            })
+            .map(value => this.buildSelectedOption(value, optionById, multiple))
             .filter((option): option is CustomRowSelectedOption => option !== null);
     });
 
     private readonly typing = signal(false);
     private typingResetTimeout: ReturnType<typeof setTimeout> | null = null;
     private readonly typingSyncDelayMs = 250;
+    private readonly optionCleanupDelayMs = 100;
     private readonly pendingValueTracker = createPendingValueTracker<string | string[] | null>(150);
     // Preserve a recently typed numeric token to avoid immediately resolving it as an option id during model sync.
     private locallyTypedRawNumericValue: string | null = null;
@@ -258,22 +252,12 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
         setTimeout(() => {
             if (this.popover().isRequested()) return;
             this.filteredOptions.set([]);
-        }, 100);
+        }, this.optionCleanupDelayMs);
     }
 
     private async updateVisibleOptions() {
         await this.loadOptions();
-        const search = this.search().trim().toLocaleLowerCase();
-        if (!search) {
-            this.filteredOptions.set(this.optionList());
-            return;
-        }
-        const options = this.optionList();
-        const startsWith = options.filter(option => option.lcView.startsWith(search));
-        const contains = options.filter(option => {
-            return !option.lcView.startsWith(search) && option.lcView.includes(search);
-        });
-        this.filteredOptions.set([...startsWith, ...contains]);
+        this.filteredOptions.set(this.filterOptions(this.search(), this.optionList()));
     }
 
     private async loadOptions() {
@@ -325,16 +309,14 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
         const currentSearch = this.normalizeInput(this.search());
         if (this.typing() && currentSearch !== value)
             return;
-        const valueIsNumeric = !!value && /^\d+$/.test(value);
+        const valueIsNumeric = this.isNumericToken(value);
         const hasLocalTypedNumeric = this.isLocallyTypedRawNumericValue(value);
-        const valueMatchesKnownOption = !!value && this.optionList().some(option => option.id === value);
+        const valueMatchesKnownOption = !!this.findOptionById(value);
         const shouldResolveById = !!value && (
             (valueIsNumeric && !hasLocalTypedNumeric)
             || valueMatchesKnownOption
         );
-        const match = shouldResolveById
-            ? this.optionList().find(option => option.id === value) ?? null
-            : null;
+        const match = shouldResolveById ? this.findOptionById(value) : null;
         if (match) {
             this.search.set('');
             return;
@@ -387,7 +369,7 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
     }
 
     private markLocallyTypedRawNumericValue(value: string | null) {
-        if (!value || !/^\d+$/.test(value)) {
+        if (!this.isNumericToken(value)) {
             this.clearLocallyTypedRawNumericValue();
             return;
         }
@@ -421,5 +403,37 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
         this.setViewValue(updated);
         this.markPendingValue(updated);
         this.updateVisibleOptions();
+    }
+
+    private buildSelectedOption(
+        value: string,
+        optionById: Map<string, CustomRowSelectOption>,
+        multiple: boolean,
+    ): CustomRowSelectedOption | null {
+        const option = optionById.get(value);
+        if (option)
+            return { id: option.id, value: option.id, view: option.view };
+        if (!multiple)
+            return null;
+        return { id: `custom-${value}`, value, view: value, isCustom: true };
+    }
+
+    private filterOptions(searchInput: string, options: CustomRowSelectOption[]) {
+        const search = searchInput.trim().toLocaleLowerCase();
+        if (!search)
+            return options;
+        const startsWith = options.filter(option => option.lcView.startsWith(search));
+        const contains = options.filter(option => !option.lcView.startsWith(search) && option.lcView.includes(search));
+        return [...startsWith, ...contains];
+    }
+
+    private findOptionById(value: string | null) {
+        if (!value)
+            return null;
+        return this.optionList().find(option => option.id === value) ?? null;
+    }
+
+    private isNumericToken(value: string | null | undefined) {
+        return !!value && /^\d+$/.test(value);
     }
 }

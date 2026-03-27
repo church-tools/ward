@@ -2,12 +2,12 @@ import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angu
 import { Router } from '@angular/router';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
-import type { Row } from '../../../modules/shared/table.types';
-import { getViewService } from '../../../modules/shared/view.service';
-import { Select } from '../../../shared/form/select/select';
-import { Icon } from "../../../shared/icon/icon";
-import { SupabaseService } from '../../../shared/service/supabase.service';
-import { WindowService } from '../../../shared/service/window.service';
+import type { Row } from '@/modules/shared/table.types';
+import { getViewService } from '@/modules/shared/view.service';
+import { Select } from '@/shared/form/select/select';
+import { Icon } from "@/shared/icon/icon";
+import { SupabaseService } from '@/shared/service/supabase.service';
+import { WindowService } from '@/shared/service/window.service';
 import { getRowRoute, TableRow } from '../../private.routes';
 
 type SearchedTableName = 'member' | 'agenda_item';

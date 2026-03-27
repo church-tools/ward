@@ -57,8 +57,10 @@ type SelectValueTemplateContext<T> = {
 export class Select<T> extends InputBase<T> implements OnDestroy {
 
     private readonly translateService = inject(TranslateService);
+    private readonly closeCleanupDelayMs = 100;
+    private readonly loadingIndicatorDelayMs = 200;
 
-    private readonly input = viewChild('input', { read: ElementRef });
+    private readonly input = viewChild('input', { read: ElementRef<HTMLInputElement> });
     protected readonly popover = viewChild.required(SelectOptions<VisibleOption<T>>);
 
     @ContentChild('optionTemplate', { read: TemplateRef })
@@ -117,11 +119,9 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
 
     protected clearSelection() {
         if (this.hideClear()) return;
-        this.selectedOption.set(null);
+        this.clearSelectedValue();
         this.search.set("");
         this.input()?.nativeElement.focus();
-        this.setViewValue(null);
-        this.pendingValueTracker.mark(null);
     }
 
     focusInput(openOptions = true) {
@@ -183,7 +183,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
             if (this.popover().isRequested()) return;
             this.visibleOptions.set([]);
             this.visibleOptionGroups.set([]);
-        }, 100);
+        }, this.closeCleanupDelayMs);
     }
 
     private createOptionsContainer() {
@@ -196,9 +196,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         if (this.withoutValue()) return;
         if (!this.hideClear()) return;
         if (!this.selectedOption()) return;
-        this.selectedOption.set(null);
-        this.setViewValue(null);
-        this.pendingValueTracker.mark(null);
+        this.clearSelectedValue();
     }
 
     protected onSearch(event: Event) {
@@ -261,13 +259,15 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
 
     private async resolveAllOptions(search: string) {
         const options = this.options();
-        const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), 200);
-        const allOptions = typeof options === 'function'
-            ? await options(search)
-            : options;
-        clearTimeout(loadingTimeout);
-        this.optionsLoading.set(false);
-        return allOptions;
+        const loadingTimeout = setTimeout(() => this.optionsLoading.set(true), this.loadingIndicatorDelayMs);
+        try {
+            return typeof options === 'function'
+                ? await options(search)
+                : options;
+        } finally {
+            clearTimeout(loadingTimeout);
+            this.optionsLoading.set(false);
+        }
     }
 
     private resolveTextKey() {
@@ -291,8 +291,11 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     }
 
     private setVisibleOptionGroups(options: VisibleOption<T>[]) {
+        this.visibleOptionGroups.set([]);
+        this.showOptionGroups.set(false);
         const hasGroups = options.length > 0 && options[0].group != null;
-        if (!hasGroups) return;
+        if (!hasGroups)
+            return;
         const groupById: Record<string, VisibleOptionGroup<T>> = {};
         for (const option of options) {
             const { id, label, color } = option.group!;
@@ -314,6 +317,12 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         }
         const match = allOptions.find(option => option.value === value) ?? null;
         this.selectedOption.set(match);
+    }
+
+    private clearSelectedValue() {
+        this.selectedOption.set(null);
+        this.setViewValue(null);
+        this.pendingValueTracker.mark(null);
     }
 
 }

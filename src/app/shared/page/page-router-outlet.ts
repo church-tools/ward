@@ -1,6 +1,6 @@
 import { ComponentRef, Directive, ElementRef, EnvironmentInjector, inject, Injector, input, Signal, ViewContainerRef } from '@angular/core';
 import { ActivatedRoute, ChildrenOutletContexts, ROUTER_OUTLET_DATA, RouterOutlet } from '@angular/router';
-import { RowPage } from '../../private/shared/row-page';
+import { RowPage } from '@/private/shared/row-page';
 import { wait } from '../utils/flow-control-utils';
 import { animationDurationLgMs } from '../utils/style';
 import { Page } from './page';

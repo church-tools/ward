@@ -1,9 +1,9 @@
 import { Component, OnDestroy, booleanAttribute, inject, input } from "@angular/core";
 import { Subscription } from "rxjs";
-import { IconCode, IconSize } from "../../../icon/icon";
-import { WindowService } from "../../../service/window.service";
-import { ColorName } from "../../../utils/color-utils";
-import { xcomputed, xeffect } from "../../../utils/signal-utils";
+import { IconCode, IconSize } from "@/shared/icon/icon";
+import { WindowService } from "@/shared/service/window.service";
+import { ColorName } from "@/shared/utils/color-utils";
+import { xcomputed, xeffect } from "@/shared/utils/signal-utils";
 
 export type ButtonType = 'primary' | 'secondary' | 'subtle' | 'transparent' | 'form';
 export type ButtonSize = 'tiny' | 'small' | 'medium' | 'large' | 'giant';

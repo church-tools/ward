@@ -1,7 +1,7 @@
 import { App } from "../app.component";
-import type { Row, TableName } from "../modules/shared/table.types";
-import type { IconCode } from "../shared/icon/icon";
-import { mapRouteObject, RouteObject } from "../shared/utils/route-utils";
+import type { Row, TableName } from "@/modules/shared/table.types";
+import type { IconCode } from "@/shared/icon/icon";
+import { mapRouteObject, RouteObject } from "@/shared/utils/route-utils";
 import type { PrivatePage } from "./shared/private-page";
 
 export type PrivateTab = RouteObject<PrivatePage> & {

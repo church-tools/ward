@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { Page } from '../shared/page/page';
-import LinkButton from '../shared/form/button/link/link-button';
+import LinkButton from '@/shared/form/button/link/link-button';
 import { TranslateModule } from '@ngx-translate/core';
 
 @Component({
