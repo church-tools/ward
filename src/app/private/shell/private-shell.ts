@@ -2,7 +2,7 @@ import { Component, inject, OnInit, signal } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { OrganizationService } from '../../modules/organization/organization.service';
 import { UnitService } from '../../modules/unit/unit.service';
-import AsyncButton from '../../shared/form/button/async/async-button';
+import { AsyncButton } from '../../shared/form/button/async/async-button';
 import MenuButtonComponent from '../../shared/form/button/menu/menu-button';
 import Switch from '../../shared/form/switch/switch';
 import { Icon } from "../../shared/icon/icon";

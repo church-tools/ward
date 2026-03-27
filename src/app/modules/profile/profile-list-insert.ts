@@ -1,7 +1,7 @@
 import { Component, signal } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
 import { TranslateModule } from '@ngx-translate/core';
-import AsyncButton from '../../shared/form/button/async/async-button';
+import { AsyncButton } from '../../shared/form/button/async/async-button';
 import { TextInput } from '../../shared/form/text/text-input';
 import { ListInsert } from '../shared/row-card-list/list-insert';
 import { Profile } from './profile';

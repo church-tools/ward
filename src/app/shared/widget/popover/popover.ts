@@ -1,5 +1,5 @@
 import { Component, ComponentRef, createComponent, EnvironmentInjector, output, signal, Type, viewChild, ViewContainerRef } from "@angular/core";
-import Button from "../../form/button/button";
+import { Button } from "../../form/button/button";
 import { animationDurationMs } from "../../utils/style";
 import { wait } from "../../utils/flow-control-utils";
 

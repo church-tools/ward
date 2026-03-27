@@ -18,7 +18,7 @@ export class AgendaListInsert extends ListInsert<'agenda'> {
     protected override getRowInfo(profile: Profile.Row) {
         const name = this.nameView().getValue();
         if (!name) return;
-        return <Agenda.Insert>{ name, unit: profile.unit };
+        return { name, unit: profile.unit } as Agenda.Insert;
     }
 
 }

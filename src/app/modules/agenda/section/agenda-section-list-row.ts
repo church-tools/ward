@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
-import { AgendaPage } from '../../../private/meetings/agenda/agenda-page';
-import { AdminService } from '../../../private/shared/admin.service';
-import Button from '../../../shared/form/button/button';
+import { AgendaPage } from '@/private/meetings/agenda/agenda-page';
+import { AdminService } from '@/private/shared/admin.service';
+import { Button } from '@/shared/form/button/button';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { ListRow } from '../../shared/row-card-list/list-row';
 import { AgendaSectionPrayer } from "./variants/agenda-section-prayer";

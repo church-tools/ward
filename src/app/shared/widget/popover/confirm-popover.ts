@@ -1,6 +1,6 @@
 import { Component, signal } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
-import Button from "../../form/button/button";
+import { Button } from "../../form/button/button";
 import { PopoverPage } from "./popover";
 
 @Component({

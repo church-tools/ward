@@ -1,6 +1,6 @@
 import { Component, ElementRef, inject, OnDestroy, output, Signal, signal, viewChild } from "@angular/core";
 import { ActivatedRoute, Router, RouterOutlet } from "@angular/router";
-import Button from "../../../shared/form/button/button";
+import { Button } from "../../../shared/form/button/button";
 import { Page } from "../../../shared/page/page";
 import { WindowService } from "../../../shared/service/window.service";
 import { transitionStyle } from "../../../shared/utils/dom-utils";

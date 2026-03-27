@@ -68,7 +68,6 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     protected valueTemplate: TemplateRef<SelectValueTemplateContext<T>> | null = null;
 
     readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
-    readonly getValueId = input<(value: T) => number | string>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
     readonly withoutValue = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly hideClear = input<boolean, unknown>(true, { transform: booleanAttribute });
@@ -191,9 +190,6 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         if (this.popover().isRequested()) return;
         this.popover().open();
         this.updateVisibleOptions();
-    }
-
-    protected onPopoverClosed() {
     }
 
     private deleteLastSelection() {

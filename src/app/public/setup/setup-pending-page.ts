@@ -3,7 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { Icon } from '../../shared/icon/icon';
 import { Page } from '../../shared/page/page';
 import LinkButton from '../../shared/form/button/link/link-button';
-import AsyncButton from '../../shared/form/button/async/async-button';
+import { AsyncButton } from '../../shared/form/button/async/async-button';
 import { SupabaseService } from '../../shared/service/supabase.service';
 import { Router } from '@angular/router';
 

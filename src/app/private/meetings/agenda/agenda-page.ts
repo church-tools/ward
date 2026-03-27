@@ -7,7 +7,7 @@ import { AgendaItem } from '../../../modules/item/agenda-item';
 import { ProfileService } from '../../../modules/profile/profile.service';
 import { RowCardList } from '../../../modules/shared/row-card-list/row-card-list';
 import { Table } from '../../../modules/shared/table.types';
-import AsyncButton from '../../../shared/form/button/async/async-button';
+import { AsyncButton } from '../../../shared/form/button/async/async-button';
 import LinkButton from '../../../shared/form/button/link/link-button';
 import { Icon } from "../../../shared/icon/icon";
 import { DragDropService } from '../../../shared/service/drag-drop.service';

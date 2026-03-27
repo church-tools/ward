@@ -6,7 +6,7 @@ import { MemberListInsert } from '../../modules/member/member-list-insert';
 import { MemberListRow } from '../../modules/member/member-list-row';
 import { RowCardList } from "../../modules/shared/row-card-list/row-card-list";
 import { Table } from '../../modules/shared/table.types';
-import Button from '../../shared/form/button/button';
+import { Button } from '../../shared/form/button/button';
 import LinkButton from '../../shared/form/button/link/link-button';
 import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";

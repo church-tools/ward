@@ -2,7 +2,7 @@ import { booleanAttribute, Component, ElementRef, input, signal, viewChild } fro
 import { copyToClipboard } from '../../utils/clipboard-utils';
 import { xcomputed } from '../../utils/signal-utils';
 import ErrorMessage from '../../widget/error-message/error-message';
-import Button from "../button/button";
+import { Button } from "../button/button";
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
 

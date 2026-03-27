@@ -268,8 +268,8 @@ export class CardListComponent<T, ID extends number | string> {
     private getPositionForIndex(itemCards: ItemCard<T, ID>[], index: number): any {
         const orderByKey = this.orderByKey();
         if (!orderByKey) throw new Error('OrderByKey is not set');
-        const leadingPosition = <number | null>itemCards[index - 1]?.item[orderByKey];
-        const followingPosition = <number | null>itemCards[index + 1]?.item[orderByKey];
+        const leadingPosition = itemCards[index - 1]?.item[orderByKey] as number | null;
+        const followingPosition = itemCards[index + 1]?.item[orderByKey] as number | null;
         return (leadingPosition != null && followingPosition != null)
             ? (leadingPosition + followingPosition) / 2
             : (leadingPosition != null

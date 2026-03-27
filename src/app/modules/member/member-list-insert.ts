@@ -1,6 +1,6 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import Button from '../../shared/form/button/button';
+import { Button } from '../../shared/form/button/button';
 import { Select } from "../../shared/form/select/select";
 import { TextInput } from '../../shared/form/text/text-input';
 import { Profile } from '../profile/profile';

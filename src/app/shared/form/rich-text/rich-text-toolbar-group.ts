@@ -1,6 +1,6 @@
 import { booleanAttribute, Component, input, output } from '@angular/core';
 import { IconCode } from '../../icon/icon';
-import Button from '../button/button';
+import { Button } from '../button/button';
 import MenuButtonComponent from '../button/menu/menu-button';
 
 export type RichTextToolbarItem<T> = {

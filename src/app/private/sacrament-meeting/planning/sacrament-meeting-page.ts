@@ -3,8 +3,8 @@ import { Component, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SacramentMeetingViewService } from '../../../modules/sacrament-meeting/sacrament-meeting-view.service';
 import { CustomRowSelect } from '../../../shared/form/row-select/custom-row-select';
+import { MultiSelect } from '../../../shared/form/select/multi-select';
 import { Select } from '../../../shared/form/select/select';
-import { TextInput } from '../../../shared/form/text/text-input';
 import { SundayIndex, sundayIndexToDate } from '../../../shared/utils/date-utils';
 import { createTranslateLocaleSignal } from '../../../shared/utils/language-utils';
 import { xcomputed } from '../../../shared/utils/signal-utils';
@@ -38,15 +38,20 @@ import { RowPage } from '../../shared/row-page';
                 table="member"
                 label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | translate }}"/>
 
-            <app-text-input class="col-12"
+            <app-multi-select class="col-12"
                 [syncedRow]="syncedRow" column="classes"
+                [options]="meetingView.classOptions"
+                [optionValuesByValue]="meetingView.classOptionsByClass"
+                [allowCustomText]="true"
+                [customValueExclusive]="true"
+                translateOptions
                 label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | translate }}"/>
         </div>
 
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     imports: [TranslateModule, SyncedFieldDirective, Select,
-        CustomRowSelect, TextInput, DatePipe, RowHistory],
+        MultiSelect, CustomRowSelect, DatePipe, RowHistory],
     host: { class: 'page narrow full-height' },
 })
 export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {

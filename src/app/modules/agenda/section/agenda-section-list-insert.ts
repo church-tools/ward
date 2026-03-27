@@ -1,6 +1,6 @@
 import { AsyncPipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import Button from '../../../shared/form/button/button';
+import { Button } from '../../../shared/form/button/button';
 import { SupabaseRow, SupabaseService } from '../../../shared/service/supabase.service';
 import { asyncComputed } from '../../../shared/utils/signal-utils';
 import { Profile } from '../../profile/profile';
@@ -47,9 +47,9 @@ export class AgendaSectionListInsert extends ListInsert<'agenda_section', Supaba
         });
     });
 
-    protected override getRowInfo(profile: Profile.Row) {
+    protected override getRowInfo(profile: Profile.Row): AgendaSection.Insert {
         if (!this.type) return;
-        return <AgendaSection.Insert>{ unit: profile.unit, type: this.type };
+        return { unit: profile.unit, type: this.type };
     }
 
     protected onClick(type: AgendaSection.Type) {

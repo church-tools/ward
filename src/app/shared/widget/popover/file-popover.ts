@@ -1,8 +1,8 @@
 import { Component, inject, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { TranslateModule } from "@ngx-translate/core";
-import AsyncButton from "../../form/button/async/async-button";
-import Button from "../../form/button/button";
+import { AsyncButton } from "../../form/button/async/async-button";
+import { Button } from "../../form/button/button";
 import { FileStorageService } from "../../service/file-storage.service";
 import { download, downloadUrl, FileInfo, FileType, FileUrl, getEmbedUrl, openFileInfoInNewTab, viewedByService } from "../../utils/file-utils";
 import { asyncComputed, xcomputed } from "../../utils/signal-utils";

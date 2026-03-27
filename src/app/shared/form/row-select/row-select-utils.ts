@@ -13,3 +13,13 @@ export async function getRowViewToString<T extends TableName>(injector: Injector
     const viewService = await getViewService(injector, tableName);
     return viewService.toString;
 }
+
+export async function getCachedRowViewToString<T extends TableName>(
+    cache: { value: ((row: Row<T>) => string) | null },
+    injector: Injector,
+    tableName: T,
+) {
+    if (!cache.value)
+        cache.value = await getRowViewToString(injector, tableName);
+    return cache.value;
+}

@@ -11,5 +11,23 @@
 		flex: 0 0 auto;
 		width: auto;
 		min-width: 1.5rem;
+		opacity: 1;
+		transition: opacity 120ms ease-out;
+	}
+}
+
+@media (hover: hover) and (pointer: fine) {
+	.value-btn {
+		.delete-btn {
+			opacity: 0;
+		}
+
+		&:hover,
+		&:focus-within,
+		&:focus {
+			.delete-btn {
+				opacity: 1;
+			}
+		}
 	}
 }

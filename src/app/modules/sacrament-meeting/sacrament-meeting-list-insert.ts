@@ -1,6 +1,6 @@
 import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
-import Button from '../../shared/form/button/button';
+import { Button } from '../../shared/form/button/button';
 import WeekInput from '../../shared/form/date-time/week-input';
 import { Select } from '../../shared/form/select/select';
 import { SupabaseService } from '../../shared/service/supabase.service';

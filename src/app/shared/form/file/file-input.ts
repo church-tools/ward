@@ -9,7 +9,7 @@ import { xcomputed } from "../../utils/signal-utils";
 import ErrorMessage from "../../widget/error-message/error-message";
 import { FilePopover } from "../../widget/popover/file-popover";
 import { PopoverService } from "../../widget/popover/popover.service";
-import AsyncButton from "../button/async/async-button";
+import { AsyncButton } from "../button/async/async-button";
 import FileButtonComponent from "../button/file/file-button";
 import { getProviders, InputBase } from "../shared/input-base";
 import InputLabel from "../shared/input-label";

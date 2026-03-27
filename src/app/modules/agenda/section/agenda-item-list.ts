@@ -1,6 +1,6 @@
 import { Component, inject, input } from '@angular/core';
-import { getRowRoute } from '../../../private/private.routes';
-import { RowPageService } from '../../../private/row-page.service';
+import { getRowRoute } from '@/private/private.routes';
+import { RowPageService } from '@/private/row-page.service';
 import { xcomputed } from '../../../shared/utils/signal-utils';
 import { AgendaItem } from '../../item/agenda-item';
 import { AgendaItemListInsert } from '../../item/agenda-item-list-insert';

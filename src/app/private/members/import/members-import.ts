@@ -3,7 +3,7 @@ import { TranslateModule } from "@ngx-translate/core";
 import { Member } from "../../../modules/member/member";
 import { MemberViewService } from "../../../modules/member/member-view.service";
 import { ProfileService } from "../../../modules/profile/profile.service";
-import AsyncButton from "../../../shared/form/button/async/async-button";
+import { AsyncButton } from "../../../shared/form/button/async/async-button";
 import FileButton from "../../../shared/form/button/file/file-button";
 import LinkButton from "../../../shared/form/button/link/link-button";
 import Checkbox from "../../../shared/form/checkbox/checkbox";

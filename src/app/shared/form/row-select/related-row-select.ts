@@ -50,9 +50,11 @@ export class RelatedRowSelectComponent<
 	protected readonly onRelatedClick = xcomputed([this.parentTable, this.parentIdKey, this.relatedIdKey, this.relationTable, this.onRelationClick],
 		(parentTable, parentIdKey, relatedIdKey, relationTable, onRelationClick) => {
 			if (!onRelationClick) return;
-			return (option: SelectOption<number>, event: MouseEvent) => {
+			return (option: SelectOption<number | string>, event: MouseEvent) => {
 				event.stopPropagation();
 				event.preventDefault();
+				if (typeof option.value !== 'number')
+					return;
 				const parentId = this.supabase.sync.from(parentTable).getId(this.parent());
 				const relationRow = { [parentIdKey]: parentId, [relatedIdKey]: option.value } as unknown as Row<RelationTable>;
 				const relationid = this.supabase.sync.from(relationTable).getId(relationRow);

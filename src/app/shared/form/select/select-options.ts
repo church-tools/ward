@@ -98,7 +98,6 @@ export class SelectOptions<T = unknown> {
     readonly optionClass = input<(option: T) => string>(() => '');
 
     readonly optionClick = output<T>();
-    readonly optionMouseDown = output<MouseEvent>();
     readonly closed = output<void>();
 
     readonly position = signal<PopoverPosition>('bottom');
@@ -222,7 +221,6 @@ export class SelectOptions<T = unknown> {
 
     protected onOptionMouseDown(event: MouseEvent) {
         event.preventDefault();
-        this.optionMouseDown.emit(event);
     }
 
     protected getTemplateContext(option: T): SelectOptionsTemplateContext<T> {

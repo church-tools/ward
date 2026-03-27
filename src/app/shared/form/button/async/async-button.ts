@@ -29,7 +29,7 @@ export type ProgressCallback = (progress: number) => void;
     `,
     styleUrl: './async-button.scss'
 })
-export default class AsyncButton extends ButtonBase {
+export class AsyncButton extends ButtonBase {
     
     protected readonly errorMessage = viewChild.required(ErrorMessage);
 

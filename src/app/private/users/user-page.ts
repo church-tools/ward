@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { ProfileService } from '../../modules/profile/profile.service';
-import AsyncButton from '../../shared/form/button/async/async-button';
+import { AsyncButton } from '../../shared/form/button/async/async-button';
 import Switch from '../../shared/form/switch/switch';
 import { FunctionsService } from '../../shared/service/functions.service';
 import { xcomputed } from '../../shared/utils/signal-utils';

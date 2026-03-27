@@ -12,7 +12,7 @@ import ButtonBase from "./shared/button-base";
         </button>
     `,
 })
-export default class Button extends ButtonBase implements OnDestroy {
+export class Button extends ButtonBase implements OnDestroy {
 
     protected readonly onClick = output<UIEvent | null>();
 
