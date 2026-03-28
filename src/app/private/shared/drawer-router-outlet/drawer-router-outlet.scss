@@ -18,6 +18,14 @@
         gap: 0;
     }
 
+    &.dragging {
+        transition: none;
+        .bottom-drawer {
+            transition: none;
+            will-change: transform;
+        }
+    }
+
     &.drawer-open {
         gap: layout.$gutter * 12;
         transition-timing-function: animation.$ease-in;
@@ -89,6 +97,9 @@
         min-height: 0.25rem;
         border-radius: 0.125rem;
         opacity: 0.125;
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
     }
 }
 
@@ -132,6 +143,8 @@
         }
         .drawer-body {
             margin: layout.$canvas-margin-narrow;
+            touch-action: pan-y;
+            overscroll-behavior: contain;
         }
         .close-button {
             top: layout.$gutter;

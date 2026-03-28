@@ -7,6 +7,8 @@ import { transitionStyle } from "@/shared/utils/dom-utils";
 import { wait } from "@/shared/utils/flow-control-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
 import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "@/shared/utils/style";
+import { DrawerDragController } from "./drawer-drag-controller";
+import { applyDrawerDragStyles, calculateDragOpacity, clearTimeoutRef, getDrawerCard, resetDrawerVisualState } from "./drawer-router-outlet.utils";
 import { RowPage } from "../row-page";
 
 @Component({
@@ -19,14 +21,11 @@ import { RowPage } from "../row-page";
         '[class.drawer-open]': 'activeChild()',
         '[class.closing]': 'closing()',
         '[class.content-changing]': 'contentChanging()',
+        '[class.dragging]': 'isDragging()',
         '[class.dense]': '!windowService.isLarge()',
     },
 })
 export class DrawerRouterOutlet implements OnDestroy {
-
-    private static readonly DRAG_THRESHOLD = 10;
-    private static readonly SWIPE_TIME_LIMIT = 100;
-    private static readonly INTERACTIVE_ELEMENTS = new Set(['button', 'a', 'input', 'textarea', 'select', 'p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']);
 
     protected readonly windowService = inject(WindowService);
     private readonly router = inject(Router);
@@ -37,6 +36,7 @@ export class DrawerRouterOutlet implements OnDestroy {
     protected readonly activeChild = signal<Page | null>(null);
     protected readonly closing = signal(false);
     protected readonly contentChanging = signal(false);
+    protected readonly isDragging = signal(false);
     protected readonly onBottom = this.windowService.isSmall;
 
     private readonly drawerView = viewChild('drawer', { read: ElementRef }) as Signal<ElementRef<HTMLElement>>;
@@ -44,30 +44,26 @@ export class DrawerRouterOutlet implements OnDestroy {
     private contentChangeTimeout: number | undefined;
     private snapBackTimeout: number | undefined;
     private transitionToken = 0;
-    
-    // Drag state
-    private dragState: { 
-        startX: number; 
-        startY: number;
-        startTime: number; 
-        isDragActive: boolean;
-        delayTimeout?: number;
-        startedOnBackground?: boolean; // Track if drag started on background
-    } | undefined;
-    private readonly abortController = new AbortController();
+
+    private readonly dragController = new DrawerDragController({
+        isBottom: () => this.onBottom(),
+        setDragging: dragging => this.isDragging.set(dragging),
+        onPreview: (delta, isBottom) => {
+            const drawer = this.drawerView();
+            if (!drawer)
+                return;
+            applyDrawerDragStyles(drawer.nativeElement, delta, isBottom);
+        },
+        onSnapBack: (delta, isBottom) => this.snapBackDrawer(delta, isBottom),
+        onClose: (delta, isBottom) => {
+            void this.onClose(isBottom ? delta : undefined);
+        },
+    });
 
     constructor() {
-        // Add global event listeners for drag functionality
-        const { signal } = this.abortController;
-        document.addEventListener('mousemove', this.handleDrag.bind(this), { signal });
-        document.addEventListener('mouseup', this.handleDragEnd.bind(this), { signal });
-        document.addEventListener('touchmove', this.handleDrag.bind(this), { passive: false, signal });
-        document.addEventListener('touchend', this.handleDragEnd.bind(this), { signal });
         xeffect([this.drawerView], drawer => {
             if (!drawer) return;
-            const elem = drawer.nativeElement;
-            elem.addEventListener('mousedown', this.onDragStart.bind(this), { passive: true });
-            elem.addEventListener('touchstart', this.onDragStart.bind(this), { passive: true });
+            this.dragController.attach(drawer.nativeElement);
         });
     }
 
@@ -84,8 +80,7 @@ export class DrawerRouterOutlet implements OnDestroy {
                 if (token !== this.transitionToken)
                     return;
                 this.contentChanging.set(true);
-                if (this.contentChangeTimeout)
-                    clearTimeout(this.contentChangeTimeout);
+                this.contentChangeTimeout = clearTimeoutRef(this.contentChangeTimeout);
                 this.contentChangeTimeout = window.setTimeout(() => {
                     this.contentChangeTimeout = undefined;
                     if (token !== this.transitionToken)
@@ -105,9 +100,9 @@ export class DrawerRouterOutlet implements OnDestroy {
             delete page.onIdChange;
     }
 
-    protected async onClose() {
+    protected async onClose(startDelta?: number) {
         if (!this.routerOutlet().isActivated) return;
-        await this.animateDrawerClose();
+        await this.animateDrawerClose(startDelta);
         this.router.navigate(['.'], { relativeTo: this.route });
     }
 
@@ -122,7 +117,7 @@ export class DrawerRouterOutlet implements OnDestroy {
         if (token !== this.transitionToken)
             return;
         const element = this.drawerView().nativeElement;
-        const card = element.querySelector('.drawer-card')! as HTMLElement;
+        const card = getDrawerCard(element);
         if (this.onBottom()) {
             card.style.minWidth = ``;
             return;
@@ -142,20 +137,28 @@ export class DrawerRouterOutlet implements OnDestroy {
         card.style.minWidth = '';
     }
 
-    private async animateDrawerClose() {
+    private async animateDrawerClose(startDelta?: number) {
         const page = this.activeChild();
         if (!page) return;
         this.closing.set(true);
         if (page instanceof RowPage)
             page.close();
         const element = this.drawerView().nativeElement;
-        const card = element.querySelector('.drawer-card')! as HTMLElement;
+        const card = getDrawerCard(element);
         if (this.onBottom()) {
             const height = element.offsetHeight;
             card.style.minHeight = `${height}px`;
             element.style.minHeight = `${height}px`;
-            element.style.transform = '';
-            element.style.transition = '';
+            if (startDelta !== undefined && startDelta > 0) {
+                element.style.transition = 'none';
+                element.style.transform = `translateY(${startDelta}px)`;
+                element.offsetHeight;
+                element.style.transition = `transform ${animationDurationMs}ms ${easeOut}`;
+                element.style.transform = 'translateY(100%)';
+            } else {
+                element.style.transform = '';
+                element.style.transition = '';
+            }
             await wait(animationDurationMs);
             card.style.minHeight = '';
             element.style.minHeight = '';
@@ -167,125 +170,26 @@ export class DrawerRouterOutlet implements OnDestroy {
             await transitionStyle(element, { width: `${width}px` }, { width: '0px' }, animationDurationLgMs, easeOut, true);
             card.classList.remove('fade-out');
         }
-        element.style.opacity = '';
-        element.style.transform = '';
-        element.style.transition = '';
+        resetDrawerVisualState(element, card);
         this.closing.set(false);
         if (this.contentChanging()) return;
         if (this.activeChild() === page)
             this.activeChild.set(null);
     }
 
-    private onDragStart(event: MouseEvent | TouchEvent) {
-        const { clientX, clientY } = event instanceof MouseEvent ? event : event.touches[0];
-        this.clearDragTimeout();
-        this.dragState = { 
-            startX: clientX, 
-            startY: clientY,
-            startTime: Date.now(),
-            isDragActive: false,
-            startedOnBackground: this.isCardBackground(event.target as HTMLElement),
-        };
-        if (!this.dragState.startedOnBackground) {
-            this.dragState.delayTimeout = window.setTimeout(() => {
-                if (this.dragState && !this.dragState.isDragActive)
-                    delete this.dragState;
-            }, DrawerRouterOutlet.SWIPE_TIME_LIMIT);
-        }
-    }
-
-    private isCardBackground(element: HTMLElement): boolean {
-        const tagName = element.tagName.toLowerCase();
-        return !DrawerRouterOutlet.INTERACTIVE_ELEMENTS.has(tagName);
-    }
-
-    private clearDragTimeout() {
-        if (this.dragState?.delayTimeout)
-            clearTimeout(this.dragState.delayTimeout);
-    }
-
-    private handleDrag(event: MouseEvent | TouchEvent) {
-        if (!this.dragState) return;
-        const current = event instanceof MouseEvent ? event : event.touches[0];
-        if (!this.dragState.isDragActive) {
-            this.tryActivateDrag(current, event);
-        } else {
-            const isBottom = this.onBottom();
-            const delta = isBottom
-                ? current.clientY - this.dragState.startY
-                : current.clientX - this.dragState.startX;
-            if (delta > 0)
-                this.performDrag(delta, event, isBottom);
-        }
-    }
-
-    private tryActivateDrag(current: Touch | MouseEvent, event: MouseEvent | TouchEvent): any {
-        const { startX, startY, startTime, startedOnBackground } = this.dragState!;
-        const deltaX = current.clientX - startX;
-        const deltaY = current.clientY - startY;
-        const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        const timeElapsed = Date.now() - startTime;
-        if (distance > DrawerRouterOutlet.DRAG_THRESHOLD || startedOnBackground) {
-            this.clearDragTimeout();
-            if (timeElapsed <= DrawerRouterOutlet.SWIPE_TIME_LIMIT || startedOnBackground)
-                this.activateDrag(event);
-            else
-                delete this.dragState;
-        }
-    }
-
-    private activateDrag(event: MouseEvent | TouchEvent) {
-        this.dragState!.isDragActive = true;
-        this.drawerView().nativeElement.style.userSelect = 'none';
-        event.preventDefault();
-    }
-
-    private performDrag(delta: number, event: MouseEvent | TouchEvent, isBottom: boolean) {
+    private snapBackDrawer(delta: number, isBottom: boolean) {
         const element = this.drawerView().nativeElement;
-        element.style.transform = `translate${isBottom ? 'Y' : 'X'}(${delta}px)`;
-        if (!this.onBottom())
-            element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
-        event.preventDefault();
-    }
-
-    private async handleDragEnd(event: MouseEvent | TouchEvent) {
-        if (!this.dragState) return;
-        
-        this.clearDragTimeout();
-        const element = this.drawerView().nativeElement;
-        
-        if (this.dragState.isDragActive) {
-            const { clientX, clientY } = event instanceof MouseEvent ? event : event.changedTouches[0];
-            const isBottom = this.onBottom();
-            const delta = isBottom ? clientY - this.dragState.startY : clientX - this.dragState.startX;
-            const velocity = delta / (Date.now() - this.dragState.startTime);
-            if (delta > 0) {
-                if (delta > 100 || velocity > 0.5)
-                    this.onClose();
-                else
-                    this.snapBackDrawer(element, delta, isBottom);
-            } else {
-                element.style.transform = '';
-                element.style.opacity = '';
-            }
-        }
-        element.style.userSelect = '';
-        delete this.dragState;
-    }
-
-    private snapBackDrawer(element: HTMLElement, delta: number, isBottom: boolean) {
         element.style.transition = '';
         element.style.transform = `translate${isBottom ? 'Y' : 'X'}(${delta}px)`;
         if (!isBottom)
-            element.style.opacity = `${Math.max(0.3, 1 - delta / animationDurationSmMs)}`;
+            element.style.opacity = calculateDragOpacity(delta);
         requestAnimationFrame(() => {
             element.style.transition = isBottom
-                ? `transform ${animationDurationMs}ms ease-out`
-                : `transform ${animationDurationMs}ms ease-out, opacity ${animationDurationMs}ms ease-out`;
+                ? `transform ${animationDurationMs}ms ${easeOut}`
+                : `transform ${animationDurationMs}ms ${easeOut}, opacity ${animationDurationMs}ms ${easeOut}`;
             element.style.transform = '';
             element.style.opacity = '';
-            if (this.snapBackTimeout)
-                clearTimeout(this.snapBackTimeout);
+            this.snapBackTimeout = clearTimeoutRef(this.snapBackTimeout);
             this.snapBackTimeout = window.setTimeout(() => {
                 this.snapBackTimeout = undefined;
                 element.style.transition = '';
@@ -294,14 +198,9 @@ export class DrawerRouterOutlet implements OnDestroy {
     }
 
     private cancelPendingAnimations() {
-        if (this.contentChangeTimeout) {
-            clearTimeout(this.contentChangeTimeout);
-            this.contentChangeTimeout = undefined;
-        }
-        if (this.snapBackTimeout) {
-            clearTimeout(this.snapBackTimeout);
-            this.snapBackTimeout = undefined;
-        }
+        this.contentChangeTimeout = clearTimeoutRef(this.contentChangeTimeout);
+        this.snapBackTimeout = clearTimeoutRef(this.snapBackTimeout);
+        this.dragController.cancelInteraction();
         this.contentChanging.set(false);
         this.closing.set(false);
         const drawer = this.drawerView();
@@ -309,20 +208,11 @@ export class DrawerRouterOutlet implements OnDestroy {
             return;
         const element = drawer.nativeElement;
         const card = element.querySelector('.drawer-card') as HTMLElement | null;
-        element.style.opacity = '';
-        element.style.transform = '';
-        element.style.transition = '';
-        element.style.minHeight = '';
-        element.style.minWidth = '';
-        card?.classList.remove('fade-out');
-        card?.style.removeProperty('left');
-        card?.style.removeProperty('minHeight');
-        card?.style.removeProperty('minWidth');
+        resetDrawerVisualState(element, card);
     }
 
     ngOnDestroy() {
         this.cancelPendingAnimations();
-        this.abortController.abort();
-        this.clearDragTimeout();
+        this.dragController.destroy();
     }
 }

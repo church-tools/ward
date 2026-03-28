@@ -23,7 +23,7 @@
     "@angular/platform-browser": "^21.2.6",
     "@angular/router": "^21.2.6",
     "@angular/service-worker": "^21.2.6",
-    "@aws-sdk/client-s3": "^3.1018.0",
+    "@aws-sdk/client-s3": "^3.1019.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
     "@supabase/supabase-js": "^2.100.1",
@@ -47,6 +47,6 @@
     "postcss": "^8.5.8",
     "supabase": "^2.84.4",
     "typescript": "^5.9.3",
-    "wrangler": "^4.77.0"
+    "wrangler": "^4.78.0"
   }
 }
