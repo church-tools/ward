@@ -68,13 +68,10 @@ export class DrawerDragController {
         return this.dragState !== undefined && event.pointerId === this.dragState.pointerId;
     }
 
-    private canStartDrag(drawer: HTMLElement, target: HTMLElement, pointerType: string): boolean {
+    private canStartDrag(drawer: HTMLElement, target: HTMLElement): boolean {
         const isDragHandle = target.closest('.drag-handle') !== null;
         if (isDragHandle)
             return true;
-        const isBottom = this.options.isBottom();
-        if (isBottom)
-            return pointerType !== 'touch' && isCardBackground(target, drawer);
         return isCardBackground(target, drawer);
     }
 
@@ -90,7 +87,7 @@ export class DrawerDragController {
         const target = event.target as HTMLElement | null;
         if (!target)
             return;
-        if (!this.canStartDrag(drawer, target, event.pointerType))
+        if (!this.canStartDrag(drawer, target))
             return;
 
         const isBottom = this.options.isBottom();

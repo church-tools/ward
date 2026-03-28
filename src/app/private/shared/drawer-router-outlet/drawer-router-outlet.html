@@ -30,7 +30,7 @@
                     (activate)="onActivate($event)"
                     (deactivate)="onDeactivate($event)"/>
             </div>
-            @if (windowService.hasTouch || windowService.hasMouse) {
+            @if (windowService.hasTouch) {
                 <div class="drag-handle"></div>
             }
             @if (windowService.hasMouse) {
