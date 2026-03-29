@@ -40,7 +40,7 @@
     "@angular/compiler": "^21.2.6",
     "@angular/compiler-cli": "^21.2.6",
     "@angular/language-service": "^21.2.6",
-    "@cloudflare/workers-types": "^4.20260317.1",
+    "@cloudflare/workers-types": "^4.20260329.1",
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "@typescript/native-preview": "^7.0.0-dev.20260315.1",
     "concurrently": "^9.2.1",
