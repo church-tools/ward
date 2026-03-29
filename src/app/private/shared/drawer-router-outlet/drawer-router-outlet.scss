@@ -149,7 +149,7 @@
         .close-button {
             top: layout.$gutter;
             right: layout.$gutter;
-            ::ng-deep {
+                ::ng-deep {
                 button {
                     border-top-right-radius: card.$border-radius;
                 }

@@ -75,8 +75,8 @@
     }
     
     .count-dot {
-        transform: translate(50%, -50%);
-        border-radius: card.$border-radius-round;
+    transform: translate(50%, -50%);
+    border-radius: card.$border-radius-round;
         transition: all animation.$duration-sm ease;
         width: 0px;
         height: 0px;
@@ -113,7 +113,7 @@
             transform: translateY(0.125rem);
             font-weight: font.$weight-semibold;
         }
-        .icon-area {
+            .icon-area {
             min-width: 28px;
             min-height: 28px;
             padding: 0.25rem 0.25rem;

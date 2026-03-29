@@ -10,7 +10,7 @@
         left: -3px;
         right: -3px;
         bottom: -3px;
-        border-radius: card.$border-radius-sm * 1.5;
+        border-radius: calc(card.$border-radius-sm * 1.5);
         border: 3px solid transparent;
         animation: rotate-highlight 2.25s linear infinite;
         transition: all ease-in-out .25s;
