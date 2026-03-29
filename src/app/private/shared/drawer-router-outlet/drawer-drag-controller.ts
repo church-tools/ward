@@ -9,6 +9,7 @@ type DragState = {
     delta: number;
     velocity: number;
     isDragActive: boolean;
+    activationThreshold: number;
 };
 
 type DrawerDragControllerOptions = {
@@ -22,6 +23,7 @@ type DrawerDragControllerOptions = {
 export class DrawerDragController {
 
     private static readonly DRAG_THRESHOLD = 10;
+    private static readonly TOUCH_EDITABLE_THRESHOLD = 8;
     private static readonly CLOSE_DISTANCE = 100;
     private static readonly CLOSE_VELOCITY = 0.5;
 
@@ -68,9 +70,21 @@ export class DrawerDragController {
         return this.dragState !== undefined && event.pointerId === this.dragState.pointerId;
     }
 
+    private isEditableTarget(target: HTMLElement): boolean {
+        return target.closest('input, textarea, select, [contenteditable]') !== null;
+    }
+
+    private getActivationThreshold(pointerType: string, isEditableStart: boolean): number {
+        if (pointerType !== 'touch')
+            return DrawerDragController.DRAG_THRESHOLD;
+        return isEditableStart ? DrawerDragController.TOUCH_EDITABLE_THRESHOLD : 0;
+    }
+
     private canStartDrag(drawer: HTMLElement, target: HTMLElement): boolean {
         const isDragHandle = target.closest('.drag-handle') !== null;
         if (isDragHandle)
+            return true;
+        if (this.isEditableTarget(target))
             return true;
         return isCardBackground(target, drawer);
     }
@@ -89,6 +103,7 @@ export class DrawerDragController {
             return;
         if (!this.canStartDrag(drawer, target))
             return;
+        const isEditableStart = this.isEditableTarget(target);
 
         const isBottom = this.options.isBottom();
         const axis = isBottom ? 'y' : 'x';
@@ -102,6 +117,7 @@ export class DrawerDragController {
             delta: 0,
             velocity: 0,
             isDragActive: false,
+            activationThreshold: this.getActivationThreshold(event.pointerType, isEditableStart),
         };
         drawer.setPointerCapture(event.pointerId);
     };
@@ -121,8 +137,7 @@ export class DrawerDragController {
         state.velocity = state.velocity * 0.8 + instantVelocity * 0.2;
 
         if (!state.isDragActive) {
-            const activationThreshold = event.pointerType === 'touch' ? 0 : DrawerDragController.DRAG_THRESHOLD;
-            if (rawDelta > activationThreshold)
+            if (rawDelta > state.activationThreshold)
                 this.activateDrag(event);
             else
                 return;
