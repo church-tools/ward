@@ -10,6 +10,8 @@ type DragState = {
     velocity: number;
     isDragActive: boolean;
     activationThreshold: number;
+    startTarget?: HTMLElement | null;
+    restoreClickOnTap?: boolean;
 };
 
 type DrawerDragControllerOptions = {
@@ -24,6 +26,7 @@ export class DrawerDragController {
 
     private static readonly DRAG_THRESHOLD = 10;
     private static readonly TOUCH_EDITABLE_THRESHOLD = 8;
+    private static readonly TAP_MOVE_THRESHOLD = DrawerDragController.TOUCH_EDITABLE_THRESHOLD;
     private static readonly CLOSE_DISTANCE = 100;
     private static readonly CLOSE_VELOCITY = 0.5;
 
@@ -42,7 +45,7 @@ export class DrawerDragController {
 
         this.abortController = new AbortController();
         const { signal } = this.abortController;
-        element.addEventListener('pointerdown', this.onPointerDown, { passive: true, signal });
+        element.addEventListener('pointerdown', this.onPointerDown, { passive: false, signal });
         element.addEventListener('pointermove', this.onPointerMove, { passive: false, signal });
         element.addEventListener('pointerup', this.onPointerUp, { passive: false, signal });
         element.addEventListener('pointercancel', this.onPointerCancel, { passive: true, signal });
@@ -103,7 +106,14 @@ export class DrawerDragController {
             return;
         if (!this.canStartDrag(drawer, target))
             return;
+
         const isEditableStart = this.isEditableTarget(target);
+        const isInteractiveStart = !!target.closest('button,a,input,textarea,select,label,[contenteditable]');
+
+        // Prevent native gestures for touch so we can reliably claim the pointer
+        // and restore tap behavior manually if this turns out to be a tap.
+        if (event.pointerType === 'touch')
+            event.preventDefault();
 
         const isBottom = this.options.isBottom();
         const axis = isBottom ? 'y' : 'x';
@@ -118,6 +128,8 @@ export class DrawerDragController {
             velocity: 0,
             isDragActive: false,
             activationThreshold: this.getActivationThreshold(event.pointerType, isEditableStart),
+            startTarget: target,
+            restoreClickOnTap: event.pointerType === 'touch' && isInteractiveStart,
         };
         drawer.setPointerCapture(event.pointerId);
     };
@@ -131,9 +143,6 @@ export class DrawerDragController {
         const delta = Math.max(0, rawDelta);
         const timeDelta = Math.max(1, event.timeStamp - state.lastTime);
         const instantVelocity = (currentPos - state.lastPos) / timeDelta;
-
-        state.lastPos = currentPos;
-        state.lastTime = event.timeStamp;
         state.velocity = state.velocity * 0.8 + instantVelocity * 0.2;
 
         if (!state.isDragActive) {
@@ -158,7 +167,26 @@ export class DrawerDragController {
             this.completeInteraction(state, shouldClose);
             return;
         }
+        // Not an active drag — treat as tap. If we prevented default on touchstart
+        // for interactive targets, restore their click/focus behaviour on a small move.
+        const startTarget = state.startTarget;
+        const moved = Math.abs(state.lastPos - state.startPos);
+        const shouldRestoreTap = !!state.restoreClickOnTap && startTarget && moved <= DrawerDragController.TAP_MOVE_THRESHOLD;
+
         this.completeInteraction(state, false);
+
+        if (shouldRestoreTap && startTarget) {
+            try {
+                const tag = startTarget.tagName.toLowerCase();
+                if (tag === 'input' || tag === 'textarea')
+                    (startTarget as HTMLInputElement).focus();
+                // Re-dispatch a click for buttons/links or programmatically invoke click
+                if (typeof (startTarget as HTMLElement).click === 'function')
+                    (startTarget as HTMLElement).click();
+            } catch (_e) {
+                // best-effort; ignore failures
+            }
+        }
     };
 
     private readonly onPointerCancel = (event: PointerEvent) => {
