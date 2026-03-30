@@ -15,6 +15,7 @@ type DragState = {
     restoreClickOnTap?: boolean;
     startedOnHandle: boolean;
     scrollContainer: HTMLElement | null;
+    requiresTopScrollForActivation: boolean;
 };
 
 type DrawerDragControllerOptions = {
@@ -106,6 +107,8 @@ export class DrawerDragController {
             return false;
         if (state.startedOnHandle)
             return true;
+        if (!state.requiresTopScrollForActivation)
+            return true;
         return (state.scrollContainer?.scrollTop ?? 0) <= 1;
     }
 
@@ -124,11 +127,17 @@ export class DrawerDragController {
         if (!this.canStartDrag(drawer, target))
             return;
 
+        const drawerBody = target.closest('.drawer-body') as HTMLElement | null;
+        const startsOnBodySurface = drawerBody !== null && target === drawerBody;
         const isDragHandle = target.closest('.drag-handle') !== null;
         const isEditableStart = this.isEditableTarget(target);
         const isInteractiveStart = !!target.closest('button,a,input,textarea,select,label,[contenteditable]');
         const isBottom = this.options.isBottom();
-        const shouldCaptureOnStart = !isBottom || event.pointerType !== 'touch' || isDragHandle;
+        const shouldCaptureOnStart = !isBottom
+            || event.pointerType !== 'touch'
+            || isDragHandle
+            || isInteractiveStart
+            || !startsOnBodySurface;
         const preventedTouchStartDefault = event.pointerType === 'touch' && shouldCaptureOnStart;
 
         // Prevent native gestures for touch so we can reliably claim the pointer
@@ -153,6 +162,7 @@ export class DrawerDragController {
             restoreClickOnTap: preventedTouchStartDefault && isInteractiveStart,
             startedOnHandle: isDragHandle,
             scrollContainer: this.getScrollContainer(target),
+            requiresTopScrollForActivation: isBottom && event.pointerType === 'touch' && startsOnBodySurface,
         };
         if (shouldCaptureOnStart)
             drawer.setPointerCapture(event.pointerId);

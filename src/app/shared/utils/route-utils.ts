@@ -8,6 +8,12 @@ export type RouteObject<P extends Page = Page> = {
     insideParent?: true; // On child: true to render inside parent
 } | { [childPath: string]: RouteObject<P> };
 
+export type RoutePathObject = {
+    path: string;
+    parent: string | null;
+    insideParent?: true;
+};
+
 export function mapRouteObject(routes?: { [path: string]: RouteObject }, isAdmin = false, parentPath: string[] = [], prependPath = false): Routes {
     return Object.entries(routes ?? {})
         .filter(([_, { loadComponent, admin }]) => !!loadComponent && (!admin || isAdmin))
@@ -40,26 +46,26 @@ export function mapRouteObject(routes?: { [path: string]: RouteObject }, isAdmin
         }).flat();
 }
 
-export function getRoutePaths(routes?: { [path: string]: any }, parentPath: string | null = null): { path: string, parent: string | null }[] {
+export function getRoutePaths(routes?: { [path: string]: any }, parentPath: string | null = null): RoutePathObject[] {
     return Object.entries(routes ?? {})
         .filter(([_, route]) => typeof route === 'object' && route !== null)
         .map(([path, route]) => {
             const fullPath = parentPath ? `${parentPath}/${path}` : path;
             const { loadComponent, admin, insideParent, translateId, icon, onBottom, ...children } = route;
-            const paths = [];
+            const paths: RoutePathObject[] = [];
             if (loadComponent) {
-                paths.push({ path: fullPath, parent: parentPath });
+                paths.push({ path: fullPath, parent: parentPath, insideParent: insideParent === true ? true : undefined });
             }
             paths.push(...getRoutePaths(children, fullPath));
             return paths;
         }).flat();
 }
 
-export function getParentUrl(url: string, routePaths: { path: string, parent: string | null }[]): string | null {
+function getBestMatchingRoute(url: string, routePaths: RoutePathObject[]): RoutePathObject | null {
     const pathOnly = url.split('?')[0].split('#')[0];
     const urlSegments = pathOnly.split('/').filter(s => s);
 
-    let bestMatch: { route: { path: string, parent: string | null }, score: number } | null = null;
+    let bestMatch: { route: RoutePathObject, score: number } | null = null;
 
     for (const route of routePaths) {
         const routeSegments = route.path.split('/').filter(s => s);
@@ -88,8 +94,20 @@ export function getParentUrl(url: string, routePaths: { path: string, parent: st
         }
     }
 
-    if (bestMatch && bestMatch.route.parent) {
-        const parentSegments = bestMatch.route.parent.split('/').filter(s => s);
+    return bestMatch?.route ?? null;
+}
+
+export function isInsideParentUrl(url: string, routePaths: RoutePathObject[]): boolean {
+    return !!getBestMatchingRoute(url, routePaths)?.insideParent;
+}
+
+export function getParentUrl(url: string, routePaths: RoutePathObject[]): string | null {
+    const pathOnly = url.split('?')[0].split('#')[0];
+    const urlSegments = pathOnly.split('/').filter(s => s);
+    const bestMatch = getBestMatchingRoute(url, routePaths);
+
+    if (bestMatch?.parent) {
+        const parentSegments = bestMatch.parent.split('/').filter(s => s);
         return '/' + urlSegments.slice(0, parentSegments.length).join('/');
     }
 

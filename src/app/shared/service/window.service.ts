@@ -4,7 +4,7 @@ import { filter, tap } from "rxjs";
 import { AsyncState } from "../utils/async-state";
 import { executeOnce } from "../utils/flow-control-utils";
 import { xcomputed, xeffect } from "../utils/signal-utils";
-import { getParentUrl, getRoutePaths } from "../utils/route-utils";
+import { getParentUrl, getRoutePaths, isInsideParentUrl, RoutePathObject } from "../utils/route-utils";
 
 const CTRL_KEY = navigator.platform.match('Mac') ? 'metaKey' : 'ctrlKey';
 
@@ -47,7 +47,7 @@ export class WindowService {
     readonly onlineState = new AsyncState<boolean>();
     readonly titleBarColors = signal<{ focused: { light: string, dark: string }, unfocused: { light: string, dark: string } } | null>(null);
 
-    private allRoutePaths: { path: string, parent: string | null }[] | null = null;
+    private allRoutePaths: RoutePathObject[] | null = null;
     private isHandlingMobileBack = false;
 
     constructor() {
@@ -89,7 +89,11 @@ export class WindowService {
         this.router.events.pipe(filter(e => e instanceof NavigationEnd)).subscribe(async res => {
             this._currentRoute.set(res.urlAfterRedirects);
             this.allRoutePaths ??= await this.getAllRoutePaths();
-            this.backUrl.set(getParentUrl(res.urlAfterRedirects, this.allRoutePaths));
+            const parentUrl = getParentUrl(res.urlAfterRedirects, this.allRoutePaths);
+            const backUrl = parentUrl && isInsideParentUrl(res.urlAfterRedirects, this.allRoutePaths)
+                ? getParentUrl(parentUrl, this.allRoutePaths)
+                : parentUrl;
+            this.backUrl.set(backUrl);
         });
         defaultView.onfocus = () => {
             const activeElement = this.document.activeElement as HTMLElement | null;
