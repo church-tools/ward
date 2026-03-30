@@ -95,8 +95,8 @@ export class DrawerDragController {
         return isCardBackground(target, drawer);
     }
 
-    private getDrawerBody(target: HTMLElement): HTMLElement | null {
-        return target.closest('.drawer-body') as HTMLElement | null;
+    private getScrollContainer(target: HTMLElement): HTMLElement | null {
+        return target.closest('.drawer-card') as HTMLElement | null;
     }
 
     private canActivateBottomTouchBodyDrag(state: DragState, rawDelta: number): boolean {
@@ -106,7 +106,7 @@ export class DrawerDragController {
             return false;
         if (state.startedOnHandle)
             return true;
-        return (state.scrollContainer?.scrollTop ?? 0) <= 0;
+        return (state.scrollContainer?.scrollTop ?? 0) <= 1;
     }
 
     private readonly onPointerDown = (event: PointerEvent) => {
@@ -152,7 +152,7 @@ export class DrawerDragController {
             startTarget: target,
             restoreClickOnTap: preventedTouchStartDefault && isInteractiveStart,
             startedOnHandle: isDragHandle,
-            scrollContainer: this.getDrawerBody(target),
+            scrollContainer: this.getScrollContainer(target),
         };
         if (shouldCaptureOnStart)
             drawer.setPointerCapture(event.pointerId);
