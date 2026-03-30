@@ -19,6 +19,7 @@
         align-items: center;
         justify-content: center;
         transition: all animation.$duration-lg animation.$ease-out;
+        border-radius: 0 !important;
         @starting-style {
             opacity: 0;
             min-width: 0
