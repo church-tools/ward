@@ -6,7 +6,7 @@ import { WindowService } from "@/shared/service/window.service";
 import { transitionStyle } from "@/shared/utils/dom-utils";
 import { wait } from "@/shared/utils/flow-control-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
-import { animationDurationLgMs, animationDurationMs, animationDurationSmMs, easeOut } from "@/shared/utils/style";
+import { animationDurationLgMs, animationDurationMs, easeOut } from "@/shared/utils/style";
 import { DrawerDragController } from "./drawer-drag-controller";
 import { applyDrawerDragStyles, calculateDragOpacity, clearTimeoutRef, getDrawerCard, resetDrawerVisualState } from "./drawer-router-outlet.utils";
 import { RowPage } from "../row-page";
