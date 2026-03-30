@@ -2,6 +2,7 @@ import { isCardBackground } from "./drawer-router-outlet.utils";
 
 type DragState = {
     pointerId: number;
+    pointerType: string;
     axis: 'x' | 'y';
     startPos: number;
     lastPos: number;
@@ -12,6 +13,8 @@ type DragState = {
     activationThreshold: number;
     startTarget?: HTMLElement | null;
     restoreClickOnTap?: boolean;
+    startedOnHandle: boolean;
+    scrollContainer: HTMLElement | null;
 };
 
 type DrawerDragControllerOptions = {
@@ -92,6 +95,20 @@ export class DrawerDragController {
         return isCardBackground(target, drawer);
     }
 
+    private getDrawerBody(target: HTMLElement): HTMLElement | null {
+        return target.closest('.drawer-body') as HTMLElement | null;
+    }
+
+    private canActivateBottomTouchBodyDrag(state: DragState, rawDelta: number): boolean {
+        if (rawDelta <= state.activationThreshold)
+            return false;
+        if (rawDelta <= 0)
+            return false;
+        if (state.startedOnHandle)
+            return true;
+        return (state.scrollContainer?.scrollTop ?? 0) <= 0;
+    }
+
     private readonly onPointerDown = (event: PointerEvent) => {
         const drawer = this.element;
         if (!drawer)
@@ -107,19 +124,23 @@ export class DrawerDragController {
         if (!this.canStartDrag(drawer, target))
             return;
 
+        const isDragHandle = target.closest('.drag-handle') !== null;
         const isEditableStart = this.isEditableTarget(target);
         const isInteractiveStart = !!target.closest('button,a,input,textarea,select,label,[contenteditable]');
+        const isBottom = this.options.isBottom();
+        const shouldCaptureOnStart = !isBottom || event.pointerType !== 'touch' || isDragHandle;
+        const preventedTouchStartDefault = event.pointerType === 'touch' && shouldCaptureOnStart;
 
         // Prevent native gestures for touch so we can reliably claim the pointer
         // and restore tap behavior manually if this turns out to be a tap.
-        if (event.pointerType === 'touch')
+        if (preventedTouchStartDefault)
             event.preventDefault();
 
-        const isBottom = this.options.isBottom();
         const axis = isBottom ? 'y' : 'x';
         const currentPos = axis === 'y' ? event.clientY : event.clientX;
         this.dragState = {
             pointerId: event.pointerId,
+            pointerType: event.pointerType,
             axis,
             startPos: currentPos,
             lastPos: currentPos,
@@ -129,9 +150,12 @@ export class DrawerDragController {
             isDragActive: false,
             activationThreshold: this.getActivationThreshold(event.pointerType, isEditableStart),
             startTarget: target,
-            restoreClickOnTap: event.pointerType === 'touch' && isInteractiveStart,
+            restoreClickOnTap: preventedTouchStartDefault && isInteractiveStart,
+            startedOnHandle: isDragHandle,
+            scrollContainer: this.getDrawerBody(target),
         };
-        drawer.setPointerCapture(event.pointerId);
+        if (shouldCaptureOnStart)
+            drawer.setPointerCapture(event.pointerId);
     };
 
     private readonly onPointerMove = (event: PointerEvent) => {
@@ -143,10 +167,15 @@ export class DrawerDragController {
         const delta = Math.max(0, rawDelta);
         const timeDelta = Math.max(1, event.timeStamp - state.lastTime);
         const instantVelocity = (currentPos - state.lastPos) / timeDelta;
+        state.lastPos = currentPos;
+        state.lastTime = event.timeStamp;
         state.velocity = state.velocity * 0.8 + instantVelocity * 0.2;
 
         if (!state.isDragActive) {
-            if (rawDelta > state.activationThreshold)
+            const shouldActivate = state.axis === 'y' && state.pointerType === 'touch'
+                ? this.canActivateBottomTouchBodyDrag(state, rawDelta)
+                : rawDelta > state.activationThreshold;
+            if (shouldActivate)
                 this.activateDrag(event);
             else
                 return;
@@ -200,6 +229,8 @@ export class DrawerDragController {
         const state = this.dragState;
         if (!state || !this.element)
             return;
+        if (!this.element.hasPointerCapture(state.pointerId))
+            this.element.setPointerCapture(state.pointerId);
         state.isDragActive = true;
         this.options.setDragging(true);
         this.element.style.transition = '';
