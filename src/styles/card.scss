@@ -43,13 +43,11 @@ $border-radius-lg: var(--card-radius-lg, #{$border-radius-lg-default});
         --card-radius-lg: calc(#{$border-radius-lg-default} * 1.5);
     }
 }
-
-/* Target coarse pointers (touch devices) as an alternative heuristic */
 @media (pointer: coarse) {
     :root {
-        --card-radius: 0.25rem; /* more compact radius on touch devices */
-        --card-radius-sm: 0.1875rem;
-        --card-radius-lg: 0.375rem;
+        --card-radius: calc(#{$border-radius-default} * 1.5);
+        --card-radius-sm: calc(#{$border-radius-sm-default} * 1.5);
+        --card-radius-lg: calc(#{$border-radius-lg-default} * 1.5);
     }
 }
 
