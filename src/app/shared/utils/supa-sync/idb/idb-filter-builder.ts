@@ -150,7 +150,7 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
         });
     }
 
-    private queryCondition<R>(condition: Condition<T, keyof T>, fetchFn: (value: IDBValidKey | IDBKeyRange) => IDBRequest) {
+    private queryCondition<R>(condition: Condition<T, keyof T>, fetchFn: (value?: IDBValidKey | IDBKeyRange) => IDBRequest) {
         const requests = [(() => {
             const { operator, value } = condition;
             switch (operator) {
@@ -171,6 +171,8 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
                 case 'not':  {
                     const val = this.indexed[condition.field] === Boolean
                         ? idbBoolToNumber(value as boolean | null) : value;
+                    if (val == null)
+                        return fetchFn();
                     return [
                         fetchFn(IDBKeyRange.lowerBound(val, true)),
                         fetchFn(IDBKeyRange.upperBound(val, true)),

@@ -1,4 +1,4 @@
-import type Table from "../shared/table.types";
+import type Table from "../../shared/table.types";
 
 export namespace AgendaItem {
     export type Insert = Table.Insert<"agenda_item">;

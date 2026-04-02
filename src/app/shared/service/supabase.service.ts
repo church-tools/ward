@@ -1,7 +1,8 @@
 import { AgendaViewService } from '@/modules/agenda/agenda-view.service';
+import { AgendaItemViewService } from '@/modules/agenda/item/agenda-item-view.service';
 import { CallingCalculated } from '@/modules/calling/calling-calculated';
 import { CallingViewService } from '@/modules/calling/calling-view.service';
-import { AgendaItemViewService } from '@/modules/item/agenda-item-view.service';
+import { HymnViewService } from '@/modules/hymn/hymn-view.service';
 import { MemberCallingCalculated } from '@/modules/member-calling/member-calling-calculated';
 import { MemberCallingViewService } from '@/modules/member-calling/member-calling-view.service';
 import { MemberViewService } from '@/modules/member/member-view.service';
@@ -47,12 +48,19 @@ export class SupabaseService {
             indexed: { member: Number, calling: Number, state: String },
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },
+        hymn: { getSummaryString: inject(HymnViewService).toString },
+        message: { createOffline: true, orderKey: 'position',
+            indexed: { sacrament_meeting: Number, speaker: String } },
+        singing: { createOffline: true, orderKey: 'position',
+            indexed: { sacrament_meeting: Number, hymn: Number } },
+        musical_performance: { createOffline: true, orderKey: 'position',
+            indexed: { sacrament_meeting: Number } },
         sacrament_meeting: { version: 1, idKeys: ['week'],
             indexed: { week: Number, type: String },
             getSummaryString: inject(SacramentMeetingViewService).toString },
         organization: { orderKey: 'position',
             getSummaryString: inject(OrganizationViewService).toString },
-    } as SupaSyncTableInfos<Database, TableInfoMap, CalculatedMap>);
+    } as unknown as SupaSyncTableInfos<Database, TableInfoMap, CalculatedMap>);
 
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();

@@ -1,9 +1,9 @@
+import { AgendaItemViewService } from "@/modules/agenda/item/agenda-item-view.service";
+import { IconCode } from "@/shared/icon/icon";
 import { inject, Injectable } from "@angular/core";
 import { Translation } from '@ngx-translate/core';
 import { Observable } from "rxjs";
-import { IconCode } from "@/shared/icon/icon";
 import { CallingViewService } from "../../calling/calling-view.service";
-import { AgendaItemViewService } from "../../item/agenda-item-view.service";
 import { ViewService } from "../../shared/view.service";
 import type { AgendaSection } from "./agenda-section";
 

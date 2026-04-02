@@ -1,10 +1,10 @@
-import { Component, inject, input } from '@angular/core';
+import { AgendaItem } from '@/modules/agenda/item/agenda-item';
+import { AgendaItemListInsert } from '@/modules/agenda/item/agenda-item-list-insert';
+import { AgendaItemListRow } from '@/modules/agenda/item/agenda-item-list-row';
 import { getRowRoute } from '@/private/private.routes';
 import { RowPageService } from '@/private/row-page.service';
 import { xcomputed } from '@/shared/utils/signal-utils';
-import { AgendaItem } from '../../item/agenda-item';
-import { AgendaItemListInsert } from '../../item/agenda-item-list-insert';
-import { AgendaItemListRow } from '../../item/agenda-item-list-row';
+import { Component, inject, input } from '@angular/core';
 import { ProfileService } from '../../profile/profile.service';
 import { RowCardList } from '../../shared/row-card-list/row-card-list';
 import { Table } from '../../shared/table.types';

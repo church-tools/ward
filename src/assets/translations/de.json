@@ -64,7 +64,7 @@
     "MEETINGS": "Sitzungen",
     "MEMBERS": "Mitglieder",
     "CALLINGS": "Berufungen",
-    "SACRAMENT_MEETING": "Abendm.vers.",
+    "SACRAMENT_MEETING": "Abendm.ver.",
     "USERS": "Benutzer"
   },
   "VIEW": {
@@ -82,8 +82,12 @@
     "MEETINGS": "Sitzungen",
     "MEMBER": "Mitglied",
     "MEMBERS": "Mitglieder",
+    "HYMN": "Lied",
+    "HYMNS": "Lieder",
     "SACRAMENT_MEETING": "Abendmahlsversammlung",
     "SACRAMENT_MEETINGS": "Abendmahlsversammlungen",
+    "SACRAMENT_MEETING_ITEM": "Abendmahlsversammlungsbeitrag",
+    "SACRAMENT_MEETING_ITEMS": "Abendmahlsversammlungsbeitraege",
     "AGENDA_SECTION": "Sitzungsabschnitt",
     "AGENDA_SECTIONS": "Sitzungsabschnitte",
     "ORGANIZATION": "Organisation",
@@ -172,10 +176,30 @@
     "CLOSING_PRAYER": "Schlussgebet",
     "CLASSES": "Klassen"
   },
+  "SACRAMENT_MEETING_ITEM": {
+    "TITLE": "Beitrag zur Abendmahlsversammlung",
+    "ITEMS": "Beitraege",
+    "KIND": "Beitragstyp",
+    "KIND_TALK": "Ansprache",
+    "KIND_HYMN": "Lied",
+    "KIND_MUSICAL_PERFORMANCE": "Musikvortrag",
+    "TALKS": "Ansprachen",
+    "MUSIC": "Musik",
+    "HYMN": "Lied",
+    "HYMNS": "Lieder",
+    "MUSICAL_PERFORMANCE": "Musikvortrag",
+    "MUSICAL_PERFORMANCES": "Musikvortraege",
+    "NAME": "Name",
+    "PERFORMERS": "Ausfuehrende",
+    "SPEAKER": "Sprecher",
+    "TOPIC": "Thema",
+    "DURATION": "Dauer"
+  },
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planung",
     "TITLE": "Planung von Abendmahlsvers.",
-    "SHOW_PAST": "Vergangene anzeigen"
+    "SHOW_PAST": "Vergangene anzeigen",
+    "PREVIEW": "Vorschau"
   },
   "MEETINGS_PAGE": {
     "TITLE": "Sitzungen",

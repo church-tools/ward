@@ -7,7 +7,7 @@ export const CallingCalculated = {
 		dependsOn: { organization: 'organization' } as const,
 		version: 1,
 		calculation: (_, dependencies) => {
-			const organization = dependencies.organization as Table.Row<'organization'> | undefined;
+			const organization = dependencies['organization'] as Table.Row<'organization'> | undefined;
 			return organization ? { name: organization.abbreviation || organization.name, color: organization.color } : null;
 		},
 	},

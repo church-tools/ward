@@ -3,10 +3,24 @@
     (activated)="onActivate($event)">
     <div class="page narrow gap-4">
         <span class="h0">{{ 'SACRAMENT_MEETING_PLANNING_PAGE.TITLE' | translate }}</span>
+        <div class="row">
+            <app-link-button href="https://www.churchofjesuschrist.org/study/manual/general-handbook/29-meetings-in-the-church?id=title4#title4"
+                icon="open"
+                outside newTab type="secondary">
+                <span outside>{{ 'SACRAMENT_MEETING_PLANNING_PAGE.HANDBOOK_LINK' | translate }}</span>
+            </app-link-button>
+        </div>
         <app-switch
             [value]="showPastMeetings()"
             (valueChange)="showPastMeetings.set($event ?? false)"
             label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHOW_PAST' | translate }}"/>
+        <app-select
+            [value]="previewMode()"
+            [options]="previewModeOptions"
+            [translateOptions]="true"
+            [hideClear]="true"
+            label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.PREVIEW' | translate }}"
+            (valueChange)="onPreviewModeChange($event)"/>
         <app-row-card-list
             tableName="sacrament_meeting"
             [getQuery]="getQuery()"
@@ -14,7 +28,11 @@
             [activeId]="activeChurchServiceId()"
             editable>
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
-                <app-sacrament-meeting-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                <app-sacrament-meeting-list-row
+                    [row]="row"
+                    [page]="page"
+                    [onRemove]="onRemove"
+                    [previewMode]="previewMode()"/>
             </ng-template>
             <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
                 <app-sacrament-meeting-list-insert

@@ -1,8 +1,8 @@
+import { AgendaItemViewService } from '@/modules/agenda/item/agenda-item-view.service';
 import { AsyncPipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { AgendaItemViewService } from '../../../item/agenda-item-view.service';
-import { AgendaSection } from '../agenda-section';
 import { AgendaItemList } from '../agenda-item-list';
+import { AgendaSection } from '../agenda-section';
 
 @Component({
     selector: 'app-agenda-section-resolutions',

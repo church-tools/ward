@@ -82,8 +82,12 @@
     "MEETINGS": "Meetings",
     "MEMBER": "Member",
     "MEMBERS": "Members",
+    "HYMN": "Hymn",
+    "HYMNS": "Hymns",
     "SACRAMENT_MEETING": "Sacrament Meeting",
     "SACRAMENT_MEETINGS": "Sacrament Meetings",
+    "SACRAMENT_MEETING_ITEM": "Sacrament Meeting Item",
+    "SACRAMENT_MEETING_ITEMS": "Sacrament Meeting Items",
     "AGENDA_SECTION": "Agenda Section",
     "AGENDA_SECTIONS": "Agenda Sections",
     "ORGANIZATION": "Organization",
@@ -172,10 +176,30 @@
     "CLOSING_PRAYER": "Closing Prayer",
     "CLASSES": "Classes"
   },
+  "SACRAMENT_MEETING_ITEM": {
+    "TITLE": "Sacrament Meeting Item",
+    "ITEMS": "Items",
+    "KIND": "Item Type",
+    "KIND_TALK": "Talk",
+    "KIND_HYMN": "Hymn",
+    "KIND_MUSICAL_PERFORMANCE": "Musical Performance",
+    "TALKS": "Talks",
+    "MUSIC": "Music",
+    "HYMN": "Hymn",
+    "HYMNS": "Hymns",
+    "MUSICAL_PERFORMANCE": "Musical Performance",
+    "MUSICAL_PERFORMANCES": "Musical Performances",
+    "NAME": "Name",
+    "PERFORMERS": "Performers",
+    "SPEAKER": "Speaker",
+    "TOPIC": "Topic",
+    "DURATION": "Duration"
+  },
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planning",
     "TITLE": "Planning of Sacrament Meetings",
-    "SHOW_PAST": "Show past"
+    "SHOW_PAST": "Show past",
+    "PREVIEW": "Preview"
   },
   "MEETINGS_PAGE": {
     "TITLE": "Meetings",

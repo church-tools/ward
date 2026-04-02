@@ -1,6 +1,6 @@
-import { Injectable } from "@angular/core";
 import type { IconCode } from "@/shared/icon/icon";
-import { ViewService } from "../shared/view.service";
+import { Injectable } from "@angular/core";
+import { ViewService } from "../../shared/view.service";
 import type { AgendaItem } from "./agenda-item";
 
 @Injectable({ providedIn: 'root' })

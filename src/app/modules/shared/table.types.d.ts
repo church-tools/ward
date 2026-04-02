@@ -9,7 +9,7 @@ export type CalculatedMap = SupaSyncCalculatedMap<Database, {
     calling: CallingCalculatedValues;
     member_calling: MemberCallingCalculatedValues;
 }>;
-export type TableName = keyof Database["public"]["Tables"];
+export type TableName = keyof Database["public"]["Tables"] & string;
 export type Table<T extends TableName> = SupaSyncTable<Database, T, CalculatedMap[T]>;
 export type Column<T extends TableName> = keyof RemoteRow<T> & string;
 export type NumberColumn<T extends TableName> = Extract<Column<T>, string> | never;

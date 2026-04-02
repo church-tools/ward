@@ -3,7 +3,7 @@ import { TranslateModule } from '@ngx-translate/core';
 import { AgendaSection } from '@/modules/agenda/section/agenda-section';
 import { AgendaSectionListInsert } from '@/modules/agenda/section/agenda-section-list-insert';
 import { AgendaSectionListRow } from '@/modules/agenda/section/agenda-section-list-row';
-import { AgendaItem } from '@/modules/item/agenda-item';
+import { AgendaItem } from '@/modules/agenda/item/agenda-item';
 import { ProfileService } from '@/modules/profile/profile.service';
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
 import { Table } from '@/modules/shared/table.types';

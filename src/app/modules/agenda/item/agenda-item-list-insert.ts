@@ -1,7 +1,7 @@
 import { Component, viewChild } from '@angular/core';
 import { TextInput } from '@/shared/form/text/text-input';
-import { Profile } from '../profile/profile';
-import { ListInsert } from '../shared/row-card-list/list-insert';
+import { Profile } from '../../profile/profile';
+import { ListInsert } from '../../shared/row-card-list/list-insert';
 import { AgendaItem } from './agenda-item';
 
 @Component({

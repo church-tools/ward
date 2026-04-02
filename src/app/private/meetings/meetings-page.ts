@@ -1,9 +1,9 @@
 import { Agenda } from '@/modules/agenda/agenda';
 import { AgendaListInsert } from '@/modules/agenda/agenda-list-insert';
 import { AgendaListRow } from '@/modules/agenda/agenda-list-row';
-import { AgendaItem } from '@/modules/item/agenda-item';
-import { AgendaItemListInsert } from '@/modules/item/agenda-item-list-insert';
-import { AgendaItemListRow } from '@/modules/item/agenda-item-list-row';
+import { AgendaItem } from '@/modules/agenda/item/agenda-item';
+import { AgendaItemListInsert } from '@/modules/agenda/item/agenda-item-list-insert';
+import { AgendaItemListRow } from '@/modules/agenda/item/agenda-item-list-row';
 import { ProfileService } from '@/modules/profile/profile.service';
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
 import { Table } from '@/modules/shared/table.types';
