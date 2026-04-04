@@ -3,6 +3,7 @@ import type { Table } from '@/modules/shared/table.types';
 import { Button } from '@/shared/form/button/button';
 import { xcomputed } from '@/shared/utils/signal-utils';
 import { Component, input } from '@angular/core';
+import { UrlTree } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import type { Hymn } from './hymn/hymn';
 import { HymnListRow } from './hymn/hymn-list-row';
@@ -21,7 +22,7 @@ export type SacramentMeetingItemTableName = 'message' | 'hymn' | 'musical_perfor
             [editable]="true"
             [alwaysShowInsertTemplate]="true"
             [activeId]="activeItemId()"
-            [rowClicked]="onItemClick"
+            [getUrl]="getUrl()"
             [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
             <ng-template #rowTemplate let-item>
                 @if (item.table === 'message') {
@@ -63,7 +64,7 @@ export class SacramentMeetingItemList {
     readonly meetingId = input.required<number>();
     readonly unit = input.required<number>();
     readonly activeItemId = input<number | null>(null);
-    readonly onItemClick = input<(item: RowCardListMultiItem<SacramentMeetingItemTableName>) => void>();
+    readonly getUrl = input<(item: RowCardListMultiItem<SacramentMeetingItemTableName> | null) => string | UrlTree>();
 
     protected readonly tableQueries = xcomputed([this.meetingId], meetingId => [
         {

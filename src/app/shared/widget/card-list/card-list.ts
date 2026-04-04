@@ -1,7 +1,7 @@
 import { CdkDrag, CdkDragDrop, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
-import { RouterModule } from '@angular/router';
+import { RouterModule, UrlTree } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconCode, Icon } from '../../icon/icon';
 import { DragDropService, DropData } from '../../service/drag-drop.service';
@@ -44,7 +44,7 @@ export class CardList<T, ID extends number | string> {
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly itemInserted = input<(item: T) => PromiseOrValue<void>>();
-    readonly getUrl = input<(item: T) => string>();
+    readonly getUrl = input<(item: T) => string | UrlTree>();
     readonly itemClicked = input<(item: T) => void>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly showInsertTemplate = input(false);

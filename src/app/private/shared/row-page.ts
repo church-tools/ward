@@ -35,13 +35,27 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
 
     private subscription?: Subscription;
 
+    private async setRowId(rowId: number) {
+        const currentId = this.rowId();
+        if (currentId === rowId)
+            return;
+        if (currentId)
+            this.rowPageService.pageClosed(this.tableName, currentId);
+        this.rowPageService.pageOpened(this.tableName, rowId);
+        await this.onIdChange?.(rowId);
+        this.rowId.set(rowId);
+    }
+
+    public async setPopoverRowId(rowId: number) {
+        await this.setRowId(rowId);
+    }
+
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
             const rowId = params.get(this.tableName) ?? this.route.snapshot.paramMap.get(this.tableName);
-            if (!rowId) throw new Error(`:${this.tableName} param is required in the route`);
-            this.rowPageService.pageOpened(this.tableName, +rowId);
-            await this.onIdChange?.(+rowId);
-            this.rowId.set(+rowId);
+            if (!rowId)
+                return;
+            await this.setRowId(+rowId);
         });
     }
 
@@ -53,8 +67,11 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     }
 
     close() {
-        const id = this.syncedRow.id();
-        if (id) this.rowPageService.pageClosed(this.tableName, id);
+        const id = this.rowId();
+        if (!id)
+            return;
+        this.rowPageService.pageClosed(this.tableName, id);
+        this.rowId.set(null);
     }
 
     protected navigateToThis() {

@@ -1,6 +1,6 @@
 import { CommonModule } from "@angular/common";
 import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, output, TemplateRef, viewChild } from "@angular/core";
-import { Router } from "@angular/router";
+import { Router, UrlTree } from "@angular/router";
 import { IconCode } from "@/shared/icon/icon";
 import { Page } from "@/shared/page/page";
 import { SupabaseService } from "@/shared/service/supabase.service";
@@ -43,7 +43,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly gap = input(2);
     readonly columns = input(1);
     readonly cardsVisible = input(true);
-    readonly getUrl = input<(row: Row<T> | null) => string>();
+    readonly getUrl = input<(row: Row<T> | null) => string | UrlTree>();
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly insertContext = input<unknown>(null);
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
@@ -113,7 +113,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     protected onRowClick = (row: Row<T>) => {
         const getUrl = this.getUrl();
         if (getUrl && this.activeId() === this.table().getId(row))
-            this.router.navigate([getUrl(null)]);
+            this.router.navigateByUrl(getUrl(null));
     }
 
     protected _prepareInsert(row: Insert<T>): PromiseOrValue<void> {

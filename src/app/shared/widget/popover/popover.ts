@@ -7,6 +7,10 @@ export class PopoverPage {
     closePopup!: () => Promise<void>;
 }
 
+function isPopoverPage(value: object): value is PopoverPage {
+    return value instanceof PopoverPage;
+}
+
 @Component({
     selector: 'app-popover',
     template: `
@@ -32,7 +36,7 @@ export class Popover {
 
     protected readonly disappearing = signal(false);
 
-    loadComponent<T extends PopoverPage>(component: Type<T>, injector: EnvironmentInjector): ComponentRef<T> {
+    loadComponent<T>(component: Type<T>, injector: EnvironmentInjector): ComponentRef<T> {
         const container = this.contentContainer();
         container.clear();
         const componentRef = createComponent(component, {
@@ -40,7 +44,9 @@ export class Popover {
             elementInjector: container.injector,
         });
         container.insert(componentRef.hostView);
-        componentRef.instance.closePopup = this.close.bind(this);
+        const instance = componentRef.instance as object;
+        if (isPopoverPage(instance))
+            instance.closePopup = this.close.bind(this);
         this.dialog().nativeElement.showModal();
         return componentRef;
     }

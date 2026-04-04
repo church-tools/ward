@@ -1,19 +1,19 @@
 import { DatePipe } from '@angular/common';
-import { toSignal } from '@angular/core/rxjs-interop';
 import { Component, inject } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SacramentMeetingItemList, SacramentMeetingItemTableName } from '@/modules/sacrament-meeting/item/sacrament-meeting-item-list';
+import { RowCardListMultiItem } from '@/modules/shared/row-card-list/row-card-list-multi';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
 import { Select } from '@/shared/form/select/select';
 import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
 import { createTranslateLocaleSignal } from '@/shared/utils/language-utils';
-import { xcomputed, xeffect } from '@/shared/utils/signal-utils';
+import { xcomputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
+import { Subscription } from 'rxjs';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
-import { RowCardListMultiItem } from '@/modules/shared/row-card-list/row-card-list-multi';
 
 @Component({
     selector: 'app-sacrament-meeting-page',
@@ -41,7 +41,7 @@ import { RowCardListMultiItem } from '@/modules/shared/row-card-list/row-card-li
                         [meetingId]="row.id"
                         [unit]="row.unit"
                         [activeItemId]="activeItemId()"
-                        [onItemClick]="onItemClick"/>
+                        [getUrl]="itemPopoverUrl"/>
                 </div>
             }
             <app-custom-row-select class="col-md-6"
@@ -71,88 +71,39 @@ export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
     protected readonly tableName = 'sacrament_meeting';
     protected readonly meetingView = inject(SacramentMeetingViewService);
     protected readonly translate = inject(TranslateService);
-
-    private readonly queryParamMap = toSignal(this.route.queryParamMap,
-        { initialValue: this.route.snapshot.queryParamMap });
+    private readonly popoverRouteSubscription: Subscription;
 
     protected readonly locale = createTranslateLocaleSignal(this.translate);
 
     protected readonly meetingDate = xcomputed([this.syncedRow.value], row =>
         row ? sundayIndexToDate(row.week as SundayIndex) : null);
 
-    protected readonly activeItemId = xcomputed([this.queryParamMap], queryParams => {
-        if (queryParams.get('popover') !== 'sacrament_meeting_item')
+    protected readonly activeItemId = xcomputed([this.popoverService.rowPopoverTarget], target => {
+        if (!target)
             return null;
-        const id = Number(queryParams.get('id'));
-        return Number.isInteger(id) && id > 0 ? id : null;
+        switch (target.tableName) {
+            case 'message':
+            case 'hymn':
+            case 'musical_performance':
+                return target.id;
+            default:
+                return null;
+        }
     });
-
-    // private openedPopoverItemId: number | null = null;
-    // private openedPopoverItemKind: SacramentMeetingItemKind | null = null;
 
     constructor() {
         super();
-        xeffect([this.activeItemId, this.syncedRow.value], (itemId, meeting) => {
-            // void this.syncItemPopover(itemId, meeting?.id ?? null);
-        });
+        this.popoverRouteSubscription = this.popoverService.bindRowPopoverRoute(this.route);
     }
 
-    protected readonly onItemClick = (item: RowCardListMultiItem<SacramentMeetingItemTableName>) => {
-        const { table, row } = item;
-        const activeItemId = this.activeItemId();
-        if (activeItemId === row.id) {
-            // void this.clearItemPopoverQuery();
-            return;
-        }
-        void this.router.navigate([], {
-            relativeTo: this.route,
-            queryParams: { popover: table, id: row.id },
-            queryParamsHandling: 'merge',
-        });
+    override ngOnDestroy() {
+        this.popoverRouteSubscription.unsubscribe();
+        super.ngOnDestroy();
     }
 
-    // private async syncItemPopover(itemId: number | null, meetingId: number | null) {
-    //     const itemKind = this.activeItemKind();
-    //     if (itemId === null) {
-    //         this.openedPopoverItemId = null;
-    //         this.openedPopoverItemKind = null;
-    //         await this.popoverService.close();
-    //         return;
-    //     }
-    //     if (meetingId == null || !itemKind)
-    //         return;
-
-    //     if (itemId === this.openedPopoverItemId && itemKind === this.openedPopoverItemKind)
-    //         return;
-
-    //     const item = await this.getItemByKind(itemKind, itemId);
-    //     if (!item || item.sacrament_meeting !== meetingId) {
-    //         await this.clearItemPopoverQuery();
-    //         return;
-    //     }
-
-    //     const popover = await this.popoverService.open(SacramentMeetingItemPopover,
-    //         () => void this.clearItemPopoverQuery());
-    //     popover.instance.itemId.set(itemId);
-    //     popover.instance.kind.set(itemKind);
-    //     this.openedPopoverItemId = itemId;
-    //     this.openedPopoverItemKind = itemKind;
-    // }
-
-    // private async getItemByKind(kind: SacramentMeetingItemKind, id: number) {
-    //     switch (kind) {
-    //         case 'message': return this.supabase.sync.from('message').read(id).get();
-    //         case 'hymn': return this.supabase.sync.from('hymn').read(id).get();
-    //         case 'musical_performance': return this.supabase.sync.from('musical_performance').read(id).get();
-    //     }
-    // }
-
-    // private async clearItemPopoverQuery() {
-    //     await this.router.navigate([], {
-    //         relativeTo: this.route,
-    //         queryParams: { popover: null, id: null, itemType: null },
-    //         queryParamsHandling: 'merge',
-    //         replaceUrl: true,
-    //     });
-    // }
+    protected readonly itemPopoverUrl = (item: RowCardListMultiItem<SacramentMeetingItemTableName> | null) => {
+        if (!item)
+            return this.popoverService.getRowPopoverUrl(this.route, null);
+        return this.popoverService.getRowPopoverUrl(this.route, item.table, item.row.id);
+    }
 }
