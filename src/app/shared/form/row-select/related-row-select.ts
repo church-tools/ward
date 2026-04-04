@@ -27,7 +27,7 @@ type RelationInsertMapper<RelationTable extends TableName> =
 	`,
 	imports: [RowSelect],
 })
-export class RelatedRowSelectComponent<
+export class RelatedRowSelect<
 	ParentTable extends TableName,
 	RelatedTable extends TableName,
 	RelationTable extends TableName,

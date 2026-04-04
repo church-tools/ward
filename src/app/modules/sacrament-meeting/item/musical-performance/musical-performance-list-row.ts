@@ -5,7 +5,6 @@ import { MusicalPerformanceViewService } from './musical-performance-view.servic
 
 @Component({
     selector: 'app-musical-performance-list-row',
-    standalone: true,
     template: `
         <div class="row full-width m-4 row-gap-1 column-gap-2 items-center">
             <app-icon [icon]="musicalPerformanceView.icon" size="sm" class="text-secondary"/>

@@ -28,7 +28,7 @@ type ItemCard<T, ID extends number | string> = {
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })
-export class CardListComponent<T, ID extends number | string> {
+export class CardList<T, ID extends number | string> {
 
     private readonly injector = inject(Injector);
     private readonly windowService = inject(WindowService);
@@ -47,6 +47,7 @@ export class CardListComponent<T, ID extends number | string> {
     readonly getUrl = input<(item: T) => string>();
     readonly itemClicked = input<(item: T) => void>();
     readonly insertRow = input<(item: T) => Promise<T>>();
+    readonly showInsertTemplate = input(false);
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
     readonly emptyIcon = input<IconCode | null>(null);
@@ -80,6 +81,8 @@ export class CardListComponent<T, ID extends number | string> {
     protected readonly dropListOrientation = xcomputed([this.multiColumn],
         multiColumn => multiColumn ? 'mixed' : 'vertical');
     protected readonly gapSize = xcomputed([this.gap], gap => `${gap * 0.25}rem`);
+    protected readonly insertTemplateVisible = xcomputed([this.inserting, this.showInsertTemplate],
+        (inserting, showInsertTemplate) => inserting || showInsertTemplate);
     protected readonly cardsSelectable = xcomputed([this.getUrl, this.itemClicked],
         (getUrl, itemClicked) => !!(getUrl || itemClicked));
     readonly cardCount = xcomputed([this.itemCards], cards => cards.length);

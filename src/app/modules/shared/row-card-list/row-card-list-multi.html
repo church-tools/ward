@@ -1,0 +1,42 @@
+@let projectedInsertTemplate = this.insertTemplate();
+@let editable = this.editable();
+@if (tableQueries().length && (!editable || projectedInsertTemplate)) {
+    <app-card-list
+        [cardClasses]="cardsVisible() ? cardClasses() : ''"
+        [reorderable]="editable && !!sharedOrderKey()"
+        [editable]="editable"
+        [activeId]="activeId()"
+        [gap]="gap()"
+        [columns]="columns()"
+        [getId]="getId"
+        [orderByKey]="sharedOrderKey()"
+        [showInsertTemplate]="alwaysShowInsertTemplate()"
+        [getFilterText]="getFilterText"
+        [getUrl]="getUrl() ? getCardUrl : undefined"
+        (orderChange)="onOrderChanged($event)"
+        (itemDropped)="onItemDropped($event)"
+        [insertRow]="insertRow"
+        [dragDropGroup]="dragDropGroup()"
+        [emptyIcon]="emptyIcon()"
+        [itemClicked]="getUrl() ? onRowClick : onCardClick">
+        <ng-template #itemTemplate let-item>
+            <ng-container *ngTemplateOutlet="rowTemplate();
+                context: {
+                    $implicit: item,
+                    page: this.page(),
+                    onRemove: this.removeRow
+                }"/>
+        </ng-template>
+        <ng-template #insertTemplate let-functions>
+            @if (projectedInsertTemplate) {
+                <ng-container *ngTemplateOutlet="projectedInsertTemplate;
+                    context: {
+                        $implicit: getInsertFunctions(functions.insert, functions.cancel),
+                        prepareInsert: _prepareInsert,
+                        context: insertContext(),
+                        tableNames: tableNames()
+                    }"/>
+            }
+        </ng-template>
+    </app-card-list>
+}

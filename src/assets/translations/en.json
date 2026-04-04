@@ -176,25 +176,6 @@
     "CLOSING_PRAYER": "Closing Prayer",
     "CLASSES": "Classes"
   },
-  "SACRAMENT_MEETING_ITEM": {
-    "TITLE": "Sacrament Meeting Item",
-    "ITEMS": "Items",
-    "KIND": "Item Type",
-    "KIND_TALK": "Talk",
-    "KIND_HYMN": "Hymn",
-    "KIND_MUSICAL_PERFORMANCE": "Musical Performance",
-    "TALKS": "Talks",
-    "MUSIC": "Music",
-    "HYMN": "Hymn",
-    "HYMNS": "Hymns",
-    "MUSICAL_PERFORMANCE": "Musical Performance",
-    "MUSICAL_PERFORMANCES": "Musical Performances",
-    "NAME": "Name",
-    "PERFORMERS": "Performers",
-    "SPEAKER": "Speaker",
-    "TOPIC": "Topic",
-    "DURATION": "Duration"
-  },
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planning",
     "TITLE": "Planning of Sacrament Meetings",
@@ -209,6 +190,16 @@
     "TITLE": "Callings",
     "CURRENT_TITLE": "Current Callings",
     "RELEASES_TITLE": "Current Releases"
+  },
+  "MESSAGE_PAGE": {
+    "TITLE": "Message"
+  },
+  "HYMN_PAGE": {
+    "TITLE": "Hymn"
+  },
+  "MUSICAL_PERFORMANCE_PAGE": {
+    "TITLE": "Musical Performance",
+    "SHORT_TITLE": "Musical Perf."
   },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {
@@ -275,6 +266,7 @@
   "DELETE": "Delete",
   "CONFIRM_DELETE": "Confirm Delete?",
   "NO_MATCHES": "No matches",
+  "HANDBOOK": "Handbook",
   "B": "B",
   "I": "I",
   "U": "U",

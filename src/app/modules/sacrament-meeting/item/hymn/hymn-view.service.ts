@@ -1,5 +1,5 @@
+import { ViewService } from "@/modules/shared/view.service";
 import { Injectable } from "@angular/core";
-import { ViewService } from "../shared/view.service";
 import type { Hymn } from "./hymn";
 
 @Injectable({ providedIn: 'root' })
@@ -11,7 +11,7 @@ export class HymnViewService extends ViewService<'hymn'> {
         super('hymn');
     }
 
-    override toString(row: Hymn.Row): string {
-        return row.name?.trim() || `#${row.id}`;
+    toString(item: Hymn.Row): string {
+        return item.id;
     }
 }

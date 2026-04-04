@@ -176,25 +176,6 @@
     "CLOSING_PRAYER": "Schlussgebet",
     "CLASSES": "Klassen"
   },
-  "SACRAMENT_MEETING_ITEM": {
-    "TITLE": "Beitrag zur Abendmahlsversammlung",
-    "ITEMS": "Beitraege",
-    "KIND": "Beitragstyp",
-    "KIND_TALK": "Ansprache",
-    "KIND_HYMN": "Lied",
-    "KIND_MUSICAL_PERFORMANCE": "Musikvortrag",
-    "TALKS": "Ansprachen",
-    "MUSIC": "Musik",
-    "HYMN": "Lied",
-    "HYMNS": "Lieder",
-    "MUSICAL_PERFORMANCE": "Musikvortrag",
-    "MUSICAL_PERFORMANCES": "Musikvortraege",
-    "NAME": "Name",
-    "PERFORMERS": "Ausfuehrende",
-    "SPEAKER": "Sprecher",
-    "TOPIC": "Thema",
-    "DURATION": "Dauer"
-  },
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planung",
     "TITLE": "Planung von Abendmahlsvers.",
@@ -209,6 +190,16 @@
     "TITLE": "Berufungen",
     "CURRENT_TITLE": "Laufende Berufungen",
     "RELEASES_TITLE": "Laufende Entlassungen"
+  },
+  "MESSAGE_PAGE": {
+    "TITLE": "Ansprache"
+  },
+  "HYMN_PAGE": {
+    "TITLE": "Lied"
+  },
+  "MUSICAL_PERFORMANCE_PAGE": {
+    "TITLE": "Musikalische Darbietung",
+    "SHORT_TITLE": "Musikal. Darb."
   },
   "SERVICE_WORKER": {
     "UPDATE_AVAILABLE": {
@@ -272,6 +263,7 @@
   "DELETE": "Löschen",
   "CONFIRM_DELETE": "Sicher löschen?",
   "NO_MATCHES": "Keine Übereinstimmungen",
+  "HANDBOOK": "Handbuch",
   "B": "F",
   "I": "K",
   "U": "U",

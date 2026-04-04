@@ -1,7 +1,6 @@
 import { ViewService } from "@/modules/shared/view.service";
 import { Injectable } from "@angular/core";
 import type { MusicalPerformance } from "./musical-performance";
-import { getSacramentMeetingMusicalPerformanceText } from "../sacrament-meeting-item.utils";
 
 @Injectable({ providedIn: 'root' })
 export class MusicalPerformanceViewService extends ViewService<'musical_performance'> {
@@ -13,6 +12,6 @@ export class MusicalPerformanceViewService extends ViewService<'musical_performa
     }
 
     toString(item: MusicalPerformance.Row): string {
-        return getSacramentMeetingMusicalPerformanceText(item);
+        return item.id;
     }
 }

@@ -7,7 +7,7 @@ import { SupabaseService } from "@/shared/service/supabase.service";
 import { PromiseOrValue } from "@/shared/types";
 import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "@/shared/utils/signal-utils";
 import { Subscription } from "@/shared/utils/supa-sync/event-emitter";
-import { CardListComponent } from "@/shared/widget/card-list/card-list";
+import { CardList } from "@/shared/widget/card-list/card-list";
 import type { Insert, Row, Table, TableName, TableQuery } from "../table.types";
 import { getViewService } from "../view.service";
 
@@ -29,7 +29,7 @@ type InsertTemplateContext<T extends TableName> = {
 @Component({
     selector: 'app-row-card-list',
     templateUrl: './row-card-list.html',
-    imports: [CommonModule, CardListComponent],
+    imports: [CommonModule, CardList],
 })
 export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
 
@@ -52,7 +52,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly emptyIcon = input<IconCode | null>(null);
     readonly rowClicked = input<(row: Row<T>) => void>();
 
-    protected readonly cardListView = viewChild(CardListComponent<Row<T>, number>);
+    protected readonly cardListView = viewChild(CardList<Row<T>, number>);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<InsertTemplateContext<T>>>('insertTemplate');
 

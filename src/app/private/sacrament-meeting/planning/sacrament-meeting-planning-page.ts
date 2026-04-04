@@ -1,4 +1,3 @@
-import type { SacramentMeetingItemPreviewMode } from '@/modules/sacrament-meeting/item/sacrament-meeting-item';
 import { SacramentMeeting } from '@/modules/sacrament-meeting/sacrament-meeting';
 import { SacramentMeetingListInsert } from '@/modules/sacrament-meeting/sacrament-meeting-list-insert';
 import { SacramentMeetingListRow } from '@/modules/sacrament-meeting/sacrament-meeting-list-row';
@@ -31,11 +30,11 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
     private readonly sacramentMeetingService = inject(SacramentMeetingService);
     
     protected readonly showPastMeetings = xsignal(false);
-    protected readonly previewMode = xsignal<SacramentMeetingItemPreviewMode>('talks');
+    protected readonly previewMode = xsignal<'message' | 'hymn'>('message');
 
     protected readonly previewModeOptions = [
-        { value: 'talks', view: 'SACRAMENT_MEETING_ITEM.TALKS' },
-        { value: 'music', view: 'SACRAMENT_MEETING_ITEM.MUSIC' },
+        { value: 'message', view: 'MESSAGE_PAGE.TITLE' },
+        { value: 'hymn', view: 'HYMNS_PAGE.TITLE' },
     ] as const;
 
     protected readonly getQuery = xcomputed([this.showPastMeetings], showPast => {
@@ -54,7 +53,7 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
     protected readonly activeChurchServiceId = xsignal<number | null>(null);
 
     protected onPreviewModeChange(value: string | number | null) {
-        this.previewMode.set(value === 'music' ? 'music' : 'talks');
+        this.previewMode.set(value as 'message' | 'hymn');
     }
 
     protected getChurchServiceUrl = (row: SacramentMeeting.Row | null) => {

@@ -16,7 +16,7 @@ export type TagOption<T> = {
     `,
     styleUrl: './tag.scss',
 })
-export class TagComponent<T> {
+export class Tag<T> {
 
     readonly value = model<T>();
     readonly options = model<TagOption<T>[]>([]);

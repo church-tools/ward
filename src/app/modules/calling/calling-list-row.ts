@@ -1,5 +1,5 @@
 import { Component, input } from '@angular/core';
-import { RelatedRowSelectComponent } from '@/shared/form/row-select/related-row-select';
+import { RelatedRowSelect } from '@/shared/form/row-select/related-row-select';
 import { ListRow } from '../shared/row-card-list/list-row';
 import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 
@@ -22,7 +22,7 @@ import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 				hideClear/>
         </div>
     `,
-    imports: [RelatedRowSelectComponent],
+    imports: [RelatedRowSelect],
 })
 export class CallingListRow extends ListRow<'calling'> {
 

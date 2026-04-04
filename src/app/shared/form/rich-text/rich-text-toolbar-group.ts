@@ -63,7 +63,7 @@ export type RichTextToolbarItem<T> = {
     },
     imports: [Button, MenuButtonComponent],
 })
-export class RichTextToolbarGroupComponent<T> {
+export class RichTextToolbarGroup<T> {
 
     readonly items = input.required<RichTextToolbarItem<T>[]>();
     readonly asMenuButton = input<boolean, unknown>(false, { transform: booleanAttribute });

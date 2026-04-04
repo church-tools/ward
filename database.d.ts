@@ -249,21 +249,48 @@ export type Database = {
       }
       hymn: {
         Row: {
+          deleted: boolean
           id: number
-          name: string
+          number: number | null
+          position: number
+          sacrament_meeting: number | null
+          unit: number
           updated_at: string
         }
         Insert: {
+          deleted?: boolean
           id?: number
-          name: string
+          number?: number | null
+          position: number
+          sacrament_meeting?: number | null
+          unit: number
           updated_at?: string
         }
         Update: {
+          deleted?: boolean
           id?: number
-          name?: string
+          number?: number | null
+          position?: number
+          sacrament_meeting?: number | null
+          unit?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "singing_sacrament_meeting_unit_fkey"
+            columns: ["sacrament_meeting", "unit"]
+            isOneToOne: false
+            referencedRelation: "sacrament_meeting"
+            referencedColumns: ["week", "unit"]
+          },
+          {
+            foreignKeyName: "singing_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       language: {
         Row: {
@@ -500,6 +527,7 @@ export type Database = {
       }
       message: {
         Row: {
+          deleted: boolean
           duration: string | null
           id: number
           position: number
@@ -510,6 +538,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          deleted?: boolean
           duration?: string | null
           id?: number
           position: number
@@ -520,6 +549,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          deleted?: boolean
           duration?: string | null
           id?: number
           position?: number
@@ -548,6 +578,7 @@ export type Database = {
       }
       musical_performance: {
         Row: {
+          deleted: boolean
           id: number
           name: string | null
           performers: string | null
@@ -557,6 +588,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          deleted?: boolean
           id?: number
           name?: string | null
           performers?: string | null
@@ -566,6 +598,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          deleted?: boolean
           id?: number
           name?: string | null
           performers?: string | null
@@ -773,55 +806,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "sacrament_meeting_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      singing: {
-        Row: {
-          hymn: number | null
-          id: number
-          position: number
-          sacrament_meeting: number | null
-          unit: number
-          updated_at: string
-        }
-        Insert: {
-          hymn?: number | null
-          id?: number
-          position: number
-          sacrament_meeting?: number | null
-          unit: number
-          updated_at?: string
-        }
-        Update: {
-          hymn?: number | null
-          id?: number
-          position?: number
-          sacrament_meeting?: number | null
-          unit?: number
-          updated_at?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "singing_hymn_fkey"
-            columns: ["hymn"]
-            isOneToOne: false
-            referencedRelation: "hymn"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "singing_sacrament_meeting_unit_fkey"
-            columns: ["sacrament_meeting", "unit"]
-            isOneToOne: false
-            referencedRelation: "sacrament_meeting"
-            referencedColumns: ["week", "unit"]
-          },
-          {
-            foreignKeyName: "singing_unit_fkey"
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "unit"

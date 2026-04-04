@@ -5,7 +5,6 @@ import { MessageViewService } from './message-view.service';
 
 @Component({
     selector: 'app-message-list-row',
-    standalone: true,
     template: `
         <div class="row full-width m-4 row-gap-1 column-gap-2 items-center">
             <app-icon [icon]="messageView.icon" size="sm" class="text-secondary"/>

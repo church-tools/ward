@@ -98,8 +98,7 @@
             "assets": [
               "src/assets",
               "src/manifest.webmanifest",
-              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" },
-              { "glob": "**/*", "input": "functions", "output": "/functions" }
+              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" }
             ],
             "styles": [
               "src/styles/styles.scss"

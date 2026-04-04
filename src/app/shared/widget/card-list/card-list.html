@@ -63,7 +63,7 @@
         <div #insertionCard class="{{cardClasses()}} card-item selectable-card insertion-card"
             [class.new]="newEditCard()"
             (click)="onInsertClick()">
-            <app-swap-container [swap]="inserting()" animationDuration="xs">
+            <app-swap-container [swap]="insertTemplateVisible()" animationDuration="xs">
                 <div main>
                     @if (insertedItem(); as insert) {
                         <div class="row no-wrap items-center fade-in">

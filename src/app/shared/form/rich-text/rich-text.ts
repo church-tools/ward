@@ -8,14 +8,14 @@ import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
 import { HTMLString, markdownToQuillHtml, quillHtmlToMarkdown } from './markdown-utils';
 import { Heading, QuillWrapper } from './quill-wrapper';
-import { RichTextToolbarGroupComponent, RichTextToolbarItem } from './rich-text-toolbar-group';
+import { RichTextToolbarGroup, RichTextToolbarItem } from './rich-text-toolbar-group';
 
 @Component({
     selector: 'app-rich-text',
     styleUrl: './rich-text.scss',
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichText),
-    imports: [TranslateModule, InputLabel, RichTextToolbarGroupComponent,
+    imports: [TranslateModule, InputLabel, RichTextToolbarGroup,
         AnchoredPopoverComponent, MenuButtonComponent],
     host: {
         class: 'column',

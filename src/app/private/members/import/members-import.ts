@@ -14,7 +14,7 @@ import { extractTextFromPdf } from "@/shared/utils/pdf-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
 import Collapse from "@/shared/widget/collapse/collapse";
 import { PopoverPage } from "@/shared/widget/popover/popover";
-import { TagComponent } from "@/shared/widget/tag/tag";
+import { Tag } from "@/shared/widget/tag/tag";
 
 type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
     & { duplicate?: boolean, import: boolean };
@@ -23,7 +23,7 @@ type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
     selector: 'app-members-import',
     templateUrl: './members-import.html',
     imports: [TranslateModule, FileButton, LinkButton, AsyncButton,
-        Icon, Checkbox, Collapse, TagComponent],
+        Icon, Checkbox, Collapse, Tag],
     host: { class: 'page' },
     styleUrl: './members-import.scss',
 })
