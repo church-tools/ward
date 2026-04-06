@@ -7,6 +7,7 @@ import { MemberCallingViewService } from '@/modules/member-calling/member-callin
 import { MemberViewService } from '@/modules/member/member-view.service';
 import { OrganizationViewService } from '@/modules/organization/organization-view.service';
 import { ProfileViewService } from '@/modules/profile/profile-view.service';
+import { MessageCalculated } from '@/modules/sacrament-meeting/item/message/message-calculated';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import type { CalculatedMap, TableInfoAdditions, TableName } from '@/modules/shared/table.types';
 import { inject, Injectable, signal } from '@angular/core';
@@ -48,7 +49,8 @@ export class SupabaseService {
             calculated: MemberCallingCalculated,
             getSummaryString: inject(MemberCallingViewService).toString },
         message: { createOffline: true, orderKey: 'position',
-            indexed: { sacrament_meeting: Number, speaker: String } },
+            indexed: { sacrament_meeting: Number, speaker: String },
+            calculated: MessageCalculated },
         hymn: { createOffline: true, orderKey: 'position',
             indexed: { sacrament_meeting: Number, number: Number } },
         musical_performance: { createOffline: true, orderKey: 'position',

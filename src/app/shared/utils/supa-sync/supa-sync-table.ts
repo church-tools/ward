@@ -365,8 +365,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     public async _updateDependentCalculatedValues(changes: Change<any>[]) {
         if (!this._reverseDependencies.length) return;
         const ids = changes.map(change => this.getId(change.old ?? change.new));
+        let idStrings: string[];
         await Promise.all(this._reverseDependencies.map(async target => {
-            const rows = await target.table.find().in(target.key, ids).get();
+            const lookupIds = target.table.indexed[target.key] === String
+                ? (idStrings ??= ids.map(id => String(id)))
+                : ids;
+            const rows = await target.table.find().in(target.key, lookupIds).get();
             if (!rows.length) return;
             const updatedRows = await target.table.addCalculatedValues(rows);
             const dependentChanges = target.table._storeAdapter.onChange.hasSubscriptions
@@ -455,7 +459,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                     const dependencies: Partial<DependentRows<D, T>> = {};
                     for (const dependency of dependencyData) {
                         const dependencyId = row[dependency.key] as number | null | undefined;
-                        if (!dependencyId) continue;
+                        if (!dependencyId || isNaN(dependencyId)) continue;
                         dependencies[dependency.key] = dependency.rowsById[dependencyId];
                     }
                     return calculation(row, dependencies as unknown as DependentRows<D, T>);
@@ -483,7 +487,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         for (const row of rows)
             for (const { key, ids } of dependencies) {
                 const dependencyId = row[key] as number | null | undefined;
-                if (dependencyId) ids.add(dependencyId);
+                if (!dependencyId || isNaN(dependencyId)) continue;
+                ids.add(dependencyId);
             }
         await Promise.all(dependencies.map(async dependency => {
             const ids = [...dependency.ids];
@@ -493,4 +498,5 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         }));
         return dependencies;
     }
+
 }

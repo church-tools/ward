@@ -14,6 +14,8 @@ import { MusicalPerformanceListRow } from './musical-performance/musical-perform
 
 export type SacramentMeetingItemTableName = 'message' | 'hymn' | 'musical_performance';
 
+type ItemInsert = Message.Insert | Hymn.Insert | MusicalPerformance.Insert;
+
 @Component({
     selector: 'app-sacrament-meeting-item-list',
     template: `
@@ -84,7 +86,7 @@ export class SacramentMeetingItemList {
         },
     ] as readonly RowCardListMultiQuery<SacramentMeetingItemTableName>[]);
 
-    protected async insertItem(insertFn: (item: Message.Insert | Hymn.Insert | MusicalPerformance.Insert) => Promise<void>) {
-        await insertFn({ unit: this.unit(), sacrament_meeting: this.meetingId() });                
+    protected async insertItem(insertFn: (item: ItemInsert) => Promise<void>) {
+        await insertFn({ unit: this.unit(), sacrament_meeting: this.meetingId() } as ItemInsert);                
     }
 }

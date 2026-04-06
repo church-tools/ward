@@ -12,6 +12,6 @@ export class HymnViewService extends ViewService<'hymn'> {
     }
 
     toString(item: Hymn.Row): string {
-        return item.id;
+        return item.number ? String(item.number) : '';
     }
 }

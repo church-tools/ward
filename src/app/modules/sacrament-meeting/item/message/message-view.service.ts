@@ -12,6 +12,6 @@ export class MessageViewService extends ViewService<'message'> {
     }
 
     toString(item: Message.Row): string {
-        return item.id;
+        return item._calculated.memberName;
     }
 }

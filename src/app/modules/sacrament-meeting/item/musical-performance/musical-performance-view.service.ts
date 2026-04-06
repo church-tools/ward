@@ -12,6 +12,6 @@ export class MusicalPerformanceViewService extends ViewService<'musical_performa
     }
 
     toString(item: MusicalPerformance.Row): string {
-        return item.id;
+        return item.name ?? '';
     }
 }
