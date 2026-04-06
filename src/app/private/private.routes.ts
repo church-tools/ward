@@ -1,6 +1,6 @@
-import { App } from "../app.component";
 import type { Row, TableName } from "@/modules/shared/table.types";
 import type { IconCode } from "@/shared/icon/icon";
+import { SupabaseService } from "@/shared/service/supabase.service";
 import { mapRouteObject, RouteObject } from "@/shared/utils/route-utils";
 import type { PrivatePage } from "./shared/private-page";
 
@@ -80,7 +80,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
 };
 
 export async function getPrivateRoutes() {
-    const session = await App.supabase?.getSession();
+    const session = await SupabaseService.instance?.getSession();
     return [{
         path: '',
         loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShell), 

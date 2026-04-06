@@ -1,30 +1,55 @@
-import { ActivatedRouteSnapshot, RouterStateSnapshot, Routes } from '@angular/router';
-import { App } from './app.component';
+import { CanMatchFn, Router, Routes, UrlTree, UrlSegment } from '@angular/router';
+import { SupabaseService } from './shared/service/supabase.service';
+import { inject } from '@angular/core';
 
-export const routes: Routes = [
-    { path: '', canActivate: [hasUnit], loadChildren: () => import('./private/private.routes').then(m => m.getPrivateRoutes()) },
-    { path: '', loadChildren: () => import('./public/public.routes').then(m => m.publicRoutes) },
-];
+const PUBLIC_ROOT_PATHS = new Set([
+    'login',
+    'register',
+    'setup',
+    'test',
+    'not-found',
+    'confirm-email',
+    'bulletin-board',
+]);
 
-async function hasUnit(route: ActivatedRouteSnapshot, state: RouterStateSnapshot): Promise<boolean> {
-    const session = await App.supabase?.getSession();
+const hasUnit: CanMatchFn = async (_route, segments) => {
+    const router = inject(Router);
+    const session = await inject(SupabaseService).getSession();
+
+    const currentPath = getPath(segments);
+    const firstSegment = segments[0]?.path;
+
     if (!session) {
-        window.location.href = '/login';
-        return false;
+        if (firstSegment && PUBLIC_ROOT_PATHS.has(firstSegment))
+            return false;
+        return router.parseUrl('/login');
     }
-    if (!('unit' in session || 'unit_approved' in session)) {
-        window.location.href = '/setup';
-        return false;
-    }
+
     if (session.unit) {
         return true;
     }
-    if ('unit_approved' in session) {
-        if (session.unit_approved === false)
-            window.location.href = '/setup/rejected';
-        if (session.unit_approved === null)
-            window.location.href = '/setup/pending';
+
+    if (session.unit_approved === false)
+        return ensureRedirect('/setup/rejected', currentPath, router);
+    if (session.unit_approved === null)
+        return ensureRedirect('/setup/pending', currentPath, router);
+
+    return ensureRedirect('/setup', currentPath, router);
+};
+
+function ensureRedirect(target: string, currentPath: string, router: Router): false | UrlTree {
+    if (currentPath === target || currentPath.startsWith(`${target}/`))
         return false;
-    }
-    return false;
+    return router.parseUrl(target);
 }
+
+function getPath(segments: UrlSegment[]) {
+    if (!segments.length)
+        return '/';
+    return `/${segments.map(s => s.path).join('/')}`;
+}
+
+export const routes: Routes = [
+    { path: '', canMatch: [hasUnit], loadChildren: () => import('./private/private.routes').then(m => m.getPrivateRoutes()) },
+    { path: '', loadChildren: () => import('./public/public.routes').then(m => m.publicRoutes) },
+];

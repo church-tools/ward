@@ -223,6 +223,10 @@
     "UPLOAD_DESCRIPTION": "{{description}} hochladen",
     "TOO_LARGE": "Die Datei ist zu groß (max. {{size}} MB)"
   },
+  "ERROR": {
+    "FAILED": "Fehlgeschlagen",
+    "SERVER_UNAVAILABLE": "Server nicht verfügbar"
+  },
   "HISTORY": {
     "CREATED_BY": "Erstellt von",
     "CREATED_AT": "am",

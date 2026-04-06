@@ -12,8 +12,9 @@ import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrame
 import type { CalculatedMap, TableInfoAdditions, TableName } from '@/modules/shared/table.types';
 import { inject, Injectable, signal } from '@angular/core';
 import type { Database } from '@root/database';
-import { createClient, User } from '@supabase/supabase-js';
+import { createClient, Session as SupabaseAuthSession, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
+import { SessionClaims, SupabaseAuthSessionStore } from './supabase-auth-session';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
 import type { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
@@ -23,10 +24,12 @@ type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
 export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
-export type Session = { user: User; unit?: string, unit_approved?: boolean | null, is_admin: boolean };
+export type Session = SessionClaims;
 
 @Injectable({ providedIn: 'root' })
 export class SupabaseService {
+
+    public static instance: SupabaseService | undefined;
 
     readonly client = createClient<Database>(environment.supabaseUrl, environment.pubSupabaseKey);
     readonly sync = new SupaSync<Database, TableInfoMap, CalculatedMap>(this.client, {
@@ -64,26 +67,36 @@ export class SupabaseService {
 
     private readonly _user = signal<User | null>(null);
     public readonly user = this._user.asReadonly();
+    private readonly authSession = new SupabaseAuthSessionStore(
+        environment.appId,
+        this.getSessionToken.bind(this),
+        (tokenSession, unit) => this.startSyncInitialization(tokenSession, unit),
+        user => this._user.set(user),
+    );
+    private syncDbName: string | null = null;
 
     constructor() {
+        SupabaseService.instance = this;
         this.client.auth.onAuthStateChange(async (event, session) => {
-            if (!session?.access_token) return;
             switch (event) {
                 case 'SIGNED_IN':
                 case 'TOKEN_REFRESHED':
                 {
-                    this._user.set(session.user);
-                    const { unit } = this.decodeAccessToken(session.access_token);
-                    if (unit) this.sync.init(session, `${environment.appId}-${unit}`);
+                    if (!session?.access_token) return;
+                    await this.authSession.applySession(session, true);
                     break;
                 }
                 case 'SIGNED_OUT': {
-                    this._user.set(null);
-                    this.sync.cleanup();
+                    this.authSession.clear();
+                    await this.handleSignedOut();
                     break;
                 }
             }
         });
+    }
+
+    async initializeAuthAndSync() {
+        await this.authSession.initialize();
     }
 
     async signUp(email: string, password: string, captchaToken: string) {
@@ -117,19 +130,34 @@ export class SupabaseService {
     }
 
     async getSession(): Promise<Session | null> {
-        const token = await this.getSessionToken();
-        if (!token) return null;
-        return this.decodeAccessToken(token.access_token);
+        return await this.authSession.getSession();
     }
 
     async refreshSession() {
         const { data, error } = await this.client.auth.refreshSession();
         if (error) throw error;
+        if (data.session?.access_token)
+            await this.authSession.applySession(data.session, true);
         return data.session;
     }
 
-    private decodeAccessToken(token: string) {
-        const payload = token.split('.')[1];
-        return JSON.parse(atob(payload));
+    private startSyncInitialization(tokenSession: SupabaseAuthSession, unit: string) {
+        if (!unit) return;
+        // Startup should not block route activation on slow network.
+        void this.initSyncIfNeeded(tokenSession, unit, false).catch(() => null);
+    }
+
+    private async initSyncIfNeeded(tokenSession: SupabaseAuthSession, unit: string, awaitInitialSync = true) {
+        const dbName = `${environment.appId}-${unit}`;
+        if (this.syncDbName === dbName) return;
+        if (this.syncDbName && this.syncDbName !== dbName)
+            await this.sync.cleanup();
+        await this.sync.init(tokenSession, dbName, awaitInitialSync);
+        this.syncDbName = dbName;
+    }
+
+    private async handleSignedOut() {
+        this.syncDbName = null;
+        await this.sync.cleanup();
     }
 }

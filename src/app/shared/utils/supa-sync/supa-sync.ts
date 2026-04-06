@@ -49,7 +49,7 @@ export class SupaSync<
             table._buildReverseDependencies();
     }
 
-    public async init(session: Session, dbName: string) {
+    public async init(session: Session, dbName: string, awaitInitialSync = true) {
         await this.client.realtime.setAuth(session.access_token);
         const tables = this.getTables();
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
@@ -84,9 +84,15 @@ export class SupaSync<
         const lastUpdatedAt = migrate ? new Date(0).toISOString() : this.getLastSync();
         const now = new Date().toISOString();
         await Promise.all(tables.map(table => table._init(idb)));
-        await this.syncTables(lastUpdatedAt, false);
-        await Promise.all(tables.map(table => table._syncingBarrier));
-        this.setLastSync(now);
+        const syncPromise = (async () => {
+            await this.syncTables(lastUpdatedAt, false);
+            await Promise.all(tables.map(table => table._syncingBarrier));
+            this.setLastSync(now);
+        })();
+        if (awaitInitialSync)
+            await syncPromise;
+        else
+            void syncPromise;
     }
 
     private async resync() {

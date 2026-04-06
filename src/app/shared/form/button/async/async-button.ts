@@ -1,17 +1,18 @@
-import { booleanAttribute, Component, input, signal, viewChild } from "@angular/core";
 import { Icon } from "@/shared/icon/icon";
 import { xcomputed, xeffect } from "@/shared/utils/signal-utils";
 import ErrorMessage from "@/shared/widget/error-message/error-message";
+import { booleanAttribute, Component, input, signal, viewChild } from "@angular/core";
+import { TranslateModule } from "@ngx-translate/core";
 import ButtonBase from "../shared/button-base";
 
 export type ProgressCallback = (progress: number) => void;
 
 @Component({
     selector: 'app-async-button',
-    imports: [Icon, ErrorMessage],
+    imports: [TranslateModule, Icon, ErrorMessage],
     template: `
         <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"
-            [title]="windowService.isOnline() ? title() : 'Server kann nicht erreicht werden'"
+            [title]="windowService.isOnline() ? title() : ('ERROR.SERVER_UNAVAILABLE' | translate)"
             title="{{title()}}" type="button"
             class="button {{classes()}}">
             @let icon = progressIcon();

@@ -219,7 +219,8 @@
     }
   },
   "ERROR": {
-    "FAILED": "Failed"
+    "FAILED": "Failed",
+    "SERVER_UNAVAILABLE": "Server unavailable"
   },
   "FILE_INPUT": {
     "FILE": "File",

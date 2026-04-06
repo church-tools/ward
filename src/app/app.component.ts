@@ -2,7 +2,6 @@ import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ServiceWorkerService } from './shared/service/service-worker.service';
-import { SupabaseService } from './shared/service/supabase.service';
 import { PopoverService } from './shared/widget/popover/popover.service';
 
 const LANGUAGE_STORAGE_KEY = 'language';
@@ -14,7 +13,6 @@ const LANGUAGE_STORAGE_KEY = 'language';
 })
 export class App {
 
-    public static supabase: SupabaseService | undefined;
     private readonly translate = inject(TranslateService);
     private readonly serviceWorkerService = inject(ServiceWorkerService);
     private readonly popoverService = inject(PopoverService);
@@ -22,7 +20,6 @@ export class App {
     constructor() {
         const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
         this.translate.use(browserLang);
-        App.supabase = inject(SupabaseService);
 
         this.serviceWorkerService.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';
