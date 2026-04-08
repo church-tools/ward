@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { Component, input, output, signal, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { xcomputed, xeffect } from '../../utils/signal-utils';
-import { AnchoredPopoverComponent, PopoverPosition } from '../anchored-popover/anchored-popover';
+import { AnchoredPopover, PopoverPosition } from '../anchored-popover/anchored-popover';
 
 export type SelectOptionsTemplateContext<T> = {
     $implicit: T;
@@ -12,7 +12,7 @@ export type SelectOptionsTemplateContext<T> = {
 
 @Component({
     selector: 'app-select-options',
-    imports: [TranslateModule, NgTemplateOutlet, AnchoredPopoverComponent],
+    imports: [TranslateModule, NgTemplateOutlet, AnchoredPopover],
     template: `
         <app-anchored-popover #popover
             [position]="position()"
@@ -79,7 +79,7 @@ export type SelectOptionsTemplateContext<T> = {
     `],
 })
 export class SelectOptions<T = unknown> {
-    private readonly anchoredPopover = viewChild.required(AnchoredPopoverComponent);
+    private readonly anchoredPopover = viewChild.required(AnchoredPopover);
 
     readonly anchorElement = input<HTMLElement | null>(null);
     readonly contentVisible = input<boolean>(false);

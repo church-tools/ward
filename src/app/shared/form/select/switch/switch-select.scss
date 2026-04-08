@@ -1,0 +1,51 @@
+@use "card";
+@use "input";
+@use "font";
+
+.buttons {
+    position: relative;
+    display: flex;
+    overflow: hidden;
+    touch-action: pan-y;
+    border: 1px solid input.$strong-border-color;
+    height: 20px;
+    margin: 8px;
+    padding: 0;
+    border-radius: card.$border-radius-round;
+
+    .indicator {
+        position: absolute;
+        transition: transform 0.15s ease, opacity 0.15s ease;
+        border-radius: card.$border-radius-round;
+        border: none;
+        opacity: 0;
+        height: 100%;
+        &.visible {
+            opacity: 1;
+        }
+    }
+
+    &.dragging {
+        .indicator {
+            transition: opacity 0.15s ease;
+        }
+    }
+
+    button {
+        flex: 1;
+        padding: 0 input.$padding-x;
+        z-index: 1;
+        min-height: 20px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        &.active {
+            color: font.$color-inverse;
+            font-weight: font.$weight-semibold;
+        }
+    }
+}
+
+.option-icon {
+    display: inline-flex;
+}

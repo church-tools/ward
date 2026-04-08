@@ -1,0 +1,54 @@
+
+<label class="column">
+    <app-input-label/>
+    @if (disabled()) {
+        <div class="form-input">
+            @if (selectedOption(); as selectedOption) {
+                @if (selectedOption.icon) {
+                    <app-icon [icon]="selectedOption.icon" size="smaller" class="option-icon"
+                        filled
+                        [title]="translateOptions() ? (selectedOption.view | translate) : selectedOption.view"
+                        [attr.aria-label]="translateOptions() ? (selectedOption.view | translate) : selectedOption.view"/>
+                } @else {
+                    @if (translateOptions()) {
+                        {{ selectedOption.view | translate }}
+                    } @else {
+                        {{ selectedOption.view }}
+                    }
+                }
+            }
+        </div>
+    } @else {
+        <div #buttonsContainer class="buttons"
+            [class.dragging]="dragging()"
+            [horizontalDrag]="drag"
+            [horizontalDragDisabled]="disabled()">
+            <div class="indicator {{color()}}-fg"
+                [class.visible]="indicatorVisible()"
+                [style.width]="indicatorWidth()"
+                [style.transform]="indicatorTransform()"></div>
+            @for (option of optionArray(); track $index) {
+                <button #optionButton type="button"
+                    [class.active]="viewValue() === option.value"
+                    (click)="selectOption(option, $event)">
+                    @if (option.icon) {
+                        <app-icon #optionValue [icon]="option.icon" size="sm" class="option-icon"
+                            [filled]="viewValue() === option.value"
+                            [title]="translateOptions() ? (option.view | translate) : option.view"
+                            [attr.aria-label]="translateOptions() ? (option.view | translate) : option.view"/>
+                    } @else {
+                        <span #optionValue>
+                            @if (translateOptions()) {
+                                {{ option.view | translate }}
+                            } @else {
+                                {{ option.view }}
+                            }
+                        </span>
+                    }
+                </button>
+            }
+        </div>
+    }
+    <app-error-message/>
+</label>
+

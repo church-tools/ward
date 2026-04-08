@@ -2,7 +2,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
     OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Icon } from "../../icon/icon";
+import { Icon, type IconCode } from "../../icon/icon";
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
@@ -15,6 +15,7 @@ import { SelectOptions } from './select-options';
 export type SelectOption<T> = {
     value: T;
     view: string;
+    icon?: IconCode;
     row?: unknown;
     id?: number | string;
     lcText?: string;

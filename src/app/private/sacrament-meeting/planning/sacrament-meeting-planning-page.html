@@ -10,23 +10,26 @@
                 <span outside>{{ 'HANDBOOK' | translate }}</span>
             </app-link-button>
         </div>
-        <app-switch
-            [value]="showPastMeetings()"
-            (valueChange)="showPastMeetings.set($event ?? false)"
-            label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHOW_PAST' | translate }}"/>
-        <app-select
-            [value]="previewMode()"
-            [options]="previewModeOptions"
-            [translateOptions]="true"
-            [hideClear]="true"
-            label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.PREVIEW' | translate }}"
-            (valueChange)="onPreviewModeChange($event)"/>
+        <div class="row gap-2">
+            <app-switch-select class="col-md-6"
+                [value]="previewMode()"
+                [options]="previewModeOptions"
+                [translateOptions]="true"
+                [hideClear]="true"
+                (valueChange)="onPreviewModeChange($event)"/>
+            <app-switch class="grow-1"
+                [value]="showPastMeetings()"
+                (valueChange)="showPastMeetings.set($event ?? false)"
+                label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHOW_PAST' | translate }}"/>
+        </div>
         <app-row-card-list
             tableName="sacrament_meeting"
             [getQuery]="getQuery()"
             [getUrl]="getChurchServiceUrl"
             [activeId]="activeChurchServiceId()"
-            editable>
+            orderKey="week"
+            editable
+            fixedOrder>
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
                 <app-sacrament-meeting-list-row
                     [row]="row"
