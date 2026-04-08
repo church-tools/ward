@@ -1,6 +1,6 @@
 import { ListRow } from '@/modules/shared/row-card-list/list-row';
 import { Icon } from '@/shared/icon/icon';
-import { Component, inject } from '@angular/core';
+import { booleanAttribute, Component, inject, input } from '@angular/core';
 import { HymnViewService } from './hymn-view.service';
 
 @Component({
@@ -17,5 +17,7 @@ import { HymnViewService } from './hymn-view.service';
 export class HymnListRow extends ListRow<'hymn'> {
 
     protected readonly hymnView = inject(HymnViewService);
+
+    readonly narrow = input(false, { transform: booleanAttribute });
 
 }

@@ -29,11 +29,12 @@
                 [style.transform]="indicatorTransform()"></div>
             @for (option of optionArray(); track $index) {
                 <button #optionButton type="button"
+                    [class.icon-option]="!!option.icon"
                     [class.active]="viewValue() === option.value"
                     (click)="selectOption(option, $event)">
                     @if (option.icon) {
                         <app-icon #optionValue [icon]="option.icon" size="sm" class="option-icon"
-                            [filled]="viewValue() === option.value"
+                            filled
                             [title]="translateOptions() ? (option.view | translate) : option.view"
                             [attr.aria-label]="translateOptions() ? (option.view | translate) : option.view"/>
                     } @else {

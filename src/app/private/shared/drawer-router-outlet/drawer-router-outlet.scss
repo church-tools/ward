@@ -108,6 +108,10 @@
     height: layout.$canvas-height;
     top: layout.$canvas-margin-y;
     max-width: layout.$page-width-narrow;
+    &.narrow {
+        top: layout.$canvas-margin-narrow-y;
+        height: layout.$canvas-height-narrow;
+    }
     .drawer-card {
         .drag-handle {
             height: 40px;

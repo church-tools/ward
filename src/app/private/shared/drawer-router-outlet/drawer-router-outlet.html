@@ -22,7 +22,7 @@
         </div>
     </dialog>
 } @else {
-    <div #drawer class="side-drawer">
+    <div #drawer class="side-drawer" [class.narrow]="!windowService.isLarge()">
         <div class="drawer-card card large canvas-card"
             [class.dense]="!windowService.isLarge()">
             <div class="drawer-body full-height">

@@ -34,14 +34,14 @@
     (childAdded)="placeholderAdded($event)">
     @for (itemCard of itemCards(); track itemCard.id) {
         @if (getUrl(); as getUrl) {
-            <a #card cdkDrag 
+            <a #card cdkDrag
                 [cdkDragStartDelay]="dragStartDelay"
                 [routerLink]="getUrl(itemCard.item)"
                 class="drag-card-host stealth"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
-                (click)="onItemClick(itemCard)">
+                (click)="onItemClick(itemCard, $event)">
                 <ng-container *ngTemplateOutlet="cardContent;
                     context: { $implicit: itemCard }"/>
             </a>
@@ -52,7 +52,7 @@
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
                 (cdkDragEnded)="onDragEnd(itemCard)"
-                (click)="onItemClick(itemCard)">
+                (click)="onItemClick(itemCard, $event)">
                 <ng-container *ngTemplateOutlet="cardContent;
                     context: { $implicit: itemCard }"/>
             </div>

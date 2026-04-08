@@ -1,6 +1,13 @@
-import { SacramentMeetingItemList, SacramentMeetingItemTableName } from '@/modules/sacrament-meeting/item/sacrament-meeting-item-list';
+import type { Hymn } from '@/modules/sacrament-meeting/item/hymn/hymn';
+import { HymnListRow } from '@/modules/sacrament-meeting/item/hymn/hymn-list-row';
+import type { Message } from '@/modules/sacrament-meeting/item/message/message';
+import { MessageListRow } from '@/modules/sacrament-meeting/item/message/message-list-row';
+import type { MusicalPerformance } from '@/modules/sacrament-meeting/item/musical-performance/musical-performance';
+import { MusicalPerformanceListRow } from '@/modules/sacrament-meeting/item/musical-performance/musical-performance-list-row';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
-import { RowCardListMultiItem } from '@/modules/shared/row-card-list/row-card-list-multi';
+import { RowCardListMulti, RowCardListMultiItem, type RowCardListMultiQuery } from '@/modules/shared/row-card-list/row-card-list-multi';
+import type { Table } from '@/modules/shared/table.types';
+import { Button } from '@/shared/form/button/button';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
 import { Select } from '@/shared/form/select/select';
@@ -15,54 +22,15 @@ import { Subscription } from 'rxjs';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
 
+type ItemTableName = 'message' | 'hymn' | 'musical_performance';
+type ItemInsert = Message.Insert | Hymn.Insert | MusicalPerformance.Insert;
+
 @Component({
     selector: 'app-sacrament-meeting-page',
-    template: `
-        <h2>
-            @if (meetingDate(); as date) {
-                {{ date | date : 'dd MMM yyyy' : undefined : locale() }}
-            } @else {
-                {{ title() }}
-            }
-        </h2>
-        <div class="column-grid">
-            <app-select class="col-md-8"
-                [syncedRow]="syncedRow" column="type"
-                [options]="meetingView.typeOptions" translateOptions
-                label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | translate }}"/>
-            <app-custom-row-select class="col-md-6"
-                [syncedRow]="syncedRow" column="opening_prayer"
-                table="member"
-                label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | translate }}"/>
-            @if (syncedRow.value(); as row) {
-                <div class="col-12">
-                    <app-sacrament-meeting-item-list
-                        [meetingId]="row.id"
-                        [unit]="row.unit"
-                        [activeItemId]="activeItemId()"
-                        [getUrl]="itemPopoverUrl"/>
-                </div>
-            }
-            <app-custom-row-select class="col-md-6"
-                [syncedRow]="syncedRow" column="closing_prayer"
-                table="member"
-                label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | translate }}"/>
-
-            <app-multi-select class="col-12"
-                [syncedRow]="syncedRow" column="classes"
-                [options]="meetingView.classOptions"
-                [optionValuesByValue]="meetingView.classOptionsByClass"
-                [allowCustomText]="true"
-                [customValueExclusive]="true"
-                translateOptions
-                label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | translate }}"/>
-        </div>
-
-
-        <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
-    `,
+    templateUrl: './sacrament-meeting-page.html',
     imports: [TranslateModule, SyncedFieldDirective, Select,
-        MultiSelect, CustomRowSelect, DatePipe, RowHistory, SacramentMeetingItemList],
+        MessageListRow, HymnListRow, MusicalPerformanceListRow,
+        MultiSelect, CustomRowSelect, DatePipe, RowHistory, RowCardListMulti, Button],
     host: { class: 'page narrow full-height' },
 })
 export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
@@ -100,9 +68,34 @@ export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
         super.ngOnDestroy();
     }
 
-    protected readonly itemPopoverUrl = (item: RowCardListMultiItem<SacramentMeetingItemTableName> | null) => {
+    protected readonly getItemPopoverUrl = (item: RowCardListMultiItem<ItemTableName> | null) => {
         if (!item)
             return this.popoverService.getRowPopoverUrl(this.route, null);
         return this.popoverService.getRowPopoverUrl(this.route, item.table, item.row.id);
     }
+    
+    protected readonly tableQueries = xcomputed([this.rowId], rowId => [
+        {
+            tableName: 'message',
+            id: `sacrament_meeting_message_${rowId}`,
+            query: (table: Table<'message'>) => table.find().eq('sacrament_meeting', rowId),
+        },
+        {
+            tableName: 'hymn',
+            id: `sacrament_meeting_hymn_${rowId}`,
+            query: (table: Table<'hymn'>) => table.find().eq('sacrament_meeting', rowId),
+        },
+        {
+            tableName: 'musical_performance',
+            id: `sacrament_meeting_musical_performance_${rowId}`,
+            query: (table: Table<'musical_performance'>) => table.find().eq('sacrament_meeting', rowId),
+        },
+    ] as readonly RowCardListMultiQuery<ItemTableName>[]);
+    
+    protected async insertItem(insertFn: (item: ItemInsert) => Promise<void>) {
+        const row = this.syncedRow.value();
+        if (!row) return;
+        await insertFn({ unit: row.unit, sacrament_meeting: this.rowId() } as ItemInsert);                
+    }
+    
 }

@@ -98,7 +98,7 @@ export class App {
 
 ```html
 <!-- horizontal or vertical orientation -->
-<ul ngListbox [(values)]="selectedItems" orientation="horizontal" [multi]="true">
+<ul ngListbox [(values)]="selectedItems" orientation="horizontal" multi>
   <li ngOption value="apple" class="option">Apple</li>
   <li ngOption value="banana" class="option">Banana</li>
 </ul>
@@ -145,7 +145,7 @@ These patterns combine `ngCombobox` with a popup containing an `ngListbox`.
 
 ```html
 <!-- Example: Standard Select -->
-<div ngCombobox [readonly]="true">
+<div ngCombobox readonly>
   <button ngComboboxInput class="select-trigger">
     {{ selectedValue() || 'Choose an option' }}
   </button>
@@ -291,7 +291,7 @@ Groups related controls (like text formatting).
 
 ```html
 <div ngToolbar class="toolbar">
-  <div ngToolbarWidgetGroup [multi]="true" role="group" aria-label="Formatting">
+  <div ngToolbarWidgetGroup multi role="group" aria-label="Formatting">
     <button ngToolbarWidget value="bold" class="tool-btn">B</button>
     <button ngToolbarWidget value="italic" class="tool-btn">I</button>
   </div>
@@ -368,7 +368,7 @@ A two-dimensional interactive collection of cells enabling navigation via arrow 
 **Directives:** `ngGrid`, `ngGridRow`, `ngGridCell`, `ngGridCellWidget`.
 
 ```html
-<table ngGrid [multi]="true" [enableSelection]="true" class="grid-table">
+<table ngGrid multi enableSelection class="grid-table">
   <tr ngGridRow>
     <th ngGridCell role="columnheader">Name</th>
     <th ngGridCell role="columnheader">Status</th>

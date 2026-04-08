@@ -13,8 +13,11 @@ $xl: 1000000px;
 $canvas-margin-x: 16 * $gutter;
 $canvas-margin-y: 12 * $gutter;
 $canvas-margin: $canvas-margin-y $canvas-margin-x;
-$canvas-margin-narrow: 4 * $gutter 4 * $gutter;
+$canvas-margin-narrow-x: 4 * $gutter;
+$canvas-margin-narrow-y: 4 * $gutter;
+$canvas-margin-narrow: $canvas-margin-narrow-y $canvas-margin-narrow-x;
 $canvas-height: calc(var(--app-viewport-height) - 3.5rem - 2 * $canvas-margin-y);
+$canvas-height-narrow: calc(var(--app-viewport-height) - 3.5rem - 2 * $canvas-margin-narrow-y);
 
 $page-width: 800px;
 $page-width-narrow: 600px;

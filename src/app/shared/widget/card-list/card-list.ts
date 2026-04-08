@@ -170,8 +170,9 @@ export class CardList<T, ID extends number | string> {
         transitionStyle(item, { height: '0' }, { height: `${height}px` }, animationDurationMs, easeOut, true);
     }
 
-    protected onItemClick(listItem: ItemCard<T, ID>): void {
+    protected onItemClick(listItem: ItemCard<T, ID>, event: MouseEvent): void {
         this.itemClicked()?.(listItem.item);
+        event.stopPropagation();
     }
 
     protected onInsertClick(): void {

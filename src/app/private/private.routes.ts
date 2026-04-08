@@ -62,6 +62,18 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         loadComponent: () => import('./sacrament-meeting/current-sacrament-meeting-page').then(m => m.CurrentSacramentMeetingPage),
         planning: {
             loadComponent: () => import('./sacrament-meeting/planning/sacrament-meeting-planning-page').then(m => m.SacramentMeetingPlanningPage),
+            'message/:message': {
+                insideParent: true,
+                loadComponent: () => import('./sacrament-meeting/planning/item/message-page').then(m => m.MessagePage),
+            },
+            'hymn/:hymn': {
+                insideParent: true,
+                loadComponent: () => import('./sacrament-meeting/planning/item/hymn-page').then(m => m.HymnPage),
+            },
+            'musical-performance/:musical_performance': {
+                insideParent: true,
+                loadComponent: () => import('./sacrament-meeting/planning/item/musical-performance-page').then(m => m.MusicalPerformancePage),
+            },
             ':sacrament_meeting': {
                 insideParent: true,
                 loadComponent: () => import('./sacrament-meeting/planning/sacrament-meeting-page').then(m => m.SacramentMeetingPage),
@@ -116,6 +128,10 @@ export function getRowRoute(tableRow: TableRow): string {
                     return `/callings/organizations/member-calling/${row.id}`;
             }
         case 'sacrament_meeting': return `/sacrament-meeting/planning/${row.id}`;
+        case 'message': return `/sacrament-meeting/planning/message/${row.id}`;
+        case 'hymn': return `/sacrament-meeting/planning/hymn/${row.id}`;
+        case 'musical_performance': return `/sacrament-meeting/planning/musical-performance/${row.id}`;
+
     }
     throw new Error(`No route defined for table ${table}`);
 }

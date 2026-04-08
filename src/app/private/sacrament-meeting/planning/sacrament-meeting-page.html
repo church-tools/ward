@@ -1,0 +1,70 @@
+
+<h2>
+    @if (meetingDate(); as date) {
+        {{ date | date : 'dd MMM yyyy' : undefined : locale() }}
+    } @else {
+        {{ title() }}
+    }
+</h2>
+<div class="column-grid">
+    <app-select class="col-md-8"
+        [syncedRow]="syncedRow" column="type"
+        [options]="meetingView.typeOptions" translateOptions
+        label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | translate }}"/>
+    <app-custom-row-select class="col-md-6"
+        [syncedRow]="syncedRow" column="opening_prayer"
+        table="member"
+        label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | translate }}"/>
+    @if (syncedRow.value(); as row) {
+        <div class="col-12">
+            <app-row-card-list-multi
+                [tableQueries]="tableQueries()"
+                editable alwaysShowInsertTemplate
+                [activeId]="activeItemId()"
+                [getUrl]="getItemPopoverUrl"
+                [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
+                <ng-template #rowTemplate let-item>
+                    @if (item.table === 'message') {
+                        <app-message-list-row [row]="item.row"/>
+                    } @else if (item.table === 'hymn') {
+                        <app-hymn-list-row [row]="item.row"/>
+                    } @else if (item.table === 'musical_performance') {
+                        <app-musical-performance-list-row [row]="item.row"/>
+                    }
+                </ng-template>
+                <ng-template #insertTemplate let-functions>
+                    <div class="row gap-2 full-width center-content">
+                        <app-button type="secondary" size="large"
+                            (onClick)="insertItem(functions.insert)">
+                            {{ 'MESSAGE_PAGE.TITLE' | translate }}
+                        </app-button>
+                        <app-button type="secondary" size="large"
+                            (onClick)="insertItem(functions.insert)">
+                            {{ 'HYMN_PAGE.TITLE' | translate }}
+                        </app-button>
+                        <app-button type="secondary" size="large"
+                            (onClick)="insertItem(functions.insert)">
+                            {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | translate }}
+                        </app-button>
+                    </div>
+                </ng-template>
+            </app-row-card-list-multi>
+        </div>
+    }
+    <app-custom-row-select class="col-md-6"
+        [syncedRow]="syncedRow" column="closing_prayer"
+        table="member"
+        label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | translate }}"/>
+
+    <app-multi-select class="col-12"
+        [syncedRow]="syncedRow" column="classes"
+        [options]="meetingView.classOptions"
+        [optionValuesByValue]="meetingView.classOptionsByClass"
+        allowCustomText
+        customValueExclusive
+        translateOptions
+        label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | translate }}"/>
+</div>
+
+
+<app-row-history [row]="syncedRow.value()" class="mt-auto"/>
