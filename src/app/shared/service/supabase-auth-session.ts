@@ -54,23 +54,19 @@ export class SupabaseAuthSessionStore {
         if (!navigator.onLine)
             return null;
 
-        const liveSession = await this.getSessionWithTimeout(SESSION_LOOKUP_TIMEOUT_MS);
-        if (!liveSession?.access_token)
+        const hydrated = await this.applyLiveSession(SESSION_LOOKUP_TIMEOUT_MS);
+        if (!hydrated)
             return null;
 
-        await this.applySession(liveSession, false);
-        this.requestSync(liveSession);
         return this.claims;
     }
 
-    public async applySession(tokenSession: SupabaseAuthSession, requestSync: boolean) {
+    public async applySession(tokenSession: SupabaseAuthSession) {
         const claims = this.createSessionClaims(tokenSession);
         this.claims = claims;
         this.onUserChanged(tokenSession.user);
         this.writeCachedState({ tokenSession, claims, cachedAt: Date.now() });
-
-        if (requestSync)
-            this.requestSync(tokenSession, claims.unit);
+        this.requestSync(tokenSession, claims.unit);
     }
 
     public clear() {
@@ -80,12 +76,9 @@ export class SupabaseAuthSessionStore {
     }
 
     private async initializeState() {
-        const liveSession = await this.getSessionWithTimeout(STARTUP_SESSION_TIMEOUT_MS);
-        if (liveSession?.access_token) {
-            await this.applySession(liveSession, false);
-            this.requestSync(liveSession);
+        const hydrated = await this.applyLiveSession(STARTUP_SESSION_TIMEOUT_MS);
+        if (hydrated)
             return;
-        }
 
         const cachedState = this.readCachedState();
         if (!cachedState) {
@@ -108,14 +101,19 @@ export class SupabaseAuthSessionStore {
             return;
 
         this.refreshPromise = (async () => {
-            const liveSession = await this.getSessionWithTimeout(SESSION_LOOKUP_TIMEOUT_MS);
-            if (!liveSession?.access_token)
-                return;
-            await this.applySession(liveSession, false);
-            this.requestSync(liveSession);
+            await this.applyLiveSession(SESSION_LOOKUP_TIMEOUT_MS);
         })().finally(() => {
             this.refreshPromise = null;
         });
+    }
+
+    private async applyLiveSession(timeoutMs: number): Promise<boolean> {
+        const liveSession = await this.getSessionWithTimeout(timeoutMs);
+        if (!liveSession?.access_token)
+            return false;
+
+        await this.applySession(liveSession);
+        return true;
     }
 
     private async getSessionWithTimeout(timeoutMs: number) {

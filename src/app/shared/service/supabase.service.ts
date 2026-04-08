@@ -83,7 +83,7 @@ export class SupabaseService {
                 case 'TOKEN_REFRESHED':
                 {
                     if (!session?.access_token) return;
-                    await this.authSession.applySession(session, true);
+                    await this.authSession.applySession(session);
                     break;
                 }
                 case 'SIGNED_OUT': {
@@ -137,7 +137,7 @@ export class SupabaseService {
         const { data, error } = await this.client.auth.refreshSession();
         if (error) throw error;
         if (data.session?.access_token)
-            await this.authSession.applySession(data.session, true);
+            await this.authSession.applySession(data.session);
         return data.session;
     }
 

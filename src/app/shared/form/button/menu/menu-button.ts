@@ -1,12 +1,12 @@
 import { booleanAttribute, Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
 import { TranslateModule } from "@ngx-translate/core";
 import { Icon } from "../../../icon/icon";
-import { AnchoredPopoverComponent, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
+import { AnchoredPopover, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
 import ButtonBase from "../shared/button-base";
 
 @Component({
     selector: 'app-menu-button',
-    imports: [TranslateModule, Icon, AnchoredPopoverComponent],
+    imports: [TranslateModule, Icon, AnchoredPopover],
     templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
     host: {
@@ -16,7 +16,7 @@ import ButtonBase from "../shared/button-base";
 export default class MenuButton extends ButtonBase implements OnDestroy {
 
     private readonly elementRef = inject(ElementRef);
-    protected readonly popover = viewChild.required(AnchoredPopoverComponent);
+    protected readonly popover = viewChild.required(AnchoredPopover);
     protected readonly hostElement: HTMLElement = this.elementRef.nativeElement;
 
     override readonly icon = input(<any>'more_vertical');

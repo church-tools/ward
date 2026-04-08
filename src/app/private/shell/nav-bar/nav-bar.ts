@@ -3,7 +3,7 @@ import { WindowService } from '@/shared/service/window.service';
 import { groupBy } from '@/shared/utils/array-utils';
 import { wait } from '@/shared/utils/flow-control-utils';
 import { asyncComputed, xcomputed, xeffect } from '@/shared/utils/signal-utils';
-import { InnerNavBarTab, NavbarTabComponent } from './tab/nav-bar-tab';
+import { InnerNavBarTab, NavbarTab } from './tab/nav-bar-tab';
 
 export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
 
@@ -28,7 +28,7 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
                 [class.prev-bottom]="prevTab()?.bottom"></div>
         }
     `,
-    imports: [NavbarTabComponent],
+    imports: [NavbarTab],
     styleUrl: './nav-bar.scss',
     host: {
         '[class.horizontal]': 'horizontal()',

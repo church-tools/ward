@@ -22,7 +22,7 @@ import { ColorName } from '../../utils/color-utils';
         '[class.hidden]': "count() <= 0",
     },
 })
-export class CountBadgeComponent implements OnInit {
+export class CountBadge implements OnInit {
 
     protected readonly color = input.required<string, ColorName>({ transform: c => `${c}-fg` });
     protected readonly count = input.required<Observable<number>>();

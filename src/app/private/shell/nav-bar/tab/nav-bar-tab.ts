@@ -42,7 +42,7 @@ export type InnerNavBarTab = {
         '[class.pill-mode]': 'pillMode()'
     }
 })
-export class NavbarTabComponent implements OnDestroy {
+export class NavbarTab implements OnDestroy {
 
     readonly tab = input.required<InnerNavBarTab>();
     readonly active = input.required<boolean>();

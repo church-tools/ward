@@ -1,12 +1,12 @@
+import { AsyncButton } from '@/shared/form/button/async/async-button';
+import LinkButton from '@/shared/form/button/link/link-button';
+import { SupabaseService } from '@/shared/service/supabase.service';
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
-import { AsyncButton } from '@/shared/form/button/async/async-button';
 import { Button } from "../shared/form/button/button";
-import LinkButton from '@/shared/form/button/link/link-button';
 import { Page } from '../shared/page/page';
-import { SupabaseService } from '@/shared/service/supabase.service';
-import { CaptchaComponent } from './shared/captcha';
+import { Captcha } from './shared/captcha';
 import { Credentials } from './shared/credentials';
 
 @Component({
@@ -42,7 +42,7 @@ import { Credentials } from './shared/credentials';
         </div>
     `,
     imports: [TranslateModule, Button, LinkButton, AsyncButton,
-        Credentials, CaptchaComponent],
+        Credentials, Captcha],
     styles: [`
         .provider-icon {
             width: 64px;

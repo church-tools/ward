@@ -8,7 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
-import { NewUnitsComponent } from "./new-units";
+import { NewUnits } from "./new-units";
 
 @Component({
     selector: 'app-users-page',
@@ -43,7 +43,7 @@ import { NewUnitsComponent } from "./new-units";
         </app-drawer-router-outlet>
     `,
     imports: [TranslateModule, RowCardList, ProfileListRow, ProfileListInsert,
-        DrawerRouterOutlet, NewUnitsComponent],
+        DrawerRouterOutlet, NewUnits],
     host: { class: 'full-width' },
 })
 export class UsersPage extends PrivatePage {

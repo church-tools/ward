@@ -10,7 +10,7 @@ import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
 @Component({
     selector: 'app-sacrament-meeting-list-row',
     template: `
-        <div class="row full-width m-6-8 row-gap-1 column-gap-4 items-center">
+        <div class="row full-width m-4-6 row-gap-1 column-gap-4 items-center">
             <h4>
                 {{ date() | date : 'dd MMM yyyy' : undefined : locale() }}
             </h4>

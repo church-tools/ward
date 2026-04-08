@@ -30,7 +30,7 @@ type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<
     imports: [TranslateModule, Select, Icon],
     styleUrl: './omni-search.scss',
 })
-export class OmniSearchComponent implements OnDestroy {
+export class OmniSearch implements OnDestroy {
 
     private readonly windowService = inject(WindowService);
     private readonly supabase = inject(SupabaseService);

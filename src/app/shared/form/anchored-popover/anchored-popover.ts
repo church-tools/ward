@@ -8,10 +8,10 @@ export type PopoverAlignment = 'left' | 'right' | 'center';
     templateUrl: './anchored-popover.html',
     styleUrl: './anchored-popover.scss',
 })
-export class AnchoredPopoverComponent implements OnDestroy {
+export class AnchoredPopover implements OnDestroy {
 
     private static nextAnchorId = 1;
-    private readonly anchorId = AnchoredPopoverComponent.nextAnchorId++;
+    private readonly anchorId = AnchoredPopover.nextAnchorId++;
     readonly anchorNameCss = `--anchored-popover-${this.anchorId}`;
 
     private readonly document = inject<Document>(DOCUMENT);

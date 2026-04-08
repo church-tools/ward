@@ -38,7 +38,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     private readonly supabase = inject(SupabaseService);
 
     readonly tableName = input.required<T>();
-    readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string }) | null>(null);
+    readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string, mutable?: boolean }) | null>(null);
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);
     readonly columns = input(1);
@@ -51,8 +51,10 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly page = input<Page>();
     readonly emptyIcon = input<IconCode | null>(null);
     readonly rowClicked = input<(row: Row<T>) => void>();
+    readonly orderKey = input<keyof Row<T> | null>(null);
+    readonly fixedOrder = input<boolean, unknown>(false, { transform: booleanAttribute });
 
-    protected readonly cardListView = viewChild(CardList<Row<T>, number>);
+    protected readonly cardListView = viewChild<CardList<Row<T>, number>>(CardList);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');
     protected readonly insertTemplate = contentChild<TemplateRef<InsertTemplateContext<T>>>('insertTemplate');
 
@@ -67,12 +69,19 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     constructor() {
         xeffect([this.tableName, this.cardListView, this.getQuery], async (tableName, cardListView, getQuery) => {
             if (!cardListView || !getQuery) return;
-            const { query, id } = getQuery;
-            if (this.queryId && this.queryId === id && cardListView.cardCount()) return;
+            const { query, id, mutable } = getQuery;
+            if (this.queryId && this.queryId === id) return;
             this.queryId = id;
             this.subscription?.unsubscribe();
-            await cardListView.clear(true);
             const table = this.supabase.sync.from(tableName);
+            if (cardListView.cardCount()) {
+                if (mutable) {
+                    const ids = await query(table).getKeys<number>();
+                    await cardListView.removeExcept(ids);
+                } else {
+                    await cardListView.clear(true);
+                }
+            }
             this.subscription = query(table).subscribe(update => {
                 cardListView.updateItems({ items: update.result, deletions: update.deletions });
             });

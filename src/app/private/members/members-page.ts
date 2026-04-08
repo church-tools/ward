@@ -66,7 +66,7 @@ export class MembersPage extends PrivatePage {
     
     protected readonly getQuery = {
         query: (table: Table<'member'>) => table.readAll(),
-        id: 'members'
+        id: 'members',
     };
 
     protected async openImportDialog() {

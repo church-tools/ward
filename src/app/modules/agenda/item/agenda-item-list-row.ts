@@ -7,8 +7,8 @@ import { ListRow } from '../../shared/row-card-list/list-row';
 @Component({
     selector: 'app-agenda-item-list-row',
     template: `
-        <div class="column m-4 gap-1">
-            <h4><span class="overflow-ellipsis">{{ row().title }}</span></h4>
+        <div class="column m-4 gap-1 overflow-ellipsis">
+            <h4>{{ row().title }}</h4>
             <div class="row gap-1">
                 @if (row().files?.length) {
                     <app-icon icon="attach" size="sm"/>

@@ -38,7 +38,7 @@ export class OrganizationsPage extends PrivatePage {
     
     protected readonly getQuery = {
         query: (table: Table<'organization'>) => table.readAll(),
-        id: 'organizations'
+        id: 'organizations',
     };
 
     protected navigateHere() {

@@ -89,7 +89,6 @@ export class CardList<T, ID extends number | string> {
 
     private readonly changeLock = new Lock();
     private readonly dragDropMutex = new Mutex();
-    
 
     private insertSubscriptions: Subscription[] = [];
     private dropSubscription: Subscription | undefined;
@@ -139,6 +138,14 @@ export class CardList<T, ID extends number | string> {
         await this.changeLock.lock();
         await this.dragDropMutex.wait();
         await this.updateItemCards(update);
+    }
+
+    async removeExcept(ids: ID[]) {
+        await this.changeLock.lock();
+        await this.dragDropMutex.wait();
+        const itemIdSet = new Set(ids);
+        const deletions = this.itemCards().map(card => card.id).filter(id => !itemIdSet.has(id));
+        await this.updateItemCards({ deletions });
     }
 
     async scrollToItem(id: number) {

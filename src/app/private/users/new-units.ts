@@ -43,7 +43,7 @@ import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
     imports: [TranslateModule, AsyncButton, Icon],
     host: { class: 'column gap-2' },
 })
-export class NewUnitsComponent implements OnInit {
+export class NewUnits implements OnInit {
     
     private readonly functions = inject(FunctionsService);
 

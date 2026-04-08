@@ -4,12 +4,12 @@
   "scripts": {
     "ng": "ng",
     "start": "concurrently -n app,functions -c green,blue \"npm run start:app\" \"npm run start:functions\"",
-    "start:app": "ng serve ward-tools --port 4201",
+    "start:app": "node --max-old-space-size=6144 ./node_modules/@angular/cli/bin/ng serve ward-tools --port 4201 --configuration development",
     "start:functions": "wrangler dev --local",
-    "build": "ng build --configuration production",
+    "build": "node --max-old-space-size=6144 ./node_modules/@angular/cli/bin/ng build --configuration production",
     "build-experimental": "ng build --configuration production && npm run post-build.js",
-    "watch": "ng build --watch --configuration development",
-    "test": "ng test",
+    "watch": "node --max-old-space-size=6144 ./node_modules/@angular/cli/bin/ng build --watch --configuration development",
+    "test": "node --max-old-space-size=6144 ./node_modules/@angular/cli/bin/ng test",
     "gen-types": "supabase gen types typescript --project-id bfozbjjsbwakbucgdpao > database.d.ts",
     "gen-icon-codes": "npm run src/app/shared/icon/gen-icon-codes.ts",
     "update-angular": "npm i @angular/cdk @angular/common @angular/core @angular/forms @angular/platform-browser @angular/router @angular/service-worker @angular/build @angular/cli @angular/compiler @angular/compiler-cli @angular/language-service -f"
@@ -23,10 +23,10 @@
     "@angular/platform-browser": "^21.2.7",
     "@angular/router": "^21.2.7",
     "@angular/service-worker": "^21.2.7",
-    "@aws-sdk/client-s3": "^3.1024.0",
+    "@aws-sdk/client-s3": "^3.1026.0",
     "@ngx-translate/core": "^17.0.0",
     "@ngx-translate/http-loader": "^17.0.0",
-    "@supabase/supabase-js": "^2.101.1",
+    "@supabase/supabase-js": "^2.102.1",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "rxjs": "^7.8.2",
@@ -38,15 +38,15 @@
     "@angular/compiler": "^21.2.7",
     "@angular/compiler-cli": "^21.2.7",
     "@angular/language-service": "^21.2.7",
-    "@cloudflare/workers-types": "^4.20260403.1",
+    "@cloudflare/workers-types": "^4.20260408.1",
     "@typescript/native-preview": "^7.0.0-dev.20260315.1",
-    "supabase": "^2.84.10",
+    "supabase": "^2.88.1",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
     "@fullhuman/postcss-purgecss": "^8.0.0",
     "concurrently": "^9.2.1",
-    "postcss": "^8.5.8",
-    "wrangler": "^4.80.0"
+    "postcss": "^8.5.9",
+    "wrangler": "^4.81.0"
   }
 }

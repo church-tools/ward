@@ -55,7 +55,7 @@ export class OrganizationCallings {
 
 	protected readonly getQuery = xcomputed([this.organization], organization => ({
 		query: (table: Table<'calling'>) => table.find().eq('organization', organization),
-		id: `organization_callings_${organization}`
+		id: `organization_callings_${organization}`,
 	}));
 
 	protected readonly onMemberCallingClick = (id: number) => {

@@ -2,7 +2,7 @@ import { Component, ElementRef, input, viewChild } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { PALETTE_COLORS } from '../../utils/color-utils';
 import { xeffect } from '../../utils/signal-utils';
-import { AnchoredPopoverComponent } from '../anchored-popover/anchored-popover';
+import { AnchoredPopover } from '../anchored-popover/anchored-popover';
 import MenuButtonComponent from '../button/menu/menu-button';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
@@ -16,7 +16,7 @@ import { RichTextToolbarGroup, RichTextToolbarItem } from './rich-text-toolbar-g
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichText),
     imports: [TranslateModule, InputLabel, RichTextToolbarGroup,
-        AnchoredPopoverComponent, MenuButtonComponent],
+        AnchoredPopover, MenuButtonComponent],
     host: {
         class: 'column',
         '[style.anchor-name]': 'toolbar().anchorNameCss',
@@ -29,7 +29,7 @@ export class RichText extends InputBase<HTMLString, string> {
     readonly autocomplete = input<string>('off');
 
     private readonly editor = viewChild.required('editor', { read: ElementRef });
-    protected readonly toolbar = viewChild.required(AnchoredPopoverComponent);
+    protected readonly toolbar = viewChild.required(AnchoredPopover);
     
     override readonly debounceTime = 300;
 

@@ -14,14 +14,14 @@ import { privateTabs } from '../private.routes';
 import { AdminService } from '../shared/admin.service';
 import { BackButton } from "./back-button/back-button";
 import { NavBar, NavBarTab } from './nav-bar/nav-bar';
-import { OmniSearchComponent } from './omni-search/omni-search';
+import { OmniSearch } from './omni-search/omni-search';
 import { Presences } from "./presences";
 
 @Component({
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [TranslateModule, NavBar, OmniSearchComponent, MenuButtonComponent,
+    imports: [TranslateModule, NavBar, OmniSearch, MenuButtonComponent,
         PageRouterOutlet, BackButton, AsyncButton, Presences,
         Icon, Switch, LanguageSelect],
 })

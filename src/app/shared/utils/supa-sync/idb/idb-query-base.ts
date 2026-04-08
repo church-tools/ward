@@ -33,8 +33,8 @@ export abstract class IDBQueryBase<
         return this.resultMapping(items);
     }
 
-    public async getKeys(): Promise<IDBValidKey[]> {
-        return await this._getKeys();
+    public async getKeys<K extends IDBValidKey = IDBValidKey>(): Promise<K[]> {
+        return await this._getKeys() as K[];
     }
 
     public async count(): Promise<number> {

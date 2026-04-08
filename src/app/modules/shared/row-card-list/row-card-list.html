@@ -4,13 +4,13 @@
 @if (table && (!editable || projectedInsertTemplate)) {
     <app-card-list
         [cardClasses]="cardsVisible() ? cardClasses() : ''"
-        [reorderable]="editable && !!table.info.orderKey"
+        [reorderable]="editable && !fixedOrder() && !!(orderKey() || table.info.orderKey)"
         [editable]="editable"
         [activeId]="activeId()"
         [gap]="gap()"
         [columns]="columns()"
         [getId]="table.getId.bind(table)"
-        [orderByKey]="table.info.orderKey"
+        [orderByKey]="orderKey() || table.info.orderKey"
         [getFilterText]="viewService()?.toString"
         [getUrl]="getUrl()"
         (orderChange)="onOrderChanged($event)"
