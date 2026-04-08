@@ -44,6 +44,11 @@ export class DrawerRouterOutlet implements OnDestroy {
     private contentChangeTimeout: number | undefined;
     private snapBackTimeout: number | undefined;
     private transitionToken = 0;
+    private pendingChildRouteSwap = false;
+    private contentSnapshotEl: HTMLElement | undefined;
+    private contentMaskObserver: MutationObserver | undefined;
+
+    private static readonly contentSnapshotClass = 'drawer-content-snapshot';
 
     private readonly dragController = new DrawerDragController({
         isBottom: () => this.onBottom(),
@@ -68,34 +73,39 @@ export class DrawerRouterOutlet implements OnDestroy {
     }
 
     protected async onActivate(page: Page) {
-        this.cancelPendingAnimations();
+        const replacingChildRoute = this.pendingChildRouteSwap || this.activeChild() !== null;
+        this.pendingChildRouteSwap = false;
+        this.cancelPendingAnimations(replacingChildRoute);
         const token = ++this.transitionToken;
         this.emitCurrentRoute();
         this.activeChild.set(page);
-        await this.animateDrawerOpen(token);
+        if (replacingChildRoute)
+            await this.animateDrawerContentChange(token, () => this.clearContentSnapshot(), 0.25);
+        else
+            await this.animateDrawerOpen(token);
         if (token !== this.transitionToken)
             return;
         if (page instanceof RowPage) {
             page.onIdChange = async _ => {
                 if (token !== this.transitionToken)
                     return;
-                this.contentChanging.set(true);
-                this.contentChangeTimeout = clearTimeoutRef(this.contentChangeTimeout);
-                this.contentChangeTimeout = window.setTimeout(() => {
-                    this.contentChangeTimeout = undefined;
-                    if (token !== this.transitionToken)
-                        return;
-                    this.contentChanging.set(false);
-                }, animationDurationLgMs);
                 this.emitCurrentRoute();
-                await wait(animationDurationLgMs * 0.25);
+                await this.animateDrawerContentChange(token);
             };
         }
     }
 
     protected onDeactivate(page: Page) {
+        if (this.isNavigatingToDrawerChildRoute()) {
+            this.pendingChildRouteSwap = true;
+            this.createContentSnapshot(page);
+            if (page instanceof RowPage)
+                delete page.onIdChange;
+            return;
+        }
+        this.pendingChildRouteSwap = false;
         this.activated.emit(null);
-        this.animateDrawerClose();
+        void this.animateDrawerClose();
         if (page instanceof RowPage)
             delete page.onIdChange;
     }
@@ -110,6 +120,116 @@ export class DrawerRouterOutlet implements OnDestroy {
         const activatedRoute = this.routerOutlet().activatedRoute;
         const currentRoute = activatedRoute.snapshot.url.map(segment => segment.path).join('/');
         this.activated.emit(currentRoute);
+    }
+
+    private getNavigationPath(): string {
+        const navigation = this.router.getCurrentNavigation();
+        const target = navigation?.finalUrl ?? navigation?.extractedUrl;
+        const segments = target?.root.children['primary']?.segments;
+        if (!segments)
+            return '/';
+        return '/' + segments.map(segment => segment.path).join('/');
+    }
+
+    private getParentRoutePath(): string {
+        const segments = this.route.pathFromRoot
+            .flatMap(route => route.snapshot.url.map(segment => segment.path))
+            .filter(Boolean);
+        if (segments.length === 0)
+            return '/';
+        return '/' + segments.join('/');
+    }
+
+    private isNavigatingToDrawerChildRoute(): boolean {
+        const targetPath = this.getNavigationPath();
+        const parentPath = this.getParentRoutePath();
+        if (parentPath === '/')
+            return targetPath !== '/';
+        return targetPath.startsWith(`${parentPath}/`);
+    }
+
+    private getDrawerBodyElement(): HTMLElement | null {
+        const drawer = this.drawerView();
+        if (!drawer)
+            return null;
+        return drawer.nativeElement.querySelector('.drawer-body') as HTMLElement | null;
+    }
+
+    private createContentSnapshot(page: Page) {
+        const drawerBody = this.getDrawerBodyElement();
+        if (!drawerBody)
+            return;
+        this.clearContentSnapshot();
+        const snapshot = page.el.cloneNode(true) as HTMLElement;
+        snapshot.classList.add(DrawerRouterOutlet.contentSnapshotClass);
+        snapshot.style.position = 'absolute';
+        snapshot.style.inset = '0';
+        snapshot.style.width = '100%';
+        snapshot.style.pointerEvents = 'none';
+        snapshot.style.zIndex = '999';
+        snapshot.style.overflow = 'hidden';
+        drawerBody.appendChild(snapshot);
+        this.contentSnapshotEl = snapshot;
+        this.setDrawerBodyMasked(true);
+    }
+
+    private clearContentSnapshot() {
+        this.setDrawerBodyMasked(false);
+        if (!this.contentSnapshotEl)
+            return;
+        this.contentSnapshotEl.remove();
+        this.contentSnapshotEl = undefined;
+    }
+
+    private disconnectContentMaskObserver() {
+        this.contentMaskObserver?.disconnect();
+        this.contentMaskObserver = undefined;
+    }
+
+    private setDrawerBodyMasked(masked: boolean) {
+        const drawerBody = this.getDrawerBodyElement();
+        if (!drawerBody)
+            return;
+
+        const applyMask = () => {
+            const children = Array.from(drawerBody.children) as HTMLElement[];
+            for (const child of children) {
+                if (child.classList.contains(DrawerRouterOutlet.contentSnapshotClass))
+                    continue;
+                if (masked)
+                    child.style.visibility = 'hidden';
+                else
+                    child.style.removeProperty('visibility');
+            }
+        };
+
+        if (masked) {
+            applyMask();
+            this.disconnectContentMaskObserver();
+            const observer = new MutationObserver(() => applyMask());
+            observer.observe(drawerBody, { childList: true });
+            this.contentMaskObserver = observer;
+            return;
+        }
+
+        this.disconnectContentMaskObserver();
+        applyMask();
+    }
+
+    private async animateDrawerContentChange(token: number, onMidpoint?: () => void, midpointRatio = 0.25) {
+        const clampedMidpointRatio = Math.max(0, Math.min(1, midpointRatio));
+        this.contentChanging.set(true);
+        this.contentChangeTimeout = clearTimeoutRef(this.contentChangeTimeout);
+        this.contentChangeTimeout = window.setTimeout(() => {
+            this.contentChangeTimeout = undefined;
+            if (token !== this.transitionToken)
+                return;
+            this.contentChanging.set(false);
+        }, animationDurationLgMs);
+        await wait(animationDurationLgMs * clampedMidpointRatio);
+        if (token !== this.transitionToken)
+            return;
+        onMidpoint?.();
     }
 
     private async animateDrawerOpen(token: number) {
@@ -140,6 +260,7 @@ export class DrawerRouterOutlet implements OnDestroy {
     private async animateDrawerClose(startDelta?: number) {
         const page = this.activeChild();
         if (!page) return;
+        this.clearContentSnapshot();
         this.closing.set(true);
         if (page instanceof RowPage)
             page.close();
@@ -197,12 +318,14 @@ export class DrawerRouterOutlet implements OnDestroy {
         });
     }
 
-    private cancelPendingAnimations() {
+    private cancelPendingAnimations(keepContentSnapshot = false) {
         this.contentChangeTimeout = clearTimeoutRef(this.contentChangeTimeout);
         this.snapBackTimeout = clearTimeoutRef(this.snapBackTimeout);
         this.dragController.cancelInteraction();
         this.contentChanging.set(false);
         this.closing.set(false);
+        if (!keepContentSnapshot)
+            this.clearContentSnapshot();
         const drawer = this.drawerView();
         if (!drawer)
             return;
@@ -213,6 +336,7 @@ export class DrawerRouterOutlet implements OnDestroy {
 
     ngOnDestroy() {
         this.cancelPendingAnimations();
+        this.disconnectContentMaskObserver();
         this.dragController.destroy();
     }
 }

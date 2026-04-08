@@ -49,7 +49,7 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
         return { id: 'sacrament_meetings' + (showPast ? '_past' : ''), query, mutable: true };
     });
 
-    protected readonly activeChurchServiceId = xsignal<number | null>(null);
+    protected readonly activeId = xsignal<number | null>(null);
 
     protected onPreviewModeChange(value: string | number | null) {
         this.previewMode.set(value as 'message' | 'hymn');
@@ -70,6 +70,8 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
 
 
     protected onActivate(id: string | null) {
-        this.activeChurchServiceId.set(id ? +id : null);
+        this.activeId.set(id
+            ? Number(id.includes('/') ? id.split('/')[1] : id)
+            : null);
     }
 }

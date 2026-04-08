@@ -26,7 +26,7 @@
             tableName="sacrament_meeting"
             [getQuery]="getQuery()"
             [getUrl]="getChurchServiceUrl"
-            [activeId]="activeChurchServiceId()"
+            [activeId]="activeId()"
             orderKey="week"
             editable
             fixedOrder>
@@ -35,7 +35,8 @@
                     [row]="row"
                     [page]="page"
                     [onRemove]="onRemove"
-                    [previewMode]="previewMode()"/>
+                    [previewMode]="previewMode()"
+                    [activeItemId]="activeId()"/>
             </ng-template>
             <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert" let-context="context">
                 <app-sacrament-meeting-list-insert

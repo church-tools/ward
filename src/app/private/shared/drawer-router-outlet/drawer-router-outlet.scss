@@ -75,6 +75,7 @@
         overflow-y: auto;
         .drawer-body {
             margin: layout.$canvas-margin;
+            position: relative;
         }
         &.dense {
             .drawer-body {

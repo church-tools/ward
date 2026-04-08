@@ -9,9 +9,10 @@ import { RowPage } from '../../../shared/row-page';
 @Component({
     selector: 'app-hymn-page',
     template: `
+        @let row = syncedRow.value();
         <h2>
             <span class="text-secondary">{{ 'VIEW.HYMN' | translate }}:</span>
-            {{ hymnView.toString(syncedRow.value()!) }}
+            {{ row ? hymnView.toString(row) : '' }}
         </h2>
         <div class="column-grid">
             <app-text-input [syncedRow]="syncedRow" column="number"

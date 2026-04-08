@@ -14,7 +14,7 @@ import { MessageListRow } from './item/message/message-list-row';
 import { MusicalPerformanceListRow } from './item/musical-performance/musical-performance-list-row';
 import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
 
-export type ItemTableName = 'message' | 'hymn' | 'musical_performance';
+type ItemTableName = 'message' | 'hymn' | 'musical_performance';
 
 @Component({
     selector: 'app-sacrament-meeting-list-row',

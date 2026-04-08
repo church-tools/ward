@@ -9,9 +9,10 @@ import { RowPage } from '../../../shared/row-page';
 @Component({
     selector: 'app-message-page',
     template: `
+        @let row = syncedRow.value();
         <h2>
             <span class="text-secondary">{{ 'VIEW.MESSAGE' | translate }}:</span>
-            {{ messageView.toString(syncedRow.value()!) }}
+            {{ row ? messageView.toString(row) : '' }}
         </h2>
         <div class="column-grid">
             <app-text-input [syncedRow]="syncedRow" column="speaker"
