@@ -19,7 +19,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
 @Component({
     selector: 'app-sacrament-meeting-list-row',
     template: `
-        <div class="row full-width m-4-6 row-gap-1 column-gap-4 items-center">
+        <div class="row m-4-6 row-gap-1 column-gap-4 items-center">
             <div class="column gap-1">
                 <h4>
                     {{ date() | date : 'dd MMM yyyy' : undefined : locale() }}
@@ -28,23 +28,21 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
                     <span class="text-secondary">{{ meetingView.getTypeLabel(type) }}</span>
                 }
             </div>
-            <!-- <div class="row grow-1"> -->
-                <app-row-card-list-multi
-                    [tableQueries]="tableQueries()"
-                    [activeId]="activeItemId()"
-                    [getUrl]="getItemUrl"
-                    [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
-                    <ng-template #rowTemplate let-item>
-                        @if (item.table === 'message') {
-                            <app-message-list-row [row]="item.row" narrow/>
-                        } @else if (item.table === 'hymn') {
-                            <app-hymn-list-row [row]="item.row" narrow/>
-                        } @else if (item.table === 'musical_performance') {
-                            <app-musical-performance-list-row [row]="item.row" narrow/>
-                        }
-                    </ng-template>
-                </app-row-card-list-multi>
-            <!-- </div> -->
+            <app-row-card-list-multi class="grow-1"
+                [tableQueries]="tableQueries()"
+                [activeId]="activeItemId()"
+                [getUrl]="getItemUrl"
+                [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
+                <ng-template #rowTemplate let-item>
+                    @if (item.table === 'message') {
+                        <app-message-list-row [row]="item.row" narrow/>
+                    } @else if (item.table === 'hymn') {
+                        <app-hymn-list-row [row]="item.row" narrow/>
+                    } @else if (item.table === 'musical_performance') {
+                        <app-musical-performance-list-row [row]="item.row" narrow/>
+                    }
+                </ng-template>
+            </app-row-card-list-multi>
         </div>
     `,
     imports: [TranslateModule, DatePipe, RowCardListMulti,
