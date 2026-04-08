@@ -194,7 +194,10 @@
     "RELEASES_TITLE": "Laufende Entlassungen"
   },
   "MESSAGE_PAGE": {
-    "TITLE": "Ansprache"
+    "TITLE": "Ansprache",
+    "SPEAKER": "Redner",
+    "TOPIC": "Thema",
+    "DURATION": "Dauer"
   },
   "HYMN_PAGE": {
     "TITLE": "Lied"

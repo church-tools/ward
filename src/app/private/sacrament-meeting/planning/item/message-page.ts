@@ -5,6 +5,7 @@ import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
 import { RowHistory } from '../../../shared/row-history';
 import { RowPage } from '../../../shared/row-page';
+import { CustomRowSelect } from "@/shared/form/row-select/custom-row-select";
 
 @Component({
     selector: 'app-message-page',
@@ -15,7 +16,7 @@ import { RowPage } from '../../../shared/row-page';
             {{ row ? messageView.toString(row) : '' }}
         </h2>
         <div class="column-grid">
-            <app-text-input [syncedRow]="syncedRow" column="speaker"
+            <app-custom-row-select [syncedRow]="syncedRow" column="speaker" table="member"
                 class="col-12"
                 label="{{ 'MESSAGE_PAGE.SPEAKER' | translate }}"/>
             <app-text-input [syncedRow]="syncedRow" column="topic"
@@ -28,7 +29,7 @@ import { RowPage } from '../../../shared/row-page';
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, SyncedFieldDirective, TextInput, RowHistory],
+    imports: [TranslateModule, SyncedFieldDirective, TextInput, RowHistory, CustomRowSelect],
 })
 export class MessagePage extends RowPage<'message'> {
 

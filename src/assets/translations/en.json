@@ -194,7 +194,10 @@
     "RELEASES_TITLE": "Current Releases"
   },
   "MESSAGE_PAGE": {
-    "TITLE": "Message"
+    "TITLE": "Message",
+    "SPEAKER": "Speaker",
+    "TOPIC": "Topic",
+    "DURATION": "Duration"
   },
   "HYMN_PAGE": {
     "TITLE": "Hymn"
