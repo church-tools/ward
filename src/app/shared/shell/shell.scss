@@ -27,6 +27,7 @@
     }
     &:not(.dense) .canvas {
         margin: layout.$canvas-margin;
+        margin-right: calc(layout.$canvas-margin-x - layout.$scrollbar-width);
     }
     &.narrow .canvas {
         justify-content: flex-start;

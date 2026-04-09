@@ -19,6 +19,8 @@ $canvas-margin-narrow: $canvas-margin-narrow-y $canvas-margin-narrow-x;
 $canvas-height: calc(var(--app-viewport-height) - 3.5rem - 2 * $canvas-margin-y);
 $canvas-height-narrow: calc(var(--app-viewport-height) - 3.5rem - 2 * $canvas-margin-narrow-y);
 
+$scrollbar-width: 16px;
+
 $page-width: 800px;
 $page-width-narrow: 600px;
 $page-width-portrait: 400px;
