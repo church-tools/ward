@@ -36,6 +36,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
                 [cardClasses]="'card canvas-card suppress-canvas-card-animation'"
                 [dense]="true"
                 [gap]="1"
+                mutable
                 editable>
                 <ng-template #rowTemplate let-item>
                     @if (item.table === 'message') {

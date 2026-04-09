@@ -15,7 +15,6 @@ export type RowCardListMultiQuery<T extends TableName = TableName> = {
     tableName: T;
     id: string;
     query: (table: Table<T>) => TableQuery<T, Row<T>[]>;
-    mutable?: boolean;
 };
 
 export type RowCardListMultiInsert<T extends TableName = TableName> = {
@@ -60,6 +59,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     private readonly supabase = inject(SupabaseService);
 
     readonly tableQueries = input.required<readonly RowCardListMultiQuery<T>[]>();
+    readonly mutable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly dense = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly alwaysShowInsertTemplate = input<boolean, unknown>(false, { transform: booleanAttribute });
@@ -163,7 +163,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     private querySignature: string | null = null;
 
     constructor() {
-        xeffect([this.tableQueries, this.cardListView, this.sharedIdKey, this.sharedOrderKey], async (tableQueries, cardListView, sharedIdKey, sharedOrderKey) => {
+        xeffect([this.tableQueries, this.cardListView, this.sharedIdKey, this.sharedOrderKey, this.mutable], async (tableQueries, cardListView, sharedIdKey, sharedOrderKey, mutable) => {
             if (!cardListView)
                 return;
             if (!tableQueries.length) {
@@ -179,17 +179,51 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
                 return;
             this.querySignature = querySignature;
             this.clearSubscriptions();
-            await cardListView.clear(true);
-            for (const queryInfo of tableQueries) {
-                const tableName = queryInfo.tableName;
-                const table = this.getTable(tableName);
-                const subscription = queryInfo.query(table).subscribe(update => {
-                    const items = update.result?.map(row => this.createCardItem(tableName, row));
-                    void cardListView.updateItems({ items, deletions: update.deletions });
-                });
-                this.subscriptions.set(tableName, subscription);
-            }
+            const removedIds = await this.getRemovedIds(cardListView, tableQueries, mutable);
+            this.subscribeToQueries(cardListView, tableQueries, removedIds);
         });
+    }
+
+    private async getRemovedIds(
+        cardListView: CardList<RowCardListCardItem<T>, number>,
+        tableQueries: readonly RowCardListMultiQuery<T>[],
+        mutable: boolean,
+    ): Promise<number[]> {
+        if (!cardListView.cardCount())
+            return [];
+        if (!mutable)
+            return cardListView.getIds();
+        const idsByQuery = await Promise.all(tableQueries.map(async queryInfo => {
+            const table = this.getTable(queryInfo.tableName);
+            return await queryInfo.query(table).getKeys<number>();
+        }));
+        const keepIds = new Set(idsByQuery.flat());
+        return cardListView.getIds().filter(itemId => !keepIds.has(itemId));
+    }
+
+    private subscribeToQueries(
+        cardListView: CardList<RowCardListCardItem<T>, number>,
+        tableQueries: readonly RowCardListMultiQuery<T>[],
+        removedIds: number[],
+    ) {
+        let initialDeletions = removedIds;
+        for (const queryInfo of tableQueries) {
+            const tableName = queryInfo.tableName;
+            const table = this.getTable(tableName);
+            const subscription = queryInfo.query(table).subscribe(update => {
+                const items = update.result?.map(row => this.createCardItem(tableName, row));
+                const deletions = this.mergeInitialDeletions(update.deletions, initialDeletions);
+                initialDeletions = [];
+                void cardListView.updateItems({ items, deletions });
+            });
+            this.subscriptions.set(tableName, subscription);
+        }
+    }
+
+    private mergeInitialDeletions(deletions: number[] | undefined, initialDeletions: number[]): number[] | undefined {
+        if (!initialDeletions.length)
+            return deletions;
+        return [...new Set([...(deletions ?? []), ...initialDeletions])];
     }
 
     async ngOnInit() {

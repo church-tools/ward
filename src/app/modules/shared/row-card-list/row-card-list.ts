@@ -74,18 +74,34 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
             this.queryId = id;
             this.subscription?.unsubscribe();
             const table = this.supabase.sync.from(tableName);
-            if (cardListView.cardCount()) {
-                if (mutable) {
-                    const ids = await query(table).getKeys<number>();
-                    await cardListView.removeExcept(ids);
-                } else {
-                    await cardListView.clear(true);
-                }
-            }
+            const removedIds = await this.getRemovedIds(cardListView, table, query, mutable);
+            let initialDeletions = removedIds;
             this.subscription = query(table).subscribe(update => {
-                cardListView.updateItems({ items: update.result, deletions: update.deletions });
+                const deletions = this.mergeInitialDeletions(update.deletions, initialDeletions);
+                initialDeletions = [];
+                cardListView.updateItems({ items: update.result, deletions });
             });
         });
+    }
+
+    private async getRemovedIds(
+        cardListView: CardList<Row<T>, number>,
+        table: Table<T>,
+        query: (table: Table<T>) => TableQuery<T, Row<T>[]>,
+        mutable: boolean | undefined,
+    ): Promise<number[]> {
+        if (!cardListView.cardCount())
+            return [];
+        if (!mutable)
+            return cardListView.getIds();
+        const keepIds = new Set(await query(table).getKeys<number>());
+        return cardListView.getIds().filter(itemId => !keepIds.has(itemId));
+    }
+
+    private mergeInitialDeletions(deletions: number[] | undefined, initialDeletions: number[]): number[] | undefined {
+        if (!initialDeletions.length)
+            return deletions;
+        return [...new Set([...(deletions ?? []), ...initialDeletions])];
     }
 
     async ngOnInit() {

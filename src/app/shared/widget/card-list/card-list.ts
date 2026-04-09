@@ -140,15 +140,7 @@ export class CardList<T, ID extends number | string> {
         await this.dragDropMutex.wait();
         await this.updateItemCards(update);
     }
-
-    async removeExcept(ids: ID[]) {
-        await this.changeLock.lock();
-        await this.dragDropMutex.wait();
-        const itemIdSet = new Set(ids);
-        const deletions = this.itemCards().map(card => card.id).filter(id => !itemIdSet.has(id));
-        await this.updateItemCards({ deletions });
-    }
-
+    
     async scrollToItem(id: number) {
         const itemCards = this.itemCards();
         const index = itemCards.findIndex(card => card.id === id);
@@ -162,6 +154,10 @@ export class CardList<T, ID extends number | string> {
         const itemCards = this.itemCards();
         if (!itemCards.length) return null;
         return itemCards[itemCards.length - 1].item;
+    }
+
+    getIds(): ID[] {
+        return this.itemCards().map(itemCard => itemCard.id);
     }
 
     protected placeholderAdded(item: HTMLElement) {
@@ -309,13 +305,17 @@ export class CardList<T, ID extends number | string> {
                 itemCards.push({ id, item, animateEntrance, removed: signal(false) });
             }
         }
-        if (deletions.length) {
-            itemCards = itemCards.filter(card => {
-                if (!deletions.includes(card.id)) return true;
-                card.removed.set(true);
-                return false;
-            });
+        const deletionSet = new Set(deletions);
+        if (deletionSet.size) {
+            for (const card of itemCards)
+                if (deletionSet.has(card.id))
+                    card.removed.set(true);
+            const interimNeedsSort = !this.orderIsCorrect(itemCards);
+            if (interimNeedsSort) this.sort(itemCards);
+            this._initialized.set(true);
+            this.itemCards.set(itemCards);
             await wait(animationDurationMs);
+            itemCards = itemCards.filter(card => !deletionSet.has(card.id));
         }
         const needsSort = !this.orderIsCorrect(itemCards);
         if (needsSort) this.sort(itemCards);
