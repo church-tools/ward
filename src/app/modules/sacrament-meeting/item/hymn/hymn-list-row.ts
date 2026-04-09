@@ -12,7 +12,7 @@ import { HymnViewService } from './hymn-view.service';
                 <app-icon [icon]="hymnView.icon" size="ns" class="text-secondary" filled/>
                 <span class="overflow-ellipsis">{{ hymnView.toString(row()) }}</span>
             } @else {
-                <app-icon [icon]="hymnView.icon" size="sm" class="text-secondary"/>
+                <app-icon [icon]="hymnView.icon" size="sm" class="text-secondary" filled/>
                 <h4 class="overflow-ellipsis">{{ hymnView.toString(row()) }}</h4>
             }
         </div>

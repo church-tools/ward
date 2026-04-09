@@ -182,7 +182,8 @@
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planung",
     "TITLE": "Planung von Abendmahlsvers.",
-    "SHOW_PAST": "Vergangene anzeigen"
+    "PAST_MONTH": "Vergangener Monat",
+    "PAST_ALL": "Alle"
   },
   "MEETINGS_PAGE": {
     "TITLE": "Sitzungen",
@@ -276,5 +277,6 @@
   "B": "F",
   "I": "K",
   "U": "U",
-  "S": "D"
+  "S": "D",
+  "NONE": "Nichts"
 }

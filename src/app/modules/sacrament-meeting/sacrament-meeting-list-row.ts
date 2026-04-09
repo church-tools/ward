@@ -37,7 +37,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
                 [dense]="true"
                 [gap]="1"
                 mutable
-                editable>
+                [editable]="previewMode() !== 'none'">
                 <ng-template #rowTemplate let-item>
                     @if (item.table === 'message') {
                         <app-message-list-row [row]="item.row" dense/>
@@ -71,8 +71,7 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
     protected readonly locale = createTranslateLocaleSignal(this.translate);
 
     readonly activeItemId = input<number | null>(null);
-    readonly previewMode = input.required<'message' | 'hymn'>();
-
+    readonly previewMode = input.required<'message' | 'hymn' | 'none'>();
 
     protected readonly date = xcomputed([this.row],
         row => sundayIndexToDate(row.week as SundayIndex));
@@ -98,7 +97,13 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
                     query: (table: Table<'musical_performance'>) => table.find().eq('sacrament_meeting', row.id),
                 },
             ] as readonly RowCardListMultiQuery<ItemTableName>[];
-            default: return [];
+            default: return [
+                {
+                    tableName: 'message',
+                    id: `sacrament_meeting_none_${row.id}`,
+                    query: (table: Table<'message'>) => table.find().eq('id', -1),
+                }
+            ] as readonly RowCardListMultiQuery<ItemTableName>[];
         }
     });
 

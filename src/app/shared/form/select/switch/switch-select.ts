@@ -69,7 +69,6 @@ export default class SwitchSelect<T> extends InputBase<T> {
     readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: string }) => void>();
     readonly withoutValue = input<boolean, unknown>(false, { transform: booleanAttribute });
-    readonly hideClear = input<boolean, unknown>(true, { transform: booleanAttribute });
     readonly mapSearch = input<(search: string) => string>();
     readonly translateOptions = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly onOptionClick = input<(option: SelectOption<T>, event: MouseEvent) => void>();
@@ -138,6 +137,25 @@ export default class SwitchSelect<T> extends InputBase<T> {
         }
         event.stopPropagation();
         event.preventDefault();
+
+        const options = this.optionArray();
+        const selectedIndex = this.selectedIndex();
+        if (selectedIndex >= 0 && options.length > 1 && options[selectedIndex]?.value === option.value) {
+            if (selectedIndex === 0) {
+                const neighbor = options[1];
+                if (neighbor) {
+                    this.applyOptionSelection(neighbor, true, event);
+                    return;
+                }
+            } else if (selectedIndex === options.length - 1) {
+                const neighbor = options[options.length - 2];
+                if (neighbor) {
+                    this.applyOptionSelection(neighbor, true, event);
+                    return;
+                }
+            }
+        }
+
         this.applyOptionSelection(option, true, event);
     }
 

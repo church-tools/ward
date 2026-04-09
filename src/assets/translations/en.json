@@ -182,7 +182,8 @@
   "SACRAMENT_MEETING_PLANNING_PAGE": {
     "SHORT_TITLE": "Planning",
     "TITLE": "Planning of Sacrament Meetings",
-    "SHOW_PAST": "Show past"
+    "PAST_MONTH": "Past month",
+    "PAST_ALL": "All"
   },
   "MEETINGS_PAGE": {
     "TITLE": "Meetings",
@@ -276,5 +277,6 @@
   "B": "B",
   "I": "I",
   "U": "U",
-  "S": "S"
+  "S": "S",
+  "NONE": "None"
 }

@@ -49,7 +49,8 @@ export default class WeekInput extends InputBase<string, number> {
         const parsed = this.parseIsoDate(value);
         if (!parsed) return null;
         const snapped = this.snapDateToWeekday(parsed);
-        return getUpcomingSundayIndex(snapped);
+        // getUpcomingSundayIndex() is intentionally future-facing; week input needs the snapped week itself.
+        return getUpcomingSundayIndex(snapped) - 1;
     }
 
     private getSafeWeekday(): number {

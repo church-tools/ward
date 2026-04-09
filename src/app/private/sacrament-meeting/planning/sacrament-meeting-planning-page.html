@@ -11,16 +11,16 @@
             </app-link-button>
         </div>
         <div class="row mb--2">
-            <app-switch-select class="col-md-6"
+            <app-switch-select
+                [value]="past()"
+                [options]="pastOptions"
+                translateOptions
+                (valueChange)="onPastChange($event)"/>
+            <app-switch-select
                 [value]="previewMode()"
                 [options]="previewModeOptions"
-                [translateOptions]="true"
-                [hideClear]="true"
+                translateOptions
                 (valueChange)="onPreviewModeChange($event)"/>
-            <app-switch class="grow-1"
-                [value]="showPastMeetings()"
-                (valueChange)="showPastMeetings.set($event ?? false)"
-                label="{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHOW_PAST' | translate }}"/>
         </div>
         <app-row-card-list
             tableName="sacrament_meeting"
