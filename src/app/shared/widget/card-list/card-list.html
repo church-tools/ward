@@ -62,7 +62,7 @@
     @if (editable()) {
         <div #insertionCard class="{{cardClasses()}} card-item selectable-card insertion-card"
             [class.new]="newEditCard()"
-            (click)="onInsertClick()">
+            (click)="onInsertClick($event)">
             <app-swap-container [swap]="insertTemplateVisible()" animationDuration="xs">
                 <div main>
                     @if (insertedItem(); as insert) {
@@ -77,7 +77,7 @@
                         </div>
                     } @else {
                         <div class="add-btn full-width items-center center-content">
-                            <app-icon class="m-3" icon="add"/>
+                            <app-icon class="m-{{ dense() ? 2 : 3 }}" icon="add" [size]="dense() ? 'sm' : 'md'"/>
                         </div>
                     }
                 </div>

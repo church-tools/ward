@@ -35,15 +35,15 @@
                 <ng-template #insertTemplate let-functions>
                     <div class="row gap-2 full-width center-content">
                         <app-button type="secondary" size="large"
-                            (onClick)="insertItem(functions.insert)">
+                            (onClick)="insertItem('message', functions.insert)">
                             {{ 'MESSAGE_PAGE.TITLE' | translate }}
                         </app-button>
                         <app-button type="secondary" size="large"
-                            (onClick)="insertItem(functions.insert)">
+                            (onClick)="insertItem('hymn', functions.insert)">
                             {{ 'HYMN_PAGE.TITLE' | translate }}
                         </app-button>
                         <app-button type="secondary" size="large"
-                            (onClick)="insertItem(functions.insert)">
+                            (onClick)="insertItem('musical_performance', functions.insert)">
                             {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | translate }}
                         </app-button>
                     </div>

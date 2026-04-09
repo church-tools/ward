@@ -20,6 +20,6 @@ export class MusicalPerformanceListRow extends ListRow<'musical_performance'> {
 
     protected readonly musicalPerformanceView = inject(MusicalPerformanceViewService);
 
-    readonly narrow = input(false, { transform: booleanAttribute });
+    readonly dense = input(false, { transform: booleanAttribute });
 
 }

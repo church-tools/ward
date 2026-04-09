@@ -15,6 +15,7 @@ export type RowCardListMultiQuery<T extends TableName = TableName> = {
     tableName: T;
     id: string;
     query: (table: Table<T>) => TableQuery<T, Row<T>[]>;
+    mutable?: boolean;
 };
 
 export type RowCardListMultiInsert<T extends TableName = TableName> = {
@@ -60,6 +61,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
 
     readonly tableQueries = input.required<readonly RowCardListMultiQuery<T>[]>();
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly dense = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly alwaysShowInsertTemplate = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);
     readonly columns = input(1);

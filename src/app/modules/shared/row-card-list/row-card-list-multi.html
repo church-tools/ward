@@ -18,7 +18,8 @@
         [insertRow]="insertRow"
         [dragDropGroup]="dragDropGroup()"
         [emptyIcon]="emptyIcon()"
-        [itemClicked]="getUrl() ? onRowClick : onCardClick">
+        [itemClicked]="getUrl() ? onRowClick : onCardClick"
+        [dense]="dense()">
         <ng-template #itemTemplate let-item>
             <ng-container *ngTemplateOutlet="rowTemplate();
                 context: {

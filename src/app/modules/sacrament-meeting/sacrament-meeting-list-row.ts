@@ -10,6 +10,7 @@ import type { RowCardListMultiItem, RowCardListMultiQuery } from '../shared/row-
 import { RowCardListMulti } from '../shared/row-card-list/row-card-list-multi';
 import type { Table } from '../shared/table.types';
 import { HymnListRow } from './item/hymn/hymn-list-row';
+import { MessageListInsert } from "./item/message/message-list-insert";
 import { MessageListRow } from './item/message/message-list-row';
 import { MusicalPerformanceListRow } from './item/musical-performance/musical-performance-list-row';
 import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
@@ -32,21 +33,35 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
                 [tableQueries]="tableQueries()"
                 [activeId]="activeItemId()"
                 [getUrl]="getItemUrl"
-                [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
+                [cardClasses]="'card canvas-card suppress-canvas-card-animation'"
+                [dense]="true"
+                [gap]="1"
+                editable>
                 <ng-template #rowTemplate let-item>
                     @if (item.table === 'message') {
-                        <app-message-list-row [row]="item.row" narrow/>
+                        <app-message-list-row [row]="item.row" dense/>
                     } @else if (item.table === 'hymn') {
-                        <app-hymn-list-row [row]="item.row" narrow/>
+                        <app-hymn-list-row [row]="item.row" dense/>
                     } @else if (item.table === 'musical_performance') {
-                        <app-musical-performance-list-row [row]="item.row" narrow/>
+                        <app-musical-performance-list-row [row]="item.row" dense/>
                     }
+                </ng-template>
+                <ng-template #insertTemplate let-functions>
+                    <div class="row gap-2 full-width center-content">
+                        @if (previewMode() === 'message') {
+                            <app-message-list-insert
+                                [insert]="functions.insert"
+                                [cancel]="functions.cancel"/>
+                        } @else {
+                            <div></div>
+                        }
+                    </div>
                 </ng-template>
             </app-row-card-list-multi>
         </div>
     `,
     imports: [TranslateModule, DatePipe, RowCardListMulti,
-        MessageListRow, HymnListRow, MusicalPerformanceListRow],
+        MessageListInsert, MessageListRow, HymnListRow, MusicalPerformanceListRow],
 })
 export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
 
@@ -91,4 +106,5 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
             return '';
         return getRowRoute({ table: item.table, row: item.row as any });
     }
+
 }

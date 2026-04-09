@@ -1,12 +1,9 @@
-import type { Hymn } from '@/modules/sacrament-meeting/item/hymn/hymn';
 import { HymnListRow } from '@/modules/sacrament-meeting/item/hymn/hymn-list-row';
-import type { Message } from '@/modules/sacrament-meeting/item/message/message';
 import { MessageListRow } from '@/modules/sacrament-meeting/item/message/message-list-row';
-import type { MusicalPerformance } from '@/modules/sacrament-meeting/item/musical-performance/musical-performance';
 import { MusicalPerformanceListRow } from '@/modules/sacrament-meeting/item/musical-performance/musical-performance-list-row';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
-import { RowCardListMulti, RowCardListMultiItem, type RowCardListMultiQuery } from '@/modules/shared/row-card-list/row-card-list-multi';
-import type { Table } from '@/modules/shared/table.types';
+import { RowCardListMulti, RowCardListMultiInsert, RowCardListMultiItem, type RowCardListMultiQuery } from '@/modules/shared/row-card-list/row-card-list-multi';
+import type { Insert, Table } from '@/modules/shared/table.types';
 import { Button } from '@/shared/form/button/button';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
@@ -23,7 +20,6 @@ import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
 
 type ItemTableName = 'message' | 'hymn' | 'musical_performance';
-type ItemInsert = Message.Insert | Hymn.Insert | MusicalPerformance.Insert;
 
 @Component({
     selector: 'app-sacrament-meeting-page',
@@ -92,10 +88,11 @@ export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
         },
     ] as readonly RowCardListMultiQuery<ItemTableName>[]);
     
-    protected async insertItem(insertFn: (item: ItemInsert) => Promise<void>) {
+    protected async insertItem<T extends ItemTableName>(tableName: T, insertFn: (item: RowCardListMultiInsert<ItemTableName>) => Promise<void>) {
         const row = this.syncedRow.value();
         if (!row) return;
-        await insertFn({ unit: row.unit, sacrament_meeting: this.rowId() } as ItemInsert);                
+        const insert = { unit: row.unit, sacrament_meeting: this.rowId() } as Insert<T>;
+        await insertFn({ tableName, row: insert });                
     }
     
 }

@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { booleanAttribute, Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule, UrlTree } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconCode, Icon } from '../../icon/icon';
@@ -37,6 +37,7 @@ export class CardList<T, ID extends number | string> {
 
     readonly editable = input(false);
     readonly gap = input(2);
+    readonly dense = input(false, { transform: booleanAttribute });
     readonly columns = input(1);
     readonly getId = input.required<(item: T) => ID>();
     readonly orderByKey = input<keyof T | null | undefined>();
@@ -47,7 +48,7 @@ export class CardList<T, ID extends number | string> {
     readonly getUrl = input<(item: T) => string | UrlTree>();
     readonly itemClicked = input<(item: T) => void>();
     readonly insertRow = input<(item: T) => Promise<T>>();
-    readonly showInsertTemplate = input(false);
+    readonly showInsertTemplate = input(false, { transform: booleanAttribute });
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
     readonly emptyIcon = input<IconCode | null>(null);
@@ -175,7 +176,7 @@ export class CardList<T, ID extends number | string> {
         event.stopPropagation();
     }
 
-    protected onInsertClick(): void {
+    protected onInsertClick(event: MouseEvent): void {
         const element = this.insertionCardView()!.nativeElement as HTMLElement;
         this.insertBtnHeight = element.getBoundingClientRect().height;
         if (this.insertTemplate()) {
@@ -183,6 +184,7 @@ export class CardList<T, ID extends number | string> {
         } else {
             this.addClick.emit();
         }
+        event.stopPropagation();
     }
 
     protected insert = async (item: T) => {

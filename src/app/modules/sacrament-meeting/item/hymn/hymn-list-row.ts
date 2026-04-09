@@ -7,9 +7,14 @@ import { HymnViewService } from './hymn-view.service';
     selector: 'app-hymn-list-row',
     standalone: true,
     template: `
-        <div class="row full-width m-4 row-gap-1 column-gap-2 items-center">
-            <app-icon [icon]="hymnView.icon" size="sm" class="text-secondary"/>
-            <h4 class="overflow-ellipsis">{{ hymnView.toString(row()) }}</h4>
+        <div class="row full-width {{ dense() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 column-gap-2 items-center">
+            @if (dense()) {
+                <app-icon [icon]="hymnView.icon" size="ns" class="text-secondary" filled/>
+                <span class="overflow-ellipsis">{{ hymnView.toString(row()) }}</span>
+            } @else {
+                <app-icon [icon]="hymnView.icon" size="sm" class="text-secondary"/>
+                <h4 class="overflow-ellipsis">{{ hymnView.toString(row()) }}</h4>
+            }
         </div>
     `,
     imports: [Icon],
@@ -18,6 +23,6 @@ export class HymnListRow extends ListRow<'hymn'> {
 
     protected readonly hymnView = inject(HymnViewService);
 
-    readonly narrow = input(false, { transform: booleanAttribute });
+    readonly dense = input(false, { transform: booleanAttribute });
 
 }

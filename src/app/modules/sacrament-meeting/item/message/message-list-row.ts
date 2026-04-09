@@ -6,8 +6,8 @@ import { MessageViewService } from './message-view.service';
 @Component({
     selector: 'app-message-list-row',
     template: `
-        <div class="row full-width {{ narrow() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 items-center">
-            @if (narrow()) {
+        <div class="row full-width {{ dense() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 items-center">
+            @if (dense()) {
                 <app-icon [icon]="messageView.icon" size="ns" class="text-secondary" filled/>
                 <span class="overflow-ellipsis">{{ messageView.toString(row()) }}</span>
             } @else {
@@ -25,6 +25,6 @@ export class MessageListRow extends ListRow<'message'> {
 
     protected readonly messageView = inject(MessageViewService);
 
-    readonly narrow = input(false, { transform: booleanAttribute });
+    readonly dense = input(false, { transform: booleanAttribute });
 
 }
