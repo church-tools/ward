@@ -201,7 +201,11 @@
     "DURATION": "Duration"
   },
   "HYMN_PAGE": {
-    "TITLE": "Hymn"
+    "TITLE": "Hymn",
+    "NUMBER": "Hymn",
+    "NO": "No.",
+    "TOPICS": "Topics",
+    "IN_HYMN_BOOK": "in the Hymn Book"
   },
   "MUSICAL_PERFORMANCE_PAGE": {
     "TITLE": "Musical Performance",

@@ -1,7 +1,7 @@
 
 <h2>
     @if (meetingDate(); as date) {
-        {{ date | date : 'dd MMM yyyy' : undefined : locale() }}
+        {{ date | date : 'dd MMM yyyy' : undefined : languageService.locale() }}
     } @else {
         {{ title() }}
     }

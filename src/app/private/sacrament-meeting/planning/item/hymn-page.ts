@@ -1,5 +1,12 @@
+import { HymnNumber } from '@/modules/sacrament-meeting/item/hymn/hymn-numbers';
+import { HymnOptionRow, HymnTitleService } from '@/modules/sacrament-meeting/item/hymn/hymn-title.service';
 import { HymnViewService } from '@/modules/sacrament-meeting/item/hymn/hymn-view.service';
-import { TextInput } from '@/shared/form/text/text-input';
+import { RowDeleteButton } from "@/private/shared/row-delete-button";
+import LinkButton from '@/shared/form/button/link/link-button';
+import { Select } from '@/shared/form/select/select';
+import InputLabel from '@/shared/form/shared/input-label';
+import { LanguageService } from '@/shared/service/language.service';
+import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { Component, inject } from '@angular/core';
 import { TranslateModule } from '@ngx-translate/core';
@@ -9,42 +16,91 @@ import { RowPage } from '../../../shared/row-page';
 @Component({
     selector: 'app-hymn-page',
     template: `
-        @let row = syncedRow.value();
-        <h2>
-            <span class="text-secondary">{{ 'VIEW.HYMN' | translate }}:</span>
-            {{ row ? hymnView.toString(row) : '' }}
-        </h2>
+        <h4 class="mb--4">
+            {{ 'HYMN_PAGE.NO' | translate }}
+            {{ syncedRow.value()?.number }}
+        </h4>
+        <h3 class="mb-0">{{ titleText() || ('HYMN_PAGE.TITLE' | translate) }}</h3>
         <div class="column-grid">
-            <app-text-input [syncedRow]="syncedRow" column="number"
-                class="col-md-4"
-                [pattern]="numberPattern"
-                [mapIn]="numberToString"
-                [mapOut]="stringToNumber"
-                label="{{ 'HYMN_PAGE.NUMBER' | translate }}"/>
+            <app-select [syncedRow]="syncedRow" column="number"
+                class="col-12"
+                [options]="hymnOptions()"
+                [hideClear]="false"
+                label="{{ 'HYMN_PAGE.TITLE' | translate }}">
+                <ng-template #valueTemplate let-option>
+                    @let row = $any(option.row);
+                    @if (row) {
+                        <span>{{ row.number }} - {{ row.title }}</span>
+                    } @else {
+                        <span>{{ option.view }}</span>
+                    }
+                </ng-template>
+                <ng-template #optionTemplate let-option>
+                    @let row = $any(option.row);
+                    @if (row) {
+                        <div class="column row-gap-1">
+                            <span>{{ row.number }} - {{ row.title }}</span>
+                            @if (row.topics?.length) {
+                                <div class="row" style="gap: 0.125rem">
+                                    @for (topic of row.topics; track topic.key) {
+                                        <span class="card bg-{{topic.color}} no-shadow round tiny-text" style="padding: 0.125rem 0.25rem">
+                                            {{ topic.label }}
+                                        </span>
+                                    }
+                                </div>
+                            }
+                        </div>
+                    } @else {
+                        <span>{{ option.view }}</span>
+                    }
+                </ng-template>
+            </app-select>
+            @if (selectedTopics().length) {
+                <div class="col-12" style="gap: 0.25rem; flex-wrap: wrap;">
+                    <app-input-label [label]="'HYMN_PAGE.TOPICS' | translate"/>
+                    @for (topic of selectedTopics(); track topic.key) {
+                        <span class="{{topic.color}}-text small-text me-1">
+                            {{ topic.label }}
+                        </span>
+                    }
+                </div>
+            }
+            @if (webUrl(); as url) {
+                <app-link-button [href]="url" outside newTab type="secondary" icon="open">
+                    <span outside>{{ 'HYMN_PAGE.IN_HYMN_BOOK' | translate }}</span>
+                </app-link-button>
+            }
         </div>
-        <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
+        <div class="row end-content mt-auto">
+            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
+        </div>
+        <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, SyncedFieldDirective, TextInput, RowHistory],
+    imports: [TranslateModule, SyncedFieldDirective, Select, RowHistory, LinkButton, RowDeleteButton, InputLabel],
 })
 export class HymnPage extends RowPage<'hymn'> {
 
     protected readonly tableName = 'hymn';
     protected readonly hymnView = inject(HymnViewService);
+    protected readonly hymnTitle = inject(HymnTitleService);
+    private readonly language = inject(LanguageService);
 
-    protected readonly numberPattern = [/^[0-9]*$/];
+    protected readonly titleText = asyncComputed([this.syncedRow.value, this.language.current],
+        async (row, lang) => row?.number ? this.hymnTitle.getTitle(row.number, lang) : '', '');
 
-    protected readonly numberToString = (value: number | null) =>
-        value == null ? '' : String(value);
+    protected readonly hymnOptions = asyncComputed([this.language.current],
+        async lang => this.hymnView.getSelectOptions(lang), []);
+    
+    protected readonly webUrl = xcomputed([this.syncedRow.value],
+        row => row?.number ? `https://www.churchofjesuschrist.org/media/music/songs/${this.hymnTitle.getSlug(row.number as HymnNumber)}` : null);
 
-    protected readonly stringToNumber = (value: string) => {
-        const trimmed = value.trim();
-        if (!trimmed)
-            return null;
-        const parsed = Number(trimmed);
-        if (!Number.isFinite(parsed))
-            return null;
-        return Math.round(parsed);
-    }
+    protected readonly selectedTopics = xcomputed([this.syncedRow.value, this.hymnOptions], (row, options) => {
+        if (!row?.number)
+            return [] as HymnOptionRow['topics'];
+        const option = options.find(item => item.value === row.number);
+        const optionRow = option?.row as HymnOptionRow | undefined;
+        return optionRow?.topics ?? [];
+    });
 
 }

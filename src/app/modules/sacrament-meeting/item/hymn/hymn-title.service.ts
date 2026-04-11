@@ -1,0 +1,78 @@
+import { SelectOption } from '@/shared/form/select/select';
+import { SupportedLanguage } from '@/shared/service/language.service';
+import { PaletteColor } from '@/shared/utils/color-utils';
+import { Injectable } from '@angular/core';
+import { HYMN_INFO_BY_NUMBER, HymnNumber } from './hymn-numbers';
+import { HYMN_TOPICS, HymnTopic } from './hymn-topics';
+
+type HymnCatalog = {
+    titles: Readonly<Record<number, string>>;
+    topics: Readonly<Record<string, string>>;
+};
+
+export type HymnOptionRow = {
+    number: HymnNumber;
+    title: string;
+    topics: readonly {
+        key: HymnTopic;
+        label: string;
+        color: PaletteColor;
+    }[];
+};
+
+@Injectable({ providedIn: 'root' })
+export class HymnTitleService {
+
+    private readonly catalogPromisesByLanguage: Partial<Record<SupportedLanguage, Promise<HymnCatalog>>> = {};
+
+    async getTitle(number: number, language: SupportedLanguage): Promise<string> {
+        const { titles } = await this.getCatalog(language);
+        return titles[number];
+    }
+
+    async getSelectOptions(language: SupportedLanguage): Promise<readonly SelectOption<number>[]> {
+        const { titles, topics: topicLabels } = await this.getCatalog(language);
+        const options = Object.entries(HYMN_INFO_BY_NUMBER).map(([numberString, { topics }]) => {
+            const number = +numberString as HymnNumber;
+            const title = titles[number];
+            const topicInfos = topics.map(topic => ({
+                key: topic,
+                label: topicLabels[topic],
+                color: HYMN_TOPICS[topic],
+            }));
+            const searchText = `${number} - ${title} ${topicInfos.map(topic => topic.label).join(' ')}`.trim();
+            return {
+                value: number,
+                view: searchText,
+                row: {
+                    number,
+                    title,
+                    topics: topicInfos,
+                } satisfies HymnOptionRow,
+            } as SelectOption<number>;
+        });
+        return options;
+    }
+
+    getSlug(number: HymnNumber): string {
+        return HYMN_INFO_BY_NUMBER[number].slug;
+    }
+
+    toDisplayValue(number: number | null, language: SupportedLanguage): string {
+        if (number == null)
+            return '';
+        const title = this.getTitle(number, language);
+        return title ? `${number} - ${title}` : String(number);
+    }
+
+    private async getCatalog(language: SupportedLanguage): Promise<HymnCatalog> {
+        return this.catalogPromisesByLanguage[language] ??= this.loadCatalog(language);
+    }
+
+    private async loadCatalog(language: SupportedLanguage): Promise<HymnCatalog> {
+        switch (language) {
+            case 'en': return import('./hymn-title-catalog.en').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
+            case 'de': return import('./hymn-title-catalog.de').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
+        }
+    }
+}

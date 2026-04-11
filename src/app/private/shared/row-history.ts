@@ -1,9 +1,9 @@
+import type { Row, TableName } from '@/modules/shared/table.types';
+import { LanguageService } from '@/shared/service/language.service';
+import { xcomputed } from '@/shared/utils/signal-utils';
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { TranslatePipe, TranslateService } from '@ngx-translate/core';
-import type { Row, TableName } from '@/modules/shared/table.types';
-import { createTranslateLocaleSignal } from '@/shared/utils/language-utils';
-import { xcomputed } from '@/shared/utils/signal-utils';
 
 @Component({
     selector: 'app-row-history',
@@ -14,7 +14,7 @@ import { xcomputed } from '@/shared/utils/signal-utils';
             @let updatedAt = this.updatedAt();
             @if (updatedAt) {
                 {{ (updatedBy ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | translate }}
-                {{ updatedAt | date:'medium':undefined:locale() }}
+                {{ updatedAt | date:'medium':undefined:language.locale() }}
                 <br/>
             }
             @let createdBy = this.createdBy();
@@ -22,7 +22,7 @@ import { xcomputed } from '@/shared/utils/signal-utils';
             @if (createdBy) { {{ 'HISTORY.CREATED_BY' | translate }} {{ createdBy }} }
             @if (createdAt) {
                 {{ (createdBy ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | translate }}
-                {{ createdAt | date:'medium':undefined:locale() }}
+                {{ createdAt | date:'medium':undefined:language.locale() }}
             } @else if (!updatedAt) {
                 {{ 'HISTORY.UNSAVED' | translate }}
             }
@@ -35,8 +35,7 @@ export class RowHistory<T extends TableName> {
     readonly row = input.required<Row<T> | null>();
 
     protected readonly translate = inject(TranslateService);
-
-    protected readonly locale = createTranslateLocaleSignal(this.translate);
+    protected readonly language = inject(LanguageService);
 
     protected readonly createdBy = xcomputed([this.row],
         row => row && 'created_by' in row ? row['created_by'] : null);

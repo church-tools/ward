@@ -1,10 +1,8 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
+import { LanguageService } from './shared/service/language.service';
 import { ServiceWorkerService } from './shared/service/service-worker.service';
 import { PopoverService } from './shared/widget/popover/popover.service';
-
-const LANGUAGE_STORAGE_KEY = 'language';
 
 @Component({
 	selector: 'app-root',
@@ -13,30 +11,25 @@ const LANGUAGE_STORAGE_KEY = 'language';
 })
 export class App {
 
-    private readonly translate = inject(TranslateService);
-    private readonly serviceWorkerService = inject(ServiceWorkerService);
-    private readonly popoverService = inject(PopoverService);
+    private readonly language = inject(LanguageService);
+    private readonly serviceWorker = inject(ServiceWorkerService);
+    private readonly popover = inject(PopoverService);
     
     constructor() {
-        const browserLang = localStorage.getItem(LANGUAGE_STORAGE_KEY) ?? this.translate.getBrowserLang()?.toLowerCase() ?? 'en';
-        this.translate.use(browserLang);
+        this.language.restoreFromStorage();
 
-        this.serviceWorkerService.updateAvailable$.subscribe(() => {
+        this.serviceWorker.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';
-            this.popoverService
+            this.popover
                 .confirm(`${ns}.TITLE`, `${ns}.MESSAGE`, `${ns}.CONFIRM`, `${ns}.CANCEL`)
                 .then(confirmed => (confirmed ? window.location.reload() : null));
         });
 
-        this.serviceWorkerService.unrecoverable$.subscribe(() => {
+        this.serviceWorker.unrecoverable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.ERROR_REFRESH';
-            this.popoverService
+            this.popover
                 .confirm(`${ns}.TITLE`, `${ns}.MESSAGE`, `${ns}.CONFIRM`, `${ns}.CANCEL`)
                 .then(confirmed => (confirmed ? window.location.reload() : null));
         });
-    }
-
-    static saveLanguage(language: string) {
-        localStorage.setItem(LANGUAGE_STORAGE_KEY, language);
     }
 }

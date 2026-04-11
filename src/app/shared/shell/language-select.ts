@@ -1,7 +1,7 @@
-import { Component, inject, signal } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { App } from '../../app.component';
+import { Component, inject } from '@angular/core';
+import { TranslateModule } from '@ngx-translate/core';
 import MenuButtonComponent from '../form/button/menu/menu-button';
+import { LanguageService } from '../service/language.service';
 
 @Component({
     selector: 'app-language-select',
@@ -10,8 +10,8 @@ import MenuButtonComponent from '../form/button/menu/menu-button';
             <div menu-content>
                 @for (item of languageItems; track item.lang) {
                     <div class="left-aligned">
-                        <button class="subtle" (click)="setLanguage(item.lang)"
-                            [disabled]="activeLanguage() === item.lang">
+                        <button class="subtle" (click)="language.setLanguage(item.lang)"
+                            [disabled]="language.current() === item.lang">
                             <img [src]="item.img" alt="{{ item.label }}"/>
                             {{ item.label }}
                         </button>
@@ -32,9 +32,7 @@ import MenuButtonComponent from '../form/button/menu/menu-button';
 })
 export class LanguageSelect {
 
-    private readonly translateService = inject(TranslateService);
-
-    protected readonly activeLanguage = signal(this.translateService.getCurrentLang());
+    protected readonly language = inject(LanguageService);
 
     protected readonly languageItems = ['de', 'en'].map(lang => ({
         lang,
@@ -47,10 +45,4 @@ export class LanguageSelect {
             }
         })(),
     }));
-
-    protected setLanguage = (lang: string) => {
-        this.translateService.use(lang);
-        this.activeLanguage.set(lang);
-        App.saveLanguage(lang);
-    };
 }

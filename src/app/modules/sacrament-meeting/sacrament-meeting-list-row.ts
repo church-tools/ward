@@ -1,9 +1,9 @@
 import { getRowRoute } from '@/private/private.routes';
+import { LanguageService } from '@/shared/service/language.service';
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SundayIndex, sundayIndexToDate } from '../../shared/utils/date-utils';
-import { createTranslateLocaleSignal } from '../../shared/utils/language-utils';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { ListRow } from '../shared/row-card-list/list-row';
 import type { RowCardListMultiItem, RowCardListMultiQuery } from '../shared/row-card-list/row-card-list-multi';
@@ -23,7 +23,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
         <div class="row m-4-6 row-gap-1 column-gap-4 items-center">
             <div class="column gap-1">
                 <h4>
-                    {{ date() | date : 'dd MMM yyyy' : undefined : locale() }}
+                    {{ date() | date : 'dd MMM yyyy' : undefined : language.locale() }}
                 </h4>
                 @if (row().type; as type) {
                     <span class="text-secondary">{{ meetingView.getTypeLabel(type) }}</span>
@@ -68,7 +68,7 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
 
     protected readonly meetingView = inject(SacramentMeetingViewService);
     protected readonly translate = inject(TranslateService);
-    protected readonly locale = createTranslateLocaleSignal(this.translate);
+    protected readonly language = inject(LanguageService);
 
     readonly activeItemId = input<number | null>(null);
     readonly previewMode = input.required<'message' | 'hymn' | 'none'>();

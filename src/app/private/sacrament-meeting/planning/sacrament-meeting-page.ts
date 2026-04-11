@@ -8,13 +8,13 @@ import { Button } from '@/shared/form/button/button';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
 import { Select } from '@/shared/form/select/select';
+import { LanguageService } from '@/shared/service/language.service';
 import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
-import { createTranslateLocaleSignal } from '@/shared/utils/language-utils';
 import { xcomputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
@@ -33,10 +33,8 @@ export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
 
     protected readonly tableName = 'sacrament_meeting';
     protected readonly meetingView = inject(SacramentMeetingViewService);
-    protected readonly translate = inject(TranslateService);
+    protected readonly languageService = inject(LanguageService);
     private readonly popoverRouteSubscription: Subscription;
-
-    protected readonly locale = createTranslateLocaleSignal(this.translate);
 
     protected readonly meetingDate = xcomputed([this.syncedRow.value], row =>
         row ? sundayIndexToDate(row.week as SundayIndex) : null);

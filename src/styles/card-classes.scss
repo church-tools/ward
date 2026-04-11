@@ -19,6 +19,12 @@
             background-color: color.get-variant($color, 'background');
             color: color.get-variant($color, 'foreground');
         }
+        &.bg-#{"" + $color} {
+            background-color: color.get-variant($color, 'background');
+        }
+        &.text-#{"" + $color} {
+            color: color.get-variant($color, 'foreground');
+        }
     }
 
     &.same-height {
