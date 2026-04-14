@@ -3,11 +3,10 @@ import { MemberListInsert } from '@/modules/member/member-list-insert';
 import { MemberListRow } from '@/modules/member/member-list-row';
 import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
 import { Table } from '@/modules/shared/table.types';
-import { Button } from '@/shared/form/button/button';
 import LinkButton from '@/shared/form/button/link/link-button';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
@@ -46,14 +45,14 @@ import { PrivatePage } from '../shared/private-page';
                             [context]="context"/>
                     </ng-template>
                 </app-row-card-list>
-                <app-button icon="archive_arrow_back" type="subtle" size="large"
-                    (click)="openImportDialog()">
+                <app-link-button icon="archive_arrow_back" type="subtle" size="large" hideNewTab
+                    href="/members/import">
                     {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
-                </app-button>
+                </app-link-button>
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [LocalizePipe, RowCardList, MemberListRow, MemberListInsert, Button,
+    imports: [LocalizePipe, RowCardList, MemberListRow, MemberListInsert, LinkButton,
     LinkButton, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
@@ -69,11 +68,6 @@ export class MembersPage extends PrivatePage {
         id: 'members',
     };
 
-    protected async openImportDialog() {
-        const { MembersImport } = await import('./import/members-import');
-        this.popoverService.open(MembersImport);
-    }
-        
     protected getUrl = (member: Member.Row | null) =>  member
         ? getRowRoute({ table: 'member', row: member })
         : '/members';

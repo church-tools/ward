@@ -1,14 +1,11 @@
+import { Page } from "@/shared/page/page";
 import { Component, ComponentRef, createComponent, EnvironmentInjector, output, signal, Type, viewChild, ViewContainerRef } from "@angular/core";
 import { Button } from "../../form/button/button";
-import { animationDurationMs } from "../../utils/style";
 import { wait } from "../../utils/flow-control-utils";
+import { animationDurationMs } from "../../utils/style";
 
-export class PopoverPage {
-    closePopup!: () => Promise<void>;
-}
-
-function isPopoverPage(value: object): value is PopoverPage {
-    return value instanceof PopoverPage;
+function isPage(value: object): value is Page {
+    return value instanceof Page;
 }
 
 @Component({
@@ -45,7 +42,7 @@ export class Popover {
         });
         container.insert(componentRef.hostView);
         const instance = componentRef.instance as object;
-        if (isPopoverPage(instance))
+        if (isPage(instance))
             instance.closePopup = this.close.bind(this);
         this.dialog().nativeElement.showModal();
         return componentRef;

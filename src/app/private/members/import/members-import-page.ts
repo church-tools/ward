@@ -1,33 +1,36 @@
-import { Component, inject, signal } from "@angular/core";
-import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Member } from "@/modules/member/member";
 import { MemberViewService } from "@/modules/member/member-view.service";
 import { ProfileService } from "@/modules/profile/profile.service";
+import { PrivatePage } from "@/private/shared/private-page";
 import { AsyncButton } from "@/shared/form/button/async/async-button";
 import FileButton from "@/shared/form/button/file/file-button";
 import LinkButton from "@/shared/form/button/link/link-button";
 import Checkbox from "@/shared/form/checkbox/checkbox";
-import { Icon } from "@/shared/icon/icon";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { FileType } from "@/shared/utils/file-utils";
 import { extractTextFromPdf } from "@/shared/utils/pdf-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
 import Collapse from "@/shared/widget/collapse/collapse";
-import { PopoverPage } from "@/shared/widget/popover/popover";
 import { Tag } from "@/shared/widget/tag/tag";
+import { Component, inject, signal } from "@angular/core";
 
 type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
     & { duplicate?: boolean, import: boolean };
 
 @Component({
-    selector: 'app-members-import',
-    templateUrl: './members-import.html',
+    selector: 'app-members-import-page',
+    templateUrl: './members-import-page.html',
     imports: [LocalizePipe, FileButton, LinkButton, AsyncButton,
-        Icon, Checkbox, Collapse, Tag],
+        Checkbox, Collapse, Tag],
     host: { class: 'page' },
-    styleUrl: './members-import.scss',
+    styles: [`
+        .names-container {
+            max-height: 50vh;
+        }
+    `]
 })
-export class MembersImport extends PopoverPage {
+export class MembersImportPage extends PrivatePage {
 
     private readonly supabase = inject(SupabaseService);
     protected readonly memberView = inject(MemberViewService);

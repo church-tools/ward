@@ -1,3 +1,4 @@
+import { Page } from "@/shared/page/page";
 import { Component, inject, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
 import { AsyncButton } from "../../form/button/async/async-button";
@@ -5,7 +6,6 @@ import { Button } from "../../form/button/button";
 import { FileStorageService } from "../../service/file-storage.service";
 import { download, downloadUrl, FileInfo, FileType, FileUrl, getEmbedUrl, openFileInfoInNewTab, viewedByService } from "../../utils/file-utils";
 import { asyncComputed, xcomputed } from "../../utils/signal-utils";
-import { PopoverPage } from "./popover";
 
 @Component({
     selector: 'app-file-popover',
@@ -57,7 +57,7 @@ import { PopoverPage } from "./popover";
         }
     `]
 })
-export class FilePopover extends PopoverPage {
+export class FilePopover extends Page {
 
     private readonly sanitizer = inject(DomSanitizer);
     private readonly fileStorage = inject(FileStorageService);

@@ -122,7 +122,7 @@ export const LOCALIZATION: Localization = {
     LCR_MEMBER_LIST: "LCR Mitgliederverzeichnis",
     IMPORT_FROM_LCR: "Aus LCR importieren",
   },
-  MEMBERS_IMPORT: {
+  MEMBERS_IMPORT_PAGE: {
     TITLE: "Mitglieder aus LCR importieren",
     INSTRUCTIONS_1: "Drucken Sie das Mitgliederverzeichnis von LCR als PDF-Datei",
     INSTRUCTIONS_2: "laden Sie die PDF hier hoch",

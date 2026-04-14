@@ -1,7 +1,7 @@
-import { Component, signal } from "@angular/core";
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { Page } from "@/shared/page/page";
+import { Component, signal } from "@angular/core";
 import { Button } from "../../form/button/button";
-import { PopoverPage } from "./popover";
 
 @Component({
     selector: 'app-confirm-popover',
@@ -18,7 +18,7 @@ import { PopoverPage } from "./popover";
     imports: [LocalizePipe, Button],
     styleUrl: './popover.scss',
 })
-export class ConfirmPopover extends PopoverPage {
+export class ConfirmPopover extends Page {
 
     readonly title = signal('');
     readonly message = signal('');

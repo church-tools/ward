@@ -14,4 +14,6 @@ export abstract class Page {
     readonly el = inject(ElementRef).nativeElement as HTMLElement;
 
     public onLeaving() {}
+    
+    public closePopup!: () => Promise<void>;
 }

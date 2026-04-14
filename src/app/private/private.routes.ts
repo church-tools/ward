@@ -33,6 +33,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     members: {
         translateId: 'MEMBERS', icon: 'people_community',
         loadComponent: () => import('./members/members-page').then(m => m.MembersPage),
+        'import': {
+            insideParent: true,
+            loadComponent: () => import('./members/import/members-import-page').then(m => m.MembersImportPage),
+        },
         ':member': {
             insideParent: true,
             loadComponent: () => import('./members/member-page').then(m => m.MemberPage),

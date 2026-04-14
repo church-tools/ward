@@ -121,7 +121,7 @@ export const LOCALIZATION = {
     LCR_MEMBER_LIST: "LCR Member Directory",
     IMPORT_FROM_LCR: "Import from LCR",
   },
-  MEMBERS_IMPORT: {
+  MEMBERS_IMPORT_PAGE: {
     TITLE: "Import Members from LCR",
     INSTRUCTIONS_1: "Print the member directory from LCR as a PDF file",
     INSTRUCTIONS_2: "Upload the PDF file here",
