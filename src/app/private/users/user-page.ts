@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { ProfileService } from '@/modules/profile/profile.service';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
 import Switch from '@/shared/form/switch/switch';
@@ -13,7 +13,7 @@ import { RowPage } from '../shared/row-page';
     selector: 'app-user-page',
     template: `
         <h3 class="wrap-anywhere mb-4">{{ syncedRow.value()?.email }}</h3>
-        <app-switch label="{{ 'USER_PAGE.IS_ADMIN' | translate }}" forceLabelOnTop
+        <app-switch label="{{ 'USER_PAGE.IS_ADMIN' | localize }}" forceLabelOnTop
             [syncedRow]="syncedRow" column="is_admin" name="is_admin" disabled/>
         <div class="row center-content gap-4">
             @if (isSelf()) {
@@ -24,23 +24,23 @@ import { RowPage } from '../shared/row-page';
                         <app-async-button icon="shield_dismiss"
                             type="secondary"
                             [onClick]="setAdmin(false)">
-                            {{ 'USER_PAGE.REMOVE_ADMIN' | translate }}
+                            {{ 'USER_PAGE.REMOVE_ADMIN' | localize }}
                         </app-async-button>
                     } @else {
                         <app-async-button icon="shield_person"
                             type="secondary"
                             [onClick]="setAdmin(true)">
-                            {{ 'USER_PAGE.MAKE_ADMIN' | translate }}
+                            {{ 'USER_PAGE.MAKE_ADMIN' | localize }}
                         </app-async-button>
                     }
                 } @else {
                     <app-async-button icon="checkmark" color="success"
                         [onClick]="approve(true)">
-                        {{ 'USER_PAGE.APPROVE' | translate }}
+                        {{ 'USER_PAGE.APPROVE' | localize }}
                     </app-async-button>
                     <app-async-button icon="dismiss" color="danger"
                         [onClick]="approve(false)">
-                        {{ 'USER_PAGE.REJECT' | translate }}
+                        {{ 'USER_PAGE.REJECT' | localize }}
                     </app-async-button>
                 }
             }
@@ -48,7 +48,7 @@ import { RowPage } from '../shared/row-page';
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, RowHistory, SyncedFieldDirective,
+    imports: [LocalizePipe, RowHistory, SyncedFieldDirective,
         Switch, AsyncButton],
 })
 export class UserPage extends RowPage<'profile'> {

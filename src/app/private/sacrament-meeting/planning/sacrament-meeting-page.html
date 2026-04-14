@@ -10,11 +10,11 @@
     <app-select class="col-md-8"
         [syncedRow]="syncedRow" column="type"
         [options]="meetingView.typeOptions" translateOptions
-        label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | translate }}"/>
+        label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | localize }}"/>
     <app-custom-row-select class="col-md-6"
         [syncedRow]="syncedRow" column="opening_prayer"
         table="member"
-        label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | translate }}"/>
+        label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | localize }}"/>
     @if (syncedRow.value(); as row) {
         <div class="col-12">
             <app-row-card-list-multi
@@ -36,15 +36,15 @@
                     <div class="row gap-2 full-width center-content">
                         <app-button type="secondary" size="large"
                             (onClick)="insertItem('message', functions.insert)">
-                            {{ 'MESSAGE_PAGE.TITLE' | translate }}
+                            {{ 'MESSAGE_PAGE.TITLE' | localize }}
                         </app-button>
                         <app-button type="secondary" size="large"
                             (onClick)="insertItem('hymn', functions.insert)">
-                            {{ 'HYMN_PAGE.TITLE' | translate }}
+                            {{ 'HYMN_PAGE.TITLE' | localize }}
                         </app-button>
                         <app-button type="secondary" size="large"
                             (onClick)="insertItem('musical_performance', functions.insert)">
-                            {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | translate }}
+                            {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | localize }}
                         </app-button>
                     </div>
                 </ng-template>
@@ -54,7 +54,7 @@
     <app-custom-row-select class="col-md-6"
         [syncedRow]="syncedRow" column="closing_prayer"
         table="member"
-        label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | translate }}"/>
+        label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | localize }}"/>
 
     <app-multi-select class="col-12"
         [syncedRow]="syncedRow" column="classes"
@@ -63,7 +63,7 @@
         allowCustomText
         customValueExclusive
         translateOptions
-        label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | translate }}"/>
+        label="{{ 'SACRAMENT_MEETING_PAGE.CLASSES' | localize }}"/>
 </div>
 
 

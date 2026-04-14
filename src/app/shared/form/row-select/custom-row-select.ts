@@ -1,5 +1,4 @@
 import { booleanAttribute, Component, ElementRef, inject, Injector, input, OutputRefSubscription, signal, viewChild } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
 import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
 import { SupabaseService } from "../../service/supabase.service";
 import { Icon } from "../../icon/icon";
@@ -70,7 +69,7 @@ type CustomRowSelectedOption = {
     `,
     styleUrls: ['../select/select.scss', '../select/multi-select.scss'],
     providers: getProviders(() => CustomRowSelect),
-    imports: [TranslateModule, InputLabel, ErrorMessage, SelectOptions, Icon],
+    imports: [InputLabel, ErrorMessage, SelectOptions, Icon],
 })
 export class CustomRowSelect<T extends TableName> extends InputBase<string | string[]> {
 

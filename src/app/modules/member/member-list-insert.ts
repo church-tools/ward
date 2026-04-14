@@ -1,5 +1,5 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Button } from '@/shared/form/button/button';
 import { Select } from "../../shared/form/select/select";
 import { TextInput } from '@/shared/form/text/text-input';
@@ -13,11 +13,11 @@ import { MemberViewService } from './member-view.service';
     template: `
         <div class="row gap-1 full-width">
             <app-select #gender class="width-24"
-                placeholder="{{ 'MEMBER_PAGE.SALUTATION' | translate }}"
+                placeholder="{{ 'MEMBER_PAGE.SALUTATION' | localize }}"
                 [options]="memberView.salutationGenderOptions" translateOptions/>
-            <app-text-input #firstName class="grow-1" placeholder="{{ 'MEMBER_PAGE.FIRST_NAME' | translate }}"
+            <app-text-input #firstName class="grow-1" placeholder="{{ 'MEMBER_PAGE.FIRST_NAME' | localize }}"
                 (ngModelChange)="updateValidity()"/>
-            <app-text-input #lastName class="grow-1" placeholder="{{ 'MEMBER_PAGE.LAST_NAME' | translate }}"
+            <app-text-input #lastName class="grow-1" placeholder="{{ 'MEMBER_PAGE.LAST_NAME' | localize }}"
                 (ngModelChange)="updateValidity()"/>
             <app-button (onClick)="submit($event)" class="icon-only"
                 [icon]="isValid() ? 'save' : 'dismiss'"
@@ -25,7 +25,7 @@ import { MemberViewService } from './member-view.service';
                 (ngModelChange)="updateValidity()"/>
         </div>
     `,
-    imports: [TranslateModule, Select, TextInput, Button],
+    imports: [LocalizePipe, Select, TextInput, Button],
 })
 export class MemberListInsert extends ListInsert<'member'> {
 

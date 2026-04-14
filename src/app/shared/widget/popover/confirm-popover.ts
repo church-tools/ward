@@ -1,5 +1,5 @@
 import { Component, signal } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Button } from "../../form/button/button";
 import { PopoverPage } from "./popover";
 
@@ -7,15 +7,15 @@ import { PopoverPage } from "./popover";
     selector: 'app-confirm-popover',
     template: `
         <div class="m-4-6 column gap-4 max-width-96">
-            <h2>{{ title() | translate }}</h2>
-            <p>{{ message() | translate }}</p>
+            <h2>{{ title() | localize }}</h2>
+            <p>{{ message() | localize }}</p>
             <div class="row center-content gap-2">
-                <app-button type="primary" size="large" (onClick)="callback(true)">{{ confirmText() | translate }}</app-button>
-                <app-button type="secondary" size="large" (onClick)="callback(false)">{{ cancelText() | translate }}</app-button>
+                <app-button type="primary" size="large" (onClick)="callback(true)">{{ confirmText() | localize }}</app-button>
+                <app-button type="secondary" size="large" (onClick)="callback(false)">{{ cancelText() | localize }}</app-button>
             </div>
         <div>
     `,
-    imports: [TranslateModule, Button],
+    imports: [LocalizePipe, Button],
     styleUrl: './popover.scss',
 })
 export class ConfirmPopover extends PopoverPage {

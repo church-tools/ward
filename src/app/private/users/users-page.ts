@@ -5,7 +5,7 @@ import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
 import { Table } from '@/modules/shared/table.types';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
 import { NewUnits } from "./new-units";
@@ -17,7 +17,7 @@ import { NewUnits } from "./new-units";
             (onClose)="navigateHere()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'USERS_PAGE.TITLE' | translate }}</span>
+                <span class="h0">{{ 'USERS_PAGE.TITLE' | localize }}</span>
                 <app-row-card-list
                     tableName="profile"
                     editable
@@ -42,7 +42,7 @@ import { NewUnits } from "./new-units";
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardList, ProfileListRow, ProfileListInsert,
+    imports: [LocalizePipe, RowCardList, ProfileListRow, ProfileListInsert,
         DrawerRouterOutlet, NewUnits],
     host: { class: 'full-width' },
 })

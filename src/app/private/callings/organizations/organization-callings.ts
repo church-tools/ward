@@ -1,6 +1,5 @@
 import { Component, inject, input } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { CallingListInsert } from '@/modules/calling/calling-list-insert';
 import { CallingListRow } from '@/modules/calling/calling-list-row';
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
@@ -37,7 +36,7 @@ import { AdminService } from '../../shared/admin.service';
 			</app-row-card-list>
 		</div>
 	`,
-	imports: [TranslateModule, RowCardList, CallingListRow, CallingListInsert],
+	imports: [RowCardList, CallingListRow, CallingListInsert],
 	host: { class: 'full-width' },
 })
 export class OrganizationCallings {

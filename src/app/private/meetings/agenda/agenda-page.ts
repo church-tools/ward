@@ -1,5 +1,5 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { AgendaSection } from '@/modules/agenda/section/agenda-section';
 import { AgendaSectionListInsert } from '@/modules/agenda/section/agenda-section-list-insert';
 import { AgendaSectionListRow } from '@/modules/agenda/section/agenda-section-list-row';
@@ -58,7 +58,7 @@ import { AgendaDropZone } from "./drop-zone/agenda-drop-zone";
                     <div class="card canvas-card large card-appear row p-4">
                         <app-async-button icon="edit" size="large"
                             [onClick]="enableEditMode">
-                            {{ 'ENABLE_EDIT_MODE' | translate }}
+                            {{ 'ENABLE_EDIT_MODE' | localize }}
                         </app-async-button>
                     </div> 
                 }
@@ -66,7 +66,7 @@ import { AgendaDropZone } from "./drop-zone/agenda-drop-zone";
         </app-drawer-router-outlet>
         <app-agenda-drop-zone [draggedAgendaItem]="draggedAgendaItem()"/>
     `,
-    imports: [TranslateModule, RowCardList, AgendaSectionListRow, AgendaSectionListInsert, DrawerRouterOutlet,
+    imports: [LocalizePipe, RowCardList, AgendaSectionListRow, AgendaSectionListInsert, DrawerRouterOutlet,
         AgendaDropZone, Icon, AsyncButton, LinkButton],
     host: { class: 'full-width' },
 })

@@ -1,40 +1,39 @@
 import type { Row, TableName } from '@/modules/shared/table.types';
-import { LanguageService } from '@/shared/service/language.service';
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { xcomputed } from '@/shared/utils/signal-utils';
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { TranslatePipe, TranslateService } from '@ngx-translate/core';
 
 @Component({
     selector: 'app-row-history',
     template: `
         <div class="translucent-text tiny-text text-align-end">
             @let updatedBy = this.updatedBy();
-            @if (updatedBy) { {{ 'HISTORY.UPDATED_BY' | translate }} {{ updatedBy }} }
+            @if (updatedBy) { {{ 'HISTORY.UPDATED_BY' | localize }} {{ updatedBy }} }
             @let updatedAt = this.updatedAt();
             @if (updatedAt) {
-                {{ (updatedBy ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | translate }}
+                {{ (updatedBy ? 'HISTORY.UPDATED_AT' : 'HISTORY.FULL_UPDATED_AT') | localize }}
                 {{ updatedAt | date:'medium':undefined:language.locale() }}
                 <br/>
             }
             @let createdBy = this.createdBy();
             @let createdAt = this.createdAt();
-            @if (createdBy) { {{ 'HISTORY.CREATED_BY' | translate }} {{ createdBy }} }
+            @if (createdBy) { {{ 'HISTORY.CREATED_BY' | localize }} {{ createdBy }} }
             @if (createdAt) {
-                {{ (createdBy ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | translate }}
+                {{ (createdBy ? 'HISTORY.CREATED_AT' : 'HISTORY.FULL_CREATED_AT') | localize }}
                 {{ createdAt | date:'medium':undefined:language.locale() }}
             } @else if (!updatedAt) {
-                {{ 'HISTORY.UNSAVED' | translate }}
+                {{ 'HISTORY.UNSAVED' | localize }}
             }
         </div>
     `,
-    imports: [DatePipe, TranslatePipe],
+    imports: [DatePipe, LocalizePipe],
 })
 export class RowHistory<T extends TableName> {
 
     readonly row = input.required<Row<T> | null>();
 
-    protected readonly translate = inject(TranslateService);
     protected readonly language = inject(LanguageService);
 
     protected readonly createdBy = xcomputed([this.row],

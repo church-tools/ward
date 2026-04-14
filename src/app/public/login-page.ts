@@ -1,8 +1,8 @@
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
 import LinkButton from '@/shared/form/button/link/link-button';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Page } from '../shared/page/page';
 import { FunctionsService } from '@/shared/service/functions.service';
 import { SupabaseService } from '@/shared/service/supabase.service';
@@ -13,14 +13,14 @@ import { Credentials } from './shared/credentials';
     selector: 'app-login-page',
     template: `
         <div class="column gap-8 items-center">
-            <span class="display-text">{{ 'LOGIN.TITLE' | translate }}</span>
+            <span class="display-text">{{ 'LOGIN.TITLE' | localize }}</span>
             <app-credentials #credentials class="max-width-96 full-width"/>
             <app-async-button type="primary" size="large" class="third-width"
                 [onClick]="loginWithCredentials" needsInternet hideSuccess>
-                {{ 'LOGIN.TITLE' | translate }}
+                {{ 'LOGIN.TITLE' | localize }}
             </app-async-button>
             <div class="horizontal-divider with-label" role="separator" aria-label="or">
-                {{ 'OR' | translate }}
+                {{ 'OR' | localize }}
             </div>
             <div class="row gap-4">
                 <app-async-button #googleButton class="provider-btn" type="secondary" size="large"
@@ -38,15 +38,15 @@ import { Credentials } from './shared/credentials';
             </div>
             <div class="row gap-4 mt-4">
                 <app-link-button [href]="'/reset-password'" type="transparent" hideNewTab>
-                    {{ 'FORGOT_PASSWORD.TITLE' | translate }}
+                    {{ 'FORGOT_PASSWORD.TITLE' | localize }}
                 </app-link-button>
                 <app-link-button [href]="'/register'" type="transparent" hideNewTab>
-                    {{ 'REGISTER.TITLE' | translate }}
+                    {{ 'REGISTER.TITLE' | localize }}
                 </app-link-button>
             </div>
         </div>
     `,
-    imports: [TranslateModule, LinkButton, AsyncButton, Credentials],
+    imports: [LocalizePipe, LinkButton, AsyncButton, Credentials],
     styles: [`
         .provider-btn {
             min-width: 6rem;

@@ -1,5 +1,5 @@
 import { booleanAttribute, Component, input, signal, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
 import { Icon } from '../../icon/icon';
@@ -14,7 +14,7 @@ type MultiSelectChip<T> = SelectOption<MultiSelectValue<T>> & {
 
 @Component({
 	selector: 'app-multi-select',
-	imports: [Select, Icon, TranslateModule],
+	imports: [Select, Icon, LocalizePipe],
 	styleUrls: ['./multi-select.scss'],
 	providers: getProviders(() => MultiSelect),
 	template: `
@@ -45,7 +45,7 @@ type MultiSelectChip<T> = SelectOption<MultiSelectValue<T>> & {
 							(click)="onOptionClick() ? onOptionClick()!(option, $event) : null">
 							<span class="{{option.color}}-text">
 								@if (translateOptions() && !isCustomOption(option)) {
-									{{ option.view | translate }}
+									{{ option.view | localize }}
 								} @else {
 									{{ option.view }}
 								}

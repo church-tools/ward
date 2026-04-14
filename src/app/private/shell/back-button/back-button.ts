@@ -1,6 +1,5 @@
 import { Component, input } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
 import { Icon } from '@/shared/icon/icon';
 
 @Component({
@@ -10,7 +9,7 @@ import { Icon } from '@/shared/icon/icon';
             <app-icon icon="arrow_left" size="sm"/>
         </a>
         `,
-    imports: [RouterModule, TranslateModule, Icon],
+    imports: [RouterModule, Icon],
     host: { 'animate.leave': 'leave' },
     styleUrl: './back-button.scss',
 })

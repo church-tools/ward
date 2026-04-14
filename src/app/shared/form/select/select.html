@@ -12,7 +12,7 @@
                     } @else {
                         <span class="{{selectedOption!.color}}-text fit-content-width">
                             @if (translateOptions()) {
-                                {{ selectedOption.view | translate }}
+                                {{ selectedOption.view | localize }}
                             } @else {
                                 {{ selectedOption!.view }}
                             }

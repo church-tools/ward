@@ -1,7 +1,6 @@
 import type { IconCode } from "@/shared/icon/icon";
-import { inject, Injectable, Injector } from "@angular/core";
-import { TranslateService, Translation } from "@ngx-translate/core";
-import type { Observable } from "rxjs";
+import { LanguageService } from "@/shared/language/language.service";
+import { inject, Injectable, Injector, Signal } from "@angular/core";
 import type { Row, TableName } from "./table.types";
 
 export async function getViewService<T extends TableName>(injector: Injector, tableName: T): Promise<ViewService<T>> {
@@ -28,15 +27,15 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
 @Injectable({ providedIn: 'root' })
 export abstract class ViewService<T extends TableName> {
 
-    protected readonly translate = inject(TranslateService);
+    protected readonly language = inject(LanguageService);
 
-    readonly name: Observable<Translation>;
-    readonly namePlural: Observable<Translation>;
+    readonly name: Signal<string>;
+    readonly namePlural: Signal<string>;
     abstract readonly icon: IconCode;
 
     constructor(tableName: T) {
-        this.name = this.translate.stream(`VIEW.${String(tableName).toUpperCase()}`);
-        this.namePlural = this.translate.stream(`VIEW.${String(tableName).toUpperCase()}S`);
+        this.name = this.language.stream(`VIEW.${String(tableName).toUpperCase()}`);
+        this.namePlural = this.language.stream(`VIEW.${String(tableName).toUpperCase()}S`);
     }
 
     abstract toString(row: Row<T>): string;

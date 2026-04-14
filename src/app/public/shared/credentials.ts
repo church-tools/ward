@@ -1,6 +1,6 @@
 import { Component, computed, signal, viewChild } from '@angular/core';
 import { FormField, email, form, minLength, pattern, required } from '@angular/forms/signals';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { TextInput } from '@/shared/form/text/text-input';
 
 export type CredentialInfo = {
@@ -10,20 +10,20 @@ export type CredentialInfo = {
 
 @Component({
 	selector: 'app-credentials',
-	imports: [FormField, TextInput, TranslateModule],
+	imports: [FormField, TextInput, LocalizePipe],
 	template: `
 		<div class="column-grid">
 			<app-text-input #emailInput class="col-12"
-				[label]="'LOGIN.EMAIL' | translate"
-				[placeholder]="'LOGIN.EMAIL' | translate"
+				[label]="'LOGIN.EMAIL' | localize"
+				[placeholder]="'LOGIN.EMAIL' | localize"
                 hideRequiredIndicator
 				autocomplete="email"
 				trim
 				type="email"
 				[formField]="credentialsForm.email"/>
 			<app-text-input class="col-12"
-				[label]="'LOGIN.PASSWORD' | translate"
-				[placeholder]="'LOGIN.PASSWORD' | translate"
+				[label]="'LOGIN.PASSWORD' | localize"
+				[placeholder]="'LOGIN.PASSWORD' | localize"
                 hideRequiredIndicator
 				autocomplete="current-password"
 				type="password"

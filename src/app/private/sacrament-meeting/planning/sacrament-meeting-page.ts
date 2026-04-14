@@ -8,13 +8,13 @@ import { Button } from '@/shared/form/button/button';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
 import { Select } from '@/shared/form/select/select';
-import { LanguageService } from '@/shared/service/language.service';
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
 import { xcomputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
@@ -24,7 +24,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
 @Component({
     selector: 'app-sacrament-meeting-page',
     templateUrl: './sacrament-meeting-page.html',
-    imports: [TranslateModule, SyncedFieldDirective, Select,
+    imports: [LocalizePipe, SyncedFieldDirective, Select,
         MessageListRow, HymnListRow, MusicalPerformanceListRow,
         MultiSelect, CustomRowSelect, DatePipe, RowHistory, RowCardListMulti, Button],
     host: { class: 'page narrow full-height' },

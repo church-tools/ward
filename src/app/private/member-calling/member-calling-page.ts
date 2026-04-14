@@ -5,7 +5,7 @@ import { RowSelect } from "@/shared/form/row-select/row-select";
 import { Select } from "@/shared/form/select/select";
 import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowDeleteButton } from "../shared/row-delete-button";
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
@@ -26,14 +26,14 @@ import { RowPage } from '../shared/row-page';
             <div class="col-12">
                 <app-select class="col-md-6" [syncedRow]="syncedRow" column="state"
                     [options]="memberCallingView.stateOptions" translateOptions name="state"
-                    label="{{ 'STATE' | translate }}"/>
+                    label="{{ 'STATE' | localize }}"/>
             </div>
             <app-row-select class="col-md-6" [syncedRow]="syncedRow" column="member"
-                table="member" label="{{ 'VIEW.MEMBER' | translate }}" name="member"/>
+                table="member" label="{{ 'VIEW.MEMBER' | localize }}" name="member"/>
             <app-row-select class="col-md-6" [syncedRow]="syncedRow" column="calling"
-                table="calling" label="{{ 'VIEW.CALLING' | translate }}" name="calling"/>
+                table="calling" label="{{ 'VIEW.CALLING' | localize }}" name="calling"/>
             <app-rich-text class="col-12" [syncedRow]="syncedRow" column="notes" name="notes"
-                label="{{ 'NOTES' | translate }}" rows="5"/>
+                label="{{ 'NOTES' | localize }}" rows="5"/>
         </div>
         <div class="row end-content mt-auto">
             <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
@@ -41,7 +41,7 @@ import { RowPage } from '../shared/row-page';
         <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, RowHistory, RowSelect, SyncedFieldDirective, RichText, RowDeleteButton, Select],
+    imports: [LocalizePipe, RowHistory, RowSelect, SyncedFieldDirective, RichText, RowDeleteButton, Select],
 })
 export class MemberCallingPage extends RowPage<'member_calling'> {
 

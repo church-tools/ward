@@ -1,6 +1,6 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, input, output, signal, TemplateRef, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { AnchoredPopover, PopoverPosition } from '../anchored-popover/anchored-popover';
 
@@ -12,7 +12,7 @@ export type SelectOptionsTemplateContext<T> = {
 
 @Component({
     selector: 'app-select-options',
-    imports: [TranslateModule, NgTemplateOutlet, AnchoredPopover],
+    imports: [LocalizePipe, NgTemplateOutlet, AnchoredPopover],
     template: `
         <app-anchored-popover #popover
             [position]="position()"
@@ -38,7 +38,7 @@ export type SelectOptionsTemplateContext<T> = {
                         </div>
                     }
                     @if (showNoMatches()) {
-                        <div class="option disabled">{{ noMatchesText() | translate }}</div>
+                        <div class="option disabled">{{ noMatchesText() | localize }}</div>
                     }
                 </div>
             } @else {

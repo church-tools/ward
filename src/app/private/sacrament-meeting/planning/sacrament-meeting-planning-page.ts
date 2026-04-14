@@ -13,7 +13,7 @@ import { getUpcomingSundayIndex } from '@/shared/utils/date-utils';
 import { xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { getRowRoute } from '../../private.routes';
 import { DrawerRouterOutlet } from '../../shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from '../../shared/private-page';
@@ -24,7 +24,7 @@ const PAST_KEY = 'sacrament_meeting_planning_past';
 @Component({
     selector: 'app-planning-page',
     templateUrl: './sacrament-meeting-planning-page.html',
-    imports: [TranslateModule, SwitchSelect, RowCardList, SacramentMeetingListRow,
+    imports: [LocalizePipe, SwitchSelect, RowCardList, SacramentMeetingListRow,
         SacramentMeetingListInsert, DrawerRouterOutlet, LinkButton],
     host: { class: 'full-width' },
 })

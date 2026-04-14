@@ -1,6 +1,6 @@
 import { Component, signal } from '@angular/core';
 import { email, form, FormField, required } from '@angular/forms/signals';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
 import { TextInput } from '@/shared/form/text/text-input';
 import { ListInsert } from '../shared/row-card-list/list-insert';
@@ -11,13 +11,13 @@ import { Profile } from './profile';
     template: `
         <div class="row no-wrap gap-2">
             <app-text-input #email type="email" class="grow-1"
-                placeholder="{{ 'USER_PAGE.EMAIL_TO_INVITE' | translate }}"
+                placeholder="{{ 'USER_PAGE.EMAIL_TO_INVITE' | localize }}"
                 [formField]="emailForm"/>
             <app-async-button [onClick]="submit" icon="send" class="icon-only"
                 [type]="emailForm().valid() ? 'primary' : 'subtle'"/>
         </div>
     `,
-    imports: [FormField, TranslateModule, TextInput, AsyncButton],
+    imports: [FormField, LocalizePipe, TextInput, AsyncButton],
 })
 export class ProfileListInsert extends ListInsert<'profile'> {
 

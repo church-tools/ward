@@ -1,6 +1,5 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LanguageService } from './shared/service/language.service';
 import { ServiceWorkerService } from './shared/service/service-worker.service';
 import { PopoverService } from './shared/widget/popover/popover.service';
 
@@ -11,12 +10,10 @@ import { PopoverService } from './shared/widget/popover/popover.service';
 })
 export class App {
 
-    private readonly language = inject(LanguageService);
     private readonly serviceWorker = inject(ServiceWorkerService);
     private readonly popover = inject(PopoverService);
     
     constructor() {
-        this.language.restoreFromStorage();
 
         this.serviceWorker.updateAvailable$.subscribe(() => {
             const ns = 'SERVICE_WORKER.UPDATE_AVAILABLE';

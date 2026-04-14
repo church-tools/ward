@@ -5,11 +5,11 @@ import { RowDeleteButton } from "@/private/shared/row-delete-button";
 import LinkButton from '@/shared/form/button/link/link-button';
 import { Select } from '@/shared/form/select/select';
 import InputLabel from '@/shared/form/shared/input-label';
-import { LanguageService } from '@/shared/service/language.service';
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { RowHistory } from '../../../shared/row-history';
 import { RowPage } from '../../../shared/row-page';
 
@@ -17,16 +17,16 @@ import { RowPage } from '../../../shared/row-page';
     selector: 'app-hymn-page',
     template: `
         <h4 class="mb--4">
-            {{ 'HYMN_PAGE.NO' | translate }}
+            {{ 'HYMN_PAGE.NO' | localize }}
             {{ syncedRow.value()?.number }}
         </h4>
-        <h3 class="mb-0">{{ titleText() || ('HYMN_PAGE.TITLE' | translate) }}</h3>
+        <h3 class="mb-0">{{ titleText() || ('HYMN_PAGE.TITLE' | localize) }}</h3>
         <div class="column-grid">
             <app-select [syncedRow]="syncedRow" column="number"
                 class="col-12"
                 [options]="hymnOptions()"
                 [hideClear]="false"
-                label="{{ 'HYMN_PAGE.TITLE' | translate }}">
+                label="{{ 'HYMN_PAGE.TITLE' | localize }}">
                 <ng-template #valueTemplate let-option>
                     @let row = $any(option.row);
                     @if (row) {
@@ -57,7 +57,7 @@ import { RowPage } from '../../../shared/row-page';
             </app-select>
             @if (selectedTopics().length) {
                 <div class="col-12" style="gap: 0.25rem; flex-wrap: wrap;">
-                    <app-input-label [label]="'HYMN_PAGE.TOPICS' | translate"/>
+                    <app-input-label [label]="'HYMN_PAGE.TOPICS' | localize"/>
                     @for (topic of selectedTopics(); track topic.key) {
                         <span class="{{topic.color}}-text small-text me-1">
                             {{ topic.label }}
@@ -67,7 +67,7 @@ import { RowPage } from '../../../shared/row-page';
             }
             @if (webUrl(); as url) {
                 <app-link-button [href]="url" outside newTab type="secondary" icon="open">
-                    <span outside>{{ 'HYMN_PAGE.IN_HYMN_BOOK' | translate }}</span>
+                    <span outside>{{ 'HYMN_PAGE.IN_HYMN_BOOK' | localize }}</span>
                 </app-link-button>
             }
         </div>
@@ -77,7 +77,7 @@ import { RowPage } from '../../../shared/row-page';
         <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, SyncedFieldDirective, Select, RowHistory, LinkButton, RowDeleteButton, InputLabel],
+    imports: [LocalizePipe, SyncedFieldDirective, Select, RowHistory, LinkButton, RowDeleteButton, InputLabel],
 })
 export class HymnPage extends RowPage<'hymn'> {
 

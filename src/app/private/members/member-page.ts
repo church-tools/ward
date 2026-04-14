@@ -5,7 +5,7 @@ import { SelectResult } from "@/shared/form/select/select-result";
 import { TextInput } from '@/shared/form/text/text-input';
 import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
 
@@ -21,23 +21,23 @@ import { RowPage } from '../shared/row-page';
             <app-select [syncedRow]="syncedRow" column="gender"
                 class="col-md-2" name="gender"
                 [options]="memberView.salutationGenderOptions" translateOptions
-                label="{{ 'MEMBER_PAGE.SALUTATION' | translate }}"/>
+                label="{{ 'MEMBER_PAGE.SALUTATION' | localize }}"/>
             <app-text-input [syncedRow]="syncedRow" column="first_name"
                 class="col-md-5" name="first_name"
-                label="{{ 'MEMBER_PAGE.FIRST_NAME' | translate }}"/>
+                label="{{ 'MEMBER_PAGE.FIRST_NAME' | localize }}"/>
             <app-text-input [syncedRow]="syncedRow" column="nick_name"
                 class="col-md-5" name="nick_name"
-                label="{{ 'MEMBER_PAGE.NICK_NAME' | translate }}"/>
+                label="{{ 'MEMBER_PAGE.NICK_NAME' | localize }}"/>
             <app-text-input [syncedRow]="syncedRow" column="last_name"
                 class="col-12" name="last_name"
-                label="{{ 'MEMBER_PAGE.LAST_NAME' | translate }}"/>
+                label="{{ 'MEMBER_PAGE.LAST_NAME' | localize }}"/>
             <app-rich-text [syncedRow]="syncedRow" column="notes" name="notes"
-                class="col-12" label="{{ 'NOTES' | translate }}"/>
+                class="col-12" label="{{ 'NOTES' | localize }}"/>
         </div>
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, TextInput, RowHistory,
+    imports: [LocalizePipe, TextInput, RowHistory,
     SyncedFieldDirective, Select, SelectResult, RichText],
 })
 export class MemberPage extends RowPage<'member'> {

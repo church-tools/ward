@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { ListRow } from '../shared/row-card-list/list-row';
 import { MemberCallingViewService } from './member-calling-view.service';
 
@@ -8,13 +8,13 @@ import { MemberCallingViewService } from './member-calling-view.service';
     template: `
         <div class="col m-4 gap-1">
             <h4 class="overflow-ellipsis">{{ row()._calculated.memberName }}</h4>
-            <span class="overflow-ellipsis">{{ 'AS' | translate }} {{ row()._calculated.calling?.name }}</span>
+            <span class="overflow-ellipsis">{{ 'AS' | localize }} {{ row()._calculated.calling?.name }}</span>
             <span class="{{ stateOption().color }}-text">
-                {{ stateOption().view | translate }}
+                {{ stateOption().view | localize }}
             </span>
         </div>
     `,
-    imports: [TranslateModule],
+    imports: [LocalizePipe],
 })
 export class MemberCallingListRow extends ListRow<'member_calling'> {
 

@@ -3,7 +3,7 @@ import { AsyncButton } from "@/shared/form/button/async/async-button";
 import { SupaSyncedRow } from "@/shared/utils/supa-sync/supa-synced-row";
 import { Component, inject, input } from "@angular/core";
 import { Router } from "@angular/router";
-import { TranslateModule } from "@ngx-translate/core";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Database } from "@root/database";
 
 @Component({
@@ -11,10 +11,10 @@ import { Database } from "@root/database";
     template: `
         <app-async-button type="secondary" icon="delete"
             [onClick]="deleteRow">
-            {{ 'DELETE' | translate }}
+            {{ 'DELETE' | localize }}
         </app-async-button>
     `,
-    imports: [TranslateModule, AsyncButton],
+    imports: [LocalizePipe, AsyncButton],
 })
 export class RowDeleteButton<T extends TableName> {
 

@@ -1,5 +1,5 @@
 import { ViewService } from "@/modules/shared/view.service";
-import { SupportedLanguage } from "@/shared/service/language.service";
+import { SupportedLanguage } from "@/shared/language/language.service";
 import { inject, Injectable } from "@angular/core";
 import type { Hymn } from "./hymn";
 import { HymnTitleService } from './hymn-title.service';

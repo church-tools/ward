@@ -1,5 +1,5 @@
 import { Component, inject, signal } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Member } from "@/modules/member/member";
 import { MemberViewService } from "@/modules/member/member-view.service";
 import { ProfileService } from "@/modules/profile/profile.service";
@@ -22,7 +22,7 @@ type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
 @Component({
     selector: 'app-members-import',
     templateUrl: './members-import.html',
-    imports: [TranslateModule, FileButton, LinkButton, AsyncButton,
+    imports: [LocalizePipe, FileButton, LinkButton, AsyncButton,
         Icon, Checkbox, Collapse, Tag],
     host: { class: 'page' },
     styleUrl: './members-import.scss',

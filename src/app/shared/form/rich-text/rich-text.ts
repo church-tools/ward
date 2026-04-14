@@ -1,5 +1,4 @@
 import { Component, ElementRef, input, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import { PALETTE_COLORS } from '../../utils/color-utils';
 import { xeffect } from '../../utils/signal-utils';
 import { AnchoredPopover } from '../anchored-popover/anchored-popover';
@@ -15,7 +14,7 @@ import { RichTextToolbarGroup, RichTextToolbarItem } from './rich-text-toolbar-g
     styleUrl: './rich-text.scss',
     templateUrl: './rich-text.html',
     providers: getProviders(() => RichText),
-    imports: [TranslateModule, InputLabel, RichTextToolbarGroup,
+    imports: [InputLabel, RichTextToolbarGroup,
         AnchoredPopover, MenuButtonComponent],
     host: {
         class: 'column',

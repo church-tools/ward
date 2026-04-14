@@ -8,7 +8,7 @@
                 <img class="app-logo" title="logo" src="assets/img/logo/logo.svg"/>
             }
             <div class="app-name display-when-not-small small-text"
-                [class.subtle-text]="!windowService.focused()">{{ 'APP_NAME' | translate }}</div>
+                [class.subtle-text]="!windowService.focused()">{{ 'APP_NAME' | localize }}</div>
         </div>
     </div>
     <div class="column full-width">
@@ -22,18 +22,18 @@
         <app-menu-button class="title-bar-margin" [class.icon-only]="!adminService.editMode()"
             [type]="adminService.editMode() ? 'primary' : 'subtle'" alignment="left">
             @if (adminService.editMode()) {
-                <span button-text>{{ 'EDIT_MODE' | translate }}</span>
+                <span button-text>{{ 'EDIT_MODE' | localize }}</span>
             }
             <div menu-content>
                 <app-async-button class="left-aligned" icon="sign_out" type="subtle" [onClick]="signOut" hideSuccess>
-                    {{ 'SIGN_OUT' | translate }}
+                    {{ 'SIGN_OUT' | localize }}
                 </app-async-button>
                 @if (this.profileService.own()?.is_unit_admin) {
                     <div class="menu-item ms-3 gap-2 row no-wrap items-center">
                         <app-icon icon="edit" size="smaller"/>
                         <app-switch [value]="this.adminService.editMode()"
                             (valueChange)="this.adminService.editMode.set($event ?? false)"
-                            class="ms--2" label="{{ 'ENABLE_EDIT_MODE' | translate }}"/>
+                            class="ms--2" label="{{ 'ENABLE_EDIT_MODE' | localize }}"/>
                     </div>
                 }
                 <app-language-select/>

@@ -2,7 +2,7 @@
     (onClose)="navigateHere()"
     (activated)="onActivate($event)">
     <div class="page narrow gap-4">
-        <span class="h0">{{ 'ORGANIZATIONS_PAGE.TITLE' | translate }}</span>
+        <span class="h0">{{ 'ORGANIZATIONS_PAGE.TITLE' | localize }}</span>
         <app-row-card-list #organizationList
             tableName="organization"
             [getQuery]="getQuery"
@@ -40,7 +40,7 @@
             <div class="card canvas-card large card-appear row p-4">
                 <app-async-button icon="edit" size="large"
                     [onClick]="enableEditMode">
-                    {{ 'ENABLE_EDIT_MODE' | translate }}
+                    {{ 'ENABLE_EDIT_MODE' | localize }}
                 </app-async-button>
             </div> 
         }

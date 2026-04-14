@@ -3,7 +3,7 @@ import LinkButton from '@/shared/form/button/link/link-button';
 import { SupabaseService } from '@/shared/service/supabase.service';
 import { Component, inject, viewChild } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Button } from "../shared/form/button/button";
 import { Page } from '../shared/page/page';
 import { Captcha } from './shared/captcha';
@@ -13,15 +13,15 @@ import { Credentials } from './shared/credentials';
     selector: 'app-register-page',
     template: `
         <div class="column gap-8 items-center">
-            <span class="display-text text-center">{{ 'REGISTER.TITLE' | translate }}</span>
+            <span class="display-text text-center">{{ 'REGISTER.TITLE' | localize }}</span>
             <app-credentials #credentials class="max-width-96 full-width"/>
             <app-captcha (onSolved)="turnstileToken = $event"/>
             <app-async-button type="primary" size="large" class="half-width"
                 [onClick]="registerWithCredentials">
-                {{ 'REGISTER.TITLE' | translate }}
+                {{ 'REGISTER.TITLE' | localize }}
             </app-async-button>
             <div class="horizontal-divider with-label" role="separator" aria-label="or">
-                {{ 'OR' | translate }}
+                {{ 'OR' | localize }}
             </div>
             <div class="row gap-4">
                 <app-button type="secondary" size="large" (onClick)="loginWithProvider('google')">
@@ -33,15 +33,15 @@ import { Credentials } from './shared/credentials';
             </div>
             <div class="row gap-4 mt-4">
                 <app-link-button [href]="'/reset-password'" type="transparent" hideNewTab>
-                    {{ 'FORGOT_PASSWORD.TITLE' | translate }}
+                    {{ 'FORGOT_PASSWORD.TITLE' | localize }}
                 </app-link-button>
                 <app-link-button [href]="'/login'" type="transparent" hideNewTab>
-                    {{ 'LOGIN.TITLE' | translate }}
+                    {{ 'LOGIN.TITLE' | localize }}
                 </app-link-button>
             </div>
         </div>
     `,
-    imports: [TranslateModule, Button, LinkButton, AsyncButton,
+    imports: [LocalizePipe, Button, LinkButton, AsyncButton,
         Credentials, Captcha],
     styles: [`
         .provider-icon {

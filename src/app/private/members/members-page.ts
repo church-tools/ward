@@ -7,7 +7,7 @@ import { Button } from '@/shared/form/button/button';
 import LinkButton from '@/shared/form/button/link/link-button';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
@@ -19,12 +19,12 @@ import { PrivatePage } from '../shared/private-page';
             (onClose)="navigateHere()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'MEMBERS_PAGE.TITLE' | translate }}</span>
+                <span class="h0">{{ 'MEMBERS_PAGE.TITLE' | localize }}</span>
                 <div class="row">
                     <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
                         icon="open"
                         outside newTab type="secondary">
-                        <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | translate }}</span>
+                        <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | localize }}</span>
                     </app-link-button>
                 </div>
                 <app-row-card-list
@@ -48,12 +48,12 @@ import { PrivatePage } from '../shared/private-page';
                 </app-row-card-list>
                 <app-button icon="archive_arrow_back" type="subtle" size="large"
                     (click)="openImportDialog()">
-                    {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | translate }}
+                    {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
                 </app-button>
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardList, MemberListRow, MemberListInsert, Button,
+    imports: [LocalizePipe, RowCardList, MemberListRow, MemberListInsert, Button,
     LinkButton, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })

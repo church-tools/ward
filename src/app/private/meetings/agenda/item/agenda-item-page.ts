@@ -1,5 +1,4 @@
 import { Component } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import FileInput from '@/shared/form/file/file-input';
 import { RichText } from "@/shared/form/rich-text/rich-text";
 import { Textarea } from '@/shared/form/text/textarea';
@@ -22,7 +21,7 @@ import { RowPage } from '../../../shared/row-page';
         <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [TranslateModule, Textarea, RichText, RowHistory,
+    imports: [Textarea, RichText, RowHistory,
         SyncedFieldDirective, FileInput, RowDeleteButton],
 })
 export class AgendaItemPage extends RowPage<'agenda_item'> {

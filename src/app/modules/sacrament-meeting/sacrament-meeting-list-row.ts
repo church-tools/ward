@@ -1,8 +1,7 @@
 import { getRowRoute } from '@/private/private.routes';
-import { LanguageService } from '@/shared/service/language.service';
+import { LanguageService } from '@/shared/language/language.service';
 import { DatePipe } from '@angular/common';
 import { Component, inject, input } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { SundayIndex, sundayIndexToDate } from '../../shared/utils/date-utils';
 import { xcomputed } from '../../shared/utils/signal-utils';
 import { ListRow } from '../shared/row-card-list/list-row';
@@ -61,13 +60,12 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
             </app-row-card-list-multi>
         </div>
     `,
-    imports: [TranslateModule, DatePipe, RowCardListMulti,
+    imports: [DatePipe, RowCardListMulti,
         MessageListInsert, MessageListRow, HymnListRow, MusicalPerformanceListRow],
 })
 export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
 
     protected readonly meetingView = inject(SacramentMeetingViewService);
-    protected readonly translate = inject(TranslateService);
     protected readonly language = inject(LanguageService);
 
     readonly activeItemId = input<number | null>(null);

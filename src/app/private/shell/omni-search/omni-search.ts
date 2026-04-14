@@ -1,13 +1,14 @@
-import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angular/core';
-import { Router } from '@angular/router';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
 import type { Row } from '@/modules/shared/table.types';
 import { getViewService } from '@/modules/shared/view.service';
 import { Select } from '@/shared/form/select/select';
 import { Icon } from "@/shared/icon/icon";
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SupabaseService } from '@/shared/service/supabase.service';
 import { WindowService } from '@/shared/service/window.service';
+import { Component, inject, Injector, OnDestroy, signal, viewChild } from '@angular/core';
+import { Router } from '@angular/router';
+import { Subscription } from 'rxjs';
 import { getRowRoute, TableRow } from '../../private.routes';
 
 type SearchedTableName = 'member' | 'agenda_item';
@@ -18,7 +19,7 @@ type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<
     template: `
         <app-select #select class="omni-search-select"
             [class.options-open]="select.optionsVisible()"
-            placeholder="{{ 'SEARCH' | translate }}"
+            placeholder="{{ 'SEARCH' | localize }}"
             [options]="getOptions"
             [onGroupClick]="onGroupClick"
             (valueChange)="navigateTo($event)"
@@ -27,7 +28,7 @@ type SearchValue<T extends SearchedTableName> = TableRow & { table: T; row: Row<
             <app-icon icon="search" size="sm"/>
         </app-select>
     `,
-    imports: [TranslateModule, Select, Icon],
+    imports: [LocalizePipe, Select, Icon],
     styleUrl: './omni-search.scss',
 })
 export class OmniSearch implements OnDestroy {
@@ -35,7 +36,7 @@ export class OmniSearch implements OnDestroy {
     private readonly windowService = inject(WindowService);
     private readonly supabase = inject(SupabaseService);
     private readonly injector = inject(Injector);
-    private readonly translate = inject(TranslateService);
+    private readonly language = inject(LanguageService);
     private readonly router = inject(Router);
 
     private readonly tableQueryBuilders = {
@@ -119,8 +120,8 @@ export class OmniSearch implements OnDestroy {
         return null;
     }
 
-    private getTableLabel(table: SearchedTableName) {
-        const label = this.translate.instant('VIEW.' + table.toUpperCase());
+    private getTableLabel(table: SearchedTableName): string {
+        const label = this.language.localizeInstant('VIEW.' + table.toUpperCase());
         if (!label) throw new Error(`Missing translation key VIEW.${table.toUpperCase()}`);
         return label;
     }

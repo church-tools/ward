@@ -1,5 +1,5 @@
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Icon } from '../../shared/icon/icon';
 import { Page } from '../../shared/page/page';
 import LinkButton from '@/shared/form/button/link/link-button';
@@ -10,18 +10,18 @@ import { Router } from '@angular/router';
 @Component({
     selector: 'app-setup-pending-page',
     template: `
-        <span class="display-text text-center">{{ 'SETUP_PENDING.TITLE' | translate }}</span>
-        <p class="text-center">{{ 'SETUP_PENDING.MESSAGE' | translate }}</p>
+        <span class="display-text text-center">{{ 'SETUP_PENDING.TITLE' | localize }}</span>
+        <p class="text-center">{{ 'SETUP_PENDING.MESSAGE' | localize }}</p>
         <div class="row center-content mt-8">
             <app-icon icon="hourglass_half" size="xxxxl" class="accent-text"/>
         </div>
         <div class="row center-content mt-8">
             <app-async-button [onClick]="recheck" size="large" icon="arrow_clockwise">
-                {{ 'SETUP_PENDING.RECHECK' | translate }}
+                {{ 'SETUP_PENDING.RECHECK' | localize }}
             </app-async-button>
         </div>
     `,
-    imports: [Icon, TranslateModule, AsyncButton],
+    imports: [Icon, LocalizePipe, AsyncButton],
     host: { class: 'page portrait' },
 })
 export class SetupPendingPage extends Page {

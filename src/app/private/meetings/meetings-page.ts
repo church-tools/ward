@@ -10,7 +10,7 @@ import { Table } from '@/modules/shared/table.types';
 import { xcomputed } from '@/shared/utils/signal-utils';
 import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
@@ -22,7 +22,7 @@ import { PrivatePage } from '../shared/private-page';
             (onClose)="navigateToThis()"
             (activated)="onActivate($event)">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'MEETINGS_PAGE.MY_TASKS' | translate }}</span>
+                <span class="h0">{{ 'MEETINGS_PAGE.MY_TASKS' | localize }}</span>
                 <app-row-card-list tableName="agenda_item"
                     [getQuery]="getMyTaskQuery()"
                     [getUrl]="getItemUrl"
@@ -39,7 +39,7 @@ import { PrivatePage } from '../shared/private-page';
                             [context]="context"/>
                     </ng-template>
                 </app-row-card-list>
-                <span class="h0 mt-4">{{ 'MEETINGS_PAGE.TITLE' | translate }}</span>
+                <span class="h0 mt-4">{{ 'MEETINGS_PAGE.TITLE' | localize }}</span>
                 <app-row-card-list
                     tableName="agenda"
                     [getQuery]="getAgendaQuery"
@@ -61,7 +61,7 @@ import { PrivatePage } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RowCardList, AgendaItemListRow, AgendaItemListInsert,
+    imports: [LocalizePipe, RowCardList, AgendaItemListRow, AgendaItemListInsert,
         AgendaListRow, AgendaListInsert, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })

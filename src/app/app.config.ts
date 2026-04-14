@@ -4,8 +4,6 @@ import localeDe from '@angular/common/locales/de';
 import { ApplicationConfig, inject, isDevMode, provideAppInitializer, provideZonelessChangeDetection } from '@angular/core';
 import { provideRouter, withRouterConfig } from '@angular/router';
 import { provideServiceWorker } from '@angular/service-worker';
-import { provideTranslateService } from "@ngx-translate/core";
-import { provideTranslateHttpLoader } from "@ngx-translate/http-loader";
 import { routes } from './app.routes';
 import { SupabaseService } from './shared/service/supabase.service';
 
@@ -19,10 +17,6 @@ export const appConfig: ApplicationConfig = {
         provideServiceWorker('ngsw-worker.js', {
             enabled: !isDevMode(),
             registrationStrategy: 'registerWhenStable:30000'
-        }),
-        provideTranslateService({
-            fallbackLang: 'en',
-            loader: provideTranslateHttpLoader({ prefix: "./assets/translations/", suffix: ".json" })
         }),
         provideAppInitializer(() =>
             inject(SupabaseService)

@@ -1,7 +1,8 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
-import { InterpolationParameters, TranslateService } from '@ngx-translate/core';
 import { Icon } from '../../icon/icon';
 import Collapse from '../collapse/collapse';
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizeParameters } from '@/shared/language/localize-utils';
 
 @Component({
     selector: 'app-error-message',
@@ -18,17 +19,17 @@ import Collapse from '../collapse/collapse';
 })
 export default class ErrorMessage {
 
-    protected readonly translateService = inject(TranslateService);
+    protected readonly language = inject(LanguageService);
 
     private readonly collapse = viewChild.required(Collapse);
     
     private hasError = false;
     protected readonly error = signal<string | null>(null);
 
-    setError(error: string | null, params?: InterpolationParameters) {
+    async setError(error: string | null, params?: LocalizeParameters) {
         this.hasError = Boolean(error);
         if (error) {
-            const msg = this.translateService.instant(error, params);
+            const msg = await this.language.localize(error, params);
             this.error.set(msg);
         }
         this.collapse().setExpanded(this.hasError);

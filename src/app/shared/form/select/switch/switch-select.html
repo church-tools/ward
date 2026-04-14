@@ -7,11 +7,11 @@
                 @if (selectedOption.icon) {
                     <app-icon [icon]="selectedOption.icon" size="smaller" class="option-icon"
                         filled
-                        [title]="translateOptions() ? (selectedOption.view | translate) : selectedOption.view"
-                        [attr.aria-label]="translateOptions() ? (selectedOption.view | translate) : selectedOption.view"/>
+                        [title]="translateOptions() ? (selectedOption.view | localize) : selectedOption.view"
+                        [attr.aria-label]="translateOptions() ? (selectedOption.view | localize) : selectedOption.view"/>
                 } @else {
                     @if (translateOptions()) {
-                        {{ selectedOption.view | translate }}
+                        {{ selectedOption.view | localize }}
                     } @else {
                         {{ selectedOption.view }}
                     }
@@ -35,12 +35,12 @@
                     @if (option.icon) {
                         <app-icon #optionValue [icon]="option.icon" size="sm" class="option-icon"
                             filled
-                            [title]="translateOptions() ? (option.view | translate) : option.view"
-                            [attr.aria-label]="translateOptions() ? (option.view | translate) : option.view"/>
+                            [title]="translateOptions() ? (option.view | localize) : option.view"
+                            [attr.aria-label]="translateOptions() ? (option.view | localize) : option.view"/>
                     } @else {
                         <span #optionValue>
                             @if (translateOptions()) {
-                                {{ option.view | translate }}
+                                {{ option.view | localize }}
                             } @else {
                                 {{ option.view }}
                             }

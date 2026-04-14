@@ -1,8 +1,7 @@
-import { AsyncPipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
 import { Button } from '@/shared/form/button/button';
 import { SupabaseRow, SupabaseService } from '@/shared/service/supabase.service';
 import { asyncComputed } from '@/shared/utils/signal-utils';
+import { Component, inject } from '@angular/core';
 import { Profile } from '../../profile/profile';
 import { ListInsert } from '../../shared/row-card-list/list-insert';
 import { AgendaSection } from './agenda-section';
@@ -15,12 +14,12 @@ import { AgendaSectionViewService } from './agenda-section-view.service';
             @for (option of options(); track option) {
                 <app-button [icon]="option.icon" type="form" size="large"
                     (onClick)="onClick(option.type)">
-                    {{ option.label | async }}
+                    {{ option.label() }}
                 </app-button>
             }
         </div>
     `,
-    imports: [Button, AsyncPipe],
+    imports: [Button],
 })
 export class AgendaSectionListInsert extends ListInsert<'agenda_section', SupabaseRow<'agenda'>> {
 

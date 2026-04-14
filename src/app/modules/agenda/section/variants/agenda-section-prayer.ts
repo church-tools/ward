@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowSelect } from "@/shared/form/row-select/row-select";
 import { SupabaseService } from '@/shared/service/supabase.service';
 import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
@@ -10,13 +10,13 @@ import { AgendaSection } from '../agenda-section';
     selector: 'app-agenda-section-prayer',
     template: `
         <div class="column-grid items-center">
-            <h3 class="col-md-5 overflow-ellipsis">{{ title() | translate }}</h3>
+            <h3 class="col-md-5 overflow-ellipsis">{{ title() | localize }}</h3>
             @if (agenda()?.pre_assign_prayer) {
                 <app-row-select class="col-md-7" table="member"/>
             }
         </div>
     `,
-    imports: [TranslateModule, RowSelect],
+    imports: [LocalizePipe, RowSelect],
 })
 export class AgendaSectionPrayer {
 

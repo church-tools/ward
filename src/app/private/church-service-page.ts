@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import { SacramentMeetingService } from '@/modules/sacrament-meeting/sacrament-meeting.service';
 import { Icon } from '../shared/icon/icon';
@@ -12,12 +12,12 @@ import { PrivatePage } from './shared/private-page';
     template: `
         <app-drawer-router-outlet (onClose)="navigateHere()">
             <div class="page narrow gap-4">
-                <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | translate }}</span>
+                <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
                 <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning">
                     <div class="row no-wrap items-center m-6-8">
                         <h3 class="grow-1">
                             <app-icon [icon]="sacramentMeetingView.icon" filled/>
-                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | translate }}</span>
+                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
                         </h3>
                         <app-icon class="ms-auto" icon="chevron_right"/>
                     </div>
@@ -25,7 +25,7 @@ import { PrivatePage } from './shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [TranslateModule, RouterModule, Icon, DrawerRouterOutlet],
+    imports: [LocalizePipe, RouterModule, Icon, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
 export class CurrentSacramentMeetingPage extends PrivatePage {

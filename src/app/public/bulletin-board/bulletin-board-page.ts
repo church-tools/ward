@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Page } from '../../shared/page/page';
 import { FunctionsService } from '@/shared/service/functions.service';
 
 @Component({
     selector: 'app-bulletin-board-page',
     template: `
-        <span class="display-text">{{ 'BULLETIN_BOARD.TITLE' | translate }}</span>
+        <span class="display-text">{{ 'BULLETIN_BOARD.TITLE' | localize }}</span>
     `,
-    imports: [TranslateModule],
+    imports: [LocalizePipe],
     host: { class: 'page narrow' },
 })
 export class BulletinBoardPage extends Page {

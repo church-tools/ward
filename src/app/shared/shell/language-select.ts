@@ -1,7 +1,7 @@
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Component, inject } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
 import MenuButtonComponent from '../form/button/menu/menu-button';
-import { LanguageService } from '../service/language.service';
+import { LanguageService, SUPPORTED_LANGUAGES, SupportedLanguage } from '../language/language.service';
 
 @Component({
     selector: 'app-language-select',
@@ -18,10 +18,10 @@ import { LanguageService } from '../service/language.service';
                     </div>
                 }
             </div>
-            <span button-text class="me-auto">{{ 'LANGUAGE' | translate }}</span>
+            <span button-text class="me-auto">{{ 'LANGUAGE' | localize }}</span>
         </app-menu-button>
     `,
-    imports: [TranslateModule, MenuButtonComponent],
+    imports: [LocalizePipe, MenuButtonComponent],
     styles: [`
         img {
             width: 1.25rem;
@@ -34,15 +34,13 @@ export class LanguageSelect {
 
     protected readonly language = inject(LanguageService);
 
-    protected readonly languageItems = ['de', 'en'].map(lang => ({
-        lang,
+    protected readonly languageItems = Object.entries(SUPPORTED_LANGUAGES).map(([lang, label]) => ({
+        lang: lang as SupportedLanguage,
         img: `assets/img/flags/${lang}.svg`,
-        label: (() => {
-            switch (lang) {
-                case 'de': return 'Deutsch';
-                case 'en': return 'English';
-                default: return lang;
-            }
-        })(),
-    }));
+        label,
+    })).sort((a, b) => {
+        if (a.label < b.label) return -1;
+        if (a.label > b.label) return 1;
+        return 0;
+    });
 }

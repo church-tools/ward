@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal, viewChild } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Button } from '@/shared/form/button/button';
 import WeekInput from '@/shared/form/date-time/week-input';
 import { Select } from '@/shared/form/select/select';
@@ -19,7 +19,7 @@ import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
                 [value]="defaultWeek()"
                 (ngModelChange)="updateValidity()"/>
             <app-select #type class="grow-1"
-                placeholder="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | translate }}"
+                placeholder="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | localize }}"
                 [options]="meetingView.typeOptions" translateOptions
                 [value]="defaultType()"
                 (ngModelChange)="updateValidity()"/>
@@ -29,7 +29,7 @@ import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
                 [type]="isValid() ? 'primary' : 'subtle'"/>
         </div>
     `,
-    imports: [TranslateModule, WeekInput, Select, Button],
+    imports: [LocalizePipe, WeekInput, Select, Button],
 })
 export class SacramentMeetingListInsert extends ListInsert<'sacrament_meeting'> implements OnInit {
 

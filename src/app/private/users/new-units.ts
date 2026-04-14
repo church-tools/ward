@@ -1,5 +1,5 @@
 import { Component, inject, OnInit, signal } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { AsyncButton } from "../../shared/form/button/async/async-button";
 import { Icon } from "@/shared/icon/icon";
 import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
@@ -7,7 +7,7 @@ import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
 @Component({
     selector: 'app-new-units',
     template: `
-        <h1 class="mt-8">{{ 'USERS_PAGE.NEW_UNITS.TITLE' | translate }}</h1>
+        <h1 class="mt-8">{{ 'USERS_PAGE.NEW_UNITS.TITLE' | localize }}</h1>
         @if (units() == null) {
             <div class="column mt-4 items-center center-content">
                 <app-icon icon="throbber"/>
@@ -35,12 +35,12 @@ import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
             } @else {
                 <div class="column mt-4 gap-4 items-center center-content card-appear">
                     <app-icon icon="checkmark_circle" size="xxxxl" class="opacity-10"/>
-                    {{ 'USERS_PAGE.NEW_UNITS.ALL_DONE' | translate }}
+                    {{ 'USERS_PAGE.NEW_UNITS.ALL_DONE' | localize }}
                 </div>
             }
         }
     `,
-    imports: [TranslateModule, AsyncButton, Icon],
+    imports: [LocalizePipe, AsyncButton, Icon],
     host: { class: 'column gap-2' },
 })
 export class NewUnits implements OnInit {

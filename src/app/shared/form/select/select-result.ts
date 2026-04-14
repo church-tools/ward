@@ -1,5 +1,5 @@
 import { booleanAttribute, Component, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { xcomputed } from '../../utils/signal-utils';
 import { SelectOption } from './select';
 
@@ -7,12 +7,12 @@ type SelectOptionsByValue<T extends PropertyKey> = Partial<Record<T, SelectOptio
 
 @Component({
 	selector: 'app-select-result',
-	imports: [TranslateModule],
+	imports: [LocalizePipe],
 	template: `
 		@if (this.selectedOption(); as selectedOption) {
 			<span [class]="selectedOption.color ? selectedOption.color + '-text' : ''">
 				@if (translateOptions()) {
-					{{ selectedOption.view | translate }}
+					{{ selectedOption.view | localize }}
 				} @else {
 					{{ selectedOption.view }}
 				}

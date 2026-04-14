@@ -5,7 +5,7 @@ import MenuButtonComponent from '@/shared/form/button/menu/menu-button';
 import Switch from '@/shared/form/switch/switch';
 import { Icon } from "@/shared/icon/icon";
 import { Component, inject, OnInit, signal } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import { LanguageSelect } from "../../shared/shell/language-select";
 import { Shell } from '../../shared/shell/shell';
@@ -21,7 +21,7 @@ import { Presences } from "./presences";
     selector: 'app-private-shell',
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
-    imports: [TranslateModule, NavBar, OmniSearch, MenuButtonComponent,
+    imports: [LocalizePipe, NavBar, OmniSearch, MenuButtonComponent,
         PageRouterOutlet, BackButton, AsyncButton, Presences,
         Icon, Switch, LanguageSelect],
 })

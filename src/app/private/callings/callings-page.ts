@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { MemberCalling } from '@/modules/member-calling/member-calling';
 import { MemberCallingListRow } from '@/modules/member-calling/member-calling-list-row';
 import { OrganizationViewService } from '@/modules/organization/organization-view.service';
@@ -14,7 +14,7 @@ import { PrivatePage } from '../shared/private-page';
 @Component({
     selector: 'app-callings-page',
     templateUrl: './callings-page.html',
-    imports: [TranslateModule, RouterModule, Icon, RowCardList, DrawerRouterOutlet, MemberCallingListRow],
+    imports: [LocalizePipe, RouterModule, Icon, RowCardList, DrawerRouterOutlet, MemberCallingListRow],
     host: { class: 'full-width' },
 })
 export class CallingsPage extends PrivatePage {

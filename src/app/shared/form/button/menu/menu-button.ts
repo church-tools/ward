@@ -1,12 +1,11 @@
 import { booleanAttribute, Component, ElementRef, inject, input, OnDestroy, viewChild } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
 import { Icon } from "../../../icon/icon";
 import { AnchoredPopover, PopoverAlignment, PopoverPosition } from "../../anchored-popover/anchored-popover";
 import ButtonBase from "../shared/button-base";
 
 @Component({
     selector: 'app-menu-button',
-    imports: [TranslateModule, Icon, AnchoredPopover],
+    imports: [Icon, AnchoredPopover],
     templateUrl: './menu-button.html',
     styleUrl: './menu-button.scss',
     host: {

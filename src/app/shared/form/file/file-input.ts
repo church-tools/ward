@@ -1,5 +1,5 @@
 import { Component, inject, input } from "@angular/core";
-import { TranslateModule } from "@ngx-translate/core";
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { FileStorageService } from "../../service/file-storage.service";
 import { assureArray } from "../../utils/array-utils";
 import { compressTimestamp } from "../../utils/date-utils";
@@ -16,7 +16,7 @@ import InputLabel from "../shared/input-label";
 
 @Component({
     selector: 'app-file-input',
-    imports: [TranslateModule, InputLabel, ErrorMessage,
+    imports: [LocalizePipe, InputLabel, ErrorMessage,
         AsyncButton, FileButtonComponent],
     templateUrl: './file-input.html',
     providers: getProviders(() => FileInput)

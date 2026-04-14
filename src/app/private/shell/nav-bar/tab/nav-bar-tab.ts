@@ -1,6 +1,6 @@
 import { Component, OnDestroy, input, signal } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Observable } from 'rxjs';
 import { IconCode, Icon } from '@/shared/icon/icon';
 import { ColorName } from '@/shared/utils/color-utils';
@@ -17,7 +17,7 @@ export type InnerNavBarTab = {
 
 @Component({
     selector: 'app-nav-bar-tab',
-    imports: [RouterModule, TranslateModule, Icon],
+    imports: [RouterModule, LocalizePipe, Icon],
     template: `
         <a class="btn no-hover" [routerLink]="tab().path" [class.active]="active()">
             <div class="icon-area">
@@ -25,7 +25,7 @@ export type InnerNavBarTab = {
                 <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}"
                     [icon]="tab().icon" filled [size]="pillMode() ? 'lg' : 'md'"/>
             </div>
-            <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | translate }}</div>
+            <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | localize }}</div>
         </a>
         @if (tab().counts) {
             <div class="counts column" [class.visible]="!active()">

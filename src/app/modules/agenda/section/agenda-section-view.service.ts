@@ -1,8 +1,6 @@
 import { AgendaItemViewService } from "@/modules/agenda/item/agenda-item-view.service";
 import { IconCode } from "@/shared/icon/icon";
-import { inject, Injectable } from "@angular/core";
-import { Translation } from '@ngx-translate/core';
-import { Observable } from "rxjs";
+import { inject, Injectable, Signal } from "@angular/core";
 import { CallingViewService } from "../../calling/calling-view.service";
 import { ViewService } from "../../shared/view.service";
 import type { AgendaSection } from "./agenda-section";
@@ -15,14 +13,14 @@ export class AgendaSectionViewService extends ViewService<'agenda_section'> {
     
     readonly icon = 'center_vertical';
 
-    public readonly typeOptions: { type: AgendaSection.Type, label: Observable<Translation>, icon?: IconCode}[] = [
-        { type: 'text', icon: 'text_description', label: this.translate.stream('AGENDA_SECTION_TYPE.TEXT') },
+    public readonly typeOptions: { type: AgendaSection.Type, label: Signal<string>, icon?: IconCode}[] = [
+        { type: 'text', icon: 'text_description', label: this.language.stream('AGENDA_SECTION_TYPE.TEXT') },
         { type: 'callings', icon: this.callingView.icon, label: this.callingView.namePlural },
         { type: 'suggestions', icon: this.agendaItemView.suggestion.icon, label: this.agendaItemView.suggestion.namePlural },
         { type: 'topics', icon: this.agendaItemView.topic.icon, label: this.agendaItemView.topic.namePlural },
         { type: 'resolutions', icon: this.agendaItemView.resolution.icon, label: this.agendaItemView.resolution.namePlural },
-        { type: 'prayer', icon: 'handshake', label: this.translate.stream('AGENDA_SECTION_TYPE.PRAYER') },
-        { type: 'spiritual_thought', icon: 'fire', label: this.translate.stream('AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT') },
+        { type: 'prayer', icon: 'handshake', label: this.language.stream('AGENDA_SECTION_TYPE.PRAYER') },
+        { type: 'spiritual_thought', icon: 'fire', label: this.language.stream('AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT') },
     ] as const;
 
     private readonly labelsByType = Object.fromEntries(this.typeOptions.map(option => [option.type, option.label]));

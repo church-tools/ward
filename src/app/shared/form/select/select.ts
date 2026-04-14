@@ -1,7 +1,10 @@
+import { LanguageService } from '@/shared/language/language.service';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
-    OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild } from '@angular/core';
-import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import {
+    booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
+    OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild
+} from '@angular/core';
 import { Icon, type IconCode } from "../../icon/icon";
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
@@ -50,14 +53,14 @@ type SelectValueTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [TranslateModule, InputLabel, Icon, NgTemplateOutlet, SelectOptions],
+    imports: [LocalizePipe, InputLabel, Icon, NgTemplateOutlet, SelectOptions],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => Select),
 })
 export class Select<T> extends InputBase<T> implements OnDestroy {
 
-    private readonly translateService = inject(TranslateService);
+    private readonly language = inject(LanguageService);
     private readonly closeCleanupDelayMs = 100;
     private readonly loadingIndicatorDelayMs = 200;
 
@@ -243,7 +246,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     private async getFilteredOptions(search: string): Promise<VisibleOption<T>[]> {
         const allOptions = await this.resolveAllOptions(search);
         const textKey = this.resolveTextKey();
-        this.prepareSearchText(allOptions, textKey);
+        await this.prepareSearchText(allOptions, textKey);
         const normalizedSearch = search.toLocaleLowerCase();
         const searchWords = this.getSearchWords(normalizedSearch);
         if (!searchWords.length)
@@ -275,10 +278,11 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         return this.translateOptions() ? 'translatedText' : 'view' as const;
     }
 
-    private prepareSearchText(allOptions: readonly SelectOption<T>[], textKey: 'translatedText' | 'view') {
+    private async prepareSearchText(allOptions: readonly SelectOption<T>[], textKey: 'translatedText' | 'view') {
+        const localizer = await this.language.getLocalizer();
         if (this.translateOptions())
             for (const option of allOptions)
-                option.translatedText = this.translateService.instant(option.view);
+                option.translatedText = localizer(option.view);
         for (const option of allOptions)
             option.lcText = option[textKey]!.toLocaleLowerCase();
     }

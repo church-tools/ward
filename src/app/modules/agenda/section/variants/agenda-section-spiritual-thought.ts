@@ -1,5 +1,5 @@
 import { Component, inject, input } from '@angular/core';
-import { TranslateModule } from '@ngx-translate/core';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowSelect } from "@/shared/form/row-select/row-select";
 import { SupabaseService } from '@/shared/service/supabase.service';
 import { AgendaSection } from '../agenda-section';
@@ -8,11 +8,11 @@ import { AgendaSection } from '../agenda-section';
     selector: 'app-agenda-section-spiritual-thought',
     template: `
         <div class="column-grid items-center">
-            <h3 class="col-md-5 overflow-ellipsis">{{ 'AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT' | translate }}</h3>
+            <h3 class="col-md-5 overflow-ellipsis">{{ 'AGENDA_SECTION_TYPE.SPIRITUAL_THOUGHT' | localize }}</h3>
             <app-row-select class="col-md-7" table="member"/>
         </div>
     `,
-    imports: [TranslateModule, RowSelect],
+    imports: [LocalizePipe, RowSelect],
 })
 export class AgendaSectionSpiritualThought {
 

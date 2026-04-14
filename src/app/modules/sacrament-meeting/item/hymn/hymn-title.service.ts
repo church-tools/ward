@@ -1,8 +1,8 @@
-import { SelectOption } from '@/shared/form/select/select';
-import { SupportedLanguage } from '@/shared/service/language.service';
-import { PaletteColor } from '@/shared/utils/color-utils';
+import type { SelectOption } from '@/shared/form/select/select';
+import type { SupportedLanguage } from '@/shared/language/language.service';
+import type { PaletteColor } from '@/shared/utils/color-utils';
 import { Injectable } from '@angular/core';
-import { HYMN_INFO_BY_NUMBER, HymnNumber } from './hymn-numbers';
+import { HYMN_INFO_BY_NUMBER, type HymnNumber } from './hymn-numbers';
 import { HYMN_TOPICS, HymnTopic } from './hymn-topics';
 
 type HymnCatalog = {
@@ -66,13 +66,11 @@ export class HymnTitleService {
     }
 
     private async getCatalog(language: SupportedLanguage): Promise<HymnCatalog> {
-        return this.catalogPromisesByLanguage[language] ??= this.loadCatalog(language);
-    }
-
-    private async loadCatalog(language: SupportedLanguage): Promise<HymnCatalog> {
-        switch (language) {
-            case 'en': return import('./hymn-title-catalog.en').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
-            case 'de': return import('./hymn-title-catalog.de').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
-        }
+        return this.catalogPromisesByLanguage[language] ??= (() => {
+            switch (language) {
+                case 'en': return import('./hymn-title-catalog.en').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
+                case 'de': return import('./hymn-title-catalog.de').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));
+            }
+        })();
     }
 }

@@ -1,6 +1,5 @@
 import { Component, inject, signal } from "@angular/core";
 import { DomSanitizer } from "@angular/platform-browser";
-import { TranslateModule } from "@ngx-translate/core";
 import { AsyncButton } from "../../form/button/async/async-button";
 import { Button } from "../../form/button/button";
 import { FileStorageService } from "../../service/file-storage.service";
@@ -35,7 +34,7 @@ import { PopoverPage } from "./popover";
             }
         <div>
     `,
-    imports: [TranslateModule, Button, AsyncButton],
+    imports: [Button, AsyncButton],
     styleUrl: './popover.scss',
     styles: [`
         .title-bar {
