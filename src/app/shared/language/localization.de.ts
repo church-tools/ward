@@ -207,6 +207,7 @@ export const LOCALIZATION: Localization = {
     NUMBER: "Nummer",
     NO: "Nr.",
     TOPICS: "Themen",
+    SHOW_TOPICS: "Themen anzeigen",
     IN_HYMN_BOOK: "im Gesangbuch",
   },
   MUSICAL_PERFORMANCE_PAGE: {

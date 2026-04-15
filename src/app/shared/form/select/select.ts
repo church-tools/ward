@@ -51,6 +51,11 @@ type SelectValueTemplateContext<T> = {
     option: SelectOption<T>;
 };
 
+type SelectOptionsHeaderTemplateContext<T> = {
+    selectedOption: SelectOption<T> | null;
+    search: string;
+};
+
 @Component({
     selector: 'app-select',
     imports: [LocalizePipe, InputLabel, Icon, NgTemplateOutlet, SelectOptions],
@@ -72,6 +77,9 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
 
     @ContentChild('valueTemplate', { read: TemplateRef })
     protected valueTemplate: TemplateRef<SelectValueTemplateContext<T>> | null = null;
+
+    @ContentChild('optionsHeaderTemplate', { read: TemplateRef })
+    protected optionsHeaderTemplate: TemplateRef<SelectOptionsHeaderTemplateContext<T>> | null = null;
 
     readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
@@ -240,6 +248,13 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
         return {
             $implicit: option,
             option,
+        };
+    }
+
+    protected getOptionsHeaderTemplateContext(): SelectOptionsHeaderTemplateContext<T> {
+        return {
+            selectedOption: this.selectedOption(),
+            search: this.search(),
         };
     }
 

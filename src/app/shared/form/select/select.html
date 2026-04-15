@@ -3,8 +3,8 @@
     <div #inputContainer class="form-input" [style.anchor-name]="popover.anchorNameCss">
         @let selectedOption = this.selectedOption();
         @if (selectedOption && !withoutValue()) {
-            <div class="value-container row gap-1">
-                <div class="value-btn subtle row no-wrap items-center gap-1"
+            <div class="value-container row gap-1 grow-1 min-width-0">
+                <div class="value-btn subtle row no-wrap items-center gap-1 grow-1 min-width-0"
                     [class.clickable]="!disabled() && onOptionClick()"
                     (click)="onOptionClick() ? onOptionClick()!(selectedOption, $event) : null">
                     @if (valueTemplate) {
@@ -56,6 +56,13 @@
                     <app-icon icon="throbber" size="xs" class="loading-icon"/>
                 </div>
             }
+            @if (optionsHeaderTemplate) {
+                <div class="options-header"
+                    (mousedown)="$event.preventDefault()"
+                    (click)="$event.stopPropagation()">
+                    <ng-container *ngTemplateOutlet="optionsHeaderTemplate!; context: getOptionsHeaderTemplateContext()"/>
+                </div>
+            }
             @if (showOptionGroups()) {
                 @for (group of visibleOptionGroups(); track group.id) {
                     <div class="option-group column">
@@ -67,7 +74,7 @@
                         @for (option of group.options; track (option.id ?? option.value)) {
                             <div class="option option-group-item {{option.color}}-text"
                                 [class.focused]="popover.focusedOption() === option"
-                                (click)="selectOption(option, $event)">
+                                (mousedown)="selectOption(option, $event)">
                                 @if (optionTemplate) {
                                     <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
                                 } @else {
@@ -83,7 +90,7 @@
                 @for (option of visibleOptions(); track (option.id ?? option.value)) {
                     <div class="option {{option.color}}-text"
                         [class.focused]="popover.focusedOption() === option"
-                        (click)="selectOption(option, $event)">
+                        (mousedown)="selectOption(option, $event)">
                         @if (optionTemplate) {
                             <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
                         } @else {
