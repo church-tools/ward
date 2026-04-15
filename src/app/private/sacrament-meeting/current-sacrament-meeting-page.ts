@@ -4,6 +4,7 @@ import { Icon } from '@/shared/icon/icon';
 import { Component, inject } from '@angular/core';
 import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
 import { DrawerRouterOutlet } from '../shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from '../shared/private-page';
 
@@ -13,7 +14,7 @@ import { PrivatePage } from '../shared/private-page';
         <app-drawer-router-outlet (onClose)="navigateHere()">
             <div class="page narrow gap-4">
                 <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
-                <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning">
+                <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning" appHoverNudge>
                     <div class="row no-wrap items-center m-6-8">
                         <h3 class="grow-1">
                             <app-icon icon="text_bullet_list_square_edit" filled/>
@@ -25,7 +26,7 @@ import { PrivatePage } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [LocalizePipe, RouterModule, Icon, DrawerRouterOutlet],
+    imports: [LocalizePipe, RouterModule, Icon, HoverNudgeDirective, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
 export class CurrentSacramentMeetingPage extends PrivatePage {

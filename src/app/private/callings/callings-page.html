@@ -3,7 +3,7 @@
     (activated)="onActivate($event)">
     <div class="page narrow gap-4">
         <span class="h0">{{ 'CALLINGS_PAGE.TITLE' | localize }}</span>
-        <a class="stealth card canvas-card selectable-card" routerLink="/callings/organizations">
+        <a class="stealth card canvas-card selectable-card" routerLink="/callings/organizations" appHoverNudge>
             <div class="row no-wrap items-center m-6-8">
                 <h3 class="grow-1">
                     <app-icon [icon]="organizationView.icon" filled/>
