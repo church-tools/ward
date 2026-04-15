@@ -12,6 +12,8 @@ $hover-background-transparent-color: light-dark(rgba(#ffffff, 0.66), rgba(#48484
 $active-background-transparent-color: light-dark(rgba(#ffffff, 0.66), rgba(#484848, 0.5));
 $disabled-background-transparent-color: light-dark(rgba(#ffffff, 0.15), rgba(#484848, 0.15));
 
+$active-scale: 0.98;
+
 $border-radius-round: 999pt;
 
 /* Numeric defaults (used for compile-time calculations) */

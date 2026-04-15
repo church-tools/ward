@@ -11,7 +11,8 @@ export type ProgressCallback = (progress: number) => void;
     selector: 'app-async-button',
     imports: [LocalizePipe, Icon, ErrorMessage],
     template: `
-        <button #button (click)="press($event)" [disabled]="disabled() || connectionLost()"
+        <button #button (click)="press($event)" (mouseenter)="mouseEnter($event)"
+            [disabled]="disabled() || connectionLost()"
             [title]="windowService.isOnline() ? title() : ('ERROR.SERVER_UNAVAILABLE' | localize)"
             title="{{title()}}" type="button"
             class="button {{classes()}}">

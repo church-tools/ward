@@ -1,5 +1,6 @@
 <ng-template #cardContent let-itemCard>
     <div class="card-item {{cardClasses()}} mb-{{gap()}} card-inner"
+        (mouseenter)="onCardMouseEnter($event)"
         [class.selectable-card]="cardsSelectable()"
         [class.appear]="itemCard.animateEntrance"
         [class.disappear]="itemCard.removed()">
@@ -62,6 +63,7 @@
     @if (editable()) {
         <div #insertionCard class="{{cardClasses()}} card-item selectable-card insertion-card"
             [class.new]="newEditCard()"
+            (mouseenter)="onCardMouseEnter($event, true)"
             (click)="onInsertClick($event)">
             <app-swap-container [swap]="insertTemplateVisible()" animationDuration="xs">
                 <div main>

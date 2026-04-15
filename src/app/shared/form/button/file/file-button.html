@@ -1,4 +1,4 @@
-<div title="{{title()}}" type="button" class="button {{classes()}}">
+<div title="{{title()}}" type="button" class="button {{classes()}}" (mouseenter)="mouseEnter($event)">
     @let icon = visibleIcon();
     @if (icon) { <app-icon [icon]="icon" [filled]="iconFilled()" size="smaller"/> }
     <ng-content/>

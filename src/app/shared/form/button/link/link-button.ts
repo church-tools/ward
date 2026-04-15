@@ -9,7 +9,7 @@ import ButtonBase from "../shared/button-base";
     imports: [RouterModule, Icon],
     template: `
         @if (outside()) {
-            <a [href]="href()" type="button"
+            <a [href]="href()" type="button" (mouseenter)="mouseEnter($event)"
                 [rel]="rel()" [target]="target()"
                 [class.space-right]="newTabVisible()"
                 [class.disabled]="disabled()"
@@ -24,7 +24,7 @@ import ButtonBase from "../shared/button-base";
                 }
             </a>
         } @else {
-            <a [routerLink]="disabled() ? '#' : routerLink()" type="button"
+            <a [routerLink]="disabled() ? '#' : routerLink()" type="button" (mouseenter)="mouseEnter($event)"
                 [queryParams]="queryParams()"
                 [class.space-right]="newTabVisible()"
                 [class.disabled]="disabled()"
@@ -45,7 +45,6 @@ import ButtonBase from "../shared/button-base";
 export default class LinkButton extends ButtonBase implements OnDestroy {
 
     private readonly router = inject(Router);
-    private readonly document = inject<Document>(DOCUMENT);
 
     readonly href = input.required<string>();
     readonly hideNewTab = input<boolean, unknown>(false, { transform: booleanAttribute });

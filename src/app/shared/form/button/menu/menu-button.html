@@ -1,15 +1,16 @@
 @if (mainAction()) {
-    <button class="main-button" (click)="mainClick($event)" [disabled]="disabled()" title="{{title()}}" type="button"
+    <button class="main-button" (click)="mainClick($event)" (mouseenter)="mouseEnter($event)"
+        [disabled]="disabled()" title="{{title()}}" type="button"
         [class]="classes()">
         @if (icon()) { <app-icon [icon]="icon()!" [size]="iconSize()" [filled]="iconFilled()"/> }
         <ng-content select="[main-button-text]"/>
-        <button class="menu-button small" (click)="click($event)" [disabled]="disabled()"
+        <button class="menu-button small" (click)="click($event)" (mouseenter)="mouseEnter($event)" [disabled]="disabled()"
             title="{{title()}}" type="button" [class]="classes()">
             <app-icon icon="chevron_down" class="no-color" filled/>
         </button>
     </button>
 } @else {
-    <button (click)="click($event)" [disabled]="disabled()" title="{{title()}}" type="button" [class]="classes()">
+    <button (click)="click($event)" (mouseenter)="mouseEnter($event)" [disabled]="disabled()" title="{{title()}}" type="button" [class]="classes()">
         @if (icon()) { <app-icon [icon]="icon()!" [size]="iconSize()" [filled]="iconFilled()"/> }
         <ng-content select="[button-text]"/>
         @if (showChevron()) {

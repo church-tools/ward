@@ -1,6 +1,6 @@
 import { CdkDrag, CdkDragDrop, CdkDragStart, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { NgTemplateOutlet } from '@angular/common';
-import { booleanAttribute, Component, contentChild, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
+import { booleanAttribute, Component, contentChild, DOCUMENT, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule, UrlTree } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { IconCode, Icon } from '../../icon/icon';
@@ -9,6 +9,7 @@ import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
 import { getChildInputElement, transitionStyle } from '../../utils/dom-utils';
 import { Lock, Mutex, wait } from '../../utils/flow-control-utils';
+import { getHoverNudge } from '../../utils/hover-nudge';
 import { waitForNextChange, xcomputed, xeffect } from '../../utils/signal-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
@@ -31,7 +32,9 @@ type ItemCard<T, ID extends number | string> = {
 export class CardList<T, ID extends number | string> {
 
     private readonly injector = inject(Injector);
+    private readonly document = inject<Document>(DOCUMENT);
     private readonly windowService = inject(WindowService);
+    private readonly hoverNudge = getHoverNudge(this.document);
     private readonly dragDrop = inject(DragDropService);
     private readonly element = inject(ElementRef) as ElementRef<HTMLElement>;
 
@@ -170,6 +173,13 @@ export class CardList<T, ID extends number | string> {
     protected onItemClick(listItem: ItemCard<T, ID>, event: MouseEvent): void {
         this.itemClicked()?.(listItem.item);
         event.stopPropagation();
+    }
+
+    protected onCardMouseEnter(event: MouseEvent, force = false): void {
+        if (!force && !this.cardsSelectable()) return;
+        const target = event.currentTarget;
+        if (!(target instanceof HTMLElement)) return;
+        this.hoverNudge.nudgeOnMouseEnter(event, target);
     }
 
     protected onInsertClick(event: MouseEvent): void {

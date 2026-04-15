@@ -3,6 +3,6 @@ main = "functions/local-worker.ts"
 compatibility_date = "2025-01-01"
 
 [dev]
-port = 8788
+port = 8789
 local_protocol = "http"
 inspector_port = 9229

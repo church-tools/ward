@@ -1,6 +1,30 @@
 @use "./animation" as *;
 @use "./layout";
 
+.hover-enter-bounce {
+    animation: hover-enter-bounce $duration-sm cubic-bezier(0.22, 1, 0.36, 1);
+    will-change: transform;
+}
+
+@keyframes hover-enter-bounce {
+    0% {
+        transform: translate(0, 0);
+    }
+    35% {
+        transform: translate(var(--hover-enter-x, 0), var(--hover-enter-y, 0));
+    }
+    100% {
+        transform: translate(0, 0);
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .hover-enter-bounce {
+        animation: none;
+        transform: none;
+    }
+}
+
 .fade-in {
     opacity: 1;
     transition: opacity $duration $ease-out;

@@ -65,7 +65,10 @@
             &.selectable-outlined-card {
                 @include outlined;
             }
-        } 
+        }
+        &:active {
+            scale: $active-scale;
+        }
         &.active {
             background-color: $active-background-color;
             @include shadow.box(4);
@@ -102,6 +105,7 @@
                     }
                 }
                 &:active {
+                    scale: $active-scale;
                     background-color: $active-background-transparent-color;
                     @include vibrant(400%);
                     @include shadow.box(4);
