@@ -11,7 +11,7 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
     private subscription: Subscription | undefined;
     private readonly effectRef: EffectRef | undefined;
 
-    public get table() { return this._table; }
+    public get table() { return this._table as SupaSyncTable<D, T, C> | null; }
 
     constructor(
         private _table: SupaSyncTable<D, T, C>,

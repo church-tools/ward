@@ -86,7 +86,7 @@ export class MembersImportPage extends PrivatePage {
                 unit: profile.unit,
                 id: nextId + i + 1
             })));
-        this.closePopup();
+        this.closePage?.();
     }
 
     private extractNames(pdfText: string): ImportInfo[] {

@@ -15,5 +15,5 @@ export abstract class Page {
 
     public onLeaving() {}
     
-    public closePopup!: () => Promise<void>;
+    public closePage?: () => Promise<void>;
 }

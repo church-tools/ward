@@ -14,7 +14,7 @@ const TABLE_VERSION_PREFIX = "table_version_";
 const PENDING_SUFFIX = "_pending";
 const SEARCH_SUFFIX = "_search";
 
-function getRandomId() {
+function getRandomId(): number {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
 }
 

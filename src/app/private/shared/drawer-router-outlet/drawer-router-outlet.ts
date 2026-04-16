@@ -79,6 +79,7 @@ export class DrawerRouterOutlet implements OnDestroy {
         const token = ++this.transitionToken;
         this.emitCurrentRoute();
         this.activeChild.set(page);
+        page.closePage = this.onClose.bind(this);
         if (replacingChildRoute)
             await this.animateDrawerContentChange(token, () => this.clearContentSnapshot(), 0.25);
         else

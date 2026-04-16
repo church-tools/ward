@@ -1,7 +1,7 @@
 import { TableName } from '@/modules/shared/table.types';
 import { getViewService } from '@/modules/shared/view.service';
 import { SupabaseService } from '@/shared/service/supabase.service';
-import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xeffect } from '@/shared/utils/signal-utils';
 import { SupaSyncedRow } from '@/shared/utils/supa-sync/supa-synced-row';
 import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -34,6 +34,13 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');
 
     private subscription?: Subscription;
+
+    constructor() {
+        super();
+        xeffect([this.syncedRow.value], row => {
+            if (!row) this.closePage?.();
+        }, { skipFirst: true });
+    }
 
     private async setRowId(rowId: number) {
         const currentId = this.rowId();

@@ -1,10 +1,10 @@
-import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 import { Agenda } from '@/modules/agenda/agenda';
 import { AgendaListRow } from "@/modules/agenda/agenda-list-row";
 import { AgendaItem } from '@/modules/agenda/item/agenda-item';
 import { DragData, DragDropService } from '@/shared/service/drag-drop.service';
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { asyncComputed, xeffect } from "@/shared/utils/signal-utils";
+import { Component, ElementRef, inject, input, OnDestroy, signal, viewChildren } from "@angular/core";
 
 @Component({
     selector: 'app-agenda-drop-zone',
@@ -26,9 +26,9 @@ export class AgendaDropZone implements OnDestroy {
     private readonly agendaCards = viewChildren('agendaCard', { read: ElementRef });
 
     protected readonly lastDrag = signal<DragData<AgendaItem.Row> | null>(null);
-    protected readonly agendas = asyncComputed([],
-        () => this.supabase.sync.from('agenda').readAll().get()
-              .then(agendas => agendas.sort((a, b) => a.position - b.position)));
+    protected readonly agendas = asyncComputed([], () =>
+        this.supabase.sync.from('agenda').readAll().get()
+        .then(agendas => agendas.sort((a, b) => a.position - b.position)));
 
     protected readonly dragOver = signal(false);
     protected readonly hoveredAgenda = signal<Agenda.Row | null>(null);

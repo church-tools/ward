@@ -43,7 +43,7 @@ export class Popover {
         container.insert(componentRef.hostView);
         const instance = componentRef.instance as object;
         if (isPage(instance))
-            instance.closePopup = this.close.bind(this);
+            instance.closePage = this.close.bind(this);
         this.dialog().nativeElement.showModal();
         return componentRef;
     }
