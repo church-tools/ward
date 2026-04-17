@@ -65,3 +65,43 @@
 .option-icon {
     display: inline-flex;
 }
+
+label.button-appearance {
+    .buttons {
+        background-color: input.$background-color;
+        min-height: input.$min-height;
+        margin: 0;
+
+        &::before {
+            border: input.$border;
+            border-color: input.$border-color;
+            border-bottom-color: input.$strong-border-color;
+            border-radius: input.$border-radius;
+        }
+
+        .indicator {
+            top: 0.25rem;
+            // left: 0.25rem;
+            // right: -0.5rem;
+            bottom: 0.25rem;
+            height: auto;
+            border-radius: input.$border-radius;
+        }
+    }
+}
+
+:host:not(.disabled) {
+    label.button-appearance {
+        .buttons {
+            &:hover::before {
+                border-color: input.$hover-border-color;
+                border-bottom-color: input.$hover-strong-border-color;
+            }
+
+            &:active::before {
+                border-color: input.$active-border-color;
+                border-bottom-color: input.$active-strong-border-color;
+            }
+        }
+    }
+}

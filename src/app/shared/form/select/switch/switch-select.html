@@ -1,5 +1,5 @@
 
-<label class="column">
+<label class="column" [class.button-appearance]="appearance() === 'button'">
     <app-input-label/>
     @if (disabled()) {
         <div class="form-input">

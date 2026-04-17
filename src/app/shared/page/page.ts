@@ -16,4 +16,5 @@ export abstract class Page {
     public onLeaving() {}
     
     public closePage?: () => Promise<void>;
+    public repaintPage?: () => Promise<void>;
 }

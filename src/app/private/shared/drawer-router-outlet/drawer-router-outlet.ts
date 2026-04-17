@@ -79,36 +79,33 @@ export class DrawerRouterOutlet implements OnDestroy {
         const token = ++this.transitionToken;
         this.emitCurrentRoute();
         this.activeChild.set(page);
-        page.closePage = this.onClose.bind(this);
         if (replacingChildRoute)
             await this.animateDrawerContentChange(token, () => this.clearContentSnapshot(), 0.25);
         else
             await this.animateDrawerOpen(token);
         if (token !== this.transitionToken)
             return;
-        if (page instanceof RowPage) {
-            page.onIdChange = async _ => {
-                if (token !== this.transitionToken)
-                    return;
-                this.emitCurrentRoute();
-                await this.animateDrawerContentChange(token);
-            };
-        }
+        page.closePage = async () => {
+            this.onClose();
+        };
+        page.repaintPage = async () => {
+            if (token !== this.transitionToken)
+                return;
+            this.emitCurrentRoute();
+            await this.animateDrawerContentChange(token);
+        };
     }
 
     protected onDeactivate(page: Page) {
+        delete page.repaintPage;
         if (this.isNavigatingToDrawerChildRoute()) {
             this.pendingChildRouteSwap = true;
             this.createContentSnapshot(page);
-            if (page instanceof RowPage)
-                delete page.onIdChange;
             return;
         }
         this.pendingChildRouteSwap = false;
         this.activated.emit(null);
         void this.animateDrawerClose();
-        if (page instanceof RowPage)
-            delete page.onIdChange;
     }
 
     protected async onClose(startDelta?: number) {

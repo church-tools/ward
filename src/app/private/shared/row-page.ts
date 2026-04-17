@@ -8,6 +8,7 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { RowPageService } from '../row-page.service';
 import { PrivatePage } from './private-page';
+import { wait } from '@/shared/utils/flow-control-utils';
 
 @Component({
     selector: 'app-row-page',
@@ -25,7 +26,6 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     protected readonly supabase = inject(SupabaseService);
     
     protected readonly rowId = signal<number | null>(null);
-    onIdChange?: (rowId: number) => Promise<void> | undefined;
     
     protected abstract readonly tableName: T;
     public readonly syncedRow = SupaSyncedRow.fromId(this.supabase.sync, () => this.tableName, this.rowId);
@@ -38,7 +38,9 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     constructor() {
         super();
         xeffect([this.syncedRow.value], row => {
-            if (!row) this.closePage?.();
+            if (!row) {
+                this.closePage?.();
+            }
         }, { skipFirst: true });
     }
 
@@ -49,7 +51,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         if (currentId)
             this.rowPageService.pageClosed(this.tableName, currentId);
         this.rowPageService.pageOpened(this.tableName, rowId);
-        await this.onIdChange?.(rowId);
+        await this.repaintPage?.();
         this.rowId.set(rowId);
     }
 

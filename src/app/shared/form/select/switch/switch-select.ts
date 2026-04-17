@@ -71,6 +71,7 @@ export default class SwitchSelect<T> extends InputBase<T> {
     readonly withoutValue = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly mapSearch = input<(search: string) => string>();
     readonly translateOptions = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly appearance = input<'switch' | 'button'>('switch');
     readonly onOptionClick = input<(option: SelectOption<T>, event: MouseEvent) => void>();
 
     protected readonly optionArray = asyncComputed([this.options], async (options) => {
@@ -85,14 +86,16 @@ export default class SwitchSelect<T> extends InputBase<T> {
         (options, value) => options.findIndex(option => option.value === value));
     protected readonly indicatorVisible = xcomputed([this.selectedIndex], index => index >= 0);
     protected readonly indicatorWidth = xcomputed(
-        [this.optionButtonViews, this.optionValueViews, this.selectedIndex],
-        (buttonViews, valueViews, index) => {
+        [this.optionButtonViews, this.optionValueViews, this.selectedIndex, this.appearance],
+        (buttonViews, valueViews, index, appearance) => {
             if (index < 0)
                 return '0px';
             const button = buttonViews[index]?.nativeElement;
             const value = valueViews[index]?.nativeElement;
             if (!button || !value)
                 return '0px';
+            if (appearance === 'button')
+                return `${Math.max(button.clientWidth - 8, 0)}px`;
             const valueWidth = value.getBoundingClientRect().width;
             const styles = getComputedStyle(button);
             const horizontalPadding = parseFloat(styles.paddingLeft) + parseFloat(styles.paddingRight);
@@ -131,6 +134,11 @@ export default class SwitchSelect<T> extends InputBase<T> {
         if (this.disabled())
             return;
         if (this.suppressNextClick) {
+            event.stopPropagation();
+            event.preventDefault();
+            return;
+        }
+        if (!this.isRealClick()) {
             event.stopPropagation();
             event.preventDefault();
             return;

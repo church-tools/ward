@@ -57,8 +57,7 @@ export class PageRouterOutlet extends RouterOutlet {
         oldPage?.el.classList.remove('enter', 'fade', 'left', 'right');
         oldPage?.el.classList.add('page-router-child', 'page-transitioning', 'leave', animation);
         oldPage?.onLeaving();
-        if (oldPage instanceof RowPage)
-            delete oldPage.onIdChange;
+        delete oldPage?.repaintPage;
         this.transitionTimeout = window.setTimeout(() => {
             if (token !== this.transitionToken)
                 return;
@@ -78,18 +77,16 @@ export class PageRouterOutlet extends RouterOutlet {
             }
             if (this.saveScrollPosition() && animation === 'left' && previousPath != null)
                 this.scrollPositions.delete(previousPath);
-            if (newPage instanceof RowPage) {
-                newPage.onIdChange = async _ => {
-                    newPage.el.classList.add('page-transitioning', 'content-changing');
-                    if (this.contentChangeTimeout)
-                        clearTimeout(this.contentChangeTimeout);
-                    this.contentChangeTimeout = window.setTimeout(() => {
-                        this.contentChangeTimeout = undefined;
-                        newPage.el.classList.remove('page-transitioning', 'content-changing');
-                    }, animationDurationLgMs);
-                    await wait(animationDurationLgMs * 0.25);
-                };
-            }
+            newPage.repaintPage = async () => {
+                newPage.el.classList.add('page-transitioning', 'content-changing');
+                if (this.contentChangeTimeout)
+                    clearTimeout(this.contentChangeTimeout);
+                this.contentChangeTimeout = window.setTimeout(() => {
+                    this.contentChangeTimeout = undefined;
+                    newPage.el.classList.remove('page-transitioning', 'content-changing');
+                }, animationDurationLgMs);
+                await wait(animationDurationLgMs * 0.25);
+            };
         }, animationDurationLgMs);
     }
 
