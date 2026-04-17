@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12.2.3 (519615d)"
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -534,6 +534,7 @@ export type Database = {
           sacrament_meeting: number | null
           speaker: string | null
           topic: string | null
+          type: Database["public"]["Enums"]["message_type"]
           unit: number
           updated_at: string
         }
@@ -545,6 +546,7 @@ export type Database = {
           sacrament_meeting?: number | null
           speaker?: string | null
           topic?: string | null
+          type: Database["public"]["Enums"]["message_type"]
           unit: number
           updated_at?: string
         }
@@ -556,6 +558,7 @@ export type Database = {
           sacrament_meeting?: number | null
           speaker?: string | null
           topic?: string | null
+          type?: Database["public"]["Enums"]["message_type"]
           unit?: number
           updated_at?: string
         }
@@ -915,6 +918,7 @@ export type Database = {
         | "release_proposed"
         | "release_issued"
         | "release_sustained"
+      message_type: "message" | "testimony"
       organization_type:
         | "bishopric"
         | "relief_society"
@@ -1159,6 +1163,7 @@ export const Constants = {
         "release_issued",
         "release_sustained",
       ],
+      message_type: ["message", "testimony"],
       organization_type: [
         "bishopric",
         "relief_society",

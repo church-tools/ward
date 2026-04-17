@@ -20,7 +20,12 @@ export class MessageListInsert extends ListInsert<'message'> {
     protected override getRowInfo(profile: Profile.Row) {
         const speaker = this.speakerView().getValue();
         if (!speaker) return;
-        return { speaker, unit: profile.unit, sacrament_meeting: this.sacramentMeetingId() } as Message.Insert;
+        return {
+            speaker,
+            unit: profile.unit,
+            sacrament_meeting: this.sacramentMeetingId(),
+            type: 'message',
+        } as Message.Insert;
     }
 
 }

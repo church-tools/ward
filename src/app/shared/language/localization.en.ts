@@ -200,6 +200,10 @@ export const LOCALIZATION = {
     SPEAKER: "Speaker",
     TOPIC: "Topic",
     DURATION: "Duration",
+    TYPE: {
+      MESSAGE: "Message",
+      TESTIMONY: "Testimony",
+    }
   },
   HYMN_PAGE: {
     TITLE: "Hymn",

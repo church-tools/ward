@@ -9,6 +9,7 @@ export const SUPPORTED_LANGUAGES = {
 } as const;
 
 export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES;
+export type LocalizeFn = (key: string, params?: Record<string, unknown> | null) => string;
 
 const LANGUAGE_STORAGE_KEY = 'language';
 
@@ -34,11 +35,11 @@ export class LanguageService {
     });
 
     readonly localizer = xcomputed([this.localization], localization => {
-        if (!localization) return (key: string, params?: Record<string, unknown> | null) => key;
-        return (key: string, params?: Record<string, unknown> | null) => {
+        if (!localization) return ((key: string, _?: Record<string, unknown> | null) => key) as LocalizeFn;
+        return ((key: string, params?: Record<string, unknown> | null) => {
             const translated = resolveLocalizationKey(localization, key) ?? key;
             return interpolate(translated, params);
-        };
+        }) as LocalizeFn;
     });
 
     constructor() {

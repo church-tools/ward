@@ -19,7 +19,8 @@
         [dragDropGroup]="dragDropGroup()"
         [emptyIcon]="emptyIcon()"
         [itemClicked]="getUrl() ? onRowClick : onCardClick"
-        [dense]="dense()">
+        [dense]="dense()"
+        [nudgeFactor]="nudgeFactor()">
         <ng-template #itemTemplate let-item>
             <ng-container *ngTemplateOutlet="rowTemplate();
                 context: {

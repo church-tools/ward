@@ -1,7 +1,8 @@
 import type { SelectOption } from '@/shared/form/select/select';
-import type { SupportedLanguage } from '@/shared/language/language.service';
+import { LanguageService, type SupportedLanguage } from '@/shared/language/language.service';
 import type { PaletteColor } from '@/shared/utils/color-utils';
-import { Injectable } from '@angular/core';
+import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
+import { inject, Injectable } from '@angular/core';
 import { HYMN_INFO_BY_NUMBER, type HymnNumber } from './hymn-numbers';
 import { HYMN_TOPICS, HymnTopic } from './hymn-topics';
 
@@ -24,6 +25,17 @@ export type HymnOptionRow = {
 export class HymnTitleService {
 
     private readonly catalogPromisesByLanguage: Partial<Record<SupportedLanguage, Promise<HymnCatalog>>> = {};
+
+    private readonly language = inject(LanguageService);
+
+
+    readonly catalog = asyncComputed([this.language.current], language => this.getCatalog(language));
+
+    readonly localizer = xcomputed([this.catalog], (catalog: HymnCatalog) => {
+        if (!catalog) return (key: number) => String(key);
+        const { titles } = catalog;
+        return (key: number) => titles[key as number] ?? String(key);
+    });
 
     async getTitle(number: number, language: SupportedLanguage): Promise<string> {
         const { titles } = await this.getCatalog(language);

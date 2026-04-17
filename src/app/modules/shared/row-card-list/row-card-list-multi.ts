@@ -75,6 +75,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     readonly emptyIcon = input<IconCode | null>(null);
     readonly rowClicked = input<(item: RowCardListMultiItem<T>) => void>();
     readonly dragDropGroup = input<string>('row-card-list-multi');
+    readonly nudgeFactor = input<number>(1);
 
     protected readonly cardListView = viewChild(CardList<RowCardListCardItem<T>, number>);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');

@@ -18,7 +18,8 @@
         [insertRow]="insertRow"
         [dragDropGroup]="tableName()"
         [emptyIcon]="emptyIcon()"
-        [itemClicked]="getUrl() ? onRowClick : rowClicked()">
+        [itemClicked]="getUrl() ? onRowClick : rowClicked()"
+        [nudgeFactor]="nudgeFactor()">
         <ng-template #itemTemplate let-row>
             <ng-container *ngTemplateOutlet="rowTemplate();
                 context: {

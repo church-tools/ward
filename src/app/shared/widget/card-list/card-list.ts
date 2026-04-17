@@ -55,6 +55,7 @@ export class CardList<T, ID extends number | string> {
     readonly activeId = input<number | null>(null);
     readonly dragDropGroup = input<string | null>(null);
     readonly emptyIcon = input<IconCode | null>(null);
+    readonly nudgeFactor = input<number>(1);
 
     readonly selectionChange = output<T | null>();
     readonly orderChange = output<T[]>();
@@ -179,7 +180,7 @@ export class CardList<T, ID extends number | string> {
         if (!force && !this.cardsSelectable()) return;
         const target = event.currentTarget;
         if (!(target instanceof HTMLElement)) return;
-        this.hoverNudge.nudgeOnMouseEnter(event, target);
+        this.hoverNudge.nudgeOnMouseEnter(event, target, { distance: 2 * this.nudgeFactor() });
     }
 
     protected onInsertClick(event: MouseEvent): void {

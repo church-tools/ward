@@ -53,6 +53,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly rowClicked = input<(row: Row<T>) => void>();
     readonly orderKey = input<keyof Row<T> | null>(null);
     readonly fixedOrder = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly nudgeFactor = input<number>(1);
 
     protected readonly cardListView = viewChild<CardList<Row<T>, number>>(CardList);
     protected readonly rowTemplate = contentChild.required<TemplateRef<RowTemplateContext<T>>>('rowTemplate');

@@ -54,3 +54,4 @@ patches/*.patch
 FluentSystemIcons-Resizable.json
 
 .playwright-mcp/
+supabase/.temp

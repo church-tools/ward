@@ -201,6 +201,10 @@ export const LOCALIZATION: Localization = {
     SPEAKER: "Redner",
     TOPIC: "Thema",
     DURATION: "Dauer",
+    TYPE: {
+      MESSAGE: "Ansprache",
+      TESTIMONY: "Zeugnis",
+    }
   },
   HYMN_PAGE: {
     TITLE: "Lied",
