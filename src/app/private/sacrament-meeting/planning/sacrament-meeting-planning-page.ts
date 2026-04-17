@@ -94,7 +94,7 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
     }
 
     navigateHere(): void {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
     protected onActivate(id: string | null) {

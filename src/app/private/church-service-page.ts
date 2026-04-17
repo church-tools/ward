@@ -37,7 +37,7 @@ export class CurrentSacramentMeetingPage extends PrivatePage {
     protected readonly sacramentMeetingView = inject(SacramentMeetingViewService);
 
     protected navigateHere() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
     constructor() {

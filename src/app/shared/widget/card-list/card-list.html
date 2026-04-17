@@ -38,6 +38,7 @@
             <a #card cdkDrag
                 [cdkDragStartDelay]="dragStartDelay"
                 [routerLink]="getUrl(itemCard.item)"
+                [replaceUrl]="shouldReplaceUrl(itemCard)"
                 class="drag-card-host stealth"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"

@@ -86,7 +86,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     }
 
     protected navigateToThis() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
 }

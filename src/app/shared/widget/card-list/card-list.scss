@@ -117,7 +117,10 @@
 }
 
 .cdk-drag-preview {
+    overflow: visible;
+
     .card-item {
+        overflow: hidden;
         scale: 0.95;
         // background-color: card.$hover-background-transparent-color;
         transform-origin: center;
