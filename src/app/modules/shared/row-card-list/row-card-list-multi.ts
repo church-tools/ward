@@ -1,13 +1,14 @@
-import { CommonModule } from "@angular/common";
-import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, TemplateRef, viewChild } from "@angular/core";
-import { Router, UrlTree } from "@angular/router";
 import { IconCode } from "@/shared/icon/icon";
 import { Page } from "@/shared/page/page";
 import { SupabaseService } from "@/shared/service/supabase.service";
+import { WindowService } from "@/shared/service/window.service";
 import { PromiseOrValue } from "@/shared/types";
 import { asyncComputed, waitForNextChange, xcomputed, xeffect } from "@/shared/utils/signal-utils";
 import type { Subscription } from "@/shared/utils/supa-sync/event-emitter";
 import { CardList } from "@/shared/widget/card-list/card-list";
+import { CommonModule } from "@angular/common";
+import { booleanAttribute, Component, contentChild, inject, Injector, input, OnDestroy, OnInit, TemplateRef, viewChild } from "@angular/core";
+import { Router, UrlTree } from "@angular/router";
 import type { Insert, Row, Table, TableName, TableQuery } from "../table.types";
 import { getViewService } from "../view.service";
 
@@ -57,6 +58,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     readonly injector = inject(Injector);
     private readonly router = inject(Router);
     private readonly supabase = inject(SupabaseService);
+    private readonly windowService = inject(WindowService);
 
     readonly tableQueries = input.required<readonly RowCardListMultiQuery<T>[]>();
     readonly mutable = input<boolean, unknown>(false, { transform: booleanAttribute });
@@ -156,8 +158,17 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
 
     protected readonly onRowClick = (item: RowCardListCardItem<T>) => {
         const getUrl = this.getUrl();
-        if (getUrl && this.activeId() === this.getId(item))
-            this.router.navigateByUrl(getUrl(null));
+        if (!getUrl || this.activeId() !== this.getId(item))
+            return;
+        const target = getUrl(null);
+        this.router.navigateByUrl(target, { replaceUrl: this.windowService.shouldReplaceHistory(target) });
+    };
+
+    protected readonly getReplaceUrl = (item: RowCardListCardItem<T>) => {
+        const getUrl = this.getUrl();
+        if (!getUrl)
+            return false;
+        return this.windowService.shouldReplaceHistory(getUrl(item));
     };
 
     private readonly subscriptions = new Map<T, Subscription>();

@@ -90,7 +90,7 @@ export class MeetingsPage extends PrivatePage {
         : "meetings";
 
     protected navigateToThis() {
-        this.router.navigate([`meetings`]);
+        this.router.navigate([`meetings`], { replaceUrl: true });
     }
 
     protected onActivate(id: string | null) {

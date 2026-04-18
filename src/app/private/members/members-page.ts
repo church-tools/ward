@@ -73,7 +73,7 @@ export class MembersPage extends PrivatePage {
         : '/members';
 
     protected navigateHere() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
     protected onActivate(id: string | null) {

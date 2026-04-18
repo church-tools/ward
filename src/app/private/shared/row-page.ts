@@ -34,11 +34,12 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         (row, viewService) => row ? viewService?.toString(row) ?? '' : '');
 
     private subscription?: Subscription;
+    private repainting = false;
 
     constructor() {
         super();
         xeffect([this.syncedRow.value], row => {
-            if (!row) {
+            if (!this.repainting && !row) {
                 this.closePage?.();
             }
         }, { skipFirst: true });
@@ -51,8 +52,11 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         if (currentId)
             this.rowPageService.pageClosed(this.tableName, currentId);
         this.rowPageService.pageOpened(this.tableName, rowId);
+        this.repainting = true;
         await this.repaintPage?.();
         this.rowId.set(rowId);
+        await wait(100);
+        this.repainting = false;
     }
 
     public async setPopoverRowId(rowId: number) {
@@ -62,9 +66,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
             const rowId = params.get(this.tableName) ?? this.route.snapshot.paramMap.get(this.tableName);
-            if (!rowId)
-                return;
-            await this.setRowId(+rowId);
+            if (rowId) await this.setRowId(+rowId);
         });
     }
 
@@ -84,7 +86,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     }
 
     protected navigateToThis() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
 }

@@ -43,7 +43,7 @@ export class OrganizationsPage extends PrivatePage {
     };
 
     protected navigateHere() {
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
     protected onActivate(id: string | null) {

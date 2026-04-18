@@ -63,6 +63,6 @@ export class OrganizationCallings {
 			row: { id } as Row<'member_calling'>,
 			currentPage: 'OrganizationsPage',
 		});
-		this.router.navigate([route]);
+		this.router.navigateByUrl(route, { replaceUrl: this.windowService.shouldReplaceHistory(route) });
 	}
 }

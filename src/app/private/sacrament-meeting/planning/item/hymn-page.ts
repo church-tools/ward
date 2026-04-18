@@ -17,10 +17,7 @@ import { RowPage } from '../../../shared/row-page';
 @Component({
     selector: 'app-hymn-page',
     template: `
-        <h4 class="mb--4">
-            {{ 'HYMN_PAGE.NO' | localize }}
-            {{ syncedRow.value()?.number }}
-        </h4>
+        <h4 class="mb--4">#{{ syncedRow.value()?.number }}</h4>
         <h3 class="mb-0">{{ titleText() || ('HYMN_PAGE.TITLE' | localize) }}</h3>
         <div class="column-grid">
             <app-select [syncedRow]="syncedRow" column="number"

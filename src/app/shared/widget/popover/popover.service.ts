@@ -75,10 +75,10 @@ export class PopoverService {
     }
 
     async openRowPopoverInQuery(route: ActivatedRoute, tableName: TableName, id: number) {
-        await this.router.navigateByUrl(this.getRowPopoverUrl(route, tableName, id));
+        await this.router.navigateByUrl(this.getRowPopoverUrl(route, tableName, id), { replaceUrl: true });
     }
 
-    async clearRowPopoverQuery(route: ActivatedRoute, replaceUrl = false) {
+    async clearRowPopoverQuery(route: ActivatedRoute, replaceUrl = true) {
         await this.router.navigateByUrl(this.getRowPopoverUrl(route, null), { replaceUrl });
     }
 

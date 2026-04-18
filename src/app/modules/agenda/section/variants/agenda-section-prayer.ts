@@ -10,8 +10,9 @@ import { AgendaSection } from '../agenda-section';
     selector: 'app-agenda-section-prayer',
     template: `
         <div class="column-grid items-center">
-            <h3 class="col-md-5 overflow-ellipsis">{{ title() | localize }}</h3>
-            @if (agenda()?.pre_assign_prayer) {
+            @let preAssign = agenda()?.pre_assign_prayer;
+            <h3 class="col-md-{{preAssign ? 5 : 12}} overflow-ellipsis">{{ title() | localize }}</h3>
+            @if (preAssign) {
                 <app-row-select class="col-md-7" table="member"/>
             }
         </div>

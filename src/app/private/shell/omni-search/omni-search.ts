@@ -80,7 +80,8 @@ export class OmniSearch implements OnDestroy {
 
     protected navigateTo<T extends SearchedTableName>(value: SearchValue<T> | null) {
         if (!value) return;
-        this.router.navigate([getRowRoute(value)]);
+        const route = getRowRoute(value);
+        this.router.navigateByUrl(route, { replaceUrl: this.windowService.shouldReplaceHistory(route) });
     }
 
     protected mapSearch = (search: string) => {

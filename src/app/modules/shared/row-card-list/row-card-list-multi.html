@@ -13,6 +13,7 @@
         [showInsertTemplate]="alwaysShowInsertTemplate()"
         [getFilterText]="getFilterText"
         [getUrl]="getUrl() ? getCardUrl : undefined"
+        [getReplaceUrl]="getUrl() ? getReplaceUrl : undefined"
         (orderChange)="onOrderChanged($event)"
         (itemDropped)="onItemDropped($event)"
         [insertRow]="insertRow"

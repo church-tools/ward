@@ -13,6 +13,7 @@
         [orderByKey]="orderKey() || table.info.orderKey"
         [getFilterText]="viewService()?.toString"
         [getUrl]="getUrl()"
+        [getReplaceUrl]="getUrl() ? getReplaceUrl : undefined"
         (orderChange)="onOrderChanged($event)"
         (itemDropped)="onItemDropped($event)"
         [insertRow]="insertRow"

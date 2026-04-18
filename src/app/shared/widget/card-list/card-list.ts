@@ -49,6 +49,8 @@ export class CardList<T, ID extends number | string> {
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
     readonly itemInserted = input<(item: T) => PromiseOrValue<void>>();
     readonly getUrl = input<(item: T) => string | UrlTree>();
+    readonly getReplaceUrl = input<(item: T) => boolean>();
+    readonly replaceUrl = input(false, { transform: booleanAttribute });
     readonly itemClicked = input<(item: T) => void>();
     readonly insertRow = input<(item: T) => Promise<T>>();
     readonly showInsertTemplate = input(false, { transform: booleanAttribute });
@@ -174,6 +176,10 @@ export class CardList<T, ID extends number | string> {
     protected onItemClick(listItem: ItemCard<T, ID>, event: MouseEvent): void {
         this.itemClicked()?.(listItem.item);
         event.stopPropagation();
+    }
+
+    protected shouldReplaceUrl(listItem: ItemCard<T, ID>): boolean {
+        return this.getReplaceUrl()?.(listItem.item) ?? this.replaceUrl();
     }
 
     protected onCardMouseEnter(event: MouseEvent, force = false): void {

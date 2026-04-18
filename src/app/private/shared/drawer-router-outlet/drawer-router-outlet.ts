@@ -111,7 +111,7 @@ export class DrawerRouterOutlet implements OnDestroy {
     protected async onClose(startDelta?: number) {
         if (!this.routerOutlet().isActivated) return;
         await this.animateDrawerClose(startDelta);
-        this.router.navigate(['.'], { relativeTo: this.route });
+        this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
     private emitCurrentRoute() {
