@@ -107,9 +107,9 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
     });
 
     protected readonly getItemUrl = (item: RowCardListMultiItem<ItemTableName> | null) => {
-        if (!item)
-            return '';
-        return getRowRoute({ table: item.table, row: item.row as any });
+        return item
+            ? getRowRoute({ table: item.table, row: item.row as any })
+            : getRowRoute({ table: 'sacrament_meeting', row: this.row() });
     }
 
 }
