@@ -1,7 +1,7 @@
 import { computed, CreateEffectOptions, effect, Injector, signal, Signal, untracked, WritableSignal } from "@angular/core";
 
-export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>>, nextChangeAsPromise: () => Promise<T> };
-export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>>, nextChangeAsPromise: () => Promise<T> };
+export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
+export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 
 type StrictUnwrap<T> = T extends Signal<infer U> 
     ? (null extends U ? U : undefined extends U ? U : Exclude<U, null | undefined>)
@@ -11,41 +11,14 @@ export function xsignal<T>(initialValue: T | null = null) {
     const s = signal<T | null>(initialValue);
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;
     const initPromise = new Promise<Exclude<T, null>>(resolve => initialized = resolve);
-    const set = s.set.bind(s);
-    const update = s.update.bind(s);
-    let nextChangeWaiters: ((value: T) => void)[] = [];
-
-    const notifyNextChange = (value: T | null) => {
-        if (nextChangeWaiters.length === 0)
-            return;
-        const waiters = nextChangeWaiters;
-        nextChangeWaiters = [];
-        for (const resolve of waiters)
-            resolve(value as T);
-    };
-
+    const set = s.set;
     const rs = s as any as AwaitableWritableSignal<T>;
     rs.set = (value: T) => {
         set(value);
         if (value != null)
             initialized(value as Exclude<T, null>);
-        notifyNextChange(value);
     };
-    rs.update = ((updateFn: (value: T) => T) => {
-        let nextValue: T | null = null;
-        update(currentValue => {
-            const newVal = updateFn(currentValue as T);
-            nextValue = newVal;
-            return newVal as any;
-        });
-        if (nextValue != null)
-            initialized(nextValue as Exclude<T, null>);
-        notifyNextChange(nextValue);
-    }) as any;
     rs.asPromise = () => initPromise;
-    rs.nextChangeAsPromise = () => new Promise<T>(resolve => {
-        nextChangeWaiters.push(resolve);
-    });
     return rs;
 }
 

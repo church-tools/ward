@@ -7,19 +7,17 @@ import { Select } from '@/shared/form/select/select';
 import InputLabel from '@/shared/form/shared/input-label';
 import { LanguageService } from '@/shared/language/language.service';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
-import { asyncComputed, xcomputed, xsignal } from '@/shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xeffect, xsignal } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { RowPage } from '../../../shared/row-page';
-import { wait } from '@/shared/utils/flow-control-utils';
 
 type FixedHymnSlot = ('opening_hymn' | 'sacrament_hymn' | 'closing_hymn') & Column<'sacrament_meeting'>;
 
 @Component({
     selector: 'app-fixed-hymn-page',
     template: `
-
         <h4 class="mb--4">{{ label() | localize }} @if (hymnNumber(); as number) { #{{ number }} }</h4>
         <h3>{{ titleText() }}</h3>
         <div class="column-grid">
@@ -110,12 +108,20 @@ export class FixedHymnPage extends RowPage<'sacrament_meeting'> {
         return optionRow?.topics ?? [];
     });
 
+    private pendingSlot: FixedHymnSlot | null = null;
+
+
+    constructor() {
+        super();
+        xeffect([this.rowId], () => {
+            if (this.pendingSlot) this.slot.set(this.pendingSlot);
+        });
+    }
+
     protected override getRowIdFromRoute(route: ActivatedRoute): { rowId: number, forceRepaint?: boolean } | null {
         const segment = route.snapshot.url.at(-1)?.path ?? '';
         const [slotPart, idPart] = segment.split('-');
-        this.rowId.asPromise().then(() => {
-            this.slot.set(`${slotPart as 'opening' | 'sacrament' | 'closing'}_hymn`);
-        });
+        this.pendingSlot = `${slotPart as 'opening' | 'sacrament' | 'closing'}_hymn`;
         return idPart ? { rowId: +idPart, forceRepaint: true } : null;
     }
 }
