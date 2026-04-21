@@ -1,0 +1,64 @@
+<div class="row m-4-6 row-gap-1 column-gap-4 items-center">
+    <div class="column gap-1">
+        <h4>
+            {{ date() | date : 'dd MMM yyyy' : undefined : language.locale() }}
+        </h4>
+        @if (row().type; as type) {
+            <span class="subtle-text">{{ meetingView.getTypeLabel(type) }}</span>
+        }
+    </div>
+    <div class="column grow-1 row-gap-1">
+        @if (previewMode() === 'hymn') {
+            <app-fixed-hymn-card
+                slot="opening"
+                [meetingId]="row().id"
+                [hymnNumber]="row().opening_hymn"
+                labelKey="SACRAMENT_MEETING_PAGE.OPENING_HYMN"/>
+            <app-fixed-hymn-card
+                slot="sacrament"
+                [meetingId]="row().id"
+                [hymnNumber]="row().sacrament_hymn"
+                labelKey="SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN"/>
+        }
+        <app-row-card-list-multi class="grow-1"
+            [tableQueries]="tableQueries()"
+            [prepareInsert]="prepareItemInsert"
+            [activeId]="activeId()"
+            [getUrl]="getItemUrl"
+            [cardClasses]="'card canvas-card suppress-canvas-card-animation'"
+            [dense]="true"
+            [gap]="1"
+            [nudgeFactor]="0.5"
+            mutable
+            [editable]="previewMode() !== 'none'"
+            [reorderable]="previewMode() !== 'none'">
+            <ng-template #rowTemplate let-item>
+                @if (item.table === 'message') {
+                    <app-message-list-row [row]="item.row" dense/>
+                } @else if (item.table === 'hymn') {
+                    <app-hymn-list-row [row]="item.row" dense/>
+                } @else if (item.table === 'musical_performance') {
+                    <app-musical-performance-list-row [row]="item.row" dense/>
+                }
+            </ng-template>
+            <ng-template #insertTemplate let-functions>
+                <div class="row gap-2 full-width center-content">
+                    @if (previewMode() === 'message') {
+                        <app-message-list-insert
+                            [insert]="functions.insert"
+                            [cancel]="functions.cancel"/>
+                    } @else {
+                        <div></div>
+                    }
+                </div>
+            </ng-template>
+        </app-row-card-list-multi>
+        @if (previewMode() === 'hymn') {
+            <app-fixed-hymn-card
+                slot="closing"
+                [meetingId]="row().id"
+                [hymnNumber]="row().closing_hymn"
+                labelKey="SACRAMENT_MEETING_PAGE.CLOSING_HYMN"/>
+        }
+    </div>
+</div>

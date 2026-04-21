@@ -72,14 +72,19 @@
     .drawer-card {
         position: relative;
         height: 100%;
-        overflow-y: auto;
-        .drawer-body {
-            margin: layout.$canvas-margin;
-            position: relative;
+        overflow: hidden;
+        .drawer-content {
+            overflow-y: auto;
+            .drawer-body {
+                margin: layout.$canvas-margin;
+                position: relative;
+            }
         }
         &.dense {
-            .drawer-body {
-                margin: layout.$canvas-margin-narrow;
+            .drawer-content {
+                .drawer-body {
+                    margin: layout.$canvas-margin-narrow;
+                }   
             }
         }
         .close-button {

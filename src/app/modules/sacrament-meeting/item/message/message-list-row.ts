@@ -7,9 +7,9 @@ import { MessageViewService } from './message-view.service';
 @Component({
     selector: 'app-message-list-row',
     template: `
-        <div class="row full-width {{ dense() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 items-center">
+        <div class="row grow-1 {{ dense() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 items-center">
             @if (dense()) {
-                <app-icon [icon]="messageView.icon" size="ns" filled/>
+                <app-icon [icon]="messageView.icon" size="xs" filled/>
                 @if (row().type === 'testimony') {
                     <span class="small-text subtle-text">{{ 'MESSAGE_PAGE.TYPE.TESTIMONY' | localize }}</span>
                 }

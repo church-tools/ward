@@ -14,10 +14,8 @@ import { RowPage } from '../../../shared/row-page';
     selector: 'app-message-page',
     template: `
         @let row = syncedRow.value();
-        <h2>
-            <span class="text-secondary">{{ 'MESSAGE_PAGE.TYPE.' + row?.type?.toUpperCase() | localize }}:</span>
-            {{ row ? messageView.toString(row) : '' }}
-        </h2>
+        <h4 class="mb--4">{{ 'MESSAGE_PAGE.TYPE.' + row?.type?.toUpperCase() | localize }}</h4>
+        <h3>{{ row ? messageView.toString(row) : '' }}</h3>
         <div class="column-grid">
             <app-switch-select [syncedRow]="syncedRow" column="type"
                 class="col-12"

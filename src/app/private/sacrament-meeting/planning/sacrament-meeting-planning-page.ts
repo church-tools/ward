@@ -72,7 +72,8 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
         }
     });
 
-    protected readonly activeId = xsignal<number | null>(null);
+    protected readonly activeItemId = xsignal<number | null>(null);
+    protected readonly activeSubItem = xsignal<{ type: string; id: number | string } | null>(null);
 
     constructor() {
         super();
@@ -98,8 +99,17 @@ export class SacramentMeetingPlanningPage extends PrivatePage {
     }
 
     protected onActivate(id: string | null) {
-        this.activeId.set(id
-            ? Number(id.includes('/') ? id.split('/')[1] : id)
-            : null);
+        if (!id) {
+            this.activeSubItem.set(null);
+            this.activeItemId.set(null);
+        } else if (id.includes('/')) {
+            const [type, subId] = id.split('/');
+            this.activeItemId.set(null);
+            this.activeSubItem.set({ type, id: subId });
+        } else {
+            const meetingId = Number(id);
+            this.activeItemId.set(Number.isFinite(meetingId) ? meetingId : null);
+            this.activeSubItem.set(null);
+        }
     }
 }

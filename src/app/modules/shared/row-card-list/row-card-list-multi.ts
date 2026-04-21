@@ -63,6 +63,7 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     readonly tableQueries = input.required<readonly RowCardListMultiQuery<T>[]>();
     readonly mutable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly reorderable = input<boolean>(true);
     readonly dense = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly alwaysShowInsertTemplate = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);

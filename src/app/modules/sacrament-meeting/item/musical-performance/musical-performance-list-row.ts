@@ -7,10 +7,10 @@ import { MusicalPerformanceViewService } from './musical-performance-view.servic
     selector: 'app-musical-performance-list-row',
     template: `
         <div class="row full-width m-4 row-gap-1 column-gap-2 items-center">
-            <app-icon [icon]="musicalPerformanceView.icon" size="sm" class="text-secondary"/>
+            <app-icon [icon]="musicalPerformanceView.icon" size="sm" class="subtle-text"/>
             <h4 class="overflow-ellipsis">{{ musicalPerformanceView.toString(row()) }}</h4>
             @if (row().performers; as performers) {
-                <span class="small-text text-secondary overflow-ellipsis">{{ performers }}</span>
+                <span class="small-text subtle-text overflow-ellipsis">{{ performers }}</span>
             }
         </div>
     `,

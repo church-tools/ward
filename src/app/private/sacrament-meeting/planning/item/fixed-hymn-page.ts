@@ -1,8 +1,7 @@
 import { HymnNumber } from '@/modules/sacrament-meeting/item/hymn/hymn-numbers';
 import { HymnOptionRow, HymnTitleService } from '@/modules/sacrament-meeting/item/hymn/hymn-title.service';
 import { HymnViewService } from '@/modules/sacrament-meeting/item/hymn/hymn-view.service';
-import { RowDeleteButton } from "@/private/shared/row-delete-button";
-import LinkButton from '@/shared/form/button/link/link-button';
+import type { Column } from '@/modules/shared/table.types';
 import Checkbox from '@/shared/form/checkbox/checkbox';
 import { Select } from '@/shared/form/select/select';
 import InputLabel from '@/shared/form/shared/input-label';
@@ -10,19 +9,21 @@ import { LanguageService } from '@/shared/language/language.service';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { asyncComputed, xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
-import { Component, inject } from '@angular/core';
-import { RowHistory } from '../../../shared/row-history';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { RowPage } from '../../../shared/row-page';
+import { wait } from '@/shared/utils/flow-control-utils';
+
+type FixedHymnSlot = ('opening_hymn' | 'sacrament_hymn' | 'closing_hymn') & Column<'sacrament_meeting'>;
 
 @Component({
-    selector: 'app-hymn-page',
+    selector: 'app-fixed-hymn-page',
     template: `
-        @if (syncedRow.value()?.number; as number) {
-            <h4 class="mb--4">{{ 'HYMN_PAGE.TITLE' | localize }} #{{ number }}</h4>
-        }
+
+        <h4 class="mb--4">{{ label() | localize }} @if (hymnNumber(); as number) { #{{ number }} }</h4>
         <h3>{{ titleText() }}</h3>
         <div class="column-grid">
-            <app-select [syncedRow]="syncedRow" column="number"
+            <app-select [syncedRow]="syncedRow" [column]="slot()"
                 class="col-12"
                 [options]="hymnOptions()"
                 [hideClear]="false"
@@ -72,43 +73,49 @@ import { RowPage } from '../../../shared/row-page';
                     }
                 </div>
             }
-            @if (webUrl(); as url) {
-                <app-link-button [href]="url" outside newTab type="secondary" icon="open">
-                    <span outside>{{ 'HYMN_PAGE.IN_HYMN_BOOK' | localize }}</span>
-                </app-link-button>
-            }
         </div>
-        <div class="row end-content mt-auto">
-            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
-        </div>
-        <app-row-history [row]="syncedRow.value()"/>
     `,
     host: { class: 'page narrow full-height' },
-    imports: [LocalizePipe, SyncedFieldDirective, Select, Checkbox, RowHistory, LinkButton, RowDeleteButton, InputLabel],
+    imports: [LocalizePipe, SyncedFieldDirective, Select, Checkbox, InputLabel],
 })
-export class HymnPage extends RowPage<'hymn'> {
+export class FixedHymnPage extends RowPage<'sacrament_meeting'> {
 
-    protected readonly tableName = 'hymn';
+    protected readonly tableName = 'sacrament_meeting';
     protected readonly hymnView = inject(HymnViewService);
     protected readonly hymnTitle = inject(HymnTitleService);
     private readonly language = inject(LanguageService);
+    
     protected readonly showTopicsInSuggestions = xsignal(false);
 
-    protected readonly titleText = asyncComputed([this.syncedRow.value, this.language.current],
-        async (row, lang) => row?.number ? this.hymnTitle.getTitle(row.number, lang) : '', '');
+    protected readonly slot = signal<FixedHymnSlot>('opening_hymn');
+    protected readonly label = xcomputed([this.slot], slot => slot ? `SACRAMENT_MEETING_PAGE.${slot.toUpperCase()}` : '');
+
+    protected readonly hymnNumber = xcomputed([this.syncedRow.value, this.slot],
+        (row, slot) => row && slot ? row[slot] : null);
+
+    protected readonly titleText = asyncComputed([this.hymnNumber, this.language.current],
+        async (number, lang) => number ? this.hymnTitle.getTitle(number, lang) : '', '');
 
     protected readonly hymnOptions = asyncComputed([this.language.current],
         async lang => this.hymnView.getSelectOptions(lang), []);
-    
-    protected readonly webUrl = xcomputed([this.syncedRow.value],
-        row => row?.number ? this.hymnTitle.getWebUrl(row.number as HymnNumber) : null);
 
-    protected readonly selectedTopics = xcomputed([this.syncedRow.value, this.hymnOptions], (row, options) => {
-        if (!row?.number)
+    protected readonly webUrl = xcomputed([this.hymnNumber],
+        number => number ? this.hymnTitle.getWebUrl(number as HymnNumber) : null);
+
+    protected readonly selectedTopics = xcomputed([this.hymnNumber, this.hymnOptions], (number, options) => {
+        if (!number)
             return [] as HymnOptionRow['topics'];
-        const option = options.find(item => item.value === row.number);
+        const option = options.find(item => item.value === number);
         const optionRow = option?.row as HymnOptionRow | undefined;
         return optionRow?.topics ?? [];
     });
 
+    protected override getRowIdFromRoute(route: ActivatedRoute): { rowId: number, forceRepaint?: boolean } | null {
+        const segment = route.snapshot.url.at(-1)?.path ?? '';
+        const [slotPart, idPart] = segment.split('-');
+        this.rowId.asPromise().then(() => {
+            this.slot.set(`${slotPart as 'opening' | 'sacrament' | 'closing'}_hymn`);
+        });
+        return idPart ? { rowId: +idPart, forceRepaint: true } : null;
+    }
 }

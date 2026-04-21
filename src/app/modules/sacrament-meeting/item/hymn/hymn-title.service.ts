@@ -70,6 +70,10 @@ export class HymnTitleService {
         return HYMN_INFO_BY_NUMBER[number].slug;
     }
 
+    getWebUrl(number: HymnNumber): string {
+        return `https://www.churchofjesuschrist.org/media/music/songs/${this.getSlug(number)}`;
+    }
+
     toDisplayValue(number: number | null, language: SupportedLanguage): string {
         if (number == null)
             return '';

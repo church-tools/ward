@@ -11,7 +11,7 @@ import { RowPage } from '../../../shared/row-page';
     template: `
         @let row = syncedRow.value();
         <h2>
-            <span class="text-secondary">{{ 'VIEW.MUSICAL_PERFORMANCE' | localize }}:</span>
+            <span class="subtle-text">{{ 'VIEW.MUSICAL_PERFORMANCE' | localize }}:</span>
             {{ row ? musicalPerformanceView.toString(row) : '' }}
         </h2>
         <div class="column-grid">

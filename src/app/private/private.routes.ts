@@ -70,6 +70,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
                 insideParent: true,
                 loadComponent: () => import('./sacrament-meeting/planning/item/message-page').then(m => m.MessagePage),
             },
+            'fixed-hymn/:slot_and_sacrament_meeting': {
+                insideParent: true,
+                loadComponent: () => import('./sacrament-meeting/planning/item/fixed-hymn-page').then(m => m.FixedHymnPage),
+            },
             'hymn/:hymn': {
                 insideParent: true,
                 loadComponent: () => import('./sacrament-meeting/planning/item/hymn-page').then(m => m.HymnPage),

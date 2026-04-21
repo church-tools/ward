@@ -767,12 +767,15 @@ export type Database = {
         Row: {
           announcements: string[] | null
           baptised_members: string[] | null
+          closing_hymn: number | null
           classes: string | null
           closing_prayer: string | null
           further_meetings: string[] | null
           greetings: string[] | null
           moved_member: string[] | null
+          opening_hymn: number | null
           opening_prayer: string | null
+          sacrament_hymn: number | null
           type: Database["public"]["Enums"]["meeting_type"] | null
           unit: number
           updated_at: string
@@ -781,12 +784,15 @@ export type Database = {
         Insert: {
           announcements?: string[] | null
           baptised_members?: string[] | null
+          closing_hymn?: number | null
           classes?: string | null
           closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
+          opening_hymn?: number | null
           opening_prayer?: string | null
+          sacrament_hymn?: number | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
           unit: number
           updated_at?: string
@@ -795,12 +801,15 @@ export type Database = {
         Update: {
           announcements?: string[] | null
           baptised_members?: string[] | null
+          closing_hymn?: number | null
           classes?: string | null
           closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
           moved_member?: string[] | null
+          opening_hymn?: number | null
           opening_prayer?: string | null
+          sacrament_hymn?: number | null
           type?: Database["public"]["Enums"]["meeting_type"] | null
           unit?: number
           updated_at?: string

@@ -9,6 +9,7 @@ import { ListRow } from '../shared/row-card-list/list-row';
 import type { RowCardListMultiInsert, RowCardListMultiItem, RowCardListMultiQuery } from '../shared/row-card-list/row-card-list-multi';
 import { RowCardListMulti } from '../shared/row-card-list/row-card-list-multi';
 import type { Table } from '../shared/table.types';
+import { FixedHymnCard } from './fixed-hymn-card';
 import { HymnListRow } from './item/hymn/hymn-list-row';
 import { MessageListInsert } from "./item/message/message-list-insert";
 import { MessageListRow } from './item/message/message-list-row';
@@ -18,52 +19,10 @@ import { SacramentMeetingViewService } from './sacrament-meeting-view.service';
 
 @Component({
     selector: 'app-sacrament-meeting-list-row',
-    template: `
-        <div class="row m-4-6 row-gap-1 column-gap-4 items-center">
-            <div class="column gap-1">
-                <h4>
-                    {{ date() | date : 'dd MMM yyyy' : undefined : language.locale() }}
-                </h4>
-                @if (row().type; as type) {
-                    <span class="text-secondary">{{ meetingView.getTypeLabel(type) }}</span>
-                }
-            </div>
-            <app-row-card-list-multi class="grow-1"
-                [tableQueries]="tableQueries()"
-                [prepareInsert]="prepareItemInsert"
-                [activeId]="activeItemId()"
-                [getUrl]="getItemUrl"
-                [cardClasses]="'card canvas-card suppress-canvas-card-animation'"
-                [dense]="true"
-                [gap]="1"
-                [nudgeFactor]="0.5"
-                mutable
-                [editable]="previewMode() !== 'none'">
-                <ng-template #rowTemplate let-item>
-                    @if (item.table === 'message') {
-                        <app-message-list-row [row]="item.row" dense/>
-                    } @else if (item.table === 'hymn') {
-                        <app-hymn-list-row [row]="item.row" dense/>
-                    } @else if (item.table === 'musical_performance') {
-                        <app-musical-performance-list-row [row]="item.row" dense/>
-                    }
-                </ng-template>
-                <ng-template #insertTemplate let-functions>
-                    <div class="row gap-2 full-width center-content">
-                        @if (previewMode() === 'message') {
-                            <app-message-list-insert
-                                [insert]="functions.insert"
-                                [cancel]="functions.cancel"/>
-                        } @else {
-                            <div></div>
-                        }
-                    </div>
-                </ng-template>
-            </app-row-card-list-multi>
-        </div>
-    `,
+    templateUrl: './sacrament-meeting-list-row.html',
     imports: [DatePipe, RowCardListMulti,
-        MessageListInsert, MessageListRow, HymnListRow, MusicalPerformanceListRow],
+        MessageListInsert, MessageListRow, HymnListRow,
+        MusicalPerformanceListRow, FixedHymnCard],
 })
 export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
 
@@ -71,11 +30,14 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
     protected readonly meetingView = inject(SacramentMeetingViewService);
     protected readonly language = inject(LanguageService);
 
-    readonly activeItemId = input<number | null>(null);
+    readonly activeItem = input<{ type: string; id: number | string } | null>(null);
     readonly previewMode = input.required<'message' | 'hymn' | 'none'>();
-
+    
     protected readonly date = xcomputed([this.row],
         row => sundayIndexToDate(row.week as SundayIndex));
+
+    protected readonly activeId = xcomputed([this.activeItem],
+        activeItem => isNaN(activeItem?.id as number) ? null : activeItem!.id as number);
         
     protected readonly tableQueries = xcomputed([this.row, this.previewMode], (row, preview) => {
         switch (preview) {

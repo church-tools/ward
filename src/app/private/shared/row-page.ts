@@ -1,7 +1,7 @@
 import { TableName } from '@/modules/shared/table.types';
 import { getViewService } from '@/modules/shared/view.service';
 import { SupabaseService } from '@/shared/service/supabase.service';
-import { asyncComputed, xcomputed, xeffect } from '@/shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xeffect, xsignal } from '@/shared/utils/signal-utils';
 import { SupaSyncedRow } from '@/shared/utils/supa-sync/supa-synced-row';
 import { Component, inject, Injector, OnDestroy, OnInit, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -25,7 +25,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
     protected readonly injector = inject(Injector);
     protected readonly supabase = inject(SupabaseService);
     
-    protected readonly rowId = signal<number | null>(null);
+    protected readonly rowId = xsignal<number | null>(null);
     
     protected abstract readonly tableName: T;
     public readonly syncedRow = SupaSyncedRow.fromId(this.supabase.sync, () => this.tableName, this.rowId);
@@ -45,9 +45,9 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         }, { skipFirst: true });
     }
 
-    private async setRowId(rowId: number) {
+    private async setRowId(rowId: number, forceRepaint = false) {
         const currentId = this.rowId();
-        if (currentId === rowId)
+        if (currentId === rowId && !forceRepaint)
             return;
         if (currentId)
             this.rowPageService.pageClosed(this.tableName, currentId);
@@ -65,8 +65,8 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
 
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
-            const rowId = params.get(this.tableName) ?? this.route.snapshot.paramMap.get(this.tableName);
-            if (rowId) await this.setRowId(+rowId);
+            const { rowId, forceRepaint } = this.getRowIdFromRoute(this.route) ?? {};
+            if (rowId) await this.setRowId(+rowId, forceRepaint);
         });
     }
 
@@ -89,4 +89,8 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
+    protected getRowIdFromRoute(route: ActivatedRoute): { rowId: number, forceRepaint?: boolean } | null {
+        const rowId = route.snapshot.paramMap.get(this.tableName);
+        return rowId ? { rowId: +rowId } : null;
+    }
 }
