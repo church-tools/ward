@@ -38,10 +38,6 @@ button, .button {
     position: relative;
     cursor: pointer;
 
-    @each $name, $color in color.$semantic-colors {
-        &.#{"" + $name}-btn { @extend .#{"" + $color}-btn; }
-    }
-
     &:disabled, &.disabled {
         cursor: not-allowed;
         color: $color-disabled;
@@ -67,6 +63,21 @@ button, .button {
                     $value: color.get-variant($color, 'foreground');
                     background-color: $value;
                     &:hover { 
+                        background-color: color-mix(in srgb, $value, white 20%);
+                    }
+                    &:active {
+                        scale: $active-scale;
+                        background-color: color-mix(in srgb, $value, white 40%);
+                    }
+                }
+            }
+        }
+        @each $name, $semantic-color in color.$semantic-colors {
+            &.#{"" + $name}-btn {
+                &:not(:disabled):not(.disabled) {
+                    $value: color.get-variant($semantic-color, 'foreground');
+                    background-color: $value;
+                    &:hover {
                         background-color: color-mix(in srgb, $value, white 20%);
                     }
                     &:active {
@@ -180,6 +191,15 @@ button, .button {
                 &:not(:disabled):not(.disabled) {
                     app-icon:not(.no-color) {
                         color: color.get-variant($color, 'foreground') !important;
+                    }
+                }
+            }
+        }
+        @each $name, $semantic-color in color.$semantic-colors {
+            &.#{"" + $name}-btn {
+                &:not(:disabled):not(.disabled) {
+                    app-icon:not(.no-color) {
+                        color: color.get-variant($semantic-color, 'foreground') !important;
                     }
                 }
             }

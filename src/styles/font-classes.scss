@@ -25,12 +25,15 @@ html {
 }
 
 body {
-    @extend .font-color;
-    @extend .normal-text;
+    color: $color;
+    font-family: $family;
+    font-size: $size;
+    font-weight: $weight;
+    line-height: $line-height;
 }
   
 p {
-    @extend .font-color;
+    color: $color;
     font-size: $size-lg;
     line-height: $line-height-lg;
 }
@@ -39,7 +42,7 @@ a, .link {
     cursor: pointer !important;
     text-decoration: none;
     &.stealth, .stealth {
-        @extend .font-color;
+        color: $color;
     }
     &:not(.stealth) {
         color: color.get-variant(color.$accent, 'foreground');

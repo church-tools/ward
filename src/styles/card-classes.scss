@@ -2,8 +2,22 @@
 @use "./color";
 @use "./shadow";
 @use "./animation";
+@use "./layout";
 @use "./layout-classes";
 @use "./shadow-classes";
+
+@mixin card-body-base($gap-size) {
+    @include layout.gap($gap-size);
+    padding: 1rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+
+    &.sparse { @include layout.gap(5); }
+    &.dense { @include layout.gap(1); }
+    &.row { flex-direction: row; }
+}
 
 .card {
     display: flex;
@@ -133,20 +147,11 @@
     }
 
     .card-body {
-        @extend .gap-3;
-        &.sparse { @extend .gap-5; }
-        &.dense { @extend .gap-1; }
-        padding: 1rem;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-        &.row { flex-direction: row; }
-        box-sizing: border-box;
+        @include card-body-base(3);
     }
 
     .background-card-body {
-        @extend .card-body;
-        @extend .gap-4;
+        @include card-body-base(4);
     }
 }
 
