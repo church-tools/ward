@@ -7,7 +7,7 @@ import { SacramentMeetingService } from '@/modules/sacrament-meeting/sacrament-m
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
 import { Table } from '@/modules/shared/table.types';
 import LinkButton from '@/shared/form/button/link/link-button';
-import { SelectOption } from '@/shared/form/select/select';
+import type { SelectOption } from '@/shared/form/select/select-utils';
 import SwitchSelect from '@/shared/form/select/switch/switch-select';
 import { getUpcomingSundayIndex } from '@/shared/utils/date-utils';
 import { xcomputed, xsignal } from '@/shared/utils/signal-utils';

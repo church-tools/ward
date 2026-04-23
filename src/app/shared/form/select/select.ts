@@ -9,27 +9,13 @@ import { Icon, type IconCode } from "../../icon/icon";
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
-import { createPendingValueTracker, xcomputed, xeffect } from '../../utils/signal-utils';
+import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
 import { SelectOptions } from './select-options';
-
-export type SelectOption<T> = {
-    value: T;
-    view: string;
-    icon?: IconCode;
-    row?: unknown;
-    id?: number | string;
-    lcText?: string;
-    translatedText?: string;
-    color?: ColorName;
-    group?: {
-        id: string;
-        label: string;
-        color?: ColorName;
-    };
-}
+import { createPendingValueTracker, shouldFocusInputFromContainerMouseDown, schedulePopupCleanup } from './select-utils';
+import type { SelectOption } from './select-utils';
 
 type VisibleOption<T> = SelectOption<T> & { highlights: [string, boolean][] };
 type VisibleOptionGroup<T> = {
@@ -146,8 +132,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     protected onInputContainerMouseDown(event: MouseEvent) {
         if (this.disabled())
             return;
-        const target = event.target as HTMLElement | null;
-        if (target?.closest('button, a, input, textarea, select, [role="button"]'))
+        if (!shouldFocusInputFromContainerMouseDown(event.target))
             return;
         event.preventDefault();
         this.focusInput();
@@ -191,8 +176,7 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     protected closeOptionsContainer() {
         if (!this.popover().isRequested()) return;
         this.popover().close();
-        setTimeout(() => {
-            if (this.popover().isRequested()) return;
+        schedulePopupCleanup(() => this.popover().isRequested(), () => {
             this.visibleOptions.set([]);
             this.visibleOptionGroups.set([]);
         }, this.closeCleanupDelayMs);

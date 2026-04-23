@@ -1,11 +1,12 @@
-import { booleanAttribute, Component, ElementRef, inject, Injector, input, OutputRefSubscription, signal, viewChild } from "@angular/core";
 import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
-import { SupabaseService } from "../../service/supabase.service";
+import { booleanAttribute, Component, ElementRef, inject, Injector, input, OutputRefSubscription, signal, viewChild } from "@angular/core";
 import { Icon } from "../../icon/icon";
+import { SupabaseService } from "../../service/supabase.service";
 import { wait } from "../../utils/flow-control-utils";
-import { createPendingValueTracker, xcomputed, xeffect } from "../../utils/signal-utils";
+import { xcomputed, xeffect } from "../../utils/signal-utils";
 import ErrorMessage from "../../widget/error-message/error-message";
 import { SelectOptions } from "../select/select-options";
+import { createPendingValueTracker, shouldFocusInputFromContainerMouseDown, schedulePopupCleanup } from "../select/select-utils";
 import { getProviders, InputBase } from "../shared/input-base";
 import InputLabel from "../shared/input-label";
 import { getCachedRowViewToString, resolveRowQuery } from "./row-select-utils";
@@ -196,8 +197,7 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
     protected onInputContainerMouseDown(event: MouseEvent) {
         if (this.disabled())
             return;
-        const target = event.target as HTMLElement | null;
-        if (target?.closest('button, a, input, textarea, select, [role="button"]'))
+        if (!shouldFocusInputFromContainerMouseDown(event.target))
             return;
         event.preventDefault();
         this.input()?.nativeElement.focus();
@@ -248,10 +248,7 @@ export class CustomRowSelect<T extends TableName> extends InputBase<string | str
     private closeOptionsContainer() {
         if (!this.popover().isRequested()) return;
         this.popover().close();
-        setTimeout(() => {
-            if (this.popover().isRequested()) return;
-            this.filteredOptions.set([]);
-        }, this.optionCleanupDelayMs);
+        schedulePopupCleanup(() => this.popover().isRequested(), () => this.filteredOptions.set([]), this.optionCleanupDelayMs);
     }
 
     private async updateVisibleOptions() {

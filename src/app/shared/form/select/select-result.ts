@@ -1,7 +1,7 @@
-import { booleanAttribute, Component, input } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { booleanAttribute, Component, input } from '@angular/core';
 import { xcomputed } from '../../utils/signal-utils';
-import { SelectOption } from './select';
+import type { SelectOption } from './select-utils';
 
 type SelectOptionsByValue<T extends PropertyKey> = Partial<Record<T, SelectOption<T>>>;
 

@@ -1,4 +1,4 @@
-import type { SelectOption } from '@/shared/form/select/select';
+import type { SelectOption } from '@/shared/form/select/select-utils';
 import { LanguageService, type SupportedLanguage } from '@/shared/language/language.service';
 import type { PaletteColor } from '@/shared/utils/color-utils';
 import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';

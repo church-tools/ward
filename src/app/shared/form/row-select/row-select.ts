@@ -1,10 +1,11 @@
-import { booleanAttribute, Component, inject, Injector, input, signal } from "@angular/core";
 import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
+import { booleanAttribute, Component, inject, Injector, input, signal } from "@angular/core";
 import { SupabaseService } from "../../service/supabase.service";
 import { assureArray } from "../../utils/array-utils";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
 import { MultiSelect } from "../select/multi-select";
-import { Select, SelectOption } from "../select/select";
+import { Select } from "../select/select";
+import type { SelectOption } from "../select/select-utils";
 import { getProviders, InputBase } from "../shared/input-base";
 import { getCachedRowViewToString, resolveRowQuery } from "./row-select-utils";
 

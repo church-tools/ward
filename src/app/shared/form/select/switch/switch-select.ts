@@ -1,14 +1,14 @@
-import { ColorName } from '@/shared/utils/color-utils';
 import { Icon } from '@/shared/icon/icon';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { ColorName } from '@/shared/utils/color-utils';
 import { asyncComputed, xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import ErrorMessage from '@/shared/widget/error-message/error-message';
 import { booleanAttribute, ChangeDetectionStrategy, Component, computed, ElementRef, input, Signal, viewChild, viewChildren } from '@angular/core';
-import { LocalizePipe } from '@/shared/language/localize.pipe';
-import { HorizontalDragDirective } from '../../shared/horizontal-drag.directive';
 import { HorizontalDragGesture } from '../../shared/horizontal-drag-gesture';
+import { HorizontalDragDirective } from '../../shared/horizontal-drag.directive';
 import { getProviders, InputBase } from '../../shared/input-base';
 import InputLabel from '../../shared/input-label';
-import { SelectOption } from '../select';
+import type { SelectOption } from '../select-utils';
 
 @Component({
     selector: 'app-switch-select',

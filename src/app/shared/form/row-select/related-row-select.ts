@@ -1,10 +1,10 @@
-import { booleanAttribute, Component, inject, input } from '@angular/core';
 import type { Insert, NumberColumn, Row, Table, TableName, TableQuery } from '@/modules/shared/table.types';
+import { booleanAttribute, Component, inject, input } from '@angular/core';
 import { SupabaseService } from '../../service/supabase.service';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
 import { syncedArraySignal } from '../../utils/supa-sync/synced-array';
-import { SelectOption } from '../select/select';
+import type { SelectOption } from '../select/select-utils';
 import { RowSelect } from './row-select';
 
 type RelatedQueryFactory<ParentTable extends TableName, RelatedTable extends TableName> =

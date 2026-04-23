@@ -1,7 +1,7 @@
 import type { Message } from '@/modules/sacrament-meeting/item/message/message';
 import { MessageViewService } from '@/modules/sacrament-meeting/item/message/message-view.service';
 import { CustomRowSelect } from "@/shared/form/row-select/custom-row-select";
-import { SelectOption } from '@/shared/form/select/select';
+import type { SelectOption } from '@/shared/form/select/select-utils';
 import SwitchSelect from '@/shared/form/select/switch/switch-select';
 import { TextInput } from '@/shared/form/text/text-input';
 import { LocalizePipe } from '@/shared/language/localize.pipe';

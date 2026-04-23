@@ -1,10 +1,11 @@
-import { booleanAttribute, Component, input, signal, viewChild } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { booleanAttribute, Component, input, signal, viewChild } from '@angular/core';
+import { Icon } from '../../icon/icon';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
-import { Icon } from '../../icon/icon';
 import { getProviders, InputBase } from '../shared/input-base';
-import { Select, SelectOption } from './select';
+import { Select } from './select';
+import type { SelectOption } from './select-utils';
 
 type MultiSelectValue<T> = T | string;
 
