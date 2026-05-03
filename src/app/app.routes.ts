@@ -5,6 +5,8 @@ import { inject } from '@angular/core';
 const PUBLIC_ROOT_PATHS = new Set([
     'login',
     'register',
+    'reset-password',
+    'join',
     'setup',
     'test',
     'not-found',
@@ -18,6 +20,12 @@ const hasUnit: CanMatchFn = async (_route, segments) => {
 
     const currentPath = getPath(segments);
     const firstSegment = segments[0]?.path;
+
+    if (firstSegment === 'join') {
+        if (session?.unit)
+            return router.parseUrl('/');
+        return false;
+    }
 
     if (!session) {
         if (firstSegment && PUBLIC_ROOT_PATHS.has(firstSegment))

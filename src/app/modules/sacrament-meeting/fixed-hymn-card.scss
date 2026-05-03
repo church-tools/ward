@@ -1,22 +1,4 @@
-@use "animation";
-
 .fixed-hymn-card {
     position: relative;
-
-    .indicator {
-        position: absolute;
-        pointer-events: none;
-        top: 50%;
-        transform: translateY(-50%);
-        width: 4px;
-        height: 40%;
-        border-radius: 2px;
-        opacity: 1;
-        transition: opacity animation.$duration animation.$ease-out,
-            height animation.$duration animation.$ease-out;
-        @starting-style {
-            opacity: 0;
-            height: 4px;
-        }
-    }
+    --active-indicator-height: 40%;
 }

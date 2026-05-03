@@ -46,6 +46,10 @@
                             (onClick)="insertItem('musical_performance', functions.insert)">
                             {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | localize }}
                         </app-button>
+                        <app-button type="secondary" size="large"
+                            (onClick)="insertCustomText(functions.insert)">
+                            {{ 'SACRAMENT_MEETING_PAGE.CUSTOM_TEXT' | localize }}
+                        </app-button>
                     </div>
                 </ng-template>
             </app-row-card-list-multi>

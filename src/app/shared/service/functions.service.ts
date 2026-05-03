@@ -1,28 +1,22 @@
 import { inject, Injectable } from '@angular/core';
-import { FileUrl } from '../utils/file-utils';
+import type { FunctionParams, FunctionResult, FunctionRoute, FunctionRouteMap } from './functions.routes.generated';
 import { SupabaseService } from './supabase.service';
-
-export type UnitInfo = { id: number; name: string, created_by: string };
 
 @Injectable({ providedIn: 'root' })
 export class FunctionsService {
 
     private readonly supabase = inject(SupabaseService);
 
-    loginWithPassword(email: string, password: string) {
-        return this.call<{ session: any; error: any }>('login-with-password', { email, password });
-    }
-
     listUnits() {
-        return this.call<{ units: { id: number, name: string }[] }>('list-units');
+        return this.call('list-units');
     }
 
     createUnit(name: string) {
-        return this.call<{ unit: any }>('create-unit', { name });
+        return this.call('create-unit', { name });
     }
 
     listUnapprovedUnits() {
-        return this.call<{ units: UnitInfo[] }>('list-unapproved-units');
+        return this.call('list-unapproved-units');
     }
 
     setUnitApproved(unitId: number, approved: boolean) {
@@ -30,15 +24,7 @@ export class FunctionsService {
     }
 
     joinUnit(unitId: number) {
-        return this.call<{ profile: any }>('join-unit', { unit_id: unitId });
-    }
-
-    approveUser(profileId: number, approve: boolean) {
-        return this.call('approve-user', { profile_id: profileId, approve });
-    }
-
-    setUserAdmin(profileId: number, setAdmin: boolean) {
-        return this.call('set-user-admin', { profile_id: profileId, set_admin: setAdmin });
+        return this.call('join-unit', { unit_id: unitId });
     }
 
     uploadFile(key: string, file: File) {
@@ -46,14 +32,18 @@ export class FunctionsService {
     }
 
     presignFileAccess(key: string, method: 'GET' | 'DELETE') {
-        return this.call<{ url: FileUrl }>('presign-file-access', { key, method });
+        return this.call('presign-file-access', { key, method });
     }
 
     listPosters(key: string) {
-        return this.call<{ posters: any[] }>('list-posters', { key });
+        return this.call('list-posters', { key });
     }
 
-    private async call<T>(fn: string, body?: Record<string, unknown>, file?: File): Promise<T> {
+    readonly call = <TRoute extends FunctionRoute>(fn: TRoute, body?: FunctionParams<TRoute>, file?: File): Promise<FunctionResult<TRoute>> => {
+        return this.invoke(fn, body, file) as Promise<FunctionResult<TRoute>>;
+    };
+
+    private async invoke(fn: FunctionRoute, body?: any, file?: File): Promise<FunctionResult<FunctionRoute>> {
         const session = await this.supabase.getSessionToken();
         const accessToken = session?.access_token;
         const headers: Record<string, string> = {};
@@ -81,7 +71,7 @@ export class FunctionsService {
 
         const contentType = res.headers.get('content-type') ?? '';
         if (contentType.includes('application/json')) return await res.json();
-        return await res.text() as T;
+        return await res.text() as any;
     }
 
 }

@@ -1,7 +1,7 @@
 import { BadRequestError, getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runFunction<{ profile_id: number; set_admin: boolean }>(async req => {
-    const { profile_id, set_admin } = req.params;
+export const onRequest = runFunction(async (req, params: { profile_id: number; set_admin: boolean }) => {
+    const { profile_id, set_admin } = params;
     if (!profile_id)
         throw new BadRequestError("profile_id is required");
 
@@ -32,3 +32,5 @@ export const onRequest = runFunction<{ profile_id: number; set_admin: boolean }>
         .single()
         .throwOnError();
 });
+
+export type SetUserAdminFunction = typeof onRequest;

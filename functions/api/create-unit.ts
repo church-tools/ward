@@ -1,11 +1,9 @@
+import { createReadableCode } from "@/shared/utils/string-utils";
 import { getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
 
-const CHARS = "0123456789abcdefghijklmnopqrstuvwxyz";
-
-export const onRequest = runFunction<{ name: string }>(async req => {
-
-    const { user, params: { name } } = req;
-
+export const onRequest = runFunction(async (req, params: { name: string }) => {
+    const { user } = req;
+    const { name } = params;
     const supabase = getSupabaseService(req.env);
 
     // Check unit creation limit
@@ -18,10 +16,8 @@ export const onRequest = runFunction<{ name: string }>(async req => {
         throw new PermissionError("Limit of 3 units reached");
 
     // create 6 digit string with 0-9 and a-z characters
-    let bulletin_board_key = "";
-    for (let i = 0; i < 6; i++)
-        bulletin_board_key += CHARS[Math.floor(Math.random() * CHARS.length)];
-
+    let bulletin_board_key = createReadableCode(6);
+    
     // Create unit
     const { data: unit } = await supabase
         .from("unit")
@@ -37,3 +33,5 @@ export const onRequest = runFunction<{ name: string }>(async req => {
         .eq("user", user.id)
         .throwOnError();
 });
+
+export type CreateUnitFunction = typeof onRequest;

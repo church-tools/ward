@@ -21,8 +21,10 @@ import InputLabel from "../shared/input-label";
                     [autocomplete]="autocomplete()" (click)="onClick($event)"
                     (keypress)="onKeyPress($event)">
                 @if (copyable()) {
-                    <app-button type="subtle" [icon]="copied() ? 'checkmark' : 'copy'"
-                        class="icon-only input-btn" (onClick)="copy()"/>
+                    <app-button type="subtle"
+                        [icon]="copied() ? 'checkmark' : 'copy'"
+                        class="icon-only input-btn"
+                        (onClick)="copy()"/>
                 }
             </div>
             <app-error-message/>

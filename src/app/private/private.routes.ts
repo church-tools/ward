@@ -92,6 +92,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         admin: true, onBottom: true,
         translateId: 'USERS', icon: 'person',
         loadComponent: () => import('./users/users-page').then(m => m.UsersPage),
+        'create-join-link': {
+            insideParent: true,
+            loadComponent: () => import('./users/create-join-link-page').then(m => m.CreateJoinLinkPage),
+        },
         ':profile': {
             insideParent: true,
             loadComponent: () => import('./users/user-page').then(m => m.UserPage),

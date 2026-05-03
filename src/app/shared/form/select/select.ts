@@ -5,7 +5,7 @@ import {
     booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
     OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild
 } from '@angular/core';
-import { Icon, type IconCode } from "../../icon/icon";
+import { Icon } from "../../icon/icon";
 import { getLowest } from '../../utils/array-utils';
 import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
@@ -14,8 +14,8 @@ import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
 import { SelectOptions } from './select-options';
-import { createPendingValueTracker, shouldFocusInputFromContainerMouseDown, schedulePopupCleanup } from './select-utils';
 import type { SelectOption } from './select-utils';
+import { createPendingValueTracker, schedulePopupCleanup, shouldFocusInputFromContainerMouseDown } from './select-utils';
 
 type VisibleOption<T> = SelectOption<T> & { highlights: [string, boolean][] };
 type VisibleOptionGroup<T> = {

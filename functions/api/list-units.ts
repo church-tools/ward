@@ -17,3 +17,5 @@ export const onRequest = runFunction(async req => {
 
     return { units: data };
 });
+
+export type ListUnitsFunction = typeof onRequest;

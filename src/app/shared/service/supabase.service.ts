@@ -113,12 +113,12 @@ export class SupabaseService {
         });
     }
 
-    async signInWithOAuth(provider: 'google' | 'azure') {
+    async signInWithOAuth(provider: 'google' | 'azure', redirectTo?: string) {
         const { data, error } = await this.client.auth.signInWithOAuth({
             provider,
             options: {
                 scopes: 'email',
-                redirectTo: getSiteOrigin(),
+                redirectTo: redirectTo ?? getSiteOrigin(),
             },
         });
         if (error) throw error;

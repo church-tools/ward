@@ -17,8 +17,8 @@ export class FileStorageService {
     }
 
     async getUrl(key: FileKey, method: 'GET' | 'DELETE'): Promise<FileUrl> {
-        const { url } = await this.functions.presignFileAccess(key, method);
-        return url;
+        const { url } = await this.functions.call('presign-file-access', { key, method });
+        return url as FileUrl;
     }
 
     getCached(key: FileKey): File | undefined {

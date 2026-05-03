@@ -1,10 +1,11 @@
 import { HymnTitleService } from '@/modules/sacrament-meeting/item/hymn/hymn-title.service';
+import { Icon } from "@/shared/icon/icon";
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
+import { ActiveIndicator } from '@/shared/widget/active-indicator/active-indicator';
 import { Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { xcomputed } from '../../shared/utils/signal-utils';
-import { Icon } from "@/shared/icon/icon";
 
 export type FixedHymnSlot = 'opening' | 'sacrament' | 'closing';
 
@@ -19,12 +20,12 @@ export type FixedHymnSlot = 'opening' | 'sacrament' | 'closing';
             #activeLink="routerLinkActive"
             (click)="activeLink.isActive ? null :$event.stopPropagation()">
             @if (activeLink.isActive) {
-                <div class="indicator accent-fg"></div>
+                <app-active-indicator/>
             }
             <div class="row grow-1 m-2-3 row-gap-1 column-gap-2 items-center">
                 <app-icon icon="music_note_1" filled size="xs" class="subtle-text"/>
                 @if (hymnNumber(); as number) {
-                    <span class="overflow-ellipsis">#{{ number }} {{ localizeHymn()(number) }}</span>
+                    <span class="overflow-ellipsis">#{{ number }}&nbsp;&nbsp;{{ localizeHymn()(number) }}</span>
                 } @else {
                     <span class="subtle-text">{{ labelKey() | localize }}</span>
                 }
@@ -32,7 +33,7 @@ export type FixedHymnSlot = 'opening' | 'sacrament' | 'closing';
         </a>
     `,
     styleUrl: './fixed-hymn-card.scss',
-    imports: [LocalizePipe, RouterLink, RouterLinkActive, HoverNudgeDirective, Icon],
+    imports: [LocalizePipe, RouterLink, RouterLinkActive, HoverNudgeDirective, Icon, ActiveIndicator],
 })
 export class FixedHymnCard {
 

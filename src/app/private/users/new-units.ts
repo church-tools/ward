@@ -2,7 +2,9 @@ import { Component, inject, OnInit, signal } from "@angular/core";
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { AsyncButton } from "../../shared/form/button/async/async-button";
 import { Icon } from "@/shared/icon/icon";
-import { FunctionsService, UnitInfo } from "@/shared/service/functions.service";
+import { FunctionsService } from "@/shared/service/functions.service";
+
+type UnitInfo = { id: number; name: string, created_by: string };
 
 @Component({
     selector: 'app-new-units',

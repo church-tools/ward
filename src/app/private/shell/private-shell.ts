@@ -38,7 +38,7 @@ export class PrivateShell extends Shell implements OnInit {
         if (this.windowService.currentRoute() != '/') return;
         this.getStartRoute().then(startRoute => {
             this.router.navigate([startRoute]);
-        })
+        });
     }
     
     async ngOnInit() {
@@ -51,8 +51,7 @@ export class PrivateShell extends Shell implements OnInit {
 
     private async getStartRoute() {
         const [unit, agendas] = await Promise.all([
-            this.unitService.getUnit(),
-            
+            this.unitService.own.asPromise(),
             this.organizationService.own.asPromise()
             .then(organizations => 
                 this.supabase.sync.from('agenda').find()

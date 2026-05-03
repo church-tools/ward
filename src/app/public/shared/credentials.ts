@@ -12,17 +12,15 @@ export type CredentialInfo = {
 	selector: 'app-credentials',
 	imports: [FormField, TextInput, LocalizePipe],
 	template: `
-		<div class="column-grid">
-			<app-text-input #emailInput class="col-12"
-				[label]="'LOGIN.EMAIL' | localize"
+		<div class="column gap-4">
+			<app-text-input #emailInput
 				[placeholder]="'LOGIN.EMAIL' | localize"
                 hideRequiredIndicator
 				autocomplete="email"
 				trim
 				type="email"
 				[formField]="credentialsForm.email"/>
-			<app-text-input class="col-12"
-				[label]="'LOGIN.PASSWORD' | localize"
+			<app-text-input
 				[placeholder]="'LOGIN.PASSWORD' | localize"
                 hideRequiredIndicator
 				autocomplete="current-password"

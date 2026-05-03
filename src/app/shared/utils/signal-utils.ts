@@ -1,7 +1,7 @@
 import { computed, CreateEffectOptions, effect, Injector, signal, Signal, untracked, WritableSignal } from "@angular/core";
 
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
-export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>> };
+export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>>; readonly: AwaitableSignal<T> };
 
 type StrictUnwrap<T> = T extends Signal<infer U> 
     ? (null extends U ? U : undefined extends U ? U : Exclude<U, null | undefined>)
@@ -19,6 +19,7 @@ export function xsignal<T>(initialValue: T | null = null) {
             initialized(value as Exclude<T, null>);
     };
     rs.asPromise = () => initPromise;
+    rs.readonly = rs;
     return rs;
 }
 

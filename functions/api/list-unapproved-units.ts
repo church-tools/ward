@@ -1,9 +1,6 @@
-import { getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
+import { getSupabaseService, runAdminFunction } from "../shared/functions-utils";
 
-export const onRequest = runFunction(async req => {
-    if (!req.session.is_admin)
-        throw new PermissionError("Forbidden");
-
+export const onRequest = runAdminFunction(async req => {
     const supabase = getSupabaseService(req.env);
     const { data } = await supabase
         .from("unit")
@@ -14,3 +11,5 @@ export const onRequest = runFunction(async req => {
 
     return { units: data };
 });
+
+export type ListUnapprovedUnitsFunction = typeof onRequest;

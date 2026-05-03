@@ -86,11 +86,28 @@ export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {
         },
     ] as readonly RowCardListMultiQuery<ItemTableName>[]);
     
-    protected async insertItem<T extends ItemTableName>(tableName: T, insertFn: (item: RowCardListMultiInsert<ItemTableName>) => Promise<void>) {
+    protected async insertItem<T extends ItemTableName>(
+        tableName: T,
+        insertFn: (item: RowCardListMultiInsert<ItemTableName>) => Promise<void>,
+        rowOverrides?: Partial<Insert<T>>,
+    ) {
         const row = this.syncedRow.value();
         if (!row) return;
-        const insert = { unit: row.unit, sacrament_meeting: this.rowId() } as Insert<T>;
-        await insertFn({ tableName, row: insert });                
+        const insert = {
+            unit: row.unit,
+            sacrament_meeting: this.rowId(),
+            ...rowOverrides,
+        } as Insert<T>;
+        await insertFn({ tableName, row: insert });
+    }
+
+    protected async insertCustomText(insertFn: (item: RowCardListMultiInsert<ItemTableName>) => Promise<void>) {
+        await this.insertItem('message', insertFn, {
+            type: 'message',
+            speaker: null,
+            topic: '',
+            duration: null,
+        });
     }
     
 }

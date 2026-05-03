@@ -1,8 +1,9 @@
-import { Component, inject, input, signal } from '@angular/core';
 import { WindowService } from '@/shared/service/window.service';
 import { groupBy } from '@/shared/utils/array-utils';
 import { wait } from '@/shared/utils/flow-control-utils';
 import { asyncComputed, xcomputed, xeffect } from '@/shared/utils/signal-utils';
+import { ActiveIndicator } from '@/shared/widget/active-indicator/active-indicator';
+import { Component, inject, input, signal } from '@angular/core';
 import { InnerNavBarTab, NavbarTab } from './tab/nav-bar-tab';
 
 export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
@@ -23,12 +24,14 @@ export type NavBarTab = Omit<InnerNavBarTab, 'index' | 'class'>;
             </div>
         }
         @if (!pillMode() && activeTab()) {
-            <div class="indicator accent-fg tab-{{activeTab()?.index}} prev-tab-{{prevTab()?.index ?? 'none'}}"
+            <app-active-indicator
+                class="nav-indicator"
+                [style.--nav-tab-index]="activeTab()?.index ?? 0"
                 [class.bottom]="activeTab()?.bottom"
-                [class.prev-bottom]="prevTab()?.bottom"></div>
+                [class.prev-bottom]="prevTab()?.bottom"/>
         }
     `,
-    imports: [NavbarTab],
+    imports: [NavbarTab, ActiveIndicator],
     styleUrl: './nav-bar.scss',
     host: {
         '[class.horizontal]': 'horizontal()',

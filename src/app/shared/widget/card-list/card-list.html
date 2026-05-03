@@ -5,8 +5,7 @@
         [class.appear]="itemCard.animateEntrance"
         [class.disappear]="itemCard.removed()">
         @if (itemCard.id === activeId()) {
-            <div class="indicator accent-fg"
-                animate.leave="disappear"></div>
+            <app-active-indicator/>
         }
         @if (reorderable()) {
             <div class="drag-handle">

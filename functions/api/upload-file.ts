@@ -2,7 +2,7 @@ import { BadRequestError, getS3Client, PayloadTooLargeError, PermissionError, ru
 
 const MAX_UPLOAD_BYTES_CAP = 10_000_000;
 
-export const onRequest = runFunction<{ key?: string }>(async req => {
+export const onRequest = runFunction(async req => {
     const { session } = req;
     if (!session.unit)
         throw new BadRequestError("session.unit missing");
@@ -42,3 +42,5 @@ export const onRequest = runFunction<{ key?: string }>(async req => {
         })
     );
 });
+
+export type UploadFileFunction = typeof onRequest;

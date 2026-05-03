@@ -1,0 +1,23 @@
+@if (unitName()) {
+    <div class="fade-in column gap-8 items-center">
+        <span class="h0 text-center full-width text-wrap">
+            {{ 'JOIN_PAGE.TITLE' | localize:{ unitName: unitName() } }}
+        </span>
+        <app-credentials #credentials class="max-width-96 full-width"/>
+        <app-captcha (onSolved)="turnstileToken = $event"/>
+        <app-async-button type="secondary" size="large" class="half-width"
+            [onClick]="joinWithPassword">
+            {{ 'REGISTER.TITLE' | localize }}
+        </app-async-button>
+        <div class="horizontal-divider with-label" role="separator" aria-label="or">
+            {{ 'OR' | localize }}
+        </div>
+        <app-auth-provider-buttons [redirectTo]="redirectUrl()"/>
+    </div>
+}
+@if (error()) {
+    <div class="column gap-4 items-center">
+        <app-icon icon="error_circle" size="xxxl"/>
+        <h2 class="text-center">{{ error() | localize }}</h2>
+    </div>
+}

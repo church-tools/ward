@@ -1,5 +1,6 @@
-import { inject, Injectable } from "@angular/core";
 import { SupabaseService } from "@/shared/service/supabase.service";
+import { xsignal } from "@/shared/utils/signal-utils";
+import { inject, Injectable } from "@angular/core";
 import { Unit } from "./unit";
 
 @Injectable({ providedIn: 'root' })
@@ -7,23 +8,19 @@ export class UnitService {
 
     private readonly supabaseService = inject(SupabaseService);
 
-    private existingUnits: Pick<Unit.Row, 'id' | 'name'>[] | null = null;
+    private readonly _own = xsignal<Unit.Row | null>(null);
+    readonly own = this._own.readonly;
 
-    async getUnit() {
-        const { data: units } = await this.supabaseService.client
-            .from('unit')
-            .select('*')
-            .throwOnError();
-        return units[0];
-    }
+    constructor() {
+        this.supabaseService.getSession().then(session => {
+            if (!session?.unit) return;
 
-    async getExistingUnits(): Promise<Pick<Unit.Row, 'id' | 'name'>[]> {
-        if (this.existingUnits) return this.existingUnits;
-        const { data: units } = await this.supabaseService.client
-            .from('unit')
-            .select('id, name')
-            .throwOnError();
-        this.existingUnits = units;
-        return units;
+            this.supabaseService.sync.from('unit')
+                .findOne()
+                .eq('id', +session.unit)
+                .subscribe(({ result: own }) => {
+                    if (own) this._own.set(own);
+                });
+        });
     }
 }

@@ -92,24 +92,7 @@
         height: auto;
         align-content: center;
     }
-    .indicator {
-        position: absolute;
-        pointer-events: none;
-        width: 4px;
-        height: 40%;
-        border-radius: 2px;
-        opacity: 1;
-        transition: opacity animation.$duration animation.$ease-out,
-                    height animation.$duration animation.$ease-out;
-        @starting-style {
-            opacity: 0;
-            height: 4px;
-        }
-        &.disappear {
-            opacity: 0;
-            height: 4px;
-        }
-    }
+    --active-indicator-height: 40%;
 }
 
 .insertion-card {

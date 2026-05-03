@@ -7,7 +7,7 @@ export function range(start: number, end: number, step = 1): number[] {
     return Array.from({ length: Math.ceil((end - start + 1) / step) }, (_, i) => start + i * step);
 }
 
-export function groupByKey<T>(array: T[], key: keyof T): { [group: string]: T[] } {
+export function groupByKey<const T>(array: T[], key: keyof T): { [group: string]: T[] } {
     return array.reduce((result, item) => {
         const groupKey = String(item[key]);
         if (!result[groupKey]) 
@@ -17,7 +17,7 @@ export function groupByKey<T>(array: T[], key: keyof T): { [group: string]: T[] 
     }, {} as { [key: string]: T[] });
 }
 
-export function groupBy<T>(array: T[], getGroup: (item: T) => string | number): { [group: string]: T[] } {
+export function groupBy<const T>(array: T[], getGroup: (item: T) => string | number): { [group: string]: T[] } {
     return array.reduce((result, item) => {
         const groupKey = getGroup(item);
         if (!result[groupKey]) 
@@ -27,7 +27,7 @@ export function groupBy<T>(array: T[], getGroup: (item: T) => string | number): 
     }, {} as { [key: string]: T[] });
 }
 
-export function sortInto<T>(value: T, sortedArray: T[], compare: SortingFn<T> = (a, b) => a < b ? -1 : a > b ? 1 : 0) {
+export function sortInto<const T>(value: T, sortedArray: T[], compare: SortingFn<T> = (a, b) => a < b ? -1 : a > b ? 1 : 0) {
     let index = 0, high = sortedArray.length;
     while (index < high) {
         var mid = (index + high) >>> 1;
@@ -39,7 +39,7 @@ export function sortInto<T>(value: T, sortedArray: T[], compare: SortingFn<T> = 
     sortedArray.splice(index, 0, value);
 }
 
-export function getHighest<T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithSimilarity<T>[] {
+export function getHighest<const T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithSimilarity<T>[] {
     const highest: WithSimilarity<T>[] = [];
     for (let i = 0; i < array.length; i++) {
         const elem = array[i] as WithSimilarity<T>;
@@ -54,7 +54,7 @@ export function getHighest<T>(array: readonly T[], getValue: (item: T, i: number
     return highest;
 }
 
-export function getLowest<T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithDistance<T>[] {
+export function getLowest<const T>(array: readonly T[], getValue: (item: T, i: number) => number, limit?: number): WithDistance<T>[] {
     const lowest: WithDistance<T>[] = [];
     for (let i = 0; i < array.length; i++) {
         const elem = array[i] as WithDistance<T>;
@@ -69,7 +69,7 @@ export function getLowest<T>(array: readonly T[], getValue: (item: T, i: number)
     return lowest;
 }
 
-export function assureArray<T>(value: T | T[] | null): T[] {
+export function assureArray<const T>(value: T | T[] | null): T[] {
     if (value == null) return [];
     return Array.isArray(value) ? value : [value];
 }

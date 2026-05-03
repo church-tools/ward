@@ -1,5 +1,5 @@
 import type { SelectOption } from '@/shared/form/select/select-utils';
-import { LanguageService, type SupportedLanguage } from '@/shared/language/language.service';
+import { LanguageService, type LanguageKey } from '@/shared/language/language.service';
 import type { PaletteColor } from '@/shared/utils/color-utils';
 import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
 import { inject, Injectable } from '@angular/core';
@@ -24,7 +24,7 @@ export type HymnOptionRow = {
 @Injectable({ providedIn: 'root' })
 export class HymnTitleService {
 
-    private readonly catalogPromisesByLanguage: Partial<Record<SupportedLanguage, Promise<HymnCatalog>>> = {};
+    private readonly catalogPromisesByLanguage: Partial<Record<LanguageKey, Promise<HymnCatalog>>> = {};
 
     private readonly language = inject(LanguageService);
 
@@ -37,12 +37,12 @@ export class HymnTitleService {
         return (key: number) => titles[key as number] ?? String(key);
     });
 
-    async getTitle(number: number, language: SupportedLanguage): Promise<string> {
+    async getTitle(number: number, language: LanguageKey): Promise<string> {
         const { titles } = await this.getCatalog(language);
         return titles[number];
     }
 
-    async getSelectOptions(language: SupportedLanguage): Promise<readonly SelectOption<number>[]> {
+    async getSelectOptions(language: LanguageKey): Promise<readonly SelectOption<number>[]> {
         const { titles, topics: topicLabels } = await this.getCatalog(language);
         const options = Object.entries(HYMN_INFO_BY_NUMBER).map(([numberString, { topics }]) => {
             const number = +numberString as HymnNumber;
@@ -74,14 +74,14 @@ export class HymnTitleService {
         return `https://www.churchofjesuschrist.org/media/music/songs/${this.getSlug(number)}`;
     }
 
-    toDisplayValue(number: number | null, language: SupportedLanguage): string {
+    toDisplayValue(number: number | null, language: LanguageKey): string {
         if (number == null)
             return '';
         const title = this.getTitle(number, language);
         return title ? `${number} - ${title}` : String(number);
     }
 
-    private async getCatalog(language: SupportedLanguage): Promise<HymnCatalog> {
+    private async getCatalog(language: LanguageKey): Promise<HymnCatalog> {
         return this.catalogPromisesByLanguage[language] ??= (() => {
             switch (language) {
                 case 'en': return import('./hymn-title-catalog.en').then(m => ({ titles: m.HYMN_TITLES, topics: m.HYMN_TOPICS }));

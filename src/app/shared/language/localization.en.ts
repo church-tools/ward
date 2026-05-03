@@ -11,6 +11,7 @@ export const LOCALIZATION = {
     TITLE: "Login",
     EMAIL: "Email",
     PASSWORD: "Password",
+    LAST_USED: "Last used",
     ERROR_MSG: {
       INVALID_INPUT: "Please provide a valid email and password.",
       INVALID_CREDENTIALS: "Invalid email or password.",
@@ -38,6 +39,32 @@ export const LOCALIZATION = {
   },
   FORGOT_PASSWORD: {
     TITLE: "Forgot Password",
+  },
+  FORGOT_PASSWORD_PAGE: {
+    TITLE: "Reset Password",
+    REQUEST_MESSAGE: "Enter your email and we will send you a password reset link.",
+    SEND_LINK: "Send Reset Link",
+    LINK_SENT: "If an account exists, a reset email has been sent.",
+  },
+  RESET_PASSWORD: {
+    TITLE: "New Password",
+    SET_NEW_MESSAGE: "Set your new password.",
+    NEW_PASSWORD: "New Password",
+    SET_PASSWORD: "Set Password",
+  },
+  INVITE: {
+    TITLE: "Ward Invitation",
+    LOADING: "Loading invitation...",
+    NEEDS_AUTH: "Please sign in or create an account to accept this invitation.",
+    READY: "You are signed in and can now accept this invitation.",
+    ACCEPT: "Accept Invitation",
+    INVALID: "This invitation link is invalid or expired.",
+  },
+  JOIN_PAGE: {
+    TITLE: "Join {{ unitName }}",
+    ERROR_MSG: {
+      EXPIRED_OR_INVALID: "This join link is invalid or expired.",
+    }
   },
   CONFIRM_EMAIL: {
     TITLE: "Confirm Email",
@@ -161,6 +188,12 @@ export const LOCALIZATION = {
       ALL_DONE: "All done!",
     },
   },
+  CREATE_JOIN_LINK: {
+    TITLE: "Create Join Link",
+    VALIDITY_DAYS: "Valid for days",
+    URL: "Invite URL",
+    GENERATE: "Generate Link",
+  },
   USER_PAGE: {
     EMAIL_TO_INVITE: "Email address to invite",
     IS_ADMIN: "Administrator",
@@ -176,11 +209,18 @@ export const LOCALIZATION = {
     TITLE: "Sacrament Meeting",
     TYPE: "Type",
     WEEK: "Week",
+    ANNOUNCEMENTS: "Announcements",
     OPENING_HYMN: "Opening Hymn",
     SACRAMENT_HYMN: "Sacrament Hymn",
     CLOSING_HYMN: "Closing Hymn",
     OPENING_PRAYER: "Opening Prayer",
     CLOSING_PRAYER: "Closing Prayer",
+    CONFIRMING_MEMBERS: "Confirming of Moved-In or Baptised Members",
+    MOVED_MEMBERS: "Moved-In Members",
+    BAPTISED_MEMBERS: "Baptised Members",
+    CALLING_CHANGES: "Changes in Callings",
+    MESSAGES_AND_HYMNS: "Messages and Hymns",
+    CUSTOM_TEXT: "Custom Text",
     CLASSES: "Classes",
   },
   SACRAMENT_MEETING_PLANNING_PAGE: {

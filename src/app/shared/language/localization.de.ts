@@ -12,6 +12,7 @@ export const LOCALIZATION: Localization = {
     TITLE: "Anmelden",
     EMAIL: "E-Mail",
     PASSWORD: "Passwort",
+    LAST_USED: "Zuletzt verwendet",
     ERROR_MSG: {
       INVALID_INPUT: "Bitte geben Sie eine gültige E-Mail und ein Passwort ein.",
       INVALID_CREDENTIALS: "Ungültige E-Mail oder ungültiges Passwort.",
@@ -39,6 +40,32 @@ export const LOCALIZATION: Localization = {
   },
   FORGOT_PASSWORD: {
     TITLE: "Passwort vergessen",
+  },
+  FORGOT_PASSWORD_PAGE: {
+    TITLE: "Passwort zurücksetzen",
+    REQUEST_MESSAGE: "Geben Sie Ihre E-Mail ein und wir senden Ihnen einen Link zum Zuruecksetzen.",
+    SEND_LINK: "Link senden",
+    LINK_SENT: "Wenn ein Konto existiert, wurde eine E-Mail zum Zuruecksetzen gesendet.",
+  },
+  RESET_PASSWORD: {
+    TITLE: "Neues Passwort",
+    SET_NEW_MESSAGE: "Legen Sie Ihr neues Passwort fest.",
+    NEW_PASSWORD: "Neues Passwort",
+    SET_PASSWORD: "Passwort festlegen",
+  },
+  INVITE: {
+    TITLE: "Gemeinde-Einladung",
+    LOADING: "Einladung wird geladen...",
+    NEEDS_AUTH: "Bitte melden Sie sich an oder erstellen Sie ein Konto, um die Einladung anzunehmen.",
+    READY: "Sie sind angemeldet und koennen jetzt die Einladung annehmen.",
+    ACCEPT: "Einladung annehmen",
+    INVALID: "Dieser Einladungslink ist ungueltig oder abgelaufen.",
+  },
+  JOIN_PAGE: {
+    TITLE: "{{ unitName }} beitreten",
+    ERROR_MSG: {
+      EXPIRED_OR_INVALID: "Dieser Beitrittslink ist ungültig oder abgelaufen."
+    }
   },
   CONFIRM_EMAIL: {
     TITLE: "E-Mail bestätigen",
@@ -162,6 +189,12 @@ export const LOCALIZATION: Localization = {
       ALL_DONE: "Alles erledigt!",
     }
   },
+  CREATE_JOIN_LINK: {
+    TITLE: "Beitrittslink erstellen",
+    VALIDITY_DAYS: "Gültig für Tage",
+    URL: "Einladungs-URL",
+    GENERATE: "Link generieren",
+  },
   USER_PAGE: {
     EMAIL_TO_INVITE: "E-Mail-Addresse, die eingeladen werden soll",
     IS_ADMIN: "Administrator",
@@ -177,11 +210,18 @@ export const LOCALIZATION: Localization = {
     TITLE: "Abendmahlsversammlung",
     TYPE: "Art",
     WEEK: "Woche",
+    ANNOUNCEMENTS: "Ankündigungen",
     OPENING_HYMN: "Anfangslied",
     SACRAMENT_HYMN: "Abendmahlslied",
     CLOSING_HYMN: "Schlusslied",
     OPENING_PRAYER: "Anfangsgebet",
     CLOSING_PRAYER: "Schlussgebet",
+    CONFIRMING_MEMBERS: "Bestätigung von zugezogenen oder getauften Mitgliedern",
+    MOVED_MEMBERS: "Zugezogene Mitglieder",
+    BAPTISED_MEMBERS: "Getaufte Mitglieder",
+    CALLING_CHANGES: "Änderungen bei Berufungen",
+    MESSAGES_AND_HYMNS: "Ansprachen und Lieder",
+    CUSTOM_TEXT: "Eigener Text",
     CLASSES: "Klassen",
   },
   SACRAMENT_MEETING_PLANNING_PAGE: {

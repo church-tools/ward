@@ -1,12 +1,10 @@
-import { BadRequestError, getSupabaseService, PermissionError, runFunction } from "../shared/functions-utils";
+import { BadRequestError, getSupabaseService, runAdminFunction } from "../shared/functions-utils";
 
-export const onRequest = runFunction<{ unit_id: number; approved: boolean }>(async req => {
+export const onRequest = runAdminFunction(async (req, params: { unit_id: number; approved: boolean }) => {
 
-    const { unit_id, approved } = req.params;
+    const { unit_id, approved } = params;
     if (!unit_id || typeof approved !== "boolean")
         throw new BadRequestError("unit_id and approved(boolean) required");
-    if (!req.session.is_admin)
-        throw new PermissionError();
 
     const supabase = getSupabaseService(req.env);
     await supabase
@@ -16,3 +14,5 @@ export const onRequest = runFunction<{ unit_id: number; approved: boolean }>(asy
         .select()
         .throwOnError();
 });
+
+export type SetUnitApprovedFunction = typeof onRequest;

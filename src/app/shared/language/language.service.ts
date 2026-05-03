@@ -1,4 +1,4 @@
-import { Injectable, Signal, signal } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { asyncComputed, xcomputed } from '../utils/signal-utils';
 import type { Localization } from './localization.en';
 import { interpolate, resolveLocalizationKey } from './localize-utils';
@@ -8,7 +8,7 @@ export const SUPPORTED_LANGUAGES = {
     de: 'Deutsch',
 } as const;
 
-export type SupportedLanguage = keyof typeof SUPPORTED_LANGUAGES;
+export type LanguageKey = keyof typeof SUPPORTED_LANGUAGES;
 export type LocalizeFn = (key: string, params?: Record<string, unknown> | null) => string;
 
 const LANGUAGE_STORAGE_KEY = 'language';
@@ -18,16 +18,15 @@ const LANGUAGE_STORAGE_KEY = 'language';
 })
 export class LanguageService {
 
-    private readonly localizationPromisesByLanguage: Partial<Record<SupportedLanguage, Promise<Localization>>> = {};
+    private readonly localizationPromisesByLanguage: Partial<Record<LanguageKey, Promise<Localization>>> = {};
 
-    private readonly _current = signal<SupportedLanguage>('en');
+    private readonly _current = signal<LanguageKey>('en');
     readonly current = this._current.asReadonly();
 
     readonly localization = asyncComputed([this._current], lang => this.getLocalization(lang));
 
     readonly locale = xcomputed([this._current], lang => {
-        if (lang.includes('-')) return lang;
-        switch (lang as SupportedLanguage) {
+        switch (lang) {
             case 'de': return 'de-DE';
             case 'en': return 'en-US';
             default: throw new Error(`no locale for "${lang}"`);
@@ -43,13 +42,13 @@ export class LanguageService {
     });
 
     constructor() {
-        let language = (localStorage.getItem(LANGUAGE_STORAGE_KEY) || navigator.language.split('-')[0]) as SupportedLanguage;
+        let language = (localStorage.getItem(LANGUAGE_STORAGE_KEY) || navigator.language.split('-')[0]) as LanguageKey;
         if (!(language in SUPPORTED_LANGUAGES)) language = 'en';
         this._current.set(language);
 
     }
 
-    setLanguage(lang: SupportedLanguage) {
+    setLanguage(lang: LanguageKey) {
         localStorage.setItem(LANGUAGE_STORAGE_KEY, lang);
         this._current.set(lang);
     }
@@ -79,7 +78,7 @@ export class LanguageService {
         return xcomputed([this.localizer], localizer => localizer(key, params));
     }
     
-    private async getLocalization(language: SupportedLanguage): Promise<Localization> {
+    private async getLocalization(language: LanguageKey): Promise<Localization> {
         return this.localizationPromisesByLanguage[language] ??= (() => {
             switch (language) {
                 case 'en': return import('./localization.en').then(m => m.LOCALIZATION);

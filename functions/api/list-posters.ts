@@ -3,8 +3,8 @@ import {
 } from "../shared/file-signing-utils";
 import { BadRequestError, getSupabaseService, runUnauthenticatedFunction } from "../shared/functions-utils";
 
-export const onRequest = runUnauthenticatedFunction<{ key: string }>(async req => {
-    const { key } = req.params;
+export const onRequest = runUnauthenticatedFunction(async (req, params: { key: string }) => {
+    const { key } = params;
     if (!key) throw new BadRequestError("key required");
 
     // Fetch posters and their unit in a single query, scoped by bulletin board key.
@@ -22,3 +22,5 @@ export const onRequest = runUnauthenticatedFunction<{ key: string }>(async req =
 
     return { posters };
 });
+
+export type ListPostersFunction = typeof onRequest;

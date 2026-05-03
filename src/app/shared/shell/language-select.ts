@@ -1,7 +1,7 @@
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Component, inject } from '@angular/core';
 import MenuButtonComponent from '../form/button/menu/menu-button';
-import { LanguageService, SUPPORTED_LANGUAGES, SupportedLanguage } from '../language/language.service';
+import { LanguageService, SUPPORTED_LANGUAGES, LanguageKey } from '../language/language.service';
 
 @Component({
     selector: 'app-language-select',
@@ -35,7 +35,7 @@ export class LanguageSelect {
     protected readonly language = inject(LanguageService);
 
     protected readonly languageItems = Object.entries(SUPPORTED_LANGUAGES).map(([lang, label]) => ({
-        lang: lang as SupportedLanguage,
+        lang: lang as LanguageKey,
         img: `assets/img/flags/${lang}.svg`,
         label,
     })).sort((a, b) => {

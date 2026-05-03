@@ -4,6 +4,8 @@ type WorkerEnv = Record<string, string>;
 
 const API_PREFIX = "/api/";
 
+// This is used for local development only. In production, Cloudflare Workers will route requests to the correct function based on the file system.
+
 async function handleApiRequest(request: CFRequest, env: WorkerEnv, ctx: ExecutionContext): Promise<CFResponse> {
     const url = new URL(request.url);
 

@@ -1,8 +1,8 @@
 import { BadRequestError, getSupabaseService, NotFoundError, PermissionError, runFunction } from "../shared/functions-utils";
 
-export const onRequest = runFunction<{ unit_id: number }>(async req => {
-
-    const { params: { unit_id }, user } = req;
+export const onRequest = runFunction(async (req, params: { unit_id: number }) => {
+    const { user } = req;
+    const { unit_id } = params;
     if (!unit_id)
         throw new BadRequestError("unit_id is required");
 
@@ -35,4 +35,5 @@ export const onRequest = runFunction<{ unit_id: number }>(async req => {
 
     return { profile: data };
 });
-    
+
+export type JoinUnitFunction = typeof onRequest;

@@ -4,6 +4,9 @@ import { mapRouteObject, RouteObject } from "@/shared/utils/route-utils";
 export const publicTabs: RouteObject = {
     login: { loadComponent: () => import('./login-page').then(m => m.LoginPage) },
     register: { loadComponent: () => import('./register-page').then(m => m.RegisterPage) },
+    'request-password-reset': { loadComponent: () => import('./forgot-password-page').then(m => m.ForgotPasswordPage) },
+    'reset-password': { loadComponent: () => import('./reset-password-page').then(m => m.ResetPasswordPage) },
+    join: { loadComponent: () => import('./join-page').then(m => m.JoinPage) },
     setup: {
         pending: { loadComponent: () => import('./setup/setup-pending-page').then(m => m.SetupPendingPage) },
         rejected: { loadComponent: () => import('./setup/setup-rejected-page').then(m => m.SetupRejectedPage) },

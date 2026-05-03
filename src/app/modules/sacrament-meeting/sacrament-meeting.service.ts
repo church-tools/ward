@@ -1,6 +1,6 @@
 import { inject, Injectable } from "@angular/core";
 import { SupabaseService } from "@/shared/service/supabase.service";
-import { getSundayIndexInMonth, getUpcomingSundayIndex, SundayIndex } from "@/shared/utils/date-utils";
+import { DAY, getSundayIndexInMonth, getUpcomingSundayIndex, SundayIndex } from "@/shared/utils/date-utils";
 import { ProfileService } from "../profile/profile.service";
 import type { SacramentMeeting } from "./sacrament-meeting";
 
@@ -19,13 +19,29 @@ export class SacramentMeetingService {
 
     async assureUpcomingMeeting(): Promise<SacramentMeeting.Row> {
         const currentWeek = getUpcomingSundayIndex();
-        let upcomingMeeting = await this.supabase.sync
+        return this.assureMeeting(currentWeek);
+    }
+
+    async assureCurrentOrUpcomingMeeting(date = new Date()): Promise<SacramentMeeting.Row> {
+        const sunday = this.getCurrentOrUpcomingSundayIndex(date);
+        return this.assureMeeting(sunday);
+    }
+
+    getCurrentOrUpcomingSundayIndex(date = new Date()): SundayIndex {
+        if (date.getDay() === 0)
+            return getUpcomingSundayIndex(date);
+        const nextWeek = new Date(date.getTime() + 7 * DAY);
+        return getUpcomingSundayIndex(nextWeek);
+    }
+
+    private async assureMeeting(sundayIndex: SundayIndex): Promise<SacramentMeeting.Row> {
+        let meeting = await this.supabase.sync
             .from('sacrament_meeting')
             .findOne()
-            .eq('week', currentWeek)
+            .eq('week', sundayIndex)
             .get();
-        upcomingMeeting ??= await this.createMeeting(currentWeek);
-        return upcomingMeeting;
+        meeting ??= await this.createMeeting(sundayIndex);
+        return meeting;
     }
 
     async createMeeting(sundayIndex: SundayIndex): Promise<SacramentMeeting.Row> {

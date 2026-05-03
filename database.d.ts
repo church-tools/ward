@@ -767,8 +767,8 @@ export type Database = {
         Row: {
           announcements: string[] | null
           baptised_members: string[] | null
-          closing_hymn: number | null
           classes: string | null
+          closing_hymn: number | null
           closing_prayer: string | null
           further_meetings: string[] | null
           greetings: string[] | null
@@ -784,8 +784,8 @@ export type Database = {
         Insert: {
           announcements?: string[] | null
           baptised_members?: string[] | null
-          closing_hymn?: number | null
           classes?: string | null
+          closing_hymn?: number | null
           closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
@@ -801,8 +801,8 @@ export type Database = {
         Update: {
           announcements?: string[] | null
           baptised_members?: string[] | null
-          closing_hymn?: number | null
           classes?: string | null
+          closing_hymn?: number | null
           closing_prayer?: string | null
           further_meetings?: string[] | null
           greetings?: string[] | null
@@ -831,8 +831,8 @@ export type Database = {
           bulletin_board_key: string
           created_by: string
           id: number
-          invitation_issue_date: string | null
-          invitation_token: string | null
+          join_timeout: string | null
+          join_token: string | null
           name: string
           sacrament_service_time: number
           updated_at: string
@@ -842,8 +842,8 @@ export type Database = {
           bulletin_board_key?: string
           created_by: string
           id?: number
-          invitation_issue_date?: string | null
-          invitation_token?: string | null
+          join_timeout?: string | null
+          join_token?: string | null
           name: string
           sacrament_service_time?: number
           updated_at?: string
@@ -853,8 +853,8 @@ export type Database = {
           bulletin_board_key?: string
           created_by?: string
           id?: number
-          invitation_issue_date?: string | null
-          invitation_token?: string | null
+          join_timeout?: string | null
+          join_token?: string | null
           name?: string
           sacrament_service_time?: number
           updated_at?: string
@@ -867,6 +867,12 @@ export type Database = {
     }
     Functions: {
       access_token_hook: { Args: { event: Json }; Returns: Json }
+      get_user_id_by_email: {
+        Args: { email: string }
+        Returns: {
+          id: string
+        }[]
+      }
     }
     Enums: {
       agenda_item_type:

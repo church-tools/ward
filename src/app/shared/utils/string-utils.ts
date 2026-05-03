@@ -1,6 +1,11 @@
 
 const OVER_LENGTH_PENALTY = 0.25;
 const EMPTY_SIMILARITY = 0.25;
+const CHARS = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
+export function createReadableCode(length: number): string {
+    return Array.from({ length }, () => CHARS[Math.floor(Math.random() * CHARS.length)]).join("");
+}
 
 export function getAvgSimilarity(words: string[], other: string) {
     if (!words.length) return other ? 0 : EMPTY_SIMILARITY;

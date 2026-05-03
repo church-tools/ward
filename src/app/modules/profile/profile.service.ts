@@ -9,7 +9,8 @@ export class ProfileService implements OnDestroy {
 
     private readonly supabase = inject(SupabaseService);
 
-    readonly own = xsignal<Profile.Row | null>(null);
+    private readonly _own = xsignal<Profile.Row | null>(null);
+    readonly own = this._own.readonly;
 
     private ownSubscription?: Subscription;
 
@@ -21,7 +22,7 @@ export class ProfileService implements OnDestroy {
                 .findOne()
                 .eq('email', user.email!)
                 .subscribe(({ result: own }) => {
-                    if (own) this.own.set(own);
+                    if (own) this._own.set(own);
                 });
         });
     }

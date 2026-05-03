@@ -3,7 +3,7 @@ import { NgTemplateOutlet } from '@angular/common';
 import { booleanAttribute, Component, contentChild, DOCUMENT, ElementRef, inject, Injector, input, output, Signal, signal, TemplateRef, viewChild, viewChildren, WritableSignal } from '@angular/core';
 import { RouterModule, UrlTree } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { IconCode, Icon } from '../../icon/icon';
+import { Icon, IconCode } from '../../icon/icon';
 import { DragDropService, DropData } from '../../service/drag-drop.service';
 import { WindowService } from '../../service/window.service';
 import { PromiseOrValue } from '../../types';
@@ -13,6 +13,7 @@ import { getHoverNudge } from '../../utils/hover-nudge';
 import { waitForNextChange, xcomputed, xeffect } from '../../utils/signal-utils';
 import { animationDurationMs, easeOut } from '../../utils/style';
 import { WatchChildrenDirective } from "../../utils/watch-children";
+import { ActiveIndicator } from '../active-indicator/active-indicator';
 import { SwapContainer } from '../swap-container/swap-container';
 
 type ItemCard<T, ID extends number | string> = {
@@ -25,7 +26,8 @@ type ItemCard<T, ID extends number | string> = {
 
 @Component({
     selector: 'app-card-list',
-    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, Icon, SwapContainer, WatchChildrenDirective],
+    imports: [RouterModule, NgTemplateOutlet, CdkDrag, CdkDropList, Icon,
+        SwapContainer, WatchChildrenDirective, ActiveIndicator],
     templateUrl: './card-list.html',
     styleUrl: './card-list.scss',
 })

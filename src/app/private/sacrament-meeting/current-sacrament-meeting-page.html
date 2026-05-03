@@ -1,0 +1,150 @@
+<app-drawer-router-outlet (onClose)="navigateHere()">
+    <div class="page narrow gap-4">
+        <div class="row no-wrap items-center gap-2 wrap-anywhere">
+            <span class="h0 grow-1">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
+        </div>
+
+        <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning" appHoverNudge>
+            <div class="row no-wrap items-center m-6-8">
+                <h3 class="grow-1">
+                    <app-icon icon="text_bullet_list_square_edit" filled/>
+                    <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PLANNING_PAGE.SHORT_TITLE' | localize }}</span>
+                </h3>
+                <app-icon class="ms-auto" icon="chevron_right"/>
+            </div>
+        </a>
+
+        @if (meetingDate(); as date) {
+            <h3>{{ date | date : 'dd MMM yyyy' : undefined : languageService.locale() }}</h3>
+        }
+
+        @if (syncedRow.value(); as row) {
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.ANNOUNCEMENTS' | localize }}</h3>
+                <app-multi-select
+                    [syncedRow]="syncedRow"
+                    column="announcements"
+                    [options]="emptyOptions"
+                    allowCustomText
+                    label="{{ 'SACRAMENT_MEETING_PAGE.ANNOUNCEMENTS' | localize }}"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.OPENING_HYMN' | localize }}</h3>
+                <app-fixed-hymn-card
+                    slot="opening"
+                    [meetingId]="row.id"
+                    [hymnNumber]="row.opening_hymn"
+                    labelKey="SACRAMENT_MEETING_PAGE.OPENING_HYMN"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | localize }}</h3>
+                <app-custom-row-select
+                    [syncedRow]="syncedRow"
+                    column="opening_prayer"
+                    table="member"
+                    label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | localize }}"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.CONFIRMING_MEMBERS' | localize }}</h3>
+                <app-multi-select
+                    [syncedRow]="syncedRow"
+                    column="moved_member"
+                    [options]="emptyOptions"
+                    allowCustomText
+                    label="{{ 'SACRAMENT_MEETING_PAGE.MOVED_MEMBERS' | localize }}"/>
+                <app-multi-select
+                    [syncedRow]="syncedRow"
+                    column="baptised_members"
+                    [options]="emptyOptions"
+                    allowCustomText
+                    label="{{ 'SACRAMENT_MEETING_PAGE.BAPTISED_MEMBERS' | localize }}"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.CALLING_CHANGES' | localize }}</h3>
+                <app-row-card-list
+                    tableName="member_calling"
+                    [getQuery]="callingChangesQuery"
+                    [activeId]="activeMemberCallingId()"
+                    [getUrl]="getCallingPopoverUrl"
+                    [gap]="1"
+                    [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
+                    <ng-template #rowTemplate let-item>
+                        <app-member-calling-list-row [row]="item"/>
+                    </ng-template>
+                </app-row-card-list>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN' | localize }}</h3>
+                <app-fixed-hymn-card
+                    slot="sacrament"
+                    [meetingId]="row.id"
+                    [hymnNumber]="row.sacrament_hymn"
+                    labelKey="SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.MESSAGES_AND_HYMNS' | localize }}</h3>
+                <app-row-card-list-multi
+                    [tableQueries]="tableQueries()"
+                    [activeId]="activeItemId()"
+                    [getUrl]="getItemPopoverUrl"
+                    editable
+                    alwaysShowInsertTemplate
+                    [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
+                    <ng-template #rowTemplate let-item>
+                        @if (item.table === 'message') {
+                            <app-message-list-row [row]="item.row"/>
+                        } @else if (item.table === 'hymn') {
+                            <app-hymn-list-row [row]="item.row"/>
+                        } @else if (item.table === 'musical_performance') {
+                            <app-musical-performance-list-row [row]="item.row"/>
+                        }
+                    </ng-template>
+                    <ng-template #insertTemplate let-functions>
+                        <div class="row gap-2 full-width center-content">
+                            <app-button type="secondary" size="large"
+                                (onClick)="insertItem('message', functions.insert)">
+                                {{ 'MESSAGE_PAGE.TITLE' | localize }}
+                            </app-button>
+                            <app-button type="secondary" size="large"
+                                (onClick)="insertItem('hymn', functions.insert)">
+                                {{ 'HYMN_PAGE.TITLE' | localize }}
+                            </app-button>
+                            <app-button type="secondary" size="large"
+                                (onClick)="insertItem('musical_performance', functions.insert)">
+                                {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | localize }}
+                            </app-button>
+                            <app-button type="secondary" size="large"
+                                (onClick)="insertCustomText(functions.insert)">
+                                {{ 'SACRAMENT_MEETING_PAGE.CUSTOM_TEXT' | localize }}
+                            </app-button>
+                        </div>
+                    </ng-template>
+                </app-row-card-list-multi>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.CLOSING_HYMN' | localize }}</h3>
+                <app-fixed-hymn-card
+                    slot="closing"
+                    [meetingId]="row.id"
+                    [hymnNumber]="row.closing_hymn"
+                    labelKey="SACRAMENT_MEETING_PAGE.CLOSING_HYMN"/>
+            </div>
+
+            <div class="card canvas-card m-4 column gap-2">
+                <h3>{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | localize }}</h3>
+                <app-custom-row-select
+                    [syncedRow]="syncedRow"
+                    column="closing_prayer"
+                    table="member"
+                    label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | localize }}"/>
+            </div>
+        }
+    </div>
+</app-drawer-router-outlet>

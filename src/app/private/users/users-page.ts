@@ -3,9 +3,12 @@ import { ProfileListInsert } from '@/modules/profile/profile-list-insert';
 import { ProfileListRow } from '@/modules/profile/profile-list-row';
 import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
 import { Table } from '@/modules/shared/table.types';
-import { Component, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Icon } from '@/shared/icon/icon';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
+import { ActiveIndicator } from '@/shared/widget/active-indicator/active-indicator';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
 import { NewUnits } from "./new-units";
@@ -16,8 +19,28 @@ import { NewUnits } from "./new-units";
         <app-drawer-router-outlet
             (onClose)="navigateHere()"
             (activated)="onActivate($event)">
-            <div class="page narrow gap-4">
+            <div class="page narrow gap-8">
                 <span class="h0">{{ 'USERS_PAGE.TITLE' | localize }}</span>
+                <div class="row">
+                    <a class="card grow-1 stealth canvas-card suppress-canvas-card-animation selectable-card"
+                        style="position: relative;"
+                        appHoverNudge [hoverNudgeDistance]="1"
+                        routerLink="/users/create-join-link"
+                        [routerLinkActive]="[]"
+                        [routerLinkActiveOptions]="{ exact: true }"
+                        #activeLink="routerLinkActive"
+                        (click)="activeLink.isActive ? null :$event.stopPropagation()">
+                        @if (activeLink.isActive) {
+                            <app-active-indicator/>
+                        }
+                        <div class="row no-wrap items-center m-4">
+                            <h4 class="grow-1">
+                                <app-icon icon="link" class="subtle-text"/>
+                                <span>{{ 'CREATE_JOIN_LINK.TITLE' | localize }}</span>
+                            </h4>
+                        </div>
+                    </a>
+                </div>
                 <app-row-card-list
                     tableName="profile"
                     editable
@@ -43,7 +66,8 @@ import { NewUnits } from "./new-units";
         </app-drawer-router-outlet>
     `,
     imports: [LocalizePipe, RowCardList, ProfileListRow, ProfileListInsert,
-        DrawerRouterOutlet, NewUnits],
+        DrawerRouterOutlet, NewUnits, RouterLink, RouterLinkActive,
+        HoverNudgeDirective, Icon, ActiveIndicator],
     host: { class: 'full-width' },
 })
 export class UsersPage extends PrivatePage {
@@ -65,6 +89,7 @@ export class UsersPage extends PrivatePage {
     }
 
     protected onActivate(id: string | null) {
-        this.activeProfileId.set(id ? +id : null);
+        const parsedId = id ? Number(id) : null;
+        this.activeProfileId.set(parsedId !== null && Number.isFinite(parsedId) ? parsedId : null);
     }
 }

@@ -1,5 +1,5 @@
 import { ViewService } from "@/modules/shared/view.service";
-import { SupportedLanguage } from "@/shared/language/language.service";
+import { LanguageKey } from "@/shared/language/language.service";
 import { inject, Injectable } from "@angular/core";
 import type { Hymn } from "./hymn";
 import { HymnTitleService } from './hymn-title.service';
@@ -19,7 +19,7 @@ export class HymnViewService extends ViewService<'hymn'> {
         return '';
     }
 
-    getSelectOptions(language: SupportedLanguage) {
+    getSelectOptions(language: LanguageKey) {
         return this.titleService.getSelectOptions(language);
     }
 }

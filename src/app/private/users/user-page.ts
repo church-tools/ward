@@ -63,14 +63,18 @@ export class UserPage extends RowPage<'profile'> {
 
     protected approve(approve: boolean) {
         return async () => {
-            await this.functions.approveUser(this.syncedRow.id()!, approve);
+            const profileId = this.syncedRow.id();
+            if (!profileId) return;
+            await this.functions.call('approve-user', { profile_id: profileId, approve });
             this.router.navigate(['../'], { relativeTo: this.route });
         }
     }
 
     protected setAdmin(admin: boolean) {
         return async () => {
-            await this.functions.setUserAdmin(this.syncedRow.id()!, admin);
+            const profileId = this.syncedRow.id();
+            if (!profileId) return;
+            await this.functions.call('set-user-admin', { profile_id: profileId, set_admin: admin });
         }
     }
 }
