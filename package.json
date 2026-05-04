@@ -24,7 +24,7 @@
     "@angular/router": "^21.2.11",
     "@angular/service-worker": "^21.2.11",
     "@aws-sdk/client-s3": "^3.1041.0",
-    "@supabase/supabase-js": "^2.105.1",
+    "@supabase/supabase-js": "^2.105.2",
     "chrome-remote-interface": "^0.34.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
@@ -37,9 +37,9 @@
     "@angular/compiler": "^21.2.11",
     "@angular/compiler-cli": "^21.2.11",
     "@angular/language-service": "^21.2.11",
-    "@cloudflare/workers-types": "^4.20260502.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260503.1",
-    "supabase": "^2.98.0",
+    "@cloudflare/workers-types": "^4.20260504.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260504.1",
+    "supabase": "^2.98.1",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
