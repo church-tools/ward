@@ -1,13 +1,21 @@
 import { BadRequestError, Env } from "./functions-utils";
 
-type SendEmailBinding = {
-    send: (message: {
-        from: string;
-        to: string;
-        subject: string;
-        text: string;
-        html?: string;
-    }) => Promise<void>;
+const MAILCHANNELS_SEND_URL = "https://api.mailchannels.net/tx/v1/send";
+const MAIL_FROM_NAME = "Ward Tools";
+
+type MailchannelsPayload = {
+    personalizations: {
+        to: { email: string }[];
+    }[];
+    from: {
+        email: string;
+        name: string;
+    };
+    subject: string;
+    content: {
+        type: "text/plain" | "text/html";
+        value: string;
+    }[];
 };
 
 export type EmailPayload = {
@@ -18,32 +26,35 @@ export type EmailPayload = {
 };
 
 export async function sendEmail(env: Env, payload: EmailPayload) {
-    const from = env["MAIL_FROM"];
-    if (typeof from !== "string" || !from)
-        throw new Error("Missing env variable: MAIL_FROM");
+    const appOrigin = env["APP_ORIGIN"];
+    if (typeof appOrigin !== "string" || !appOrigin)
+        throw new Error("Missing env variable: APP_ORIGIN");
+    const from = `noreply@${new URL(appOrigin).hostname}`
+    const content: MailchannelsPayload["content"] = [
+        { type: "text/plain", value: payload.text },
+    ];
 
-    const binding = env["SEND_EMAIL"] as never as SendEmailBinding | undefined;
-    if (!binding?.send)
-        throw new Error("Missing SEND_EMAIL binding");
+    if (payload.html)
+        content.push({ type: "text/html", value: payload.html });
 
-    await binding.send({
-        from,
-        to: payload.to,
-        subject: payload.subject,
-        text: payload.text,
-        html: payload.html,
+    const response = await fetch(MAILCHANNELS_SEND_URL, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+            personalizations: [{ to: [{ email: payload.to }] }],
+            from: {
+                email: from,
+                name: MAIL_FROM_NAME,
+            },
+            subject: payload.subject,
+            content,
+        } satisfies MailchannelsPayload),
     });
-}
 
-export function requireEmail(value: string | null | undefined, field: string) {
-    if (!value)
-        throw new BadRequestError(`${field} is required`);
-
-    const normalized = value.trim().toLowerCase();
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized))
-        throw new BadRequestError(`${field} is invalid`);
-
-    return normalized;
+    if (!response.ok) {
+        const errorBody = await response.text().catch(() => "");
+        throw new Error(`Mailchannels send failed (${response.status} ${response.statusText}): ${errorBody || "no response body"}`);
+    }
 }
 
 type PlaceholderPrimitive = string | number | boolean;
