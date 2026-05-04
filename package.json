@@ -24,7 +24,7 @@
     "@angular/router": "^21.2.11",
     "@angular/service-worker": "^21.2.11",
     "@aws-sdk/client-s3": "^3.1041.0",
-    "@supabase/supabase-js": "^2.105.2",
+    "@supabase/supabase-js": "^2.105.3",
     "chrome-remote-interface": "^0.34.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
