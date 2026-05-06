@@ -35,7 +35,7 @@ export const LOCALIZATION: Localization = {
       CAPTCHA_REQUIRED: "Bitte schließen Sie die CAPTCHA-Herausforderung ab.",
       USER_ALREADY_EXISTS: "Es existiert bereits ein Konto mit dieser E-Mail-Adresse.",
       SIGNUP_DISABLED: "Die Registrierung ist derzeit deaktiviert.",
-      EMAIL_CONFIRMATION_REQUIRED: "Bitte überprüfen Sie Ihren Posteingang (und Spam-Ordner) und bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden."
+      EMAIL_CONFIRMATION_REQUIRED: "Bitte überprüfen Sie Ihren Posteingang und <strong class=\"accent-text strong-text\">Spam-Ordner</strong> und bestätigen Sie Ihre E-Mail, bevor Sie sich anmelden."
     }
   },
   FORGOT_PASSWORD: {
@@ -68,8 +68,8 @@ export const LOCALIZATION: Localization = {
     }
   },
   CONFIRM_EMAIL: {
-    TITLE: "E-Mail bestätigen",
-    MESSAGE: "Bitte überprüfen Sie Ihren Posteingang (und Spam-Ordner) und bestätigen Sie Ihre E-Mail-Adresse.",
+    TITLE: "E-Mail-Adresse bestätigen",
+    MESSAGE: "Bitte überprüfen Sie Ihren Posteingang und <strong class=\"accent-text strong-text\">Spam-Ordner</strong> und bestätigen Sie Ihre E-Mail-Adresse.",
   },
   SETUP_PENDING: {
     TITLE: "Anfrage ausstehend",

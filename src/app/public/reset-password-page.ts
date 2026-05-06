@@ -16,7 +16,6 @@ import { Page } from '../shared/page/page';
             <p class="text-center">{{ 'RESET_PASSWORD.SET_NEW_MESSAGE' | localize }}</p>
             <div class="column-grid full-width max-width-96">
                 <app-text-input class="col-12"
-                    [label]="'RESET_PASSWORD.NEW_PASSWORD' | localize"
                     [placeholder]="'RESET_PASSWORD.NEW_PASSWORD' | localize"
                     type="password"
                     [formField]="passwordForm"/>

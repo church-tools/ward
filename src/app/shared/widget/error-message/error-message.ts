@@ -11,7 +11,7 @@ import { LocalizeParameters } from '@/shared/language/localize-utils';
         <app-collapse>
             <div class="row no-wrap danger-text">
                 <app-icon icon="error_circle" filled size="xs"/>
-                {{ error() }}
+                <span [innerHTML]="error()"></span>
             </div>
         </app-collapse>
     `,

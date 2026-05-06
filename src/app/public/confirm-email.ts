@@ -7,7 +7,7 @@ import { Page } from '../shared/page/page';
     selector: 'app-confirm-email-page',
     template: `
         <span class="display-text text-center">{{ 'CONFIRM_EMAIL.TITLE' | localize }}</span>
-        <p class="text-center">{{ 'CONFIRM_EMAIL.MESSAGE' | localize }}</p>
+        <p class="text-center" [innerHTML]="'CONFIRM_EMAIL.MESSAGE' | localize"></p>
         <div class="row center-content mt-8">
             <app-icon icon="mail_unread" size="xxxxl" filled class="accent-text"/>
         </div>

@@ -12,6 +12,11 @@ export type AuthEmailLanguage = "en" | "de";
 export type AuthEmailType = keyof AuthEmailLocalization;
 export type AuthEmailCopy = AuthEmailLocalization[AuthEmailType];
 
+const AUTH_EMAIL_HEADERS = {
+    "Auto-Submitted": "auto-generated",
+    "X-Auto-Response-Suppress": "All",
+} as const;
+
 const brand = {
     canvas: "#e8e8e8",
     card: "#f6f6f6",
@@ -37,16 +42,17 @@ export async function sendAuthEmail(
     const actionLink = linkData.properties?.action_link;
     if (!actionLink)
         throw new BadRequestError("failed_to_generate_confirmation_link");
-    const template = getTemplate(type, language, actionLink);
+    const template = getAuthEmailTemplate(type, language, actionLink);
     await sendEmail(req.env, {
         to,
         subject: template.subject,
         text: template.text,
         html: template.html,
+        headers: AUTH_EMAIL_HEADERS,
     });
 }
 
-function getTemplate(type: AuthEmailType, language: LanguageKey, link: string, unitName?: string) {
+export function getAuthEmailTemplate(type: AuthEmailType, language: LanguageKey, link: string, unitName?: string) {
     const copy = getLocalization(language)[type];
     unitName ??= "";
 

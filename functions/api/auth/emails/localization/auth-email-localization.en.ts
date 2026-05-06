@@ -1,15 +1,15 @@
 
 export const AUTH_EMAIL_LOCALIZATION = {
     confirm: {
-        subject: "Please confirm your email address",
-        title: "Please confirm your email address",
+        subject: "Ward Tools: confirm your email address",
+        title: "Confirm your email address",
         intro: "Welcome to Ward Tools!",
         body: "Please confirm your email address with the link below.",
         buttonLabel: "Confirm email",
         footer: "If you did not create an account, you can ignore this email.",
     },
     reset: {
-        subject: "Reset your password",
+        subject: "Ward Tools: reset your password",
         title: "Reset your password",
         intro: "You requested to reset your password.",
         body: "Use the link below to set a new password.",
@@ -17,7 +17,7 @@ export const AUTH_EMAIL_LOCALIZATION = {
         footer: "If you did not request this, you can ignore this email.",
     },
     invite: {
-        subject: `Invitation to Ward Tools - {{unitName}}`,
+        subject: `Ward Tools: invitation to {{unitName}}`,
         title: `Invitation to Ward Tools - {{unitName}}`,
         intro: `You have been invited to {{unitName}}.`,
         body: "Accept the invitation using the link below.",

@@ -6,6 +6,7 @@ import type { ApproveUserFunction } from '@root/functions/api/approve-user';
 import type { GenerateJoinLinkFunction } from '@root/functions/api/auth/generate-join-link';
 import type { JoinWithProviderFunction } from '@root/functions/api/auth/join-with-provider';
 import type { LoginWithPasswordFunction } from '@root/functions/api/auth/login-with-password';
+import type { PreviewEmailTemplateFunction } from '@root/functions/api/auth/preview-email-template';
 import type { PreviewJoinLinkFunction } from '@root/functions/api/auth/preview-join-link';
 import type { RegisterWithPasswordFunction } from '@root/functions/api/auth/register-with-password';
 import type { SendInvitationEmailFunction } from '@root/functions/api/auth/send-invitation-email';
@@ -28,6 +29,7 @@ export type FunctionRouteMap = {
     'auth/generate-join-link': GenerateJoinLinkFunction;
     'auth/join-with-provider': JoinWithProviderFunction;
     'auth/login-with-password': LoginWithPasswordFunction;
+    'auth/preview-email-template': PreviewEmailTemplateFunction;
     'auth/preview-join-link': PreviewJoinLinkFunction;
     'auth/register-with-password': RegisterWithPasswordFunction;
     'auth/send-invitation-email': SendInvitationEmailFunction;

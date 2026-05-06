@@ -58,7 +58,7 @@ export async function signFileAccessUrl(env: Env, unitId: number, key: string, m
 function getSigningCredentials(env: Env): { accessKey: string; secretKey: string; accountId: string } {
 	const accessKey = env["AWS_ACCESS_KEY_ID"] ?? "";
 	const secretKey = env["AWS_SECRET_ACCESS_KEY"] ?? "";
-	const accountId = env["R2_ACCOUNT_ID"] ?? "";
+	const accountId = env["ACCOUNT_ID"] ?? "";
 	if (!accessKey || !secretKey || !accountId)
 		throw new BadRequestError("R2 credentials not configured");
 	return { accessKey, secretKey, accountId };

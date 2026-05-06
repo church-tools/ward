@@ -91,7 +91,7 @@ export async function getS3Client(env: Env) {
     const { S3Client } = await import("@aws-sdk/client-s3");
     const accessKeyId = env["AWS_ACCESS_KEY_ID"];
     const secretAccessKey = env["AWS_SECRET_ACCESS_KEY"];
-    const accountId = env["R2_ACCOUNT_ID"];
+    const accountId = env["ACCOUNT_ID"];
     return _s3Client = new S3Client({
         region: "auto",
         endpoint: `https://${accountId}.r2.cloudflarestorage.com`,

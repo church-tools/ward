@@ -34,7 +34,7 @@ export const LOCALIZATION = {
       CAPTCHA_REQUIRED: "Please complete the CAPTCHA challenge.",
       USER_ALREADY_EXISTS: "An account with this email already exists.",
       SIGNUP_DISABLED: "Account creation is currently disabled.",
-      EMAIL_CONFIRMATION_REQUIRED: "Please check your inbox (and spam folder) and confirm your email before logging in.",
+      EMAIL_CONFIRMATION_REQUIRED: "Please check your inbox and <strong class=\"accent-text strong-text\">spam folder</strong> and confirm your email before logging in.",
     },
   },
   FORGOT_PASSWORD: {
@@ -67,8 +67,8 @@ export const LOCALIZATION = {
     }
   },
   CONFIRM_EMAIL: {
-    TITLE: "Confirm Email",
-    MESSAGE: "Please check your inbox (and spam folder) and confirm your email address.",
+    TITLE: "Confirm Email Address",
+    MESSAGE: "Please check your inbox and <strong class=\"accent-text strong-text\">spam folder</strong> and confirm your email address.",
   },
   SETUP_PENDING: {
     TITLE: "Request Pending",
