@@ -3,6 +3,7 @@
 
 import type { Endpoint } from '@root/functions/shared/functions-utils';
 import type { ApproveUserFunction } from '@root/functions/api/approve-user';
+import type { GetAuthEmailFunction } from '@root/functions/api/auth/emails/get-auth-email';
 import type { GenerateJoinLinkFunction } from '@root/functions/api/auth/generate-join-link';
 import type { JoinWithProviderFunction } from '@root/functions/api/auth/join-with-provider';
 import type { LoginWithPasswordFunction } from '@root/functions/api/auth/login-with-password';
@@ -26,6 +27,7 @@ type EndpointResult<TFunction> = TFunction extends Endpoint<any, infer R> ? R : 
 
 export type FunctionRouteMap = {
     'approve-user': ApproveUserFunction;
+    'auth/emails/get-auth-email': GetAuthEmailFunction;
     'auth/generate-join-link': GenerateJoinLinkFunction;
     'auth/join-with-provider': JoinWithProviderFunction;
     'auth/login-with-password': LoginWithPasswordFunction;

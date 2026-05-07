@@ -6,23 +6,28 @@
         <td align="center">
           <table role="presentation" width="100%" cellspacing="0" cellpadding="0" style="max-width:640px;border:1px solid {{brand.border}};border-radius:12px;overflow:hidden;background:{{brand.card}};box-shadow:0 10px 30px rgba(0,0,0,0.08);">
             <tr>
-              <td style="background:{{brand.accent}};height:10px;line-height:10px;font-size:0;">&nbsp;</td>
-            </tr>
-            <tr>
               <td style="padding:32px 32px 28px;">
-                <div style="font-size:13px;line-height:18px;letter-spacing:.08em;text-transform:uppercase;color:{{brand.accent}};font-weight:700;margin:0 0 8px;">Ward Tools</div>
-                <h1 style="margin:0 0 16px;font-size:28px;line-height:34px;font-weight:700;">{{title}}</h1>
-                <p style="margin:0 0 18px;font-size:16px;line-height:24px;color:{{brand.text}};">{{intro}}</p>
-                <p style="margin:0 0 24px;font-size:15px;line-height:23px;color:{{brand.subtle}};">{{body}}</p>
-                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 20px;">
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 8px;">
                   <tr>
-                    <td style="border-radius:8px;background:{{brand.accent}};">
-                      <a href="{{link}}" style="display:inline-block;padding:14px 24px;border-radius:999px;color:{{brand.accentText}};text-decoration:none;font-size:15px;line-height:15px;font-weight:700;">{{buttonLabel}}</a>
+                    <td valign="middle" style="padding:0 8px 0 0;">
+                      <img src="{{appIconUrl}}" alt="" width="20" height="20" style="display:block;border-radius:5px;" />
+                    </td>
+                    <td valign="middle">
+                      <div style="font-size:13px;line-height:18px;letter-spacing:.08em;color:{{brand.accent}};font-weight:700;margin:0;">{{appName}}</div>
                     </td>
                   </tr>
                 </table>
-                <p style="margin:0 0 8px;font-size:14px;line-height:21px;color:{{brand.subtle}};word-break:break-all;">{{link}}</p>
-                <p style="margin:0;font-size:13px;line-height:20px;color:{{brand.subtle}};">{{footer}}</p>
+                <h1 style="margin:0 0 16px;font-size:28px;line-height:34px;font-weight:700;">{{title}}</h1>
+                <p style="margin:0 0 18px;font-size:15px;line-height:24px;color:{{brand.text}};white-space:pre-line;">{{body}}</p>
+                <table role="presentation" cellspacing="0" cellpadding="0" style="margin:0 0 5px;">
+                  <tr>
+                    <td style="border-radius:8px;background:{{brand.accent}};">
+                      <a href="{{link}}" style="display:inline-block;padding:14px 24px;border-radius:8px;color:{{brand.accentText}};text-decoration:none;font-size:15px;line-height:15px;font-weight:700;">{{buttonLabel}}</a>
+                    </td>
+                  </tr>
+                </table>
+                <p style="margin:0;font-size:13px;line-height:20px;color:{{brand.subtle}};">{{buttonNote}}</p>
+                <p style="margin:0;font-size:13px;line-height:20px;color:{{brand.subtle}};white-space:pre-line;">{{footer}}</p>
               </td>
             </tr>
           </table>

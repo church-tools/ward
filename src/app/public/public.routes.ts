@@ -13,6 +13,7 @@ export const publicTabs: RouteObject = {
         loadComponent: () => import('./setup/setup-page').then(m => m.SetupPage),
     },
     test: { loadComponent: () => import('./test-page').then(m => m.Test) },
+    'test-emails': { loadComponent: () => import('./test-emails-page').then(m => m.TestEmailsPage) },
     'not-found': { loadComponent: () => import('./not-found-page').then(m => m.NotFoundPage) },
     'confirm-email': { loadComponent: () => import('./confirm-email').then(m => m.ConfirmEmailPage) },
     'bulletin-board': { loadComponent: () => import('./bulletin-board/bulletin-board-page').then(m => m.BulletinBoardPage) },

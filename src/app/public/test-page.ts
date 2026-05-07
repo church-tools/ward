@@ -1,10 +1,10 @@
-import { Component, signal } from '@angular/core';
 import { RichText } from '@/shared/form/rich-text/rich-text';
-import { Page } from '../shared/page/page';
+import { Page } from '@/shared/page/page';
+import { Component, signal } from '@angular/core';
 import { PALETTE_COLORS } from '../shared/utils/color-utils';
 
 @Component({
-    selector: 'app-not-found-page',
+    selector: 'app-test-page',
     template: `
         <span class="display-text">Test</span>
         <p>Dies ist eine Testseite</p>

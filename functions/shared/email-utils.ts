@@ -38,7 +38,7 @@ export async function sendEmail(env: Env, payload: EmailPayload) {
 type PlaceholderPrimitive = string | number | boolean;
 type PlaceholderValue = PlaceholderPrimitive | { [key: string]: PlaceholderValue };
 
-export function replacePlaceholders<T extends Record<string, PlaceholderValue>>(template: string, values: T) {
+export function fillTemplate<T extends Record<string, PlaceholderValue>>(template: string, values: T) {
     const replaced = template.replace(/{{\s*([a-zA-Z0-9_.]+)\s*}}/g, (_match, keyPath: string) => {
         let current: PlaceholderValue | undefined = values;
         for (const keyPart of keyPath.split(".")) {
