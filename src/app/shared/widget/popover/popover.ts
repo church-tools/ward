@@ -11,7 +11,7 @@ function isPage(value: object): value is Page {
 @Component({
     selector: 'app-popover',
     template: `
-        <dialog #dialog class="card large acrylic-card no-shadow"
+        <dialog #dialog tabindex="-1" class="card large acrylic-card no-shadow"
             [class.disappearing]="disappearing()"
             (cancel)="$event.preventDefault(); onClose.emit()">
             <app-button type="subtle" icon="dismiss" size="large"
@@ -44,7 +44,9 @@ export class Popover {
         const instance = componentRef.instance as object;
         if (isPage(instance))
             instance.closePage = this.close.bind(this);
-        this.dialog().nativeElement.showModal();
+        const nativeDialog = this.dialog().nativeElement;
+        nativeDialog.showModal();
+        nativeDialog.focus();
         return componentRef;
     }
 

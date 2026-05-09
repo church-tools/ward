@@ -323,7 +323,12 @@ export const LOCALIZATION = {
   STATE: "State",
   NOTES: "Notes",
   DELETE: "Delete",
-  CONFIRM_DELETE: "Confirm Delete?",
+  DELETE_CONFIRMATION: {
+    TITLE: "Confirm Deletion",
+    MESSAGE: "Are you sure you want to delete this item?",
+    CONFIRM: "Delete",
+    CANCEL: "Cancel",
+  },
   NO_MATCHES: "No matches",
   HANDBOOK: "Handbook",
   B: "B",

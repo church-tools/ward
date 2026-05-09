@@ -1,9 +1,9 @@
 import type { LanguageKey } from "@/shared/language/language.service";
-import { BadRequestError, getSupabaseService, runAdminFunction } from "../../shared/functions-utils";
+import { BadRequestError, getSupabaseService, runUnitAdminFunction } from "../../shared/functions-utils";
 import { createUser } from "./auth-utils";
 import { sendAuthEmail } from "./emails/auth-emails";
 
-export const onRequest = runAdminFunction(async (req, params: { email: string, language: LanguageKey }) => {
+export const onRequest = runUnitAdminFunction(async (req, params: { email: string, language: LanguageKey }) => {
     const { session, env, origin } = req;
     const { email, language } = params;
 

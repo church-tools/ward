@@ -1,7 +1,7 @@
-import { getSupabaseService, runAdminFunction } from "../../shared/functions-utils";
+import { getSupabaseService, runUnitAdminFunction } from "../../shared/functions-utils";
 import { createInviteToken } from "./auth-utils";
 
-export const onRequest = runAdminFunction(async (req, params: { validity_days: number }) => {
+export const onRequest = runUnitAdminFunction(async (req, params: { validity_days: number }) => {
     const { session, env } = req;
     const { validity_days } = params;
 

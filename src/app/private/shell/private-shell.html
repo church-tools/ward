@@ -16,8 +16,7 @@
         <app-omni-search class="pb-2"/>
     </div>
     <div class="row full-width full-height no-wrap items-center gap-1">
-        <div class="handle full-width full-height items-center">
-        </div>
+        <div class="handle full-width full-height items-center"></div>
         <app-presences class="me-2"/>
         <app-menu-button class="title-bar-margin" [class.icon-only]="!adminService.editMode()"
             [type]="adminService.editMode() ? 'primary' : 'subtle'" alignment="left">
@@ -37,6 +36,16 @@
                     </div>
                 }
                 <app-language-select/>
+                @if (windowService.isSmall()) {
+                    @for (tab of tabs().filter(t => t.bottom); track tab) {
+                        <app-link-button class="left-aligned"
+                            [icon]="tab.icon"
+                            [href]="tab.path" type="subtle" hideNewTab
+                            (click)="menuButton().toggle()">
+                            {{ 'NAV_BAR_TAB.' + tab.labelKey | localize }}
+                        </app-link-button>
+                    }
+                }
             </div>
         </app-menu-button>
     </div>

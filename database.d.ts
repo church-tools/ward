@@ -334,7 +334,6 @@ export type Database = {
           last_name: string | null
           nick_name: string | null
           notes: string | null
-          profile: number | null
           unit: number
           updated_at: string
         }
@@ -347,7 +346,6 @@ export type Database = {
           last_name?: string | null
           nick_name?: string | null
           notes?: string | null
-          profile?: number | null
           unit: number
           updated_at?: string
         }
@@ -360,18 +358,10 @@ export type Database = {
           last_name?: string | null
           nick_name?: string | null
           notes?: string | null
-          profile?: number | null
           unit?: number
           updated_at?: string
         }
         Relationships: [
-          {
-            foreignKeyName: "member_profile_unit_fkey"
-            columns: ["profile", "unit"]
-            isOneToOne: false
-            referencedRelation: "profile"
-            referencedColumns: ["id", "unit"]
-          },
           {
             foreignKeyName: "member_unit_fkey"
             columns: ["unit"]
@@ -720,6 +710,7 @@ export type Database = {
           id: number
           is_admin: boolean
           is_unit_admin: boolean
+          member: number | null
           unit: number
           unit_approved: boolean | null
           updated_at: string
@@ -734,6 +725,7 @@ export type Database = {
           id?: number
           is_admin?: boolean
           is_unit_admin?: boolean
+          member?: number | null
           unit: number
           unit_approved?: boolean | null
           updated_at?: string
@@ -748,12 +740,20 @@ export type Database = {
           id?: number
           is_admin?: boolean
           is_unit_admin?: boolean
+          member?: number | null
           unit?: number
           unit_approved?: boolean | null
           updated_at?: string
           user?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "profile_member_unit_fkey"
+            columns: ["member", "unit"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["id", "unit"]
+          },
           {
             foreignKeyName: "user_unit_fkey"
             columns: ["unit"]
@@ -917,7 +917,7 @@ export type Database = {
         | "indigo"
         | "magenta"
         | "deeppink"
-      gender: "male" | "female"
+      gender: "any" | "male" | "female"
       meeting_type:
         | "fast_and_testimony"
         | "general_conference"
@@ -1160,7 +1160,7 @@ export const Constants = {
         "magenta",
         "deeppink",
       ],
-      gender: ["male", "female"],
+      gender: ["any", "male", "female"],
       meeting_type: [
         "fast_and_testimony",
         "general_conference",

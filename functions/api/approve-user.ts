@@ -1,6 +1,6 @@
-import { getSupabaseService, runAdminFunction } from "../shared/functions-utils";
+import { getSupabaseService, runUnitAdminFunction } from "../shared/functions-utils";
 
-export const onRequest = runAdminFunction(async (req, params: {
+export const onRequest = runUnitAdminFunction(async (req, params: {
     profile_id: number,
     approve: boolean
 }) => {

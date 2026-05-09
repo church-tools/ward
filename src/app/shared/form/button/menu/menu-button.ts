@@ -42,7 +42,7 @@ export default class MenuButton extends ButtonBase implements OnDestroy {
         this.toggle();
     }
 
-    protected toggle() {
+    toggle() {
         this.clearTimeout();
         this.popover().toggle();
         if (this.popover().visible) {

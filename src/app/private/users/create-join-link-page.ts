@@ -43,14 +43,11 @@ export class CreateJoinLinkPage extends PrivatePage {
 
     protected readonly joinLinkDays = signal<string>('2');
     
-    private readonly joinToken = signal<string | null>(null);
-    protected readonly joinUrl = xcomputed([this.unitService.own],
-        unit => unit?.join_token ? `${window.location.origin}/join?unit=${unit.id}&token=${unit.join_token}` : null);
-
-    constructor() {
-        super();
-        xeffect([this.unitService.own], unit => this.joinToken.set(unit?.join_token ?? null));
-    }
+    protected readonly joinUrl = xcomputed([this.unitService.own], unit => {
+        if (!unit?.join_token || !unit?.join_timeout) return null;
+        if (unit.join_timeout < new Date().toISOString().split("T")[0]) return null;
+        return `${window.location.origin}/join?unit=${unit.id}&token=${unit.join_token}`
+    });
 
     protected readonly generateJoinLink = async () => {
         const validity_days = Number(this.joinLinkDays());

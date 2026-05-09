@@ -16,7 +16,7 @@ import { RowPage } from '../../../shared/row-page';
         <!-- <app-row-select [syncedRow]="syncedRow" column="assigned_to" name="assigned_to"
             table="profiles" [multiple]="true"/> -->
         <div class="row end-content mt-auto">
-            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.."/>
+            <app-row-delete-button [syncedRow]="syncedRow" backUrl="../.." suppressConfirmation/>
         </div>
         <app-row-history [row]="syncedRow.value()"/>
     `,

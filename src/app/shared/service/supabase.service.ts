@@ -42,7 +42,7 @@ export class SupabaseService {
         agenda_item: { createOffline: true, orderKey: 'position',
             indexed: { agenda: Number, type: String, assigned_to: Number },
             getSummaryString: inject(AgendaItemViewService).toString },
-        calling: { orderKey: 'position', indexed: { organization: Number },
+        calling: { orderKey: 'position', indexed: { organization: Number, gender_restriction: String },
             calculated: CallingCalculated,
             getSummaryString: inject(CallingViewService).toString },
         member: { indexed: { profile: Number },

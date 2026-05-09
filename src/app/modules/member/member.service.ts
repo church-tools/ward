@@ -9,11 +9,10 @@ export class MemberService {
     private readonly profileService = inject(ProfileService);
     private readonly supabase = inject(SupabaseService);
 
-    readonly self = asyncComputed([this.profileService.own], async own => own
+    readonly self = asyncComputed([this.profileService.own], async own => own?.member
         ? await this.supabase.sync
             .from('member')
-            .findOne()
-            .eq('profile', own.id)
+            .read(own.member)
             .get()
         : null
     );

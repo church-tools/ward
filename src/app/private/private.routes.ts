@@ -5,14 +5,14 @@ import { mapRouteObject, RouteObject } from "@/shared/utils/route-utils";
 import type { PrivatePage } from "./shared/private-page";
 
 export type PrivateTab = RouteObject<PrivatePage> & {
-    translateId: string;
+    labelKey: string;
     icon: IconCode;
     onBottom?: boolean;
 };
 
 export const privateTabs: { [path: string]: PrivateTab } = {
     meetings: {
-        translateId: 'MEETINGS', icon: 'comment_checkmark',
+        labelKey: 'MEETINGS', icon: 'comment_checkmark',
         loadComponent: () => import('./meetings/meetings-page').then(m => m.MeetingsPage),
         ':agenda_item': {
             insideParent: true,
@@ -31,7 +31,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         },
     },
     members: {
-        translateId: 'MEMBERS', icon: 'people_community',
+        labelKey: 'MEMBERS', icon: 'people_community',
         loadComponent: () => import('./members/members-page').then(m => m.MembersPage),
         'import': {
             insideParent: true,
@@ -43,7 +43,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         },
     },
     callings: {
-        translateId: 'CALLINGS', icon: 'briefcase',
+        labelKey: 'CALLINGS', icon: 'briefcase',
         loadComponent: () => import('./callings/callings-page').then(m => m.CallingsPage),
         organizations: {
             loadComponent: () => import('./callings/organizations/organizations-page').then(m => m.OrganizationsPage),
@@ -62,7 +62,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
         }
     },
     'sacrament-meeting': {
-        translateId: 'SACRAMENT_MEETING', icon: 'presenter',
+        labelKey: 'SACRAMENT_MEETING', icon: 'presenter',
         loadComponent: () => import('./sacrament-meeting/current-sacrament-meeting-page').then(m => m.CurrentSacramentMeetingPage),
         planning: {
             loadComponent: () => import('./sacrament-meeting/planning/sacrament-meeting-planning-page').then(m => m.SacramentMeetingPlanningPage),
@@ -90,7 +90,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
     },
     users: {
         admin: true, onBottom: true,
-        translateId: 'USERS', icon: 'person',
+        labelKey: 'USERS', icon: 'person',
         loadComponent: () => import('./users/users-page').then(m => m.UsersPage),
         'create-join-link': {
             insideParent: true,

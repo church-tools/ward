@@ -324,7 +324,12 @@ export const LOCALIZATION: Localization = {
   STATE: "Status",
   NOTES: "Notizen",
   DELETE: "Löschen",
-  CONFIRM_DELETE: "Sicher löschen?",
+  DELETE_CONFIRMATION: {
+    TITLE: "Löschung bestätigen",
+    MESSAGE: "Sind Sie sicher, dass Sie dieses Element löschen möchten?",
+    CONFIRM: "Löschen",
+    CANCEL: "Abbrechen",
+  },
   NO_MATCHES: "Keine Übereinstimmungen",
   HANDBOOK: "Handbuch",
   B: "F",

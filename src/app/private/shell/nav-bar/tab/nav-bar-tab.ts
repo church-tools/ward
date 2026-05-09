@@ -7,7 +7,7 @@ import { ColorName } from '@/shared/utils/color-utils';
 
 export type InnerNavBarTab = {
     icon: IconCode;
-    translateId: string;
+    labelKey: string;
     path: string;
     index: number;
     counts?: { count: Observable<number>, color: ColorName }[];
@@ -25,7 +25,7 @@ export type InnerNavBarTab = {
                 <app-icon class="active-icon accent{{pillMode() ? '-high-contrast' : ''}}"
                     [icon]="tab().icon" filled [size]="pillMode() ? 'lg' : 'md'"/>
             </div>
-            <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().translateId | localize }}</div>
+            <div class="tab-title">{{ 'NAV_BAR_TAB.' + tab().labelKey | localize }}</div>
         </a>
         @if (tab().counts) {
             <div class="counts column" [class.visible]="!active()">

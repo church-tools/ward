@@ -1,11 +1,12 @@
 import { OrganizationService } from '@/modules/organization/organization.service';
 import { UnitService } from '@/modules/unit/unit.service';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
+import LinkButton from '@/shared/form/button/link/link-button';
 import MenuButtonComponent from '@/shared/form/button/menu/menu-button';
 import Switch from '@/shared/form/switch/switch';
 import { Icon } from "@/shared/icon/icon";
-import { Component, inject, OnInit, signal } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { Component, inject, OnInit, signal } from '@angular/core';
 import { PageRouterOutlet } from "../../shared/page/page-router-outlet";
 import { LanguageSelect } from "../../shared/shell/language-select";
 import { Shell } from '../../shared/shell/shell';
@@ -22,7 +23,7 @@ import { Presences } from "./presences";
     templateUrl: './private-shell.html',
     styleUrls: ['../../shared/shell/shell.scss', './private-shell.scss'],
     imports: [LocalizePipe, NavBar, OmniSearch, MenuButtonComponent,
-        PageRouterOutlet, BackButton, AsyncButton, Presences,
+        PageRouterOutlet, BackButton, AsyncButton, LinkButton, Presences,
         Icon, Switch, LanguageSelect],
 })
 export class PrivateShell extends Shell implements OnInit {
@@ -46,7 +47,7 @@ export class PrivateShell extends Shell implements OnInit {
         const isUnitAdmin = this.adminService.isUnitAdmin();
         this.tabs.set(Object.entries(privateTabs)
             .filter(([_, { admin }]) => !admin || session?.is_admin || isUnitAdmin)
-            .map(([path, { translateId, icon, onBottom }]) => ({ path, translateId, icon, bottom: onBottom })));
+            .map(([path, { labelKey, icon, onBottom }]) => ({ path, labelKey, icon, bottom: onBottom })));
     }
 
     private async getStartRoute() {

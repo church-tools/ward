@@ -38,6 +38,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
         idb.then(db => this.idb.resolve(db));
     }
 
+    /** must be called within onupgradeneeded */
     public assureIDBStore(transaction: IDBTransaction, options?: { autoIncrement?: boolean, clear?: boolean, indexedKeys?: (keyof T & string)[] }) {
         const exists = transaction.objectStoreNames.contains(this.storeName);
         if (options?.clear && exists) transaction.db.deleteObjectStore(this.storeName);

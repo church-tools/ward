@@ -10,10 +10,11 @@ export type Endpoint<P, R> = ((context: Context) => Promise<Response>) & {
     readonly __params?: P;
     readonly __result?: R;
 };
-export type SupabaseSession = { is_admin: boolean; unit?: number; [key: string]: any };
+export type SupabaseSession = { is_admin?: boolean; is_unit_admin?: boolean; unit?: number; [key: string]: any };
 export type UnauthenticatedFunctionRequest = Request & { env: Env; origin: string; ip?: string };
 export type FunctionRequest = UnauthenticatedFunctionRequest & { user: User; session: SupabaseSession };
-export type AdminFunctionRequest = UnauthenticatedFunctionRequest & { user: User; session: SupabaseSession & { is_admin: true; unit: number } };
+export type UnitAdminFunctionRequest = UnauthenticatedFunctionRequest & { user: User; session: SupabaseSession & { is_unit_admin: true; unit: number } };
+export type AdminFunctionRequest = UnauthenticatedFunctionRequest & { user: User; session: SupabaseSession & { is_admin: true } };
 export type Env = Context["env"] & Record<string, string>;
 
 export function runFunction<P extends object, R>(fn: (req: FunctionRequest, params: P) => Promise<R>) {
@@ -23,6 +24,16 @@ export function runFunction<P extends object, R>(fn: (req: FunctionRequest, para
         userReq.user = user;
         userReq.session = session;
         return await fn(userReq, params);
+    });
+}
+
+export function runUnitAdminFunction<P extends object, R>(fn: (req: UnitAdminFunctionRequest, params: P) => Promise<R>) {
+    return runFunction<P, R>(async (req, params) => {
+        if (!req.session.is_unit_admin)
+            throw new PermissionError("Unit admin access required");
+        if (!req.session.unit)
+            throw new UnauthorizedError("session.unit missing");
+        return await fn(req as UnitAdminFunctionRequest, params);
     });
 }
 

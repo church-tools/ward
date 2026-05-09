@@ -14,11 +14,11 @@ export const onRequest = runFunction(async (req, params: { profile_id: number; s
     // Verify caller is an admin
     const { data: ownProfile } = await supabase
         .from("profile")
-        .select("id, is_admin")
+        .select("id, is_unit_admin")
         .eq("user", user.id)
         .single()
         .throwOnError();
-    if (!ownProfile.is_admin)
+    if (!ownProfile.is_unit_admin)
         throw new PermissionError("Not an admin");
     if (ownProfile.id == profile_id)
         throw new BadRequestError("Cannot change self");
@@ -26,7 +26,7 @@ export const onRequest = runFunction(async (req, params: { profile_id: number; s
     // Update target profile's admin status
     await supabase
         .from("profile")
-        .update({ is_admin: set_admin })
+        .update({ is_unit_admin: set_admin })
         .eq("id", profile_id)
         .eq("unit", +session.unit)
         .single()

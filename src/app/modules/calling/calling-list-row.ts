@@ -8,7 +8,7 @@ import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
     template: `
         <div class="row m-2-3">
             <app-related-row-select class="grow-1"
-				[label]="row().name + row()._calculated.organization?.name"
+				[label]="row().name"
                 [parent]="row()"
 				parentTable="calling"
 				parentIdKey="calling"

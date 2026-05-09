@@ -37,9 +37,9 @@
     position: absolute;
     &.enter {
         &.fade {
-            transition: opacity $duration-lg $ease-out $duration-xs, translate $duration-lg $ease-out $duration-xs;
+            transition: opacity $duration-lg $ease-out $duration-xs, translate $duration-lg $ease-out $duration-xs, scale $duration-lg $ease-out $duration-xs;
             opacity: 1;
-            @starting-style { opacity: 0; translate: 0 $page-up-slide-distance; }
+            @starting-style { opacity: 0; translate: 0 $page-up-slide-distance; scale: $page-scale-in; }
         }
         &.right, &.left {
             transition: opacity $duration-lg $ease-out, translate $duration-lg $ease-out;
@@ -93,10 +93,12 @@
     }
     25% {
         translate: 0 0;
+        scale: $page-scale-out;
         opacity: 0;
     }
     26% {
         translate: 0 $page-up-slide-distance;
+        scale: $page-scale-in;
         opacity: 0;
     }
     100% {

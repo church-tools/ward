@@ -14,7 +14,7 @@ import { ListRow } from '../shared/row-card-list/list-row';
             <h4>
                 {{ row().email }}
             </h4>
-            @if (row().is_admin) {
+            @if (row().is_unit_admin) {
                 <app-icon class="accent-text"
                     icon="shield_person"/>
             }
