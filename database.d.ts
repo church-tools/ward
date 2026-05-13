@@ -192,7 +192,7 @@ export type Database = {
           caller: Database["public"]["Enums"]["calling_caller"]
           deleted: boolean
           full_name: string | null
-          gender_restriction: Database["public"]["Enums"]["gender"] | null
+          gender_restriction: Database["public"]["Enums"]["gender"]
           id: number
           is_temporary: boolean
           is_unique: boolean
@@ -206,7 +206,7 @@ export type Database = {
           caller?: Database["public"]["Enums"]["calling_caller"]
           deleted?: boolean
           full_name?: string | null
-          gender_restriction?: Database["public"]["Enums"]["gender"] | null
+          gender_restriction?: Database["public"]["Enums"]["gender"]
           id: number
           is_temporary?: boolean
           is_unique?: boolean
@@ -220,7 +220,7 @@ export type Database = {
           caller?: Database["public"]["Enums"]["calling_caller"]
           deleted?: boolean
           full_name?: string | null
-          gender_restriction?: Database["public"]["Enums"]["gender"] | null
+          gender_restriction?: Database["public"]["Enums"]["gender"]
           id?: number
           is_temporary?: boolean
           is_unique?: boolean
@@ -622,6 +622,7 @@ export type Database = {
           abbreviation: string | null
           color: Database["public"]["Enums"]["color"] | null
           created_at: string
+          gender: Database["public"]["Enums"]["gender"]
           id: number
           name: string
           position: number
@@ -633,6 +634,7 @@ export type Database = {
           abbreviation?: string | null
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"]
           id: number
           name: string
           position: number
@@ -644,6 +646,7 @@ export type Database = {
           abbreviation?: string | null
           color?: Database["public"]["Enums"]["color"] | null
           created_at?: string
+          gender?: Database["public"]["Enums"]["gender"]
           id?: number
           name?: string
           position?: number

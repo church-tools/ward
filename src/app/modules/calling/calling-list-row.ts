@@ -1,5 +1,6 @@
-import { Component, input } from '@angular/core';
+import { AdminService } from '@/private/shared/admin.service';
 import { RelatedRowSelect } from '@/shared/form/row-select/related-row-select';
+import { Component, inject, input } from '@angular/core';
 import { ListRow } from '../shared/row-card-list/list-row';
 import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 
@@ -7,24 +8,31 @@ import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
     selector: 'app-calling-list-row',
     template: `
         <div class="row m-2-3">
-            <app-related-row-select class="grow-1"
-				[label]="row().name"
-                [parent]="row()"
-				parentTable="calling"
-				parentIdKey="calling"
-                relatedTable="member"
-                relationTable="member_calling"
-                [getRelatedQuery]="getMemberQuery"
-				relatedIdKey="member"
-				[multiple]="!row().is_unique"
-                [mapInsert]="mapMemberCallingInsert"
-				[onRelationClick]="onMemberCallingClick()"
-				hideClear/>
+			@if (adminService.editMode()) {
+				{{ row().name }}
+				{{  }}
+			} @else {
+				<app-related-row-select class="grow-1"
+					[label]="row().name"
+					[parent]="row()"
+					parentTable="calling"
+					parentIdKey="calling"
+					relatedTable="member"
+					relationTable="member_calling"
+					[getRelatedQuery]="getMemberQuery"
+					relatedIdKey="member"
+					[multiple]="!row().is_unique"
+					[mapInsert]="mapMemberCallingInsert"
+					[onRelationClick]="onMemberCallingClick()"
+					hideClear/>
+			}
         </div>
     `,
     imports: [RelatedRowSelect],
 })
 export class CallingListRow extends ListRow<'calling'> {
+
+	protected readonly adminService = inject(AdminService);
 
 	readonly onMemberCallingClick = input<(memberCallingId: number) => void>();
 

@@ -66,8 +66,7 @@ import { RowPage } from '../shared/row-page';
                 relatedIdKey="calling"
                 multiple
                 [mapInsert]="mapMemberCallingInsert"
-                [onRelationClick]="onMemberCallingClick"
-                hideClear/>
+                [onRelationClick]="onMemberCallingClick"/>
         }
         <div class="row end-content mt-auto">
             @if (adminService.isUnitAdmin() && !syncedRow.value()?.is_unit_admin && !isSelf()) {

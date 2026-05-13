@@ -60,12 +60,12 @@ export class OrganizationsPage extends PrivatePage {
         const profile = await this.profileService.own.asPromise();
         const organizationTable = this.supabase.sync.from('organization');
         const infos: Omit<Organization.Insert, 'id' | 'unit' | 'position' | 'name'>[] = [
-            { type: 'bishopric', color: 'goldenrod' },
-            { type: 'elders_quorum', color: 'chocolate' },
-            { type: 'relief_society', color: 'royalblue' },
+            { type: 'bishopric', color: 'goldenrod', gender: 'male' },
+            { type: 'elders_quorum', color: 'chocolate', gender: 'male' },
+            { type: 'relief_society', color: 'royalblue', gender: 'female' },
             { type: 'sunday_school', color: 'indigo' },
-            { type: 'young_men', color: 'tomato' },
-            { type: 'young_women', color: 'deeppink' },
+            { type: 'young_men', color: 'tomato', gender: 'male' },
+            { type: 'young_women', color: 'deeppink', gender: 'female' },
             { type: 'primary', color: 'lawngreen' }
         ];
         const localizer = await this.language.getLocalizer();
@@ -74,6 +74,6 @@ export class OrganizationsPage extends PrivatePage {
             name: localizer(`ORGANIZATION_TYPE.${type!.toUpperCase()}.NAME`),
             abbreviation: localizer(`ORGANIZATION_TYPE.${type!.toUpperCase()}.SHORT`),
         }));
-        this.adminService.editMode.set(true);
+        this.adminService.setEditMode(true);
     }
 }

@@ -181,6 +181,7 @@ export const LOCALIZATION: Localization = {
   },
   ORGANIZATION_PAGE: {
     ABBREVIATION: "Abkürzung",
+    GENDER: "Nur Brüder/Schwestern",
   },
   USERS_PAGE: {
     TITLE: "Benutzer",
@@ -206,6 +207,8 @@ export const LOCALIZATION: Localization = {
   SELECT_ALL: "Alle auswählen",
   BROTHER_SHORT: "Brd.",
   SISTER_SHORT: "Schw.",
+  BROTHERS: "Brüder",
+  SISTERS: "Schwestern",
   SACRAMENT_MEETING_PAGE: {
     TITLE: "Abendmahlsversammlung",
     TYPE: "Art",

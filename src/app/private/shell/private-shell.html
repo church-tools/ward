@@ -31,7 +31,7 @@
                     <div class="menu-item ms-3 gap-2 row no-wrap items-center">
                         <app-icon icon="edit" size="smaller"/>
                         <app-switch [value]="this.adminService.editMode()"
-                            (valueChange)="this.adminService.editMode.set($event ?? false)"
+                            (valueChange)="this.adminService.setEditMode($event ?? false)"
                             class="ms--2" label="{{ 'ENABLE_EDIT_MODE' | localize }}"/>
                     </div>
                 }

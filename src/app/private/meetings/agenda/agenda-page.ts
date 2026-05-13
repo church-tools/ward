@@ -103,6 +103,6 @@ export class AgendaPage extends RowPage<'agenda'> {
         const types: AgendaSection.Type[] = ['prayer', 'spiritual_thought', 'resolutions', 'topics', 'prayer'];
         await this.supabase.sync.from('agenda_section').insert(
             types.map((type, position) => ({ type, position, unit: profile.unit, agenda: +agenda!.id })));
-        this.adminService.editMode.set(true);
+        this.adminService.setEditMode(true);
     }
 }

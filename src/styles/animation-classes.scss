@@ -72,7 +72,7 @@
             transition: opacity $duration-smaller $ease-in;
         }
         &.right, &.left {
-            transition: opacity $duration-lg $ease-out, translate $duration-lg $ease-out;
+            transition: opacity $duration-xl $ease-out, translate $duration-lg $ease-out;
         }
         &.left {
             translate: -$page-side-slide-distance 0;

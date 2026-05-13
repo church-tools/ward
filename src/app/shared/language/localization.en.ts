@@ -180,6 +180,7 @@ export const LOCALIZATION = {
   },
   ORGANIZATION_PAGE: {
     ABBREVIATION: "Abbreviation",
+    GENDER: "Only Brothers/Sisters",
   },
   USERS_PAGE: {
     TITLE: "Users",
@@ -205,6 +206,8 @@ export const LOCALIZATION = {
   SELECT_ALL: "Select All",
   BROTHER_SHORT: "Bro.",
   SISTER_SHORT: "Sis.",
+  BROTHERS: "Brothers",
+  SISTERS: "Sisters",
   SACRAMENT_MEETING_PAGE: {
     TITLE: "Sacrament Meeting",
     TYPE: "Type",

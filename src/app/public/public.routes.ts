@@ -14,7 +14,6 @@ export const publicTabs: RouteObject = {
     },
     test: { loadComponent: () => import('./test-page').then(m => m.Test) },
     'test-emails': { loadComponent: () => import('./test-emails-page').then(m => m.TestEmailsPage) },
-    'not-found': { loadComponent: () => import('./not-found-page').then(m => m.NotFoundPage) },
     'confirm-email': { loadComponent: () => import('./confirm-email').then(m => m.ConfirmEmailPage) },
     'bulletin-board': { loadComponent: () => import('./bulletin-board/bulletin-board-page').then(m => m.BulletinBoardPage) },
 };
@@ -27,7 +26,7 @@ export const publicRoutes: Routes = [{
         localStorage.getItem('BULLETIN_BOARD_KEY')
             ? { path: '', redirectTo: 'bulletin-board', pathMatch: 'full' }
             : { path: '', redirectTo: 'login', pathMatch: 'full' },
-        { path: '**', redirectTo: 'not-found' }
+        { path: '**', loadComponent: () => import('./not-found-page').then(m => m.NotFoundPage) }
     ],
     pathMatch: 'prefix' 
 }];

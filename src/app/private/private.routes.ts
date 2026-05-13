@@ -54,7 +54,11 @@ export const privateTabs: { [path: string]: PrivateTab } = {
             'member-calling/:member_calling': {
                 insideParent: true,
                 loadComponent: () => import('./member-calling/member-calling-page').then(m => m.MemberCallingPage),
-            }
+            },
+            'calling/:calling': {
+                insideParent: true,
+                loadComponent: () => import('./callings/organizations/calling-page').then(m => m.CallingPage),
+            },
         },
         'member-calling/:member_calling': {
             insideParent: true,
@@ -131,6 +135,7 @@ export function getRowRoute(tableRow: TableRow): string {
                     return `/meetings/agenda/${row.agenda}/item/${row.id}`;
             }
         case 'organization': return `/callings/organizations/settings/${row.id}`;
+        case 'calling': return `/callings/organizations/calling/${row.id}`;
         case 'member_calling':
             switch (currentPage) {
                 case 'CallingsPage':
@@ -143,7 +148,6 @@ export function getRowRoute(tableRow: TableRow): string {
         case 'message': return `/sacrament-meeting/planning/message/${row.id}`;
         case 'hymn': return `/sacrament-meeting/planning/hymn/${row.id}`;
         case 'musical_performance': return `/sacrament-meeting/planning/musical-performance/${row.id}`;
-
     }
     throw new Error(`No route defined for table ${table}`);
 }

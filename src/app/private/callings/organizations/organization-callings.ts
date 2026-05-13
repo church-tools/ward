@@ -18,8 +18,9 @@ import { AdminService } from '../../shared/admin.service';
 				[gap]="1" [columns]="windowService.isSmall() ? 1 : 3"
 				[getQuery]="getQuery()"
 				[prepareInsert]="prepareInsert"
-				cardClasses=""
-                [editable]="adminService.editMode() || callingList.rowCount() == 0">
+				[cardClasses]="adminService.editMode() ? 'card canvas-card suppress-canvas-card-animation' : ''"
+                [editable]="adminService.editMode() || callingList.rowCount() == 0"
+				[getUrl]="adminService.editMode() ? getCallingUrl : undefined">
 				<ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
 					<app-calling-list-row class="full-width"
 						[row]="row" [page]="page" [onRemove]="onRemove"
@@ -49,7 +50,7 @@ export class OrganizationCallings {
 
 	protected readonly prepareInsert = (row: Insert<'calling'>) => {
 		row.organization = this.organization();
-		this.adminService.editMode.set(true);
+		this.adminService.setEditMode(true);
 	};
 
 	protected readonly getQuery = xcomputed([this.organization], organization => ({
@@ -64,5 +65,13 @@ export class OrganizationCallings {
 			currentPage: 'OrganizationsPage',
 		});
 		this.router.navigateByUrl(route, { replaceUrl: this.windowService.shouldReplaceHistory(route) });
+	}
+
+	protected readonly getCallingUrl = (row: Row<'calling'> | null) => {
+		return row ? getRowRoute({
+			table: 'calling',
+			row,
+			currentPage: 'OrganizationsPage',
+		}) : 'callings/organizations'
 	}
 }
