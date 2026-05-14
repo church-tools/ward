@@ -1,16 +1,23 @@
 import { AdminService } from '@/private/shared/admin.service';
 import { RelatedRowSelect } from '@/shared/form/row-select/related-row-select';
+import { SupabaseService } from '@/shared/service/supabase.service';
+import { asyncComputed } from '@/shared/utils/signal-utils';
 import { Component, inject, input } from '@angular/core';
 import { ListRow } from '../shared/row-card-list/list-row';
-import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
+import type { Row } from '../shared/table.types';
+import { CallingService } from './calling.service';
 
 @Component({
     selector: 'app-calling-list-row',
     template: `
         <div class="row m-2-3">
 			@if (adminService.editMode()) {
-				{{ row().name }}
-				{{  }}
+				<div class="column gap-1 grow-1">
+					<span>{{ row().name }}</span>
+					@if (memberNames()) {
+						<span class="small-text subtle-text overflow-ellipsis">{{ memberNames() }}</span>
+					}
+				</div>
 			} @else {
 				<app-related-row-select class="grow-1"
 					[label]="row().name"
@@ -19,10 +26,10 @@ import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 					parentIdKey="calling"
 					relatedTable="member"
 					relationTable="member_calling"
-					[getRelatedQuery]="getMemberQuery"
+					[getRelatedQuery]="callingService.getMemberQuery"
 					relatedIdKey="member"
 					[multiple]="!row().is_unique"
-					[mapInsert]="mapMemberCallingInsert"
+					[mapInsert]="callingService.mapMemberCallingInsert"
 					[onRelationClick]="onMemberCallingClick()"
 					hideClear/>
 			}
@@ -32,23 +39,25 @@ import type { Insert, Row, Table, TableQuery } from '../shared/table.types';
 })
 export class CallingListRow extends ListRow<'calling'> {
 
+	protected readonly callingService = inject(CallingService);
 	protected readonly adminService = inject(AdminService);
+	private readonly supabase = inject(SupabaseService);
+
+	protected readonly memberNames = asyncComputed([this.row, this.adminService.editMode], async (calling, editMode) => {
+		if (!editMode) return '';
+		const memberCallings = await this.supabase.sync
+			.from('member_calling')
+			.find()
+			.eq('calling', calling.id)
+			.get();
+		return memberCallings
+			.map(memberCalling => memberCalling._calculated.memberName.trim())
+			.filter(name => name.length)
+			.join(', ');
+	}, '');
 
 	readonly onMemberCallingClick = input<(memberCallingId: number) => void>();
 
 	protected readonly getCallingId = (calling: Row<'calling'>) => calling.id;
 
-	protected readonly getMemberQuery = (
-		table: Table<'member'>,
-		calling: Row<'calling'>,
-	): TableQuery<'member', Row<'member'>[]> => calling.gender_restriction
-		? table.find().eq('gender', calling.gender_restriction)
-		: table.readAll();
-
-	protected readonly mapMemberCallingInsert = (callingId: number, memberId: number): Insert<'member_calling'> => ({
-		calling: callingId,
-		member: memberId,
-		state: 'set_apart',
-		unit: this.row().unit,
-	});
 }

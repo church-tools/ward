@@ -1,12 +1,12 @@
-import { Component, inject } from '@angular/core';
-import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { CallingViewService } from '@/modules/calling/calling-view.service';
 import { ColorPicker } from "@/shared/form/color-picker/color-picker";
+import { Select } from "@/shared/form/select/select";
 import { TextInput } from '@/shared/form/text/text-input';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
+import { Component, inject } from '@angular/core';
 import { RowHistory } from '../../shared/row-history';
 import { RowPage } from '../../shared/row-page';
-import { Select } from "@/shared/form/select/select";
-import { OrganizationViewService } from '@/modules/organization/organization-view.service';
 
 @Component({
     selector: 'app-organization-page',
@@ -21,7 +21,7 @@ import { OrganizationViewService } from '@/modules/organization/organization-vie
             
             <app-select [syncedRow]="syncedRow" column="gender"
                 class="col-md-8" name="gender"
-                [options]="organizationView.genderOptions" translateOptions
+                [options]="callingView.genderOptions" translateOptions
                 label="{{ 'ORGANIZATION_PAGE.GENDER' | localize }}"/>
         </div>
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
@@ -31,7 +31,7 @@ import { OrganizationViewService } from '@/modules/organization/organization-vie
 })
 export class OrganizationPage extends RowPage<'organization'> {
 
-    protected readonly organizationView = inject(OrganizationViewService);
+    protected readonly callingView = inject(CallingViewService);
 
     protected readonly tableName = 'organization';
 }

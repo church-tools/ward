@@ -156,8 +156,6 @@
     cursor: default;
     @include font.overflow-ellipsis;
     display: block;
-    // margin-bottom: layout.$tiny-horizontal-spacing;
-    // padding: layout.$tiny-horizontal-spacing 0;
     line-height: font.$line-height;
     font-size: font.$size;
 }

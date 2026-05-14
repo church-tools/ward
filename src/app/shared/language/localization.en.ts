@@ -162,6 +162,12 @@ export const LOCALIZATION = {
     NICK_NAME: "Nickname",
     LAST_NAME: "Last Name",
   },
+  CALLING_PAGE: {
+    FULL_NAME: "Full Name",
+    GENDER: "Only Brothers/Sisters",
+    IS_UNIQUE: "Is Unique",
+    IS_UNIQUE_INFO: "Only one member can hold this calling at a time",
+  },
   MEMBER_CALLING_PAGE: {
     STATE: {
       PROPOSED: "Proposed",

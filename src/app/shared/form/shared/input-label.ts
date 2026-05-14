@@ -25,9 +25,6 @@ import { IconCode, Icon } from '../../icon/icon';
         .required-indicator {
             margin-left: 0.125rem;
         }
-        app-tooltip {
-            margin-left: auto;
-        }
         app-icon {
             margin-right: 0.0625rem;
         }

@@ -434,7 +434,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                     let query = this.supabaseClient.from(this.name).update(row);
                     for (const idKey of this.idKeys)
                         query = query.eq(idKey as any, row[idKey]);
-                    await query.single().throwOnError();
+                    await query.maybeSingle().throwOnError();
                 })),
             ]);
             return true;

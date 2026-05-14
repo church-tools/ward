@@ -163,6 +163,12 @@ export const LOCALIZATION: Localization = {
     NICK_NAME: "Spitzname",
     LAST_NAME: "Nachname",
   },
+  CALLING_PAGE: {
+    FULL_NAME: "Vollständiger Name",
+    GENDER: "Nur Brüder/Schwestern",
+    IS_UNIQUE: "Ist einzigartig",
+    IS_UNIQUE_INFO: "Nur ein Mitglied kann gleichzeitig diese Berufung innehaben",
+  },
   MEMBER_CALLING_PAGE: {
     STATE: {
       PROPOSED: "Vorgeschlagen",
