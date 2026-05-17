@@ -1,6 +1,6 @@
 import { Component, inject, signal, viewChild } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
-import { AgendaSection } from '@/modules/agenda/section/agenda-section';
+import type { AgendaSection } from '@/modules/agenda/section/agenda-section';
 import { AgendaSectionListInsert } from '@/modules/agenda/section/agenda-section-list-insert';
 import { AgendaSectionListRow } from '@/modules/agenda/section/agenda-section-list-row';
 import { AgendaItem } from '@/modules/agenda/item/agenda-item';

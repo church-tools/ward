@@ -53,7 +53,8 @@ import { RowPage } from '../shared/row-page';
             </div>
         }
         <app-row-select [syncedRow]="syncedRow" column="member" table="member"
-            name="member" label="{{ 'VIEW.MEMBER' | localize }}"/>
+            name="member" label="{{ 'VIEW.MEMBER' | localize }}"
+            [disabled]="!adminService.isUnitAdmin()"/>
         @if (member(); as member) {
             <app-related-row-select class="grow-1"
                 label="{{ 'VIEW.CALLINGS' | localize }}"
