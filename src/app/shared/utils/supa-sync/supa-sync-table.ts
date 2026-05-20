@@ -297,10 +297,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 if (rows.some(r => r[idKey] == null)) {
                     let largestId = await this.findLargestId(idKey) ?? 0;
                     for (const row of rows as PendingUpdate<D, T>[])
-                        if (row[idKey] == null) {
+                        if (row[idKey] == null)
                             row[idKey] = ++largestId;
-                            row.__new = true;
-                        }
                 }
             }
             const { data } = await this.supabaseClient.from(this.name)

@@ -58,20 +58,11 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     private readonly input = viewChild('input', { read: ElementRef<HTMLInputElement> });
     protected readonly popover = viewChild.required(SelectOptions<VisibleOption<T>>);
 
-    protected readonly optionTemplate = contentChild<TemplateRef<SelectOptionTemplateContext<T>>>(
-        'optionTemplate',
-        { read: TemplateRef }
-    );
+    protected readonly optionTemplate = contentChild<TemplateRef<SelectOptionTemplateContext<T>>>('optionTemplate');
 
-    protected readonly valueTemplate = contentChild<TemplateRef<SelectValueTemplateContext<T>>>(
-        'valueTemplate',
-        { read: TemplateRef }
-    );
+    protected readonly valueTemplate = contentChild<TemplateRef<SelectValueTemplateContext<T>>>('valueTemplate');
 
-    protected readonly optionsHeaderTemplate = contentChild<TemplateRef<SelectOptionsHeaderTemplateContext<T>>>(
-        'optionsHeaderTemplate',
-        { read: TemplateRef }
-    );
+    protected readonly optionsHeaderTemplate = contentChild<TemplateRef<SelectOptionsHeaderTemplateContext<T>>>('optionsHeaderTemplate');
 
     readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();

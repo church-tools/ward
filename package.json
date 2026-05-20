@@ -1,13 +1,9 @@
 {
   "name": "ward-tools",
   "version": "0.0.2",
-  "bin": {
-    "ng": "./bin/ng.ts"
-  },
   "scripts": {
-    "ng": "bun run ./bin/ng.ts",
     "start": "concurrently -n app,functions -c green,blue \"bun run start:app\" \"bun run start:functions\"",
-    "start:app": "bun run gen-function-route-map && bun run ./scripts/dev-server.ts",
+    "start:app": "bun run gen-function-route-map && bun --bun ng serve ward-tools --port 4201",
     "start:functions": "wrangler dev --local",
     "build": "bun run gen-function-route-map && ng build --configuration production",
     "watch": "bun run gen-function-route-map && ng build --watch --configuration development",
@@ -26,8 +22,8 @@
     "@angular/platform-browser": "^21.2.13",
     "@angular/router": "^21.2.13",
     "@angular/service-worker": "^21.2.13",
-    "@aws-sdk/client-s3": "^3.1047.0",
-    "@supabase/supabase-js": "^2.105.4",
+    "@aws-sdk/client-s3": "^3.1049.0",
+    "@supabase/supabase-js": "^2.106.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "resend": "^6.12.3",
@@ -40,14 +36,13 @@
     "@angular/compiler": "^21.2.13",
     "@angular/compiler-cli": "^21.2.13",
     "@angular/language-service": "^21.2.13",
-    "@cloudflare/workers-types": "^4.20260514.1",
-    "sass": "^1.89.0",
-    "@typescript/native-preview": "^7.0.0-dev.20260518.1",
-    "supabase": "^2.99.0",
+    "@cloudflare/workers-types": "^4.20260519.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260519.1",
+    "supabase": "^2.100.1",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
     "concurrently": "^9.2.1",
-    "wrangler": "^4.92.0"
+    "wrangler": "^4.93.0"
   }
 }
