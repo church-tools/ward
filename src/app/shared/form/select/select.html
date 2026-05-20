@@ -7,8 +7,8 @@
                 <div class="value-btn subtle row no-wrap items-center gap-1 grow-1 min-width-0"
                     [class.clickable]="!disabled() && onOptionClick()"
                     (click)="onOptionClick() ? onOptionClick()!(selectedOption, $event) : null">
-                    @if (valueTemplate) {
-                        <ng-container *ngTemplateOutlet="valueTemplate!; context: getValueTemplateContext(selectedOption!)"/>
+                    @if (valueTemplate()) {
+                        <ng-container *ngTemplateOutlet="valueTemplate()!; context: getValueTemplateContext(selectedOption!)"/>
                     } @else {
                         <span class="{{selectedOption!.color}}-text fit-content-width">
                             @if (translateOptions()) {
@@ -56,11 +56,11 @@
                     <app-icon icon="throbber" size="xs" class="loading-icon"/>
                 </div>
             }
-            @if (optionsHeaderTemplate) {
+            @if (optionsHeaderTemplate()) {
                 <div class="options-header"
                     (mousedown)="$event.preventDefault()"
                     (click)="$event.stopPropagation()">
-                    <ng-container *ngTemplateOutlet="optionsHeaderTemplate!; context: getOptionsHeaderTemplateContext()"/>
+                    <ng-container *ngTemplateOutlet="optionsHeaderTemplate()!; context: getOptionsHeaderTemplateContext()"/>
                 </div>
             }
             @if (showOptionGroups()) {
@@ -75,8 +75,8 @@
                             <div class="option option-group-item {{option.color}}-text"
                                 [class.focused]="popover.focusedOption() === option"
                                 (mousedown)="selectOption(option, $event)">
-                                @if (optionTemplate) {
-                                    <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, group)"/>
+                                @if (optionTemplate()) {
+                                    <ng-container *ngTemplateOutlet="optionTemplate()!; context: getOptionTemplateContext(option, group)"/>
                                 } @else {
                                     @for (label of option.highlights; track $index) {
                                         <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>
@@ -91,8 +91,8 @@
                     <div class="option {{option.color}}-text"
                         [class.focused]="popover.focusedOption() === option"
                         (mousedown)="selectOption(option, $event)">
-                        @if (optionTemplate) {
-                            <ng-container *ngTemplateOutlet="optionTemplate!; context: getOptionTemplateContext(option, null)"/>
+                        @if (optionTemplate()) {
+                            <ng-container *ngTemplateOutlet="optionTemplate()!; context: getOptionTemplateContext(option, null)"/>
                         } @else {
                             @for (label of option.highlights; track $index) {
                                 <span [class]="label[1] ? (option.color ?? 'accent') + '-bg highlighted' : ''">{{ label[0] }}</span>

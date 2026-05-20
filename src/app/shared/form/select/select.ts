@@ -2,7 +2,7 @@ import { LanguageService } from '@/shared/language/language.service';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { NgTemplateOutlet } from '@angular/common';
 import {
-    booleanAttribute, Component, ContentChild, ElementRef, inject, input, model,
+    booleanAttribute, Component, contentChild, ElementRef, inject, input, model,
     OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild
 } from '@angular/core';
 import { Icon } from "../../icon/icon";
@@ -58,14 +58,20 @@ export class Select<T> extends InputBase<T> implements OnDestroy {
     private readonly input = viewChild('input', { read: ElementRef<HTMLInputElement> });
     protected readonly popover = viewChild.required(SelectOptions<VisibleOption<T>>);
 
-    @ContentChild('optionTemplate', { read: TemplateRef })
-    protected optionTemplate: TemplateRef<SelectOptionTemplateContext<T>> | null = null;
+    protected readonly optionTemplate = contentChild<TemplateRef<SelectOptionTemplateContext<T>>>(
+        'optionTemplate',
+        { read: TemplateRef }
+    );
 
-    @ContentChild('valueTemplate', { read: TemplateRef })
-    protected valueTemplate: TemplateRef<SelectValueTemplateContext<T>> | null = null;
+    protected readonly valueTemplate = contentChild<TemplateRef<SelectValueTemplateContext<T>>>(
+        'valueTemplate',
+        { read: TemplateRef }
+    );
 
-    @ContentChild('optionsHeaderTemplate', { read: TemplateRef })
-    protected optionsHeaderTemplate: TemplateRef<SelectOptionsHeaderTemplateContext<T>> | null = null;
+    protected readonly optionsHeaderTemplate = contentChild<TemplateRef<SelectOptionsHeaderTemplateContext<T>>>(
+        'optionsHeaderTemplate',
+        { read: TemplateRef }
+    );
 
     readonly options = input.required<readonly SelectOption<T>[] | ((search: string) => Promise<SelectOption<T>[]>)>();
     readonly onGroupClick = input<(group: { id: string; label: string; color?: ColorName }) => void>();
