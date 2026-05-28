@@ -33,14 +33,14 @@ const hasUnit: CanMatchFn = async (_route, segments) => {
         return router.parseUrl('/login');
     }
 
-    if (session.unit) {
-        return true;
-    }
-
     if (session.unit_approved === false)
         return ensureRedirect('/setup/rejected', currentPath, router);
     if (session.unit_approved === null)
         return ensureRedirect('/setup/pending', currentPath, router);
+
+    if (session.unit) {
+        return true;
+    }
 
     return ensureRedirect('/setup', currentPath, router);
 };

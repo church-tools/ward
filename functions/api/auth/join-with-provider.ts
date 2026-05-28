@@ -1,20 +1,25 @@
 import { BadRequestError, PermissionError, getSupabaseService, runFunction } from "../../shared/functions-utils";
+import { updateUserUnitClaims } from "../../shared/auth-claims";
 import { checkUnitToken } from "./auth-utils";
 
 export const onRequest = runFunction(async (req, params: { unitId: number; token: string }) => {
     const { unitId, token } = params;
     const supabase = getSupabaseService(req.env);
 
-    if (!await checkUnitToken(supabase, unitId, token))
+    const unit = await checkUnitToken(supabase, unitId, token);
+    if (!unit)
         return { error: "invitation_invalid_or_expired" };
 
     const { id: userId, email, email_confirmed_at, confirmed_at } = req.user;
     if (!email || !(email_confirmed_at || confirmed_at))
         throw new PermissionError("Email not verified");
 
+    const joinRequiresApproval = unit.join_requires_approval ?? true;
+    const requestedApproval = joinRequiresApproval ? null : true;
+
     const { data: existingProfile } = await supabase
         .from("profile")
-        .select("id, unit")
+        .select("id, unit, unit_approved")
         .eq("user", userId)
         .maybeSingle()
         .throwOnError();
@@ -22,11 +27,17 @@ export const onRequest = runFunction(async (req, params: { unitId: number; token
     if (existingProfile?.unit && existingProfile.unit !== unitId)
         return { error: "user_already_assigned_to_other_unit" };
 
+    const nextUnitApproved = existingProfile?.unit_approved === true
+        ? true
+        : existingProfile?.unit_approved === false
+            ? false
+            : requestedApproval;
+
     const profilePayload = {
         user: userId,
         email,
         unit: unitId,
-        unit_approved: true,
+        unit_approved: nextUnitApproved,
     };
 
     const profile = existingProfile
@@ -41,15 +52,13 @@ export const onRequest = runFunction(async (req, params: { unitId: number; token
             return data;
         });
 
-    const { error: metadataError } = await supabase.auth.admin.updateUserById(userId, {
-        app_metadata: {
-            ...req.user.app_metadata,
-            unit: unitId,
-            unit_approved: true,
-        },
-    });
-    if (metadataError)
-        throw metadataError;
+    await updateUserUnitClaims(
+        supabase,
+        userId,
+        unitId,
+        nextUnitApproved,
+        req.user.app_metadata as Record<string, unknown> | undefined,
+    );
 
     return {
         success: true,

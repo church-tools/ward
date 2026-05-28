@@ -45,7 +45,7 @@ export async function createUser(
 export async function checkUnitToken(supabase: SupabaseClient<Database>, unitId: number, token: string) {
     const { data: unit } = await supabase
         .from("unit")
-        .select("id, name, join_token, join_timeout")
+        .select("id, name, join_token, join_timeout, join_requires_approval")
         .eq("id", unitId)
         .maybeSingle()
         .throwOnError();

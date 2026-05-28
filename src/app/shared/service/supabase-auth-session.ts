@@ -19,6 +19,7 @@ export type SessionClaims = {
     unit?: string;
     unit_approved?: boolean | null;
     is_admin: boolean;
+    is_unit_admin?: boolean;
     exp?: number;
 };
 
@@ -193,6 +194,7 @@ export class SupabaseAuthSessionStore {
                 ? raw.unit_approved
                 : undefined,
             is_admin: raw.is_admin === true,
+            is_unit_admin: raw.is_unit_admin === true,
             exp: typeof raw.exp === 'number' ? raw.exp : undefined,
         };
     }

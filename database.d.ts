@@ -834,6 +834,7 @@ export type Database = {
           bulletin_board_key: string
           created_by: string
           id: number
+          join_requires_approval: boolean
           join_timeout: string | null
           join_token: string | null
           name: string
@@ -845,6 +846,7 @@ export type Database = {
           bulletin_board_key?: string
           created_by: string
           id?: number
+          join_requires_approval?: boolean
           join_timeout?: string | null
           join_token?: string | null
           name: string
@@ -856,6 +858,7 @@ export type Database = {
           bulletin_board_key?: string
           created_by?: string
           id?: number
+          join_requires_approval?: boolean
           join_timeout?: string | null
           join_token?: string | null
           name?: string

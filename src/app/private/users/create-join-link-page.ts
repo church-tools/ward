@@ -1,11 +1,12 @@
 import { UnitService } from '@/modules/unit/unit.service';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
+import Switch from '@/shared/form/switch/switch';
 import { TextInput } from '@/shared/form/text/text-input';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { FunctionsService } from '@/shared/service/functions.service';
-import { xcomputed, xeffect } from '@/shared/utils/signal-utils';
+import { xcomputed, xeffect, xsignal } from '@/shared/utils/signal-utils';
 import Collapse from '@/shared/widget/collapse/collapse';
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { PrivatePage } from '../shared/private-page';
 
 @Component({
@@ -19,6 +20,11 @@ import { PrivatePage } from '../shared/private-page';
                     [value]="joinLinkDays()"
                     (valueChange)="joinLinkDays.set($event ?? '')"/>
             </div>
+            <app-switch
+                [value]="joinRequiresApproval() ?? true"
+                [disabled]="approvalDisabled()"
+                label="{{ 'CREATE_JOIN_LINK.APPROVAL_REQUIRED' | localize }}"
+                (valueChange)="setJoinRequiresApproval($event)"/>
             <app-collapse [show]="!!joinUrl()">
                 <app-text-input class="full-width" type="text"
                     [label]="'CREATE_JOIN_LINK.URL' | localize"
@@ -33,7 +39,7 @@ import { PrivatePage } from '../shared/private-page';
             </app-async-button>
         </div>
     `,
-    imports: [LocalizePipe, TextInput, AsyncButton, Collapse],
+    imports: [LocalizePipe, TextInput, Switch, AsyncButton, Collapse],
     host: { class: 'full-width' },
 })
 export class CreateJoinLinkPage extends PrivatePage {
@@ -41,7 +47,19 @@ export class CreateJoinLinkPage extends PrivatePage {
     private readonly functions = inject(FunctionsService);
     private readonly unitService = inject(UnitService);
 
-    protected readonly joinLinkDays = signal<string>('2');
+    protected readonly joinLinkDays = xsignal<string>('2');
+    protected readonly joinRequiresApproval = xsignal<boolean | null>(null);
+    protected readonly approvalUpdating = xsignal(false);
+    protected readonly approvalDisabled = xcomputed([this.joinRequiresApproval, this.approvalUpdating],
+        (approval, updating) => approval === null || updating);
+
+    constructor() {
+        super();
+        xeffect([this.unitService.own], unit => {
+            if (!unit) return;
+            this.joinRequiresApproval.set(unit.join_requires_approval);
+        });
+    }
     
     protected readonly joinUrl = xcomputed([this.unitService.own], unit => {
         if (!unit?.join_token || !unit?.join_timeout) return null;
@@ -54,5 +72,23 @@ export class CreateJoinLinkPage extends PrivatePage {
         if (!Number.isFinite(validity_days) || validity_days < 1)
             throw 'ERROR.FAILED';
         await this.functions.call('auth/generate-join-link', { validity_days })
+    }
+
+    protected readonly setJoinRequiresApproval = async (value: boolean | null) => {
+        if (value === null)
+            return;
+        const previous = this.joinRequiresApproval();
+        if (previous === value)
+            return;
+        this.joinRequiresApproval.set(value);
+        this.approvalUpdating.set(true);
+        try {
+            await this.functions.call('set-join-approval-required', { required: value });
+        } catch {
+            this.joinRequiresApproval.set(previous);
+            throw 'ERROR.FAILED';
+        } finally {
+            this.approvalUpdating.set(false);
+        }
     }
 }

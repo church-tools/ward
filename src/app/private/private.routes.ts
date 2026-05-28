@@ -109,10 +109,11 @@ export const privateTabs: { [path: string]: PrivateTab } = {
 
 export async function getPrivateRoutes() {
     const session = await SupabaseService.instance?.getSession();
+    const isAdmin = !!session?.is_admin || !!session?.is_unit_admin;
     return [{
         path: '',
         loadComponent: () => import('./shell/private-shell').then(m => m.PrivateShell), 
-        children: mapRouteObject(privateTabs, session?.is_admin),
+        children: mapRouteObject(privateTabs, isAdmin),
     }];
 }
 

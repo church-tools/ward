@@ -18,6 +18,7 @@ import type { ListPostersFunction } from '@root/functions/api/list-posters';
 import type { ListUnapprovedUnitsFunction } from '@root/functions/api/list-unapproved-units';
 import type { ListUnitsFunction } from '@root/functions/api/list-units';
 import type { PresignFileAccessFunction } from '@root/functions/api/presign-file-access';
+import type { SetJoinApprovalRequiredFunction } from '@root/functions/api/set-join-approval-required';
 import type { SetUnitApprovedFunction } from '@root/functions/api/set-unit-approved';
 import type { SetUserAdminFunction } from '@root/functions/api/set-user-admin';
 import type { UploadFileFunction } from '@root/functions/api/upload-file';
@@ -42,6 +43,7 @@ export type FunctionRouteMap = {
     'list-unapproved-units': ListUnapprovedUnitsFunction;
     'list-units': ListUnitsFunction;
     'presign-file-access': PresignFileAccessFunction;
+    'set-join-approval-required': SetJoinApprovalRequiredFunction;
     'set-unit-approved': SetUnitApprovedFunction;
     'set-user-admin': SetUserAdminFunction;
     'upload-file': UploadFileFunction;

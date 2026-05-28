@@ -198,6 +198,7 @@ export const LOCALIZATION = {
   CREATE_JOIN_LINK: {
     TITLE: "Create Join Link",
     VALIDITY_DAYS: "Valid for days",
+    APPROVAL_REQUIRED: "Approval required",
     URL: "Invite URL",
     GENERATE: "Generate Link",
   },

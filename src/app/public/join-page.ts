@@ -58,9 +58,26 @@ export class JoinPage extends Page implements OnInit {
             if (session.unit)
                 return void await this.router.navigate(['/']);
             try {
-                await this.functions.call('auth/join-with-provider', { unitId, token });
+                const joinResult = await this.functions.call('auth/join-with-provider', { unitId, token });
+                if ('error' in joinResult) {
+                    switch (joinResult.error) {
+                        case 'invitation_invalid_or_expired':
+                            this.error.set('JOIN_PAGE.ERROR_MSG.EXPIRED_OR_INVALID');
+                            return;
+                        default:
+                            this.error.set('ERROR.FAILED');
+                            return;
+                    }
+                }
                 await this.supabase.refreshSession();
-                await this.router.navigate(['/']);
+                const unitApproved = joinResult.profile.unit_approved;
+                if (unitApproved === false) {
+                    await this.router.navigate(['/setup/rejected']);
+                } else if (unitApproved === null) {
+                    await this.router.navigate(['/setup/pending']);
+                } else {
+                    await this.router.navigate(['/']);
+                }
             } catch {
                 this.error.set('ERROR.FAILED');
             }
