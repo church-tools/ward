@@ -36,8 +36,8 @@
     "@angular/compiler": "^21.2.15",
     "@angular/compiler-cli": "^21.2.15",
     "@angular/language-service": "^21.2.15",
-    "@cloudflare/workers-types": "^4.20260526.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260527.2",
+    "@cloudflare/workers-types": "^4.20260601.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260601.1",
     "supabase": "^2.103.0",
     "typescript": "^5.9.3"
   },
