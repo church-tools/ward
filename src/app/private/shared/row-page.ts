@@ -65,8 +65,11 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
 
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
-            const { rowId, forceRepaint } = this.getRowIdFromRoute(this.route) ?? {};
-            if (rowId) await this.setRowId(+rowId, forceRepaint);
+            
+            const { rowId, forceRepaint, swapCallback } = this.getRowIdFromRoute(this.route,
+            ) ?? {};
+            if (rowId) await this.setRowId(rowId, forceRepaint);
+            swapCallback?.();
         });
     }
 
@@ -89,7 +92,9 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
         this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
     }
 
-    protected getRowIdFromRoute(route: ActivatedRoute): { rowId: number, forceRepaint?: boolean } | null {
+    protected getRowIdFromRoute(route: ActivatedRoute):
+        { rowId: number, forceRepaint?: boolean, swapCallback?: () => void } | null
+    {
         const rowId = route.snapshot.paramMap.get(this.tableName);
         return rowId ? { rowId: +rowId } : null;
     }

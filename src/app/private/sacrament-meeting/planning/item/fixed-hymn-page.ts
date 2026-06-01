@@ -7,7 +7,7 @@ import { Select } from '@/shared/form/select/select';
 import InputLabel from '@/shared/form/shared/input-label';
 import { LanguageService } from '@/shared/language/language.service';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
-import { asyncComputed, xcomputed, xeffect, xsignal } from '@/shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
@@ -108,20 +108,18 @@ export class FixedHymnPage extends RowPage<'sacrament_meeting'> {
         return optionRow?.topics ?? [];
     });
 
-    private pendingSlot: FixedHymnSlot | null = null;
-
-
-    constructor() {
-        super();
-        xeffect([this.rowId], () => {
-            if (this.pendingSlot) this.slot.set(this.pendingSlot);
-        });
-    }
-
-    protected override getRowIdFromRoute(route: ActivatedRoute): { rowId: number, forceRepaint?: boolean } | null {
+    protected override getRowIdFromRoute(route: ActivatedRoute):
+        { rowId: number, forceRepaint?: boolean, swapCallback?: () => void } | null
+    {
         const segment = route.snapshot.url.at(-1)?.path ?? '';
         const [slotPart, idPart] = segment.split('-');
-        this.pendingSlot = `${slotPart as 'opening' | 'sacrament' | 'closing'}_hymn`;
-        return idPart ? { rowId: +idPart, forceRepaint: true } : null;
+        const newRowId = idPart ? +idPart : null;
+        
+        return newRowId ? { rowId: newRowId, forceRepaint: true,
+            swapCallback: () => {
+                const slot = `${slotPart as 'opening' | 'sacrament' | 'closing'}_hymn` as FixedHymnSlot;
+                this.slot.set(slot);
+            }
+        } : null;
     }
 }
