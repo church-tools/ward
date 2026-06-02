@@ -23,7 +23,7 @@
     "@angular/router": "^21.2.15",
     "@angular/service-worker": "^21.2.15",
     "@aws-sdk/client-s3": "^3.1057.0",
-    "@supabase/supabase-js": "^2.106.2",
+    "@supabase/supabase-js": "^2.107.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "resend": "^6.12.4",
@@ -37,12 +37,12 @@
     "@angular/compiler-cli": "^21.2.15",
     "@angular/language-service": "^21.2.15",
     "@cloudflare/workers-types": "^4.20260601.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260601.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260602.1",
     "supabase": "^2.103.0",
     "typescript": "^5.9.3"
   },
   "optionalDependencies": {
     "concurrently": "^10.0.1",
-    "wrangler": "^4.96.0"
+    "wrangler": "^4.97.0"
   }
 }

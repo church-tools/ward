@@ -13,9 +13,11 @@ import { RowPage } from '../shared/row-page';
     selector: 'app-member-page',
     template: `
         <h1>
-            <app-select-result [optionsByValue]="memberView.salutationOptionsByGender"
-                [value]="syncedRow.value()?.gender" translateOptions/>
-            {{ memberView.toString(syncedRow.value()!) }}
+            @if (syncedRow.value(); as member) {
+                <app-select-result [optionsByValue]="memberView.salutationOptionsByGender"
+                    [value]="member.gender" translateOptions/>
+                {{ memberView.toString(member) }}
+            }
         </h1>
         <div class="column-grid">
             <app-select [syncedRow]="syncedRow" column="gender"

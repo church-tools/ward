@@ -5,5 +5,6 @@
         "node_modules/": true,
         ".gitattributes": true,
         ".gitignore": true
-    }
+    },
+    "typescript.native-preview.tsdk": "node_modules\\@typescript\\native-preview"
 }
