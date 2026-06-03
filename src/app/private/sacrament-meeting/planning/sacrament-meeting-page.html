@@ -11,15 +11,23 @@
         [syncedRow]="syncedRow" column="type"
         [options]="meetingView.typeOptions" translateOptions
         label="{{ 'SACRAMENT_MEETING_PAGE.TYPE' | localize }}"/>
-    <app-custom-row-select class="col-md-6"
-        [syncedRow]="syncedRow" column="opening_prayer"
-        table="member"
-        label="{{ 'SACRAMENT_MEETING_PAGE.OPENING_PRAYER' | localize }}"/>
     @if (syncedRow.value(); as row) {
+        <app-fixed-hymn-card
+            slot="opening"
+            [meetingId]="row.id"
+            [hymnNumber]="row.opening_hymn"
+            labelKey="SACRAMENT_MEETING_PAGE.OPENING_HYMN"
+            class="col-12"/>
+        <app-fixed-hymn-card
+            slot="sacrament"
+            [meetingId]="row.id"
+            [hymnNumber]="row.sacrament_hymn"
+            labelKey="SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN"
+            class="col-12"/>
         <div class="col-12">
-            <app-row-card-list-multi
+            <app-row-card-list-multi #cardList
                 [tableQueries]="tableQueries()"
-                editable alwaysShowInsertTemplate
+                editable
                 [activeId]="activeItemId()"
                 [getUrl]="getItemPopoverUrl"
                 [cardClasses]="'card canvas-card suppress-canvas-card-animation'">
@@ -32,33 +40,33 @@
                         <app-musical-performance-list-row [row]="item.row"/>
                     }
                 </ng-template>
-                <ng-template #insertTemplate let-functions>
-                    <div class="row gap-2 full-width center-content">
-                        <app-button type="secondary" size="large"
-                            (onClick)="insertItem('message', functions.insert)">
-                            {{ 'MESSAGE_PAGE.TITLE' | localize }}
-                        </app-button>
-                        <app-button type="secondary" size="large"
-                            (onClick)="insertItem('hymn', functions.insert)">
-                            {{ 'HYMN_PAGE.TITLE' | localize }}
-                        </app-button>
-                        <app-button type="secondary" size="large"
-                            (onClick)="insertItem('musical_performance', functions.insert)">
-                            {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | localize }}
-                        </app-button>
-                        <app-button type="secondary" size="large"
-                            (onClick)="insertCustomText(functions.insert)">
-                            {{ 'SACRAMENT_MEETING_PAGE.CUSTOM_TEXT' | localize }}
-                        </app-button>
-                    </div>
-                </ng-template>
             </app-row-card-list-multi>
         </div>
+        <div class="col-12 row gap-2 full-width center-content">
+            <app-button type="secondary" size="large" icon="presenter"
+                (onClick)="insertItem('message', (item) => cardList.insertItem(item))">
+                {{ 'MESSAGE_PAGE.TITLE' | localize }}
+            </app-button>
+            <app-button type="secondary" size="large" icon="music_note_1"
+                (onClick)="insertItem('hymn', (item) => cardList.insertItem(item))">
+                {{ 'HYMN_PAGE.TITLE' | localize }}
+            </app-button>
+            <app-button type="secondary" size="large" icon="music_note_2"
+                (onClick)="insertItem('musical_performance', (item) => cardList.insertItem(item))">
+                {{ 'MUSICAL_PERFORMANCE_PAGE.SHORT_TITLE' | localize }}
+            </app-button>
+            <app-button type="secondary" size="large" icon="document"
+                (onClick)="insertCustomText((item) => cardList.insertItem(item))">
+                {{ 'SACRAMENT_MEETING_PAGE.CUSTOM_TEXT' | localize }}
+            </app-button>
+        </div>
+        <app-fixed-hymn-card
+            slot="closing"
+            [meetingId]="row.id"
+            [hymnNumber]="row.closing_hymn"
+            labelKey="SACRAMENT_MEETING_PAGE.CLOSING_HYMN"
+            class="col-12"/>
     }
-    <app-custom-row-select class="col-md-6"
-        [syncedRow]="syncedRow" column="closing_prayer"
-        table="member"
-        label="{{ 'SACRAMENT_MEETING_PAGE.CLOSING_PRAYER' | localize }}"/>
 
     <app-multi-select class="col-12"
         [syncedRow]="syncedRow" column="classes"

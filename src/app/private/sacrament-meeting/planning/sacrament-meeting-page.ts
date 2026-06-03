@@ -1,11 +1,11 @@
 import { HymnListRow } from '@/modules/sacrament-meeting/item/hymn/hymn-list-row';
 import { MessageListRow } from '@/modules/sacrament-meeting/item/message/message-list-row';
 import { MusicalPerformanceListRow } from '@/modules/sacrament-meeting/item/musical-performance/musical-performance-list-row';
+import { FixedHymnCard } from '@/modules/sacrament-meeting/fixed-hymn-card';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import { RowCardListMulti, RowCardListMultiInsert, RowCardListMultiItem, type RowCardListMultiQuery } from '@/modules/shared/row-card-list/row-card-list-multi';
 import type { Insert, Table } from '@/modules/shared/table.types';
 import { Button } from '@/shared/form/button/button';
-import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
 import { Select } from '@/shared/form/select/select';
 import { LanguageService } from '@/shared/language/language.service';
@@ -26,7 +26,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
     templateUrl: './sacrament-meeting-page.html',
     imports: [LocalizePipe, SyncedFieldDirective, Select,
         MessageListRow, HymnListRow, MusicalPerformanceListRow,
-        MultiSelect, CustomRowSelect, DatePipe, RowHistory, RowCardListMulti, Button],
+        MultiSelect, FixedHymnCard, DatePipe, RowHistory, RowCardListMulti, Button],
     host: { class: 'page narrow full-height' },
 })
 export class SacramentMeetingPage extends RowPage<'sacrament_meeting'> {

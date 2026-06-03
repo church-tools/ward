@@ -13,12 +13,14 @@
                 slot="opening"
                 [meetingId]="row().id"
                 [hymnNumber]="row().opening_hymn"
-                labelKey="SACRAMENT_MEETING_PAGE.OPENING_HYMN"/>
+                labelKey="SACRAMENT_MEETING_PAGE.OPENING_HYMN"
+                dense/>
             <app-fixed-hymn-card
                 slot="sacrament"
                 [meetingId]="row().id"
                 [hymnNumber]="row().sacrament_hymn"
-                labelKey="SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN"/>
+                labelKey="SACRAMENT_MEETING_PAGE.SACRAMENT_HYMN"
+                dense/>
         }
         <app-row-card-list-multi class="grow-1"
             [tableQueries]="tableQueries()"
@@ -58,7 +60,8 @@
                 slot="closing"
                 [meetingId]="row().id"
                 [hymnNumber]="row().closing_hymn"
-                labelKey="SACRAMENT_MEETING_PAGE.CLOSING_HYMN"/>
+                labelKey="SACRAMENT_MEETING_PAGE.CLOSING_HYMN"
+                dense/>
         }
     </div>
 </div>

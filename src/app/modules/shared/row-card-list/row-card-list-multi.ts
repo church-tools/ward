@@ -279,14 +279,26 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
         await this.getTable(item.table).update(item.row);
     };
 
-    protected readonly getInsertFunctions = (insert: (item: RowCardListCardItem<T>) => Promise<void>, cancel: () => void) => ({
-        insert: async (item: RowCardListMultiInsert<T>) => {
-            await this._prepareInsert(item);
-            const row = await this.getTable(item.tableName).insert(item.row);
-            await insert(this.createCardItem(item.tableName, row));
-        },
-        cancel,
-    });
+    private _cardListInsert: ((item: RowCardListCardItem<T>) => Promise<void>) | null = null;
+
+    protected readonly getInsertFunctions = (insert: (item: RowCardListCardItem<T>) => Promise<void>, cancel: () => void) => {
+        this._cardListInsert = insert;
+        return {
+            insert: async (item: RowCardListMultiInsert<T>) => {
+                await this._prepareInsert(item);
+                const row = await this.getTable(item.tableName).insert(item.row);
+                await insert(this.createCardItem(item.tableName, row));
+            },
+            cancel,
+        };
+    };
+
+    async insertItem(item: RowCardListMultiInsert<T>): Promise<void> {
+        if (!this._cardListInsert) throw new Error('Card list insert not initialized');
+        await this._prepareInsert(item);
+        const row = await this.getTable(item.tableName).insert(item.row);
+        await this._cardListInsert(this.createCardItem(item.tableName, row));
+    }
 
     protected readonly _prepareInsert = (item: RowCardListMultiInsert<T>): PromiseOrValue<void> => {
         this.prepareInsert()?.(item);

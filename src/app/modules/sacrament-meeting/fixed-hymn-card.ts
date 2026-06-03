@@ -3,7 +3,7 @@ import { Icon } from "@/shared/icon/icon";
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
 import { ActiveIndicator } from '@/shared/widget/active-indicator/active-indicator';
-import { Component, inject, input } from '@angular/core';
+import { booleanAttribute, Component, inject, input } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
 import { xcomputed } from '../../shared/utils/signal-utils';
 
@@ -22,12 +22,12 @@ export type FixedHymnSlot = 'opening' | 'sacrament' | 'closing';
             @if (activeLink.isActive) {
                 <app-active-indicator/>
             }
-            <div class="row grow-1 m-2-3 row-gap-1 column-gap-2 items-center">
-                <app-icon icon="music_note_1" filled size="xs" class="subtle-text"/>
+            <div class="row grow-1 {{ dense() ? 'm-2-3 column-gap-1' : 'm-4 column-gap-2' }} row-gap-1 items-center">
+                <app-icon icon="music_note_1" filled [size]="dense() ? 'xs' : 'sm'" class="subtle-text"/>
                 @if (hymnNumber(); as number) {
-                    <span class="overflow-ellipsis">#{{ number }}&nbsp;&nbsp;{{ localizeHymn()(number) }}</span>
+                    <span class="overflow-ellipsis" [class.large-text]="!dense()">#{{ number }}&nbsp;&nbsp;{{ localizeHymn()(number) }}</span>
                 } @else {
-                    <span class="subtle-text">{{ labelKey() | localize }}</span>
+                    <span class="subtle-text" [class.large-text]="!dense()">{{ labelKey() | localize }}</span>
                 }
             </div>
         </a>
@@ -43,6 +43,7 @@ export class FixedHymnCard {
     readonly meetingId = input.required<number>();
     readonly hymnNumber = input<number | null>(null);
     readonly labelKey = input.required<string>();
+    readonly dense = input(false, { transform: booleanAttribute });
 
     protected readonly localizeHymn = xcomputed([this.hymnTitle.localizer], localizer => localizer);
 
