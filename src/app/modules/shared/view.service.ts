@@ -1,6 +1,6 @@
 import type { IconCode } from "@/shared/icon/icon";
 import { LanguageService } from "@/shared/language/language.service";
-import { inject, Injectable, Injector, Signal } from "@angular/core";
+import { inject, Injector, Signal } from "@angular/core";
 import type { Row, TableName } from "./table.types";
 
 export async function getViewService<T extends TableName>(injector: Injector, tableName: T): Promise<ViewService<T>> {
@@ -24,7 +24,6 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
     return injector.get(<InstanceType<any>>service);
 }
 
-@Injectable({ providedIn: 'root' })
 export abstract class ViewService<T extends TableName> {
 
     protected readonly language = inject(LanguageService);
