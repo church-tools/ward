@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
+import { Component, input } from '@angular/core';
 import { ColorName } from '../../utils/color-utils';
 import ErrorMessage from '../../widget/error-message/error-message';
 import { getProviders, InputBase } from '../shared/input-base';
@@ -6,7 +6,6 @@ import InputLabel from '../shared/input-label';
 
 @Component({
     selector: 'app-checkbox',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [InputLabel, ErrorMessage],
     template: `
         <div class="column">

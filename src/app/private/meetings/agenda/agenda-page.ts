@@ -25,7 +25,7 @@ import { AgendaDropZone } from "./drop-zone/agenda-drop-zone";
             <div class="page narrow gap-4">
                 <div class="row no-wrap spread-content items-center mb-4">
                     @let row = syncedRow.value();
-                    @if (row && row.shape && windowService.isLarge()) {
+                    @if (row?.shape && windowService.isLarge()) {
                         <app-icon [icon]="row.shape" filled size="xl"
                             class="position-absolute {{syncedRow.value()?.color}}-active ms--12"></app-icon>
                     }

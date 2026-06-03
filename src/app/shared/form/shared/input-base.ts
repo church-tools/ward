@@ -40,7 +40,6 @@ export class InputBase<TIn, TOut = TIn> extends HasFormValueControl<TOut | null>
 
     protected readonly viewValue = signal<TIn | null>(null);
     readonly value = model<TOut | null>(null);
-    readonly valueChange = output<TOut | null>();
     readonly disabled = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly touched = model(false);
     readonly dirty = input(false);
@@ -84,7 +83,6 @@ export class InputBase<TIn, TOut = TIn> extends HasFormValueControl<TOut | null>
     protected async emitChange(viewValue: TIn | null = this.viewValue()) {
         const mapped = await this.mapOut(viewValue);
         this.value.set(mapped);
-        this.valueChange.emit(mapped);
     }
 
     protected mapIn(value: TOut | null): PromiseOrValue<TIn | null> {

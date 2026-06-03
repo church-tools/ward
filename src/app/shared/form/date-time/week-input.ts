@@ -1,13 +1,12 @@
-import { ChangeDetectionStrategy, Component, input } from '@angular/core';
-import { getUpcomingSundayIndex, SundayIndex, sundayIndexToDate } from '../../utils/date-utils';
+import { Component, input } from '@angular/core';
 import { PromiseOrValue } from '../../types';
+import { getUpcomingSundayIndex, SundayIndex, sundayIndexToDate } from '../../utils/date-utils';
 import ErrorMessage from '../../widget/error-message/error-message';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from '../shared/input-label';
 
 @Component({
     selector: 'app-week-input',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [InputLabel, ErrorMessage],
     providers: getProviders(() => WeekInput),
     template: `

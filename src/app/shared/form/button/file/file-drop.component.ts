@@ -1,8 +1,7 @@
-import { ChangeDetectionStrategy, Component, ElementRef, input, output, signal, viewChild } from "@angular/core";
+import { Component, ElementRef, input, output, signal, viewChild } from "@angular/core";
 
 @Component({
     selector: 'app-file-drop',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     template: `
         <input #fileInput type="file" [accept]="accept()" [attr.capture]="capture()"
             (drop)="handleDrop($event)" (change)="handleFileInput($event)"

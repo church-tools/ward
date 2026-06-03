@@ -1,15 +1,14 @@
-import { booleanAttribute, ChangeDetectionStrategy, Component, ElementRef, input, Signal, viewChild } from '@angular/core';
+import { booleanAttribute, Component, ElementRef, input, Signal, viewChild } from '@angular/core';
 import { ColorName } from '../../utils/color-utils';
 import { xcomputed, xsignal } from '../../utils/signal-utils';
 import ErrorMessage from '../../widget/error-message/error-message';
-import { HorizontalDragDirective } from '../shared/horizontal-drag.directive';
 import { HorizontalDragGesture } from '../shared/horizontal-drag-gesture';
+import { HorizontalDragDirective } from '../shared/horizontal-drag.directive';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from '../shared/input-label';
 
 @Component({
     selector: 'app-switch',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [InputLabel, ErrorMessage, HorizontalDragDirective],
     template: `
         <div class="column">

@@ -1,12 +1,11 @@
-import { ChangeDetectionStrategy, Component } from '@angular/core';
+import { Component } from '@angular/core';
+import { PromiseOrValue } from '../../types';
 import ErrorMessage from '../../widget/error-message/error-message';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from '../shared/input-label';
-import { PromiseOrValue } from '../../types';
 
 @Component({
     selector: 'app-time-picker',
-    changeDetection: ChangeDetectionStrategy.OnPush,
     imports: [InputLabel, ErrorMessage],
     providers: getProviders(() => TimePicker),
     template: `

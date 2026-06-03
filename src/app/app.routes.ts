@@ -1,6 +1,6 @@
-import { CanMatchFn, Router, Routes, UrlTree, UrlSegment } from '@angular/router';
-import { SupabaseService } from './shared/service/supabase.service';
 import { inject } from '@angular/core';
+import { CanMatchFn, Router, Routes, UrlSegment, UrlTree } from '@angular/router';
+import { SupabaseService } from './shared/service/supabase.service';
 
 const PUBLIC_ROOT_PATHS = new Set([
     'login',
@@ -14,7 +14,7 @@ const PUBLIC_ROOT_PATHS = new Set([
     'bulletin-board',
 ]);
 
-const hasUnit: CanMatchFn = async (_route, segments) => {
+const hasUnit: CanMatchFn = async (_route, segments, _currentSnapshot) => {
     const router = inject(Router);
     const session = await inject(SupabaseService).getSession();
 
