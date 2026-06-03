@@ -2,7 +2,7 @@ import type { SelectOption } from '@/shared/form/select/select-utils';
 import { LanguageService, type LanguageKey } from '@/shared/language/language.service';
 import type { PaletteColor } from '@/shared/utils/color-utils';
 import { asyncComputed, xcomputed } from '@/shared/utils/signal-utils';
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { HYMN_INFO_BY_NUMBER, type HymnNumber } from './hymn-numbers';
 import { HYMN_TOPICS, HymnTopic } from './hymn-topics';
 
@@ -21,7 +21,7 @@ export type HymnOptionRow = {
     }[];
 };
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class HymnTitleService {
 
     private readonly catalogPromisesByLanguage: Partial<Record<LanguageKey, Promise<HymnCatalog>>> = {};

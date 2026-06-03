@@ -1,8 +1,8 @@
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import { ViewService } from "../shared/view.service";
 import type { Agenda } from "./agenda";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AgendaViewService extends ViewService<'agenda'> {
     
     readonly icon = 'calendar_agenda';

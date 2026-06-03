@@ -1,10 +1,10 @@
-import { Injectable } from '@angular/core';
+import { Service } from '@angular/core';
 import { SundayIndex, sundayIndexToDate } from '../../shared/utils/date-utils';
 import { ViewService } from '../shared/view.service';
 import type { SacramentMeeting } from './sacrament-meeting';
 import { Class } from './sacrament-meeting.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SacramentMeetingViewService extends ViewService<'sacrament_meeting'> {
 
     readonly icon = 'presenter';

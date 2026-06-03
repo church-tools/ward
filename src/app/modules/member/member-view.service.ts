@@ -1,9 +1,9 @@
-import { Injectable } from "@angular/core";
 import type { ColorName } from "@/shared/utils/color-utils";
+import { Service } from "@angular/core";
 import { ViewService } from "../shared/view.service";
 import type { Member } from "./member";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MemberViewService extends ViewService<'member'> {
     
     readonly icon = 'people_community';

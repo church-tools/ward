@@ -1,9 +1,9 @@
 import type { IconCode } from "@/shared/icon/icon";
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import { ViewService } from "../../shared/view.service";
 import type { AgendaItem } from "./agenda-item";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AgendaItemViewService extends ViewService<'agenda_item'> {
 
     readonly icon = 'checkmark_circle';

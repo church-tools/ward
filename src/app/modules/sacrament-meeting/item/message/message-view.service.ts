@@ -1,8 +1,8 @@
 import { ViewService } from "@/modules/shared/view.service";
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import type { Message } from "./message";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MessageViewService extends ViewService<'message'> {
 
     readonly icon = 'presenter';

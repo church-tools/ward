@@ -1,11 +1,11 @@
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { asyncComputed } from "@/shared/utils/signal-utils";
-import { inject, Injectable } from "@angular/core";
+import { inject, Service } from "@angular/core";
 import { MemberCallingService } from "../member-calling/member-calling.service";
 import type { Insert, Row, Table, TableQuery } from "../shared/table.types";
 import { UnitService } from "../unit/unit.service";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CallingService {
 
     private readonly unitService = inject(UnitService);

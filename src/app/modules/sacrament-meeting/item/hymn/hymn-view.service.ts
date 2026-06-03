@@ -1,10 +1,10 @@
 import { ViewService } from "@/modules/shared/view.service";
 import { LanguageKey } from "@/shared/language/language.service";
-import { inject, Injectable } from "@angular/core";
+import { inject, Service } from "@angular/core";
 import type { Hymn } from "./hymn";
 import { HymnTitleService } from './hymn-title.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class HymnViewService extends ViewService<'hymn'> {
 
     readonly icon = 'music_note_1';

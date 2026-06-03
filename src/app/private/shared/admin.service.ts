@@ -1,10 +1,10 @@
 import { ProfileService } from "@/modules/profile/profile.service";
 import { xcomputed } from "@/shared/utils/signal-utils";
-import { inject, Injectable, signal } from "@angular/core";
+import { inject, Service, signal } from "@angular/core";
 
 const EDIT_MODE_STORAGE_KEY = 'admin_edit_mode';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AdminService {
 
     private readonly profileService = inject(ProfileService);

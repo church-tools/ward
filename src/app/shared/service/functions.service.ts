@@ -1,8 +1,8 @@
-import { inject, Injectable } from '@angular/core';
-import type { FunctionParams, FunctionResult, FunctionRoute, FunctionRouteMap } from './functions.routes.generated';
+import { inject, Service } from '@angular/core';
+import type { FunctionParams, FunctionResult, FunctionRoute } from './functions.routes.generated';
 import { SupabaseService } from './supabase.service';
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class FunctionsService {
 
     private readonly supabase = inject(SupabaseService);

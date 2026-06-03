@@ -1,9 +1,9 @@
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { xsignal } from "@/shared/utils/signal-utils";
-import { inject, Injectable } from "@angular/core";
+import { inject, Service } from "@angular/core";
 import { Unit } from "./unit";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class UnitService {
 
     private readonly supabaseService = inject(SupabaseService);

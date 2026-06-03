@@ -10,15 +10,15 @@ import { ProfileViewService } from '@/modules/profile/profile-view.service';
 import { MessageCalculated } from '@/modules/sacrament-meeting/item/message/message-calculated';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import type { CalculatedMap, TableInfoAdditions, TableName } from '@/modules/shared/table.types';
-import { inject, Injectable, signal } from '@angular/core';
+import { inject, Service, signal } from '@angular/core';
 import type { Database } from '@root/database';
 import { createClient, Session as SupabaseAuthSession, User } from '@supabase/supabase-js';
 import { environment } from '../../../environments/environment';
-import { SessionClaims, SupabaseAuthSessionStore } from './supabase-auth-session';
 import { SupaSync } from '../utils/supa-sync/supa-sync';
 import type { SupaSyncTableInfos } from '../utils/supa-sync/supa-sync.types';
 import { SupaSyncedRow } from '../utils/supa-sync/supa-synced-row';
 import { getSiteOrigin } from '../utils/url-utils';
+import { SessionClaims, SupabaseAuthSessionStore } from './supabase-auth-session';
 
 type TableInfoMap = { [K in TableName]: TableInfoAdditions<K> };
 
@@ -26,7 +26,7 @@ export type SupabaseRow<T extends TableName> = SupaSyncedRow<Database, T>;
 
 export type Session = SessionClaims;
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SupabaseService {
 
     public static instance: SupabaseService | undefined;

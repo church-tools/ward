@@ -1,8 +1,8 @@
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import { ViewService } from "../shared/view.service";
 import type { Profile } from "./profile";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class ProfileViewService extends ViewService<'profile'> {
 
     readonly icon = 'person';

@@ -1,6 +1,6 @@
-import { inject, Injectable } from "@angular/core";
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { DAY, getSundayIndexInMonth, getUpcomingSundayIndex, SundayIndex } from "@/shared/utils/date-utils";
+import { inject, Service } from "@angular/core";
 import { ProfileService } from "../profile/profile.service";
 import type { SacramentMeeting } from "./sacrament-meeting";
 
@@ -11,7 +11,7 @@ export enum Class {
     bishopric = 4,
 }
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class SacramentMeetingService {
 
     private readonly profileService = inject(ProfileService);

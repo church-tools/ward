@@ -1,9 +1,9 @@
-import { inject, Injectable } from "@angular/core";
+import { inject, Service } from "@angular/core";
 import { MemberViewService } from "../member/member-view.service";
 import { ViewService } from "../shared/view.service";
 import type { Calling } from "./calling";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class CallingViewService extends ViewService<'calling'> {
 
     private readonly memberView = inject(MemberViewService);

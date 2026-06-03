@@ -1,11 +1,11 @@
 import { AgendaItemViewService } from "@/modules/agenda/item/agenda-item-view.service";
 import { IconCode } from "@/shared/icon/icon";
-import { inject, Injectable, Signal } from "@angular/core";
+import { inject, Service, Signal } from "@angular/core";
 import { CallingViewService } from "../../calling/calling-view.service";
 import { ViewService } from "../../shared/view.service";
 import type { AgendaSection } from "./agenda-section";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class AgendaSectionViewService extends ViewService<'agenda_section'> {
 
     private readonly callingView = inject(CallingViewService);

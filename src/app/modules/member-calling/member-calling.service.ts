@@ -1,9 +1,9 @@
-import { inject, Injectable } from "@angular/core";
 import { SupabaseService } from "@/shared/service/supabase.service";
 import { asyncComputed } from "@/shared/utils/signal-utils";
+import { inject, Service } from "@angular/core";
 import { MemberService } from "../member/member.service";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MemberCallingService {
 
     private readonly memberService = inject(MemberService);

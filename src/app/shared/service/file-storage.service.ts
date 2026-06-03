@@ -1,11 +1,11 @@
-import { inject, Injectable } from '@angular/core';
+import { inject, Service } from '@angular/core';
 import { Cache } from '../utils/cache';
 import { FileKey, FileUrl } from '../utils/file-utils';
 import { FunctionsService } from './functions.service';
 
 // bucket: https://dash.cloudflare.com/3c3155295fbc389206f88a353d79c3a1/r2/default/buckets/ward-tools
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class FileStorageService {
 
     private readonly functions = inject(FunctionsService);

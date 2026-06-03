@@ -1,8 +1,8 @@
 import { ViewService } from "@/modules/shared/view.service";
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import type { MusicalPerformance } from "./musical-performance";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class MusicalPerformanceViewService extends ViewService<'musical_performance'> {
 
     readonly icon = 'music_note_2';

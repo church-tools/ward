@@ -1,8 +1,8 @@
-import { Injectable } from "@angular/core";
+import { Service } from "@angular/core";
 import { ViewService } from "../shared/view.service";
 import type { Organization } from "./organization";
 
-@Injectable({ providedIn: 'root' })
+@Service()
 export class OrganizationViewService extends ViewService<'organization'> {
 
     readonly icon = 'organization';
