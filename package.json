@@ -2,16 +2,16 @@
   "name": "ward-tools",
   "version": "0.0.2",
   "scripts": {
-    "start": "concurrently -n app,functions -c green,blue \"bun run start:app\" \"bun run start:functions\"",
-    "start:app": "bun run gen-function-route-map && bun ng serve ward-tools --port 4201",
+    "start": "concurrently -n app,functions -c green,blue \"npm run start:app\" \"npm run start:functions\"",
+    "start:app": "ng serve ward-tools --port 4201",
     "start:functions": "wrangler dev --local",
-    "build": "bun run gen-function-route-map && ng build --configuration production",
-    "watch": "bun run gen-function-route-map && ng build --watch --configuration development",
-    "test": "bun run gen-function-route-map && ng test",
+    "build": "npm run gen-function-route-map && ng build --configuration production",
+    "watch": "npm run gen-function-route-map && ng build --watch --configuration development",
+    "test": "npm run gen-function-route-map && ng test",
     "gen-types": "supabase gen types typescript --project-id bfozbjjsbwakbucgdpao > database.d.ts",
-    "gen-function-route-map": "bun scripts/generate-function-route-map.js",
-    "gen-icon-codes": "bun src/app/shared/icon/gen-icon-codes.ts",
-    "update-angular": "bun add @angular/cdk @angular/common @angular/core @angular/forms @angular/platform-browser @angular/router @angular/service-worker @angular/build @angular/cli @angular/compiler @angular/compiler-cli @angular/language-service"
+    "gen-function-route-map": "node scripts/generate-function-route-map.js",
+    "gen-icon-codes": "node src/app/shared/icon/gen-icon-codes.ts",
+    "update-angular": "npm add @angular/cdk @angular/common @angular/core @angular/forms @angular/platform-browser @angular/router @angular/service-worker @angular/build @angular/cli @angular/compiler @angular/compiler-cli @angular/language-service"
   },
   "private": true,
   "dependencies": {
@@ -22,7 +22,7 @@
     "@angular/platform-browser": "^22.0.0",
     "@angular/router": "^22.0.0",
     "@angular/service-worker": "^22.0.0",
-    "@aws-sdk/client-s3": "^3.1057.0",
+    "@aws-sdk/client-s3": "^3.1063.0",
     "@supabase/supabase-js": "^2.107.0",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
@@ -36,14 +36,14 @@
     "@angular/compiler": "^22.0.0",
     "@angular/compiler-cli": "^22.0.0",
     "@angular/language-service": "^22.0.0",
-    "@cloudflare/workers-types": "^4.20260601.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260603.1",
+    "@cloudflare/workers-types": "^4.20260607.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260607.1",
     "istanbul-lib-instrument": "^6.0.3",
-    "supabase": "^2.103.0",
+    "supabase": "^2.105.0",
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {
-    "concurrently": "^10.0.1",
-    "wrangler": "^4.97.0"
+    "concurrently": "^10.0.3",
+    "wrangler": "^4.98.0"
   }
 }

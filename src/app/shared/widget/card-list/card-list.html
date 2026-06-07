@@ -64,6 +64,7 @@
         <div #insertionCard class="{{cardClasses()}} card-item selectable-card insertion-card"
             [class.new]="newEditCard()"
             (mouseenter)="onCardMouseEnter($event, true)"
+            (mousedown)="$event.stopPropagation()"
             (click)="onInsertClick($event)">
             <app-swap-container [swap]="insertTemplateVisible()" animationDuration="xs">
                 <div main>

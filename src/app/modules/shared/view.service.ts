@@ -18,6 +18,7 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
             case 'message': return (await import('../sacrament-meeting/item/message/message-view.service')).MessageViewService;
             case 'hymn': return (await import('../sacrament-meeting/item/hymn/hymn-view.service')).HymnViewService;
             case 'musical_performance': return (await import('../sacrament-meeting/item/musical-performance/musical-performance-view.service')).MusicalPerformanceViewService;
+            case 'custom_text': return (await import('../sacrament-meeting/item/custom-text/custom-text-view.service')).CustomTextViewService;
             default: throw new Error(`No view service found for table: ${String(tableName)}`);
         }
     })();

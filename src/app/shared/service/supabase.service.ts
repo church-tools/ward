@@ -58,6 +58,8 @@ export class SupabaseService {
             indexed: { sacrament_meeting: Number, number: Number } },
         musical_performance: { createOffline: true, orderKey: 'position',
             indexed: { sacrament_meeting: Number } },
+        custom_text: {  createOffline: true, orderKey: 'position',
+            indexed: { sacrament_meeting: Number, position: Number } },
         sacrament_meeting: { version: 1, idKeys: ['week'],
             indexed: {
                 week: Number,

@@ -247,6 +247,51 @@ export type Database = {
           },
         ]
       }
+      custom_text: {
+        Row: {
+          content: string
+          deleted: boolean
+          id: number
+          position: number
+          sacrament_meeting: number | null
+          unit: number
+          updated_at: string
+        }
+        Insert: {
+          content: string
+          deleted?: boolean
+          id?: number
+          position: number
+          sacrament_meeting?: number | null
+          unit: number
+          updated_at?: string
+        }
+        Update: {
+          content?: string
+          deleted?: boolean
+          id?: number
+          position?: number
+          sacrament_meeting?: number | null
+          unit?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_sacrament_text_sacrament_meeting_unit_fkey"
+            columns: ["sacrament_meeting", "unit"]
+            isOneToOne: false
+            referencedRelation: "sacrament_meeting"
+            referencedColumns: ["week", "unit"]
+          },
+          {
+            foreignKeyName: "custom_sacrament_text_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hymn: {
         Row: {
           deleted: boolean

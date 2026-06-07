@@ -149,6 +149,7 @@ export function getRowRoute(tableRow: TableRow): string {
         case 'message': return `/sacrament-meeting/planning/message/${row.id}`;
         case 'hymn': return `/sacrament-meeting/planning/hymn/${row.id}`;
         case 'musical_performance': return `/sacrament-meeting/planning/musical-performance/${row.id}`;
+        case 'custom_text': return `/sacrament-meeting/planning/custom-text/${row.id}`;
     }
     throw new Error(`No route defined for table ${table}`);
 }

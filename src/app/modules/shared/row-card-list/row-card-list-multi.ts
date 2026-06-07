@@ -294,10 +294,14 @@ export class RowCardListMulti<T extends TableName = TableName> implements OnInit
     };
 
     async insertItem(item: RowCardListMultiInsert<T>): Promise<void> {
-        if (!this._cardListInsert) throw new Error('Card list insert not initialized');
         await this._prepareInsert(item);
         const row = await this.getTable(item.tableName).insert(item.row);
-        await this._cardListInsert(this.createCardItem(item.tableName, row));
+        const cardItem = this.createCardItem(item.tableName, row);
+        if (this._cardListInsert) {
+            await this._cardListInsert(cardItem);
+        } else {
+            await this.cardListView()?.updateItems({ items: [cardItem] });
+        }
     }
 
     protected readonly _prepareInsert = (item: RowCardListMultiInsert<T>): PromiseOrValue<void> => {

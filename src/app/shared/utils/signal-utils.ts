@@ -141,9 +141,13 @@ export function asyncComputed<T, Default = T>(
     const s = signal<T | Default>(defaultValue);
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;
     const initPromise = new Promise<Exclude<T, null>>(resolve => initialized = resolve);
+    let generation = 0;
     effect(() => {
         const values = dependencies.map(d => d ? d() : null);
+        const currentGeneration = ++generation;
         computation(...values).then(result => {
+            if (generation !== currentGeneration)
+                return;
             s.set(result);
             if (result != null)
                 initialized?.(result as Exclude<T, null>);

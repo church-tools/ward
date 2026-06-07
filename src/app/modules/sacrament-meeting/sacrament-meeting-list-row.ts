@@ -60,13 +60,7 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
                     query: (table: Table<'musical_performance'>) => table.find().eq('sacrament_meeting', row.id),
                 },
             ] as readonly RowCardListMultiQuery<SacramentMeetingItemTableName>[];
-            default: return [
-                {
-                    tableName: 'message',
-                    id: `sacrament_meeting_none_${row.id}`,
-                    query: (table: Table<'message'>) => table.find().eq('id', -1),
-                }
-            ] as readonly RowCardListMultiQuery<SacramentMeetingItemTableName>[];
+            case 'none': return [] as const;
         }
     });
 
@@ -91,10 +85,11 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
         meetingId: number,
         anchorPosition: number | null,
     ): Promise<number> {
-        const [messages, hymns, performances] = await Promise.all([
+        const [messages, hymns, performances, customTexts] = await Promise.all([
             this.supabase.sync.from('message').find().eq('sacrament_meeting', meetingId).get(),
             this.supabase.sync.from('hymn').find().eq('sacrament_meeting', meetingId).get(),
             this.supabase.sync.from('musical_performance').find().eq('sacrament_meeting', meetingId).get(),
+            this.supabase.sync.from('custom_text').find().eq('sacrament_meeting', meetingId).get(),
         ]);
 
         const preview = this.previewMode();
@@ -112,6 +107,7 @@ export class SacramentMeetingListRow extends ListRow<'sacrament_meeting'> {
                 ...messages.map(row => row.position),
                 ...hymns.map(row => row.position),
                 ...performances.map(row => row.position),
+                ...customTexts.map(row => row.position),
             ],
         });
     }

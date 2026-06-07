@@ -192,6 +192,7 @@ export class CardList<T, ID extends number | string> {
     }
 
     protected onInsertClick(event: MouseEvent): void {
+        event.preventDefault();
         const element = this.insertionCardView()!.nativeElement as HTMLElement;
         this.insertBtnHeight = element.getBoundingClientRect().height;
         if (this.insertTemplate()) {

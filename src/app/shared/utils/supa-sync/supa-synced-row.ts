@@ -33,14 +33,26 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
         idSignal: Signal<number | null>,
     ): SupaSyncedRow<D, T, CalculatedOf<D, T, CM>> {
         const row = signal<LocalRow<D, T, CalculatedOf<D, T, CM>> | null>(null);
+        let lastId: number | null = null;
         const self = new SupaSyncedRow<D, T, CalculatedOf<D, T, CM>>(supaSync.from(getTableName()), idSignal, row, self => {
             const id = idSignal();
-            row.set(null);
             self.subscription?.unsubscribe();
-            if (id == null) return;
+            if (id == null) {
+                row.set(null);
+                lastId = null;
+                return;
+            }
             self._table ??= supaSync.from(getTableName());
-            self.subscription = self._table.read(id)
-                .subscribe(update => row.set(update.result ?? null));
+            if (id !== lastId) {
+                lastId = id;
+                row.set(null);
+                self._table.read(id).get().then(result => {
+                    if (idSignal() === id)
+                        row.set(result ?? null);
+                });
+                self.subscription = self._table.read(id)
+                    .listenToChanges(update => row.set(update.result ?? null));
+            }
         });
         return self;
     }
