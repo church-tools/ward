@@ -218,7 +218,7 @@ export const LOCALIZATION: Localization = {
   SISTERS: "Schwestern",
   SACRAMENT_MEETING_PAGE: {
     TITLE: "Abendmahlsversammlung",
-    TYPE: "Art",
+    TYPE: "Typ",
     WEEK: "Woche",
     ANNOUNCEMENTS: "Ankündigungen",
     OPENING_HYMN: "Anfangslied",

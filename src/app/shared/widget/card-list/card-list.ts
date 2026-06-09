@@ -133,6 +133,8 @@ export class CardList<T, ID extends number | string> {
 
     ngOnDestroy() {
         this.dropSubscription?.unsubscribe();
+        this.insertSubscriptions.forEach(sub => sub.unsubscribe());
+        this.insertSubscriptions = [];
         const dropList = this.dropList();
         if (dropList) this._dragDropGroup()?.unregisterTargets([dropList]);
     }
