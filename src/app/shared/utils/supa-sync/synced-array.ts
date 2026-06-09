@@ -1,5 +1,5 @@
 import type { Signal } from "@angular/core";
-import { effect, signal } from "@angular/core";
+import { DestroyRef, effect, inject, signal } from "@angular/core";
 import type { IDBQueryBase } from "./idb/idb-query-base";
 import { AnyCalculatedValues, Database, LocalRow, TableName } from "./supa-sync.types";
 
@@ -60,12 +60,16 @@ export function syncedArraySignal<
 ): SyncedArraySignal<LocalRow<D, T, C>> {
 	const rows = signal<LocalRow<D, T, C>[]>([]);
 	let subscription: { unsubscribe: () => void; } | undefined;
-
+	let destroyed = false;
+	let destroyRef: DestroyRef | null = null;
+	try { destroyRef = inject(DestroyRef); } catch {}
 	let effectRef = effect(() => {
+		if (destroyed) return;
 		rows.set([]);
 		const query = queryComputation(...dependencies.map(d => d?.() ?? null));
 		subscription?.unsubscribe();
 		subscription = query.subscribe(({ result, deletions }) => {
+			if (destroyed) return;
 			rows.update(current => {
 				if (!result?.length && !deletions?.length)
 					return current;
@@ -79,12 +83,14 @@ export function syncedArraySignal<
 		});
 	});
 
-	const signalWithCleanup = rows.asReadonly() as SyncedArraySignal<LocalRow<D, T, C>>;
-	const unsubscribe = () => {
+	const cleanup = () => {
+		destroyed = true;
 		effectRef.destroy();
 		subscription?.unsubscribe();
 		subscription = undefined;
 	};
-	signalWithCleanup.unsubscribe = unsubscribe;
+	destroyRef?.onDestroy(cleanup);
+	const signalWithCleanup = rows.asReadonly() as SyncedArraySignal<LocalRow<D, T, C>>;
+	signalWithCleanup.unsubscribe = cleanup;
 	return signalWithCleanup;
 }

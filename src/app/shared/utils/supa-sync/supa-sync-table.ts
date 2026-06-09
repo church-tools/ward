@@ -11,8 +11,10 @@ const INDEXED_FIELDS_PREFIX = "idx_fields_";
 const SEARCH_VERSION_PREFIX = "search_version_";
 const CALCULATED_VERSION_PREFIX = "calc_version_";
 const TABLE_VERSION_PREFIX = "table_version_";
+export const TABLE_KEY_PREFIXES = [INDEXED_FIELDS_PREFIX, SEARCH_VERSION_PREFIX, CALCULATED_VERSION_PREFIX, TABLE_VERSION_PREFIX];
 const PENDING_SUFFIX = "_pending";
 const SEARCH_SUFFIX = "_search";
+export const TABLE_KEY_SUFFIXES = [PENDING_SUFFIX, SEARCH_SUFFIX];
 
 function getRandomId(): number {
     return Date.now() * 100000 + Math.floor(Math.random() * 100000);
@@ -417,27 +419,27 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         try {
             const { matched: inserts, unmatched: updates } = classifyArray<Insert<D, T>, Update<D, T>>(rows, row => {
                 const isNew = row.__new;
-                if (isNew) {
-                    delete row.__new;
-                    row[this.deletedKey] = false;
-                }
-                delete row.__index;
-                delete row._calculated;
+                if (isNew) { delete row.__new; row[this.deletedKey] = false; }
+                delete row.__index; delete row._calculated;
                 if ('id' in row && !this.idKeys.includes('id' as any)) delete row.id;
                 return isNew;
             });
             await Promise.all([
                 inserts.length ? this.supabaseClient.from(this.name).upsert(inserts).throwOnError() : Promise.resolve(),
                 Promise.all(updates.map(async row => {
-                    let query = this.supabaseClient.from(this.name).update(row);
-                    for (const idKey of this.idKeys)
-                        query = query.eq(idKey as any, row[idKey]);
-                    await query.maybeSingle().throwOnError();
+                    let q = this.supabaseClient.from(this.name).update(row);
+                    for (const k of this.idKeys) q = q.eq(k as any, row[k]);
+                    await q.maybeSingle().throwOnError();
                 })),
             ]);
             return true;
         } catch (error: any) {
-            if (error.code === 'PGRST204') this.resync();
+            if (error.code === 'PGRST204') { this.resync(); return false; }
+            if (String(error.code).startsWith('23')) {
+                console.warn(`Dropping unrecoverable pending rows for "${this.name}":`, error.message);
+                await this._pendingAdapter.clear();
+                return true;
+            }
             console.error("Error sending updates:", error);
             return false;
         }

@@ -2,13 +2,19 @@ import { Session, SupabaseClient } from "@supabase/supabase-js";
 import { AsyncState } from "../async-state";
 import { executeOnce, Lock } from "../flow-control-utils";
 import { ChannelConnection } from "./channel-connection";
-import { SupaSyncTable } from "./supa-sync-table";
-import type { AnyCalculatedValues, CalculatedOf, Change, Database, SupaSyncCalculatedMap, SupaSyncPayload, SupaSyncTableInfo, SupaSyncTableInfos, TableName } from "./supa-sync.types";
+import { SupaSyncTable, TABLE_KEY_PREFIXES, TABLE_KEY_SUFFIXES } from "./supa-sync-table";
+import type { AnyCalculatedValues, CalculatedOf, Change, Database, SupaSyncCalculatedMap, SupaSyncPayload, SupaSyncTableInfos, TableName } from "./supa-sync.types";
 
 const LAST_SYNC_KEY = "last_sync";
 const VERSION_KEY = "version";
 const MIGRATION_KEY = "migration";
 const MIGRATION_VERSION = "2";
+
+function stripTableSuffix(storeName: string) {
+    for (const s of TABLE_KEY_SUFFIXES)
+        if (storeName.endsWith(s)) return storeName.slice(0, -s.length);
+    return storeName;
+}
 
 async function rejectOnError(reject: (err: any) => void, fn: () => void) {
     try {
@@ -52,6 +58,7 @@ export class SupaSync<
     public async init(session: Session, dbName: string, awaitInitialSync = true) {
         await this.client.realtime.setAuth(session.access_token);
         const tables = this.getTables();
+        const names = new Set(tables.map(t => t.name));
         let version = +(localStorage.getItem(VERSION_KEY) ?? "1");
         const migrate = localStorage.getItem(MIGRATION_KEY) !== MIGRATION_VERSION;
         if (migrate || tables.some(table => table.indexNeedsUpgrade))
@@ -69,11 +76,22 @@ export class SupaSync<
                     table._pendingAdapter.assureIDBStore(transaction, { autoIncrement: true, clear: migrate });
                     table._summaryInfo?.adapter.assureIDBStore(transaction, { clear: migrate });
                 }
+                for (const n of transaction.db.objectStoreNames)
+                    if (!names.has(n) && !names.has(stripTableSuffix(n)))
+                        transaction.db.deleteObjectStore(n);
                 if (migrate)
                     localStorage.setItem(MIGRATION_KEY, MIGRATION_VERSION);
                 localStorage.setItem(VERSION_KEY, version.toString());
             });
-            openRequest.onsuccess = event => resolve((event.target as IDBOpenDBRequest).result);
+            openRequest.onsuccess = event => {
+                for (const p of TABLE_KEY_PREFIXES)
+                    for (let i = localStorage.length - 1; i >= 0; i--) {
+                        const k = localStorage.key(i);
+                        if (k?.startsWith(p) && !names.has(k.slice(p.length)))
+                            localStorage.removeItem(k);
+                    }
+                resolve((event.target as IDBOpenDBRequest).result);
+            };
             openRequest.onerror = event => reject((event.target as IDBOpenDBRequest).error);
             openRequest.onblocked = () => reject(new Error("IndexedDB is blocked. Please close other tabs using this database."));
         });
