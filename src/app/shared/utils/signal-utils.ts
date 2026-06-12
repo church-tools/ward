@@ -1,4 +1,4 @@
-import { computed, CreateEffectOptions, DestroyRef, effect, inject, Injector, signal, Signal, untracked, WritableSignal } from "@angular/core";
+import { computed, CreateEffectOptions, effect, Injector, signal, Signal, untracked, WritableSignal } from "@angular/core";
 
 export type AwaitableSignal<T> = Signal<T> & { asPromise: () => Promise<Exclude<T, null>> };
 export type AwaitableWritableSignal<T> = WritableSignal<T> & { asPromise: () => Promise<Exclude<T, null>>; readonly: AwaitableSignal<T> };
@@ -142,21 +142,17 @@ export function asyncComputed<T, Default = T>(
     let initialized: (value: Exclude<T, null> | PromiseLike<Exclude<T, null>>) => void;
     const initPromise = new Promise<Exclude<T, null>>(resolve => initialized = resolve);
     let generation = 0;
-    let destroyed = false;
-    let destroyRef: DestroyRef | null = null;
-    try { destroyRef = inject(DestroyRef); } catch {}
-    const effectRef = effect(() => {
+    effect(() => {
         const values = dependencies.map(d => d ? d() : null);
         const currentGeneration = ++generation;
         computation(...values).then(result => {
-            if (destroyed || generation !== currentGeneration)
+            if (generation !== currentGeneration)
                 return;
             s.set(result);
             if (result != null)
                 initialized?.(result as Exclude<T, null>);
         });
     });
-    destroyRef?.onDestroy(() => { destroyed = true; effectRef.destroy(); });
     const rs = s.asReadonly() as AwaitableSignal<T | Default>;
     rs.asPromise = () => initPromise;
     return rs;
@@ -214,13 +210,7 @@ export function xeffect<T>(
 ): { effectRef: any, fn: () => T } {
     let lastValues: any[] | null = null;
     let first = options?.skipFirst;
-    let destroyed = false;
-
-    let destroyRef: DestroyRef | null = null;
-    try { destroyRef = inject(DestroyRef); } catch {}
-
     const effectRef = effect(() => {
-        if (destroyed) return;
         const values = dependencies.map(d => d ? d() : null);
         if (lastValues?.every((v, i) => v === values[i]))
             return;
@@ -231,7 +221,6 @@ export function xeffect<T>(
         }
         effectFn(...values);
     }, options);
-    destroyRef?.onDestroy(() => { destroyed = true; effectRef.destroy(); });
     return { effectRef, fn: () => {
         const values = dependencies.map(d => d ? d() : null);
         return options?.trackFn ? effectFn(...values) : untracked(() => effectFn(...values));
@@ -241,16 +230,11 @@ export function xeffect<T>(
 export function property<T extends object, K extends keyof T>(parent: Signal<T | null>, prop: K) {
     const s = signal<T[K] | null>(null);
     const { set, update } = s;
-    let destroyed = false;
-    let destroyRef: DestroyRef | null = null;
-    try { destroyRef = inject(DestroyRef); } catch {}
-    const effectRef = effect(() => {
+    effect(() => {
         const value = parent();
         set(value?.[prop] ?? null);
     });
-    destroyRef?.onDestroy(() => { destroyed = true; effectRef.destroy(); });
     s.set = (value: T[K]) => {
-        if (destroyed) return;
         const parentValue = parent();
         if (!parentValue) return;
         if (parentValue[prop] === value && Array.isArray(value))
@@ -259,7 +243,6 @@ export function property<T extends object, K extends keyof T>(parent: Signal<T |
         set(value);
     };
     s.update = (updateFn: (value: T[K] | null) => T[K]) => update(value => {
-        if (destroyed) return value as T[K];
         const newValue = updateFn(value);
         const parentValue = parent();
         if (parentValue)

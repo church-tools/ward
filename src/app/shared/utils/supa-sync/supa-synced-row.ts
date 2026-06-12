@@ -1,5 +1,5 @@
 
-import { DestroyRef, effect, EffectRef, inject, Signal, signal, WritableSignal } from "@angular/core";
+import { effect, EffectRef, Signal, signal, WritableSignal } from "@angular/core";
 import { Subscription } from "./event-emitter";
 import { SupaSyncTable } from "./supa-sync-table";
 import type { AnyCalculatedValues, CalculatedOf, Database, NoCalculatedValues,
@@ -20,9 +20,6 @@ export class SupaSyncedRow<D extends Database, T extends TableName<D>, C extends
         effectFunc: (self: SupaSyncedRow<D, T, C>) => void,
     ) {
         this.effectRef = effect(() => effectFunc(this));
-        let destroyRef: DestroyRef | null = null;
-        try { destroyRef = inject(DestroyRef); } catch {}
-        destroyRef?.onDestroy(() => this.destroy());
     }
 
     public static fromId<
