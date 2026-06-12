@@ -6,12 +6,22 @@ import type { CallingCalculatedValues } from "../calling/calling-calculated";
 import type { MemberCallingCalculatedValues } from "../member-calling/member-calling-calculated";
 import type { MessageCalculatedValues } from "../sacrament-meeting/item/message/message-calculated";
 
+// Not doing it this way causes OOM errors
+export type TableName =
+    | 'agenda' | 'agenda_item' | 'agenda_section'
+    | 'calling' | 'custom_text'
+    | 'hymn'
+    | 'member' | 'member_calling' | 'message' | 'musical_performance'
+    | 'organization'
+    | 'profile'
+    | 'sacrament_meeting'
+    | 'unit';
+
 export type CalculatedMap = SupaSyncCalculatedMap<Database, {
     calling: CallingCalculatedValues;
     member_calling: MemberCallingCalculatedValues;
     message: MessageCalculatedValues;
 }>;
-export type TableName = keyof Database["public"]["Tables"] & string;
 export type Table<T extends TableName> = SupaSyncTable<Database, T, CalculatedMap[T]>;
 export type Column<T extends TableName> = keyof RemoteRow<T> & string;
 export type NumberColumn<T extends TableName> = Extract<Column<T>, string> | never;
