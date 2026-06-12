@@ -22,8 +22,8 @@
     "@angular/platform-browser": "^22.0.1",
     "@angular/router": "^22.0.1",
     "@angular/service-worker": "^22.0.1",
-    "@aws-sdk/client-s3": "^3.1063.0",
-    "@supabase/supabase-js": "^2.107.0",
+    "@aws-sdk/client-s3": "^3.1067.0",
+    "@supabase/supabase-js": "^2.108.1",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
     "resend": "^6.12.4",
@@ -36,14 +36,14 @@
     "@angular/compiler": "^22.0.1",
     "@angular/compiler-cli": "^22.0.1",
     "@angular/language-service": "^22.0.1",
-    "@cloudflare/workers-types": "^4.20260607.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260607.1",
+    "@cloudflare/workers-types": "^4.20260612.1",
+    "@typescript/native-preview": "^7.0.0-dev.20260612.1",
     "istanbul-lib-instrument": "^6.0.3",
-    "supabase": "^2.105.0",
+    "supabase": "^2.106.0",
     "typescript": "^6.0.3"
   },
   "optionalDependencies": {
     "concurrently": "^10.0.3",
-    "wrangler": "^4.98.0"
+    "wrangler": "^4.100.0"
   }
 }
