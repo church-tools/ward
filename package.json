@@ -15,35 +15,34 @@
   },
   "private": true,
   "dependencies": {
-    "@angular/cdk": "^22.0.1",
-    "@angular/common": "^22.0.1",
-    "@angular/core": "^22.0.1",
-    "@angular/forms": "^22.0.1",
-    "@angular/platform-browser": "^22.0.1",
-    "@angular/router": "^22.0.1",
-    "@angular/service-worker": "^22.0.1",
-    "@aws-sdk/client-s3": "^3.1067.0",
-    "@supabase/supabase-js": "^2.108.1",
+    "@angular/cdk": "^22.0.2",
+    "@angular/common": "^22.0.4",
+    "@angular/core": "^22.0.4",
+    "@angular/forms": "^22.0.4",
+    "@angular/platform-browser": "^22.0.4",
+    "@angular/router": "^22.0.4",
+    "@angular/service-worker": "^22.0.4",
+    "@aws-sdk/client-s3": "^3.1075.0",
+    "@supabase/supabase-js": "^2.108.2",
     "pdf-lib": "^1.17.1",
     "quill": "^2.0.3",
-    "resend": "^6.12.4",
+    "resend": "^6.16.0",
     "rxjs": "^7.8.2",
     "tslib": "^2.8.1"
   },
   "devDependencies": {
-    "@angular/build": "^22.0.1",
-    "@angular/cli": "^22.0.1",
-    "@angular/compiler": "^22.0.1",
-    "@angular/compiler-cli": "^22.0.1",
-    "@angular/language-service": "^22.0.1",
-    "@cloudflare/workers-types": "^4.20260612.1",
-    "@typescript/native-preview": "^7.0.0-dev.20260612.1",
-    "istanbul-lib-instrument": "^6.0.3",
-    "supabase": "^2.106.0",
-    "typescript": "^6.0.3"
+    "@angular/build": "^22.0.4",
+    "@angular/cli": "^22.0.4",
+    "@angular/compiler": "^22.0.4",
+    "@angular/compiler-cli": "^22.0.4",
+    "@angular/language-service": "^22.0.4",
+    "@cloudflare/workers-types": "^4.20260627.1",
+    "supabase": "^2.108.0",
+    "typescript": "^6.0.3",
+    "vitest": "^4.1.9"
   },
   "optionalDependencies": {
     "concurrently": "^10.0.3",
-    "wrangler": "^4.100.0"
+    "wrangler": "^4.105.0"
   }
 }

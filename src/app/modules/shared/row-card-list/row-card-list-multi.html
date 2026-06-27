@@ -1,6 +1,5 @@
-@let projectedInsertTemplate = this.insertTemplate();
-@let editable = this.editable();
-@if (tableQueries().length && (!editable || projectedInsertTemplate)) {
+@if (tableQueries().length) {
+    @let editable = this.editable();
     <app-card-list
         [cardClasses]="cardsVisible() ? cardClasses() : ''"
         [reorderable]="editable && !!sharedOrderKey()"
@@ -31,7 +30,7 @@
                 }"/>
         </ng-template>
         <ng-template #insertTemplate let-functions>
-            @if (projectedInsertTemplate) {
+            @if (this.insertTemplate(); as projectedInsertTemplate) {
                 <ng-container *ngTemplateOutlet="projectedInsertTemplate;
                     context: {
                         $implicit: getInsertFunctions(functions.insert, functions.cancel),

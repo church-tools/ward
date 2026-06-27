@@ -1,12 +1,12 @@
 import type { IDBQueryBase } from "@/shared/utils/supa-sync/idb/idb-query-base";
 import type { SupaSyncTable } from "@/shared/utils/supa-sync/supa-sync-table";
-import type { LocalRow, SupaSyncCalculatedMap } from "@/shared/utils/supa-sync/supa-sync.types";
+import type { LocalRow, NoCalculatedValues, SupaSyncCalculatedMap } from "@/shared/utils/supa-sync/supa-sync.types";
 import type { Database } from "@root/database";
 import type { CallingCalculatedValues } from "../calling/calling-calculated";
 import type { MemberCallingCalculatedValues } from "../member-calling/member-calling-calculated";
 import type { MessageCalculatedValues } from "../sacrament-meeting/item/message/message-calculated";
 
-// Not doing it this way causes OOM errors
+// Only tables actually used by the app — avoids resolving all Supabase tables in mapped types
 export type TableName =
     | 'agenda' | 'agenda_item' | 'agenda_section'
     | 'calling' | 'custom_text'
@@ -17,11 +17,14 @@ export type TableName =
     | 'sacrament_meeting'
     | 'unit';
 
+// Explicit map instead of SupaSyncCalculatedMap<Database, {...}> which iterates all 29 tables
+// Must use SupaSyncCalculatedMap for SupaSync type parameter compatibility
 export type CalculatedMap = SupaSyncCalculatedMap<Database, {
     calling: CallingCalculatedValues;
     member_calling: MemberCallingCalculatedValues;
     message: MessageCalculatedValues;
 }>;
+
 export type Table<T extends TableName> = SupaSyncTable<Database, T, CalculatedMap[T]>;
 export type Column<T extends TableName> = keyof RemoteRow<T> & string;
 export type NumberColumn<T extends TableName> = Extract<Column<T>, string> | never;

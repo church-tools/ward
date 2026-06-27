@@ -134,6 +134,47 @@ _Avoid_: free text, note, announcement
 A shared infinite drawing surface that will be attachable to agendas. (Future concept, powered by tldraw.)
 _Avoid_: board, whiteboard
 
+## Architecture
+
+Ward Tools is an **Angular 22** application running **zoneless** with full **signal-based** reactivity. There is no `NgZone`, no `zone.js` outside of tests, and no RxJS `Observable` for component state. All component state flows through Angular signals (`signal`, `input`, `computed`, `viewChild`, `contentChild`) and the project's custom signal utilities.
+
+### Signal utilities (`src/app/shared/utils/signal-utils.ts`)
+
+- **`xsignal<T>(initialValue?)`** — Awaitable writable signal with implicit null handling. Use instead of raw `signal()` for component state.
+- **`xcomputed<T>(deps, fn)`** — Type-safe computed that unwraps dependencies intelligently, so no null-checks needed inside the computation.
+- **`asyncComputed<T>(deps, fn, default?)`** — For async-derived state. Returns `undefined` (or the default) while the promise is pending.
+- **`xeffect(deps, fn)`** — Signal-aware side effect; use only for logging, analytics, or external sync — never for component logic.
+- **`waitForNextChange(signal, injector)`** — Waits for the next non-initial value of a signal.
+
+### Component patterns
+
+- **All inputs use `input()` / `input.required()`** — no `@Input()` decorators.
+- **All view queries use `viewChild()` / `contentChild()`** — no `@ViewChild()` / `@ContentChild()` decorators.
+- **Templates use `@if` / `@for`** — no `*ngIf` / `*ngFor` structural directives.
+- **Signals are unwrapped as functions**: `{{ state() }}`, `[property]="value()"`.
+- **Services expose signals** for state, never `Observable`.
+- **`effect()` is only used in services** (data sync, persistence), never in components.
+- **Discriminated unions** for async states (`{ state: 'loading' } | { state: 'loaded'; data: T }`).
+
+### Local-first data (SupaSync)
+
+- **IndexedDB is the source of truth** — all queries go through SupaSync (`src/app/shared/utils/supa-sync/`), never direct `supabase.from()` calls.
+- Data syncs to Supabase in the background via Supabase Realtime channels.
+- Offline-first: all CRUD operations work against IndexedDB and sync when online.
+
+### Testing
+
+- **Vitest** with **jsdom** environment, configured via `vitest.config.ts`.
+- `src/setup-vitest.ts` initializes `fake-indexeddb`, zone.js testing utilities, and Angular's `TestBed`.
+- Component tests use `TestBed.configureTestingModule` / `TestBed.createComponent` with manual mocks for `SupabaseService`.
+
+### Key constraints
+
+- **No `any` types** — use proper generics or `unknown` with type guards.
+- **Strict null checks** everywhere — `null` means "data not yet available".
+- **One source of truth** per data entity — derived state uses `computed()`, never stored separately.
+- **Explicit return types** at module boundaries (API functions, service methods, signal factories).
+
 ## Relationships
 
 - A **Unit** has one **Approval required** setting and at most one active **Join link**.

@@ -88,23 +88,7 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:karma",
-          "options": {
-            "polyfills": [
-              "zone.js",
-              "zone.js/testing"
-            ],
-            "tsConfig": "tsconfig.spec.json",
-            "assets": [
-              "src/assets",
-              "src/manifest.webmanifest",
-              { "glob": "**/*", "input": "src/.well-known", "output": "/.well-known" }
-            ],
-            "styles": [
-              "src/styles/styles.scss"
-            ],
-            "scripts": []
-          }
+          "builder": "@angular/build:unit-test"
         }
       }
     }
