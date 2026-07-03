@@ -45,6 +45,9 @@
             transition: opacity $duration-lg $ease-out, translate $duration-lg $ease-out;
             opacity: 1;
             translate: 0;
+            @include layout.smaller-than(layout.$md) {
+                opacity: 1;
+            }
         }
         &.left {
             @starting-style {
@@ -72,13 +75,22 @@
             transition: opacity $duration-smaller $ease-in;
         }
         &.right, &.left {
-            transition: opacity $duration-xl $ease-out, translate $duration-lg $ease-out;
+            transition: opacity $duration $ease-out, translate $duration-lg $ease-out;
+            @include layout.smaller-than(layout.$md) {
+                opacity: 1;
+            }
         }
         &.left {
             translate: -$page-side-slide-distance 0;
+            @include layout.smaller-than(layout.$md) {
+                translate: -$page-side-slide-distance-sm 0;
+            }
         }
         &.right {
             translate: $page-side-slide-distance 0;
+            @include layout.smaller-than(layout.$md) {
+                translate: $page-side-slide-distance-sm 0;
+            }
         }
     }
     &.content-changing {
