@@ -93,6 +93,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     private readonly syncingBarrier = new PromiseBarrier<void>();
     public readonly _syncingBarrier = this.syncingBarrier.promise;
 
+    private readonly pendingLocalWrites = new Map<number, number>();
+    private localWriteToken = 0;
+
     constructor(
         public readonly name: T,
         private readonly supabaseClient: SupabaseClient<D>,
@@ -218,7 +221,21 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 }
             }
         }
+        for (const update of await this._pendingAdapter.readAll())
+            this.registerPendingLocalWrite(update);
         this.sendPending();
+    }
+
+    private registerPendingLocalWrite(row: Update<D, T>) {
+        this.pendingLocalWrites.set(this.getId(row), ++this.localWriteToken);
+    }
+
+    public hasPendingLocalWrite(id: number) {
+        return this.pendingLocalWrites.has(id);
+    }
+
+    public _resetPendingLocalWrites() {
+        this.pendingLocalWrites.clear();
     }
 
     public async _sync(lastUpdatedAt: string, awaitDependentUpdates = true) {
@@ -231,8 +248,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         await this.onlineState.get();
         const { data } = await query.throwOnError();
         let dependentUpdatesPromise: Promise<void> = Promise.resolve();
-        if (data.length) {
-            const changes = await this._writeAndDelete(data, true);
+        const remoteRows = data.filter((row: RemoteRow<D, T>) => !this.hasPendingLocalWrite(this.getId(row)));
+        if (remoteRows.length) {
+            const changes = await this._writeAndDelete(remoteRows, true);
             if (changes?.length) {
                 this._storeAdapter.onChange.emit(changes);
                 dependentUpdatesPromise = this._updateDependentCalculatedValues(changes);
@@ -348,6 +366,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             this._storeAdapter.delete(this.getId(row)),
             query.throwOnError()
         ]);
+        this.pendingLocalWrites.delete(this.getId(row));
     }
     
     public async findLargestId(idKey: IdColumn<D, T> = this.firstIdKey) {
@@ -383,6 +402,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
 
     private async writePending(rows: Update<D, T>[], debounce = 0) {
         await this._pendingAdapter.writeMany(rows);
+        for (const row of rows)
+            this.registerPendingLocalWrite(row);
         if (this.sendPendingTimeout) clearTimeout(this.sendPendingTimeout);
         if (debounce)
             this.sendPendingTimeout = setTimeout(() => this.sendPending(), debounce);
@@ -404,12 +425,16 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             }
             const sendUpdates = Array.from(pendingById.values());
             for (const update of sendUpdates) delete update.__index;
+            const sentTokens = sendUpdates.map(update => [this.getId(update), this.pendingLocalWrites.get(this.getId(update))] as const);
             const sent = await this.trySendPending(sendUpdates);
             if (!sent) {
                 setTimeout(() => this.sendPending(iteration + 1), Math.min(iteration * 3000, 15000));
                 return;
             }
             await this._pendingAdapter.deleteMany(indexes);
+            for (const [id, token] of sentTokens)
+                if (this.pendingLocalWrites.get(id) === token)
+                    this.pendingLocalWrites.delete(id);
         });
     }
 

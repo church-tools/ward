@@ -140,6 +140,8 @@ export class SupaSync<
             table._pendingAdapter.clear(),
             table._summaryInfo?.adapter.clear(),
         ])));
+        for (const table of this.getTables())
+            table._resetPendingLocalWrites();
         this.setLastSync(new Date(0).toISOString());
     }
 
@@ -224,10 +226,13 @@ export class SupaSync<
                             await table._updateDependentCalculatedValues(changes);
                         }
                     } else {
-                        const changes = await table._writeAndDelete([payload.new]);
-                        if (changes?.length) {
-                            adapter.onChange.emit(changes);
-                            await table._updateDependentCalculatedValues(changes);
+                        const id = table.getId(payload.new);
+                        if (!table.hasPendingLocalWrite(id)) {
+                            const changes = await table._writeAndDelete([payload.new]);
+                            if (changes?.length) {
+                                adapter.onChange.emit(changes);
+                                await table._updateDependentCalculatedValues(changes);
+                            }
                         }
                     }
                     break;
