@@ -62,6 +62,10 @@ _Avoid_: reset link email
 A person belonging to a unit, with a name and gender.
 _Avoid_: person, individual, ward member
 
+**Household**:
+A group of members who live together and are cared for as one unit. Every member belongs to exactly one household.
+_Avoid_: family, residence, address
+
 **Organization**:
 A group within a unit, such as bishopric or relief society, each with a gender affiliation.
 _Avoid_: group, quorum, auxiliary
@@ -77,6 +81,36 @@ _Avoid_: calling assignment, member assignment
 **Language**:
 A language spoken by members in a unit.
 _Avoid_: locale, tongue
+
+### Ministering
+
+**Ministering**:
+The program in which members are assigned to care for specific households.
+_Avoid_: home teaching, route, assignment program
+
+**Companionship**:
+The one or more members who minister together as a single unit.
+_Avoid_: pair, team, ministering partners
+
+**Ministering brother / sister**:
+An individual member of a companionship.
+_Avoid_: minister, companion
+
+**Ministering district**:
+A group of companionships supervised by one presidency member.
+_Avoid_: district, zone, group
+
+**Interviewer**:
+The presidency member who supervises a ministering district and interviews its companionships. A district may have none.
+_Avoid_: supervisor, district leader, presidency member
+
+**Ministering assignment**:
+The pairing of a companionship with one of the households it cares for.
+_Avoid_: route, area, allocation
+
+**Assigned household**:
+A household that a companionship is assigned to minister to.
+_Avoid_: ministered family, flock
 
 ### Bulletin board
 
@@ -190,6 +224,11 @@ Ward Tools is an **Angular 22** application running **zoneless** with full **sig
 - A **Sacrament meeting** has three **Fixed hymns** (opening, sacrament, closing).
 - A **Sacrament meeting** contains **Messages**, **Hymns**, **Musical performances**, and **Custom text**.
 - An **Auth email** has one purpose: confirmation, invitation, or password reset.
+- Every **Member** belongs to exactly one **Household**.
+- A **Unit** contains **Ministering districts**, each with at most one **Interviewer**.
+- A **Ministering district** contains **Companionships**.
+- A **Companionship** is formed by one or more **Members** and holds zero or more **Ministering assignments**.
+- A **Ministering assignment** pairs a **Companionship** with an **Assigned household**.
 
 ## Example dialogue
 

@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.5"
+    PostgrestVersion: "14.15"
   }
   public: {
     Tables: {
@@ -292,6 +292,41 @@ export type Database = {
           },
         ]
       }
+      household: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          id: number
+          name: string
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deleted: boolean
+          id?: number
+          name: string
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          id?: number
+          name?: string
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "household_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hymn: {
         Row: {
           deleted: boolean
@@ -375,6 +410,7 @@ export type Database = {
           deleted: boolean
           first_name: string
           gender: Database["public"]["Enums"]["gender"]
+          household: number | null
           id: number
           last_name: string | null
           nick_name: string | null
@@ -387,6 +423,7 @@ export type Database = {
           deleted?: boolean
           first_name: string
           gender: Database["public"]["Enums"]["gender"]
+          household?: number | null
           id: number
           last_name?: string | null
           nick_name?: string | null
@@ -399,6 +436,7 @@ export type Database = {
           deleted?: boolean
           first_name?: string
           gender?: Database["public"]["Enums"]["gender"]
+          household?: number | null
           id?: number
           last_name?: string | null
           nick_name?: string | null
@@ -407,6 +445,13 @@ export type Database = {
           updated_at?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "member_household_unit_fkey"
+            columns: ["household", "unit"]
+            isOneToOne: false
+            referencedRelation: "household"
+            referencedColumns: ["id", "unit"]
+          },
           {
             foreignKeyName: "member_unit_fkey"
             columns: ["unit"]
@@ -560,6 +605,110 @@ export type Database = {
           },
         ]
       }
+      member_ministered_in: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          id: number
+          member: number
+          ministering_area: number
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          id?: number
+          member: number
+          ministering_area: number
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          id?: number
+          member?: number
+          ministering_area?: number
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_ministered_in_member_unit_fkey"
+            columns: ["member", "unit"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministered_in_ministering_area_unit_fkey"
+            columns: ["ministering_area", "unit"]
+            isOneToOne: false
+            referencedRelation: "ministering_area"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministered_in_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_ministering_in: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          id: number
+          member: number
+          ministering_area: number
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          id?: number
+          member: number
+          ministering_area: number
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          id?: number
+          member?: number
+          ministering_area?: number
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_ministering_in_member_unit_fkey"
+            columns: ["member", "unit"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministering_in_ministering_area_unit_fkey"
+            columns: ["ministering_area", "unit"]
+            isOneToOne: false
+            referencedRelation: "ministering_area"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministering_in_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       message: {
         Row: {
           deleted: boolean
@@ -607,6 +756,77 @@ export type Database = {
           },
           {
             foreignKeyName: "talk_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministering_area: {
+        Row: {
+          created_at: string
+          id: number
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministering_area_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ministering_district: {
+        Row: {
+          created_at: string
+          id: number
+          interviewer: number | null
+          name: string
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: number
+          interviewer?: number | null
+          name?: string
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: number
+          interviewer?: number | null
+          name?: string
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ministering_district_interviewer_unit_fkey"
+            columns: ["interviewer", "unit"]
+            isOneToOne: false
+            referencedRelation: "member"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "ministering_district_unit_fkey"
             columns: ["unit"]
             isOneToOne: false
             referencedRelation: "unit"
@@ -1054,12 +1274,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1083,11 +1303,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1108,11 +1328,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1133,11 +1353,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -1150,11 +1370,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
