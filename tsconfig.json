@@ -16,7 +16,6 @@
     "esModuleInterop": true,
     "experimentalDecorators": true,
     "moduleResolution": "bundler",
-    "importHelpers": true,
     "target": "ESNext",
     "module": "ESNext",
     "removeComments": true,

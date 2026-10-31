@@ -12,7 +12,6 @@ import { FileType } from "@/shared/utils/file-utils";
 import { extractTextFromPdf } from "@/shared/utils/pdf-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
 import Collapse from "@/shared/widget/collapse/collapse";
-import { Tag } from "@/shared/widget/tag/tag";
 import { Component, inject, signal } from "@angular/core";
 
 type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
@@ -22,7 +21,7 @@ type ImportInfo = Pick<Member.Insert, 'first_name' | 'last_name' | 'gender'>
     selector: 'app-members-import-page',
     templateUrl: './members-import-page.html',
     imports: [LocalizePipe, FileButton, LinkButton, AsyncButton,
-        Checkbox, Collapse, Tag],
+        Checkbox, Collapse],
     host: { class: 'page' },
     styles: [`
         .names-container {
@@ -39,12 +38,6 @@ export class MembersImportPage extends PrivatePage {
     protected readonly selectAll = signal<boolean>(false);
     protected readonly importedMember = signal<ImportInfo[]>([]);
     protected readonly FileType = FileType;
-
-    protected readonly tagOptions = [
-        { value: 'new', view: 'New', color: 'green' },
-        { value: 'existing', view: 'Existing', color: 'blue' },
-        { value: 'duplicate', view: 'Duplicate', color: 'red' },
-    ];
 
     protected readonly count = signal(0);
 

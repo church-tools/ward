@@ -6,11 +6,11 @@ import {
     OnDestroy, OutputRefSubscription, signal, TemplateRef, viewChild
 } from '@angular/core';
 import { Icon } from "../../icon/icon";
-import { getLowest } from '../../utils/array-utils';
-import { ColorName } from '../../utils/color-utils';
+import { getLowest } from '../../utils/array-utils';import { ColorName } from '../../utils/color-utils';
 import { wait } from '../../utils/flow-control-utils';
 import { xcomputed, xeffect } from '../../utils/signal-utils';
 import { highlightWords, levenshteinDistance } from '../../utils/string-utils';
+import { Chip } from '../../widget/chip/chip';
 import { getProviders, InputBase } from '../shared/input-base';
 import InputLabel from "../shared/input-label";
 import { SelectOptions } from './select-options';
@@ -44,7 +44,7 @@ type SelectOptionsHeaderTemplateContext<T> = {
 
 @Component({
     selector: 'app-select',
-    imports: [LocalizePipe, InputLabel, Icon, NgTemplateOutlet, SelectOptions],
+    imports: [LocalizePipe, InputLabel, Icon, NgTemplateOutlet, SelectOptions, Chip],
     templateUrl: './select.html',
     styleUrl: './select.scss',
     providers: getProviders(() => Select),

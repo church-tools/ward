@@ -1,0 +1,2087 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Ministering — prototype</title>
+<!--
+    THROWAWAY PROTOTYPE — not production code.
+
+    Five different ways to visualize "organize ministering": companionships of 1..N
+    brothers caring for 1..N households, with the unassigned brothers and unministered
+    households always visible.
+
+    Double-click this file. No build, no server, no login, no database.
+    All data is fake and in memory; closing the tab throws every change away.
+
+    Variants: ?variant=A|B|C|D|E or #A..#E (arrow keys also cycle).
+-->
+<style>
+/* ============================================================== tokens */
+
+:root {
+    color-scheme: light dark;
+
+    --canvas: light-dark(#e8e8e8, #272727);
+    --canvas-transparent: light-dark(rgba(246, 246, 246, .5), rgba(52, 52, 52, .5));
+    --navbar: light-dark(#e0e0e0, #202020);
+    --surface: light-dark(#f6f6f6, #323232);
+    --surface-transparent: light-dark(rgba(255, 255, 255, .5), rgba(72, 72, 72, .333));
+    --hover: light-dark(rgba(36, 36, 36, .06), rgba(255, 255, 255, .07));
+    --hover-strong: light-dark(rgba(36, 36, 36, .1), rgba(255, 255, 255, .12));
+    --text: light-dark(#242424, #ffffff);
+    --subtle: light-dark(#6c757d, #bbc0c4);
+    --muted: light-dark(#bbc0c4, #6c757d);
+    --border: light-dark(#c2c2c2, #1d1d1d);
+    --border-soft: light-dark(rgba(0, 0, 0, .08), rgba(255, 255, 255, .1));
+    --divider: light-dark(#a9a9a9, #525252);
+
+    --accent-fg: light-dark(oklch(45% 30% 195), oklch(80% 15% 195));
+    --accent-bg: light-dark(oklch(80% 15% 195), oklch(35% 20% 195));
+    --accent-active: light-dark(oklch(60% 35% 195), oklch(70% 40% 195));
+    --accent-soft: light-dark(oklch(80% 15% 195 / 40%), oklch(35% 20% 195 / 50%));
+    --accent-on: light-dark(white, #242424);
+
+    --danger-fg: light-dark(oklch(45% 30% 0), oklch(80% 15% 0));
+    --danger-bg: light-dark(oklch(80% 15% 0), oklch(35% 20% 0));
+    --danger-soft: light-dark(oklch(80% 15% 0 / 28%), oklch(35% 20% 0 / 35%));
+
+    --warning-fg: light-dark(oklch(45% 30% 45), oklch(80% 15% 45));
+    --warning-bg: light-dark(oklch(80% 15% 45), oklch(35% 20% 45));
+    --warning-soft: light-dark(oklch(80% 15% 45 / 38%), oklch(35% 20% 45 / 38%));
+
+    --success-fg: light-dark(oklch(45% 30% 135), oklch(80% 15% 135));
+
+    --blue-fg: light-dark(oklch(45% 30% 255), oklch(80% 15% 255));
+    --blue-bg: light-dark(oklch(80% 15% 255), oklch(35% 20% 255));
+    --violet-bg: light-dark(oklch(80% 15% 300), oklch(35% 20% 300));
+
+    --shadow-color: light-dark(rgba(0, 0, 0, .14), rgba(0, 0, 0, .32));
+    --shadow-1: 0 1px 2px var(--shadow-color);
+    --shadow-2: 0 2px 6px var(--shadow-color);
+    --shadow-8: 0 6px 24px var(--shadow-color);
+
+    --font: 'Segoe UI', 'Segoe UI Web (West European)', 'San Francisco Pro', -apple-system, BlinkMacSystemFont, Roboto, 'Helvetica Neue', sans-serif;
+}
+
+/* =============================================================== base */
+
+* { box-sizing: border-box; }
+
+html, body {
+    height: 100%;
+    margin: 0;
+    overflow: hidden;
+}
+
+body {
+    background: var(--canvas);
+    color: var(--text);
+    font-family: var(--font);
+    font-size: 14px;
+    line-height: 1.35;
+}
+
+#app { height: 100%; }
+
+h1, h2, h3, h4, p { margin: 0; }
+
+button, input, select {
+    font: inherit;
+    color: inherit;
+}
+
+.icon {
+    width: 16px;
+    height: 16px;
+    flex: none;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+.icon.sm { width: 13px; height: 13px; }
+.icon.xs { width: 11px; height: 11px; }
+
+.muted { color: var(--subtle); }
+.small { font-size: .78rem; }
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-thumb {
+    background: light-dark(rgba(0, 0, 0, .18), rgba(255, 255, 255, .16));
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: padding-box;
+}
+::-webkit-scrollbar-track { background: transparent; }
+
+/* ============================================================= buttons */
+
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: .4rem;
+    width: auto;
+    min-height: 2.1rem;
+    padding: .2rem .7rem;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    background: transparent;
+    color: inherit;
+    font-size: .78rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background-color .15s ease, border-color .15s ease, color .15s ease;
+}
+.btn.secondary {
+    border-color: var(--border-soft);
+    background: var(--surface-transparent);
+}
+.btn.secondary:hover { background: var(--hover-strong); }
+.btn.subtle { color: var(--subtle); }
+.btn.subtle:hover { background: var(--hover); color: var(--text); }
+.btn.primary {
+    background: var(--accent-fg);
+    color: var(--accent-on);
+    font-weight: 600;
+}
+.btn.primary:hover { filter: brightness(1.12); }
+.btn:disabled, .btn[disabled] { opacity: .4; cursor: not-allowed; }
+
+/* =============================================================== chips */
+
+.chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .28rem;
+    padding: .1rem .24rem .1rem .4rem;
+    border: 1px solid transparent;
+    border-radius: .45rem;
+    background: var(--hover);
+    font-size: .69rem;
+    cursor: pointer;
+    user-select: none;
+    transition: background-color .12s ease, border-color .12s ease;
+}
+.chip:hover { background: var(--hover-strong); }
+.chip.hh { background: light-dark(rgba(0, 0, 0, .04), rgba(255, 255, 255, .06)); }
+.chip.picked {
+    border-color: var(--accent-fg);
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+}
+
+.avatar {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 1.45rem;
+    height: 1.45rem;
+    border-radius: 50%;
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+    font-size: .55rem;
+    font-weight: 600;
+}
+.avatar.hh { background: var(--blue-bg); color: var(--blue-fg); }
+
+.members {
+    min-width: 1rem;
+    height: 1rem;
+    padding: 0 .15rem;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--hover-strong);
+    color: var(--subtle);
+    font-size: .56rem;
+}
+
+.x {
+    display: grid;
+    place-items: center;
+    width: 1.05rem;
+    height: 1.05rem;
+    padding: 0;
+    border: none;
+    border-radius: .25rem;
+    background: transparent;
+    color: var(--subtle);
+    cursor: pointer;
+}
+.x:hover { background: var(--danger-bg); color: var(--danger-fg); }
+
+.slot {
+    font-size: .68rem;
+    font-style: italic;
+    color: var(--muted);
+}
+.slot.warning { color: var(--warning-fg); }
+.slot.accent { color: var(--accent-fg); font-style: normal; }
+
+.pill {
+    flex: none;
+    min-width: 1.45rem;
+    height: 1.45rem;
+    padding: 0 .35rem;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 999px;
+    background: var(--hover-strong);
+    font-size: .66rem;
+    font-weight: 600;
+}
+.pill.danger { background: var(--danger-bg); color: var(--danger-fg); }
+.pill.warning, .pill.warn { background: var(--warning-bg); color: var(--warning-fg); }
+.pill.high { background: var(--danger-bg); color: var(--danger-fg); }
+
+.card {
+    display: flex;
+    flex-direction: column;
+    background: var(--surface);
+    border-radius: .6rem;
+    box-shadow: var(--shadow-2);
+}
+
+.meter {
+    height: .35rem;
+    border-radius: 999px;
+    background: var(--hover-strong);
+    overflow: hidden;
+}
+.meter > span {
+    display: block;
+    height: 100%;
+    border-radius: inherit;
+    background: var(--accent-active);
+    transition: width .25s ease;
+}
+
+.done-box {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .9rem .35rem;
+    color: var(--success-fg);
+    font-size: .74rem;
+}
+
+.fatal {
+    position: fixed;
+    inset: 1.5rem;
+    z-index: 999;
+    margin: 0;
+    padding: 1rem 1.2rem;
+    overflow: auto;
+    border: 2px solid #ff8f8f;
+    border-radius: .5rem;
+    background: #2a1111;
+    color: #ffd7d7;
+    font: 12px/1.5 ui-monospace, Consolas, monospace;
+    white-space: pre-wrap;
+    cursor: pointer;
+}
+
+.stats { display: flex; gap: .5rem; }
+.stat {
+    display: flex;
+    align-items: baseline;
+    gap: .35rem;
+    padding: .3rem .6rem;
+    border-radius: .5rem;
+    background: var(--surface-transparent);
+}
+.stat strong { font-size: 1.05rem; line-height: 1; font-weight: 600; }
+.stat span { font-size: .68rem; color: var(--subtle); white-space: nowrap; }
+.stat.danger strong { color: var(--danger-fg); }
+.stat.warning strong { color: var(--warning-fg); }
+
+/* =============================================================== shell */
+
+.proto {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.proto-header {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: none;
+    height: 3.25rem;
+    padding: 0 1rem 0 1.25rem;
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    min-width: 12rem;
+}
+.logo { width: 20px; height: 20px; color: var(--accent-fg); }
+.proto-name { font-size: .78rem; color: var(--subtle); }
+.badge {
+    padding: .15rem .4rem;
+    border-radius: .35rem;
+    background: var(--warning-bg);
+    color: var(--warning-fg);
+    font-size: .58rem;
+    font-weight: 700;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+}
+
+.fake-search {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    width: min(28rem, 40%);
+    height: 2.1rem;
+    padding: 0 .75rem;
+    border: 1px solid var(--border-soft);
+    border-radius: .5rem;
+    background: var(--surface-transparent);
+    color: var(--muted);
+    font-size: .8rem;
+}
+
+.spacer { flex: 1 1 auto; }
+
+.user-bubble {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    border-radius: 50%;
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+.proto-body {
+    display: flex;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+
+.rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .5rem;
+    flex: none;
+    width: 4.25rem;
+    padding: .6rem .25rem 1rem;
+    background: var(--navbar);
+}
+.rail-tab {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .18rem;
+    width: 3.6rem;
+    padding: .45rem .15rem;
+    border-radius: .55rem;
+    color: var(--subtle);
+    font-size: .56rem;
+    line-height: 1.1;
+    text-align: center;
+}
+.rail-tab.active {
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+}
+.rail-tab.bottom { margin-top: auto; }
+
+.canvas {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+    margin: 0 1rem 1rem 0;
+    overflow: hidden;
+    border-top: .5px solid var(--border-soft);
+    border-left: .5px solid var(--border-soft);
+    border-top-left-radius: .75rem;
+    background: var(--canvas-transparent);
+}
+.canvas > .variant {
+    display: flex;
+    flex: 1 1 auto;
+    min-width: 0;
+    min-height: 0;
+}
+
+/* ============================================================ switcher */
+
+.switcher {
+    position: fixed;
+    left: 50%;
+    bottom: .9rem;
+    transform: translateX(-50%);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    max-width: min(52rem, calc(100vw - 2rem));
+    padding: .45rem .55rem;
+    border-radius: 1rem;
+    background: light-dark(#1d1d1d, #f4f4f4);
+    color: light-dark(#f4f4f4, #1d1d1d);
+    font-size: .78rem;
+    box-shadow: var(--shadow-8);
+}
+.sw-btn {
+    display: grid;
+    place-items: center;
+    width: 2rem;
+    height: 2rem;
+    padding: 0;
+    border: none;
+    border-radius: .55rem;
+    background: transparent;
+    color: inherit;
+    cursor: pointer;
+}
+.sw-btn:hover { background: light-dark(rgba(255, 255, 255, .16), rgba(0, 0, 0, .1)); }
+.sw-label { display: flex; flex-direction: column; gap: .1rem; min-width: 0; padding: 0 .3rem; }
+.sw-line { display: flex; align-items: center; gap: .5rem; min-width: 0; }
+.sw-key {
+    display: grid;
+    place-items: center;
+    min-width: 1.5rem;
+    height: 1.5rem;
+    border-radius: .4rem;
+    background: light-dark(rgba(255, 255, 255, .16), rgba(0, 0, 0, .12));
+    font-size: .72rem;
+    font-weight: 700;
+}
+.sw-name { font-weight: 600; white-space: nowrap; }
+.sw-blurb {
+    max-width: 26rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: light-dark(rgba(255, 255, 255, .66), rgba(0, 0, 0, .6));
+    font-size: .7rem;
+}
+.sw-dots { display: flex; align-items: center; gap: .35rem; padding: 0 .3rem; }
+.sw-dot {
+    width: .5rem;
+    height: .5rem;
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+    background: light-dark(rgba(255, 255, 255, .3), rgba(0, 0, 0, .25));
+    cursor: pointer;
+}
+.sw-dot.active { background: light-dark(white, #1d1d1d); transform: scale(1.3); }
+.sw-sep { width: 1px; align-self: stretch; background: light-dark(rgba(255, 255, 255, .2), rgba(0, 0, 0, .15)); }
+.sw-reset {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .4rem .55rem;
+    border: none;
+    border-radius: .55rem;
+    background: transparent;
+    color: inherit;
+    font-size: .72rem;
+    cursor: pointer;
+    white-space: nowrap;
+}
+.sw-reset:hover { background: light-dark(rgba(255, 255, 255, .14), rgba(0, 0, 0, .1)); }
+
+@media (max-width: 720px) {
+    .sw-blurb { display: none; }
+}
+
+/* ============================================================ variant A */
+
+.a-root { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; }
+
+.a-head {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    flex: none;
+    padding: 1rem 1.5rem .85rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+.a-title { display: flex; flex-direction: column; gap: .1rem; }
+.a-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.a-title .muted { font-size: .78rem; }
+.a-head .stats { margin-left: auto; }
+
+.a-grid {
+    display: grid;
+    grid-template-columns: 16.5rem minmax(0, 1fr) 16.5rem;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.a-tray {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: light-dark(rgba(255, 255, 255, .4), rgba(0, 0, 0, .14));
+}
+.a-tray.a-left { border-right: 1px solid var(--border-soft); }
+.a-tray.a-right { border-left: 1px solid var(--border-soft); }
+.a-tray-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .9rem .8rem .25rem;
+}
+.a-tray-head h2 { font-size: .85rem; font-weight: 600; }
+.a-hint { padding: 0 .8rem .6rem; font-size: .68rem; color: var(--subtle); }
+.a-list {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    min-height: 0;
+    overflow: auto;
+    padding: 0 .6rem 1rem;
+}
+.person {
+    display: flex;
+    align-items: center;
+    gap: .45rem;
+    width: 100%;
+    padding: .3rem .45rem;
+    border: 1px solid transparent;
+    border-radius: .5rem;
+    background: var(--surface-transparent);
+    font-size: .74rem;
+    text-align: left;
+    cursor: pointer;
+}
+.person:hover { background: var(--hover-strong); }
+.person.picked {
+    border-color: var(--accent-fg);
+    background: var(--accent-bg);
+    color: var(--accent-fg);
+}
+.person-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.person-meta { flex: none; font-size: .62rem; color: var(--subtle); }
+
+.a-spine { min-height: 0; overflow: auto; padding: 1rem 1.25rem 5rem; }
+.a-district + .a-district { margin-top: 1.5rem; }
+.a-district-head { display: flex; align-items: baseline; gap: .7rem; flex-wrap: wrap; }
+.a-district-name { display: flex; align-items: baseline; gap: .7rem; }
+.a-district-name h2 { font-size: 20px; font-weight: 600; }
+.a-district-meta { font-size: .7rem; color: var(--subtle); }
+.a-district-count { margin-left: auto; font-size: .68rem; color: var(--subtle); }
+.a-add { min-height: 1.7rem; font-size: .7rem; color: var(--accent-fg); }
+
+.a-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: .7rem;
+    margin-top: .5rem;
+}
+.a-card {
+    gap: .5rem;
+    padding: .7rem .8rem;
+    outline: 2px dashed transparent;
+    transition: background-color .15s ease, outline-color .15s ease;
+}
+.a-card.placeable { cursor: pointer; outline-color: var(--accent-soft); }
+.a-card.placeable:hover { background: var(--accent-bg); outline-color: var(--accent-fg); }
+.a-card.empty { background: var(--warning-soft); outline: 2px dashed var(--warning-fg); }
+.a-card-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.a-card-name { font-size: .82rem; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.a-section { display: flex; flex-direction: column; gap: .2rem; }
+.a-label {
+    font-size: .58rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--subtle);
+}
+.chips { display: flex; flex-wrap: wrap; gap: .25rem; align-items: center; }
+.a-place { width: 100%; min-height: 1.85rem; font-size: .7rem; }
+
+@media (max-width: 1100px) {
+    .a-grid { grid-template-columns: 13rem minmax(0, 1fr) 13rem; }
+    .a-head .stats { display: none; }
+}
+
+/* ============================================================ variant D */
+
+.d-root { display: flex; flex-direction: column; flex: 1 1 auto; min-width: 0; min-height: 0; }
+.d-head {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: none;
+    padding: .9rem 1.25rem .75rem;
+    border-bottom: 1px solid var(--border-soft);
+}
+.d-title h1 { font-size: 28px; font-weight: 600; letter-spacing: -.01em; }
+.d-title .muted { font-size: .78rem; }
+.d-legend { display: flex; gap: .9rem; margin-left: auto; font-size: .66rem; color: var(--subtle); }
+.d-legend-item { display: flex; align-items: center; gap: .3rem; }
+.d-dot { width: .5rem; height: .5rem; border-radius: 50%; }
+.d-dot.danger { background: var(--danger-fg); }
+.d-dot.warning { background: var(--warning-fg); }
+
+.d-scroll { flex: 1 1 auto; min-height: 0; overflow: auto; padding: .75rem 1.25rem 0; }
+.d-svg { display: block; user-select: none; }
+.d-svg text { font-family: var(--font); }
+.band-bg { fill: light-dark(rgba(255, 255, 255, .45), rgba(0, 0, 0, .16)); }
+.band-title { font-size: 15px; font-weight: 600; fill: var(--text); }
+.band-sub { font-size: 10px; fill: var(--subtle); }
+
+.wire { fill: none; stroke: light-dark(rgba(0, 0, 0, .18), rgba(255, 255, 255, .22)); stroke-width: 1.2; transition: stroke .15s ease, stroke-width .15s ease; }
+.hub-group:hover .wire { stroke: var(--accent-active); stroke-width: 2; }
+
+.hub rect { fill: var(--surface); stroke: var(--border-soft); stroke-width: 1; transition: fill .15s ease, stroke .15s ease; }
+.hub { cursor: default; }
+.hub.armed { cursor: pointer; }
+.hub.armed rect { stroke: var(--accent-bg); stroke-dasharray: 4 3; }
+.hub.armed:hover rect { fill: var(--accent-bg); stroke: var(--accent-fg); stroke-dasharray: none; }
+.hub-group:hover .hub rect { stroke: var(--accent-fg); stroke-width: 2; }
+.hub-group.empty .hub rect { fill: var(--warning-soft); stroke: var(--warning-fg); stroke-dasharray: 5 4; }
+.hub-name { font-size: 11px; font-weight: 600; fill: var(--text); }
+.hub-meta { font-size: 9.5px; fill: var(--subtle); }
+.hub-meta.warning { fill: var(--warning-fg); font-weight: 600; }
+.hub-add { fill: var(--accent-fg); }
+.hub-add-text { font-size: 11px; font-weight: 700; fill: var(--accent-bg); text-anchor: middle; pointer-events: none; }
+
+.sat { cursor: pointer; }
+.sat rect { fill: var(--surface); stroke: var(--border-soft); stroke-width: 1; transition: fill .15s ease, stroke .15s ease; }
+.sat text { font-size: 10.5px; fill: var(--text); }
+.hub-group:hover .sat rect { fill: var(--accent-bg); stroke: var(--accent-fg); }
+.sat.picked rect { stroke: var(--accent-fg); stroke-width: 2; }
+.sat-remove { opacity: 0; cursor: pointer; transition: opacity .12s ease; }
+.sat-remove circle { fill: var(--danger-bg); }
+.sat-remove text { font-size: 11px; font-weight: 600; fill: var(--danger-fg); text-anchor: middle; }
+.sat:hover .sat-remove { opacity: 1; }
+
+.d-dock { flex: none; padding: .5rem 1.25rem 4.4rem; border-top: 1px solid var(--border-soft); background: light-dark(rgba(255, 255, 255, .35), rgba(0, 0, 0, .12)); }
+.d-status { display: flex; align-items: center; gap: .35rem; min-height: 1.8rem; font-size: .68rem; color: var(--subtle); }
+.d-picked-name { font-weight: 600; color: var(--accent-fg); }
+.d-status .btn { margin-left: auto; min-height: 1.7rem; font-size: .68rem; }
+.d-pools { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.d-pool { min-width: 0; }
+.d-pool-head { display: flex; align-items: center; gap: .4rem; font-size: .6rem; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--subtle); }
+.d-pill { padding: 0 .35rem; border-radius: 999px; background: var(--hover-strong); color: var(--subtle); font-size: .58rem; letter-spacing: 0; }
+.d-pill.danger { background: var(--danger-bg); color: var(--danger-fg); }
+.d-nodes { display: flex; flex-wrap: wrap; gap: .3rem; max-height: 4.9rem; overflow: auto; margin-top: .3rem; }
+.d-node {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    min-height: 1.7rem;
+    padding: .05rem .5rem .05rem .25rem;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: var(--surface);
+    font-size: .7rem;
+    cursor: pointer;
+}
+.d-node:hover { border-color: var(--border); }
+.d-node.picked { border-color: var(--accent-fg); background: var(--accent-bg); color: var(--accent-fg); }
+.d-node-meta { color: var(--subtle); font-size: .6rem; }
+.d-empty { padding: .25rem 0; color: var(--success-fg); font-size: .68rem; }
+
+@media (max-width: 980px) {
+    .d-legend, .d-head .stats { display: none; }
+    .d-pools { grid-template-columns: 1fr; }
+}
+
+/* =========================================================== variant D2 */
+
+.d2-root { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 0; }
+.d2-grid {
+    display: grid;
+    grid-template-columns: 16.5rem minmax(0, 1fr) 16.5rem;
+    flex: 1 1 auto;
+    min-height: 0;
+}
+.d2-map { min-height: 0; overflow: auto; padding: .75rem 1rem 4rem; }
+.d2-hint {
+    width: max-content;
+    max-width: 100%;
+    margin-bottom: .5rem;
+    padding: .35rem .6rem;
+    border-radius: .45rem;
+    background: var(--surface-transparent);
+    color: var(--subtle);
+    font-size: .7rem;
+}
+.d2-hint b { color: var(--accent-fg); }
+
+@media (max-width: 1100px) {
+    .d2-grid { grid-template-columns: 13rem minmax(0, 1fr) 13rem; }
+    .d2-root .a-head .stats { display: none; }
+}
+
+/* ============================================================ variant W */
+
+.w-root { position: relative; display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 0; }
+.w-stage { display: flex; flex: 1 1 auto; min-height: 0; overflow: auto; padding: 0 1rem 4rem; }
+.w-svg { flex: none; margin: auto; user-select: none; }
+.w-svg text { font-family: var(--font); }
+
+.w-hole { fill: var(--surface); stroke: var(--border-soft); stroke-width: 1.5; }
+.w-hole-value { font-size: 32px; font-weight: 600; fill: var(--text); }
+.w-hole-label { font-size: 10.5px; fill: var(--subtle); }
+
+.w-district { stroke: var(--canvas); stroke-width: 2; }
+.w-d0 { fill: var(--accent-bg); }
+.w-d1 { fill: var(--blue-bg); }
+.w-d2 { fill: var(--violet-bg); }
+.w-district-name { font-size: 13px; font-weight: 700; fill: var(--text); }
+
+.w-blade > path {
+    fill: var(--surface);
+    stroke: var(--border-soft);
+    stroke-width: 1;
+    cursor: pointer;
+    transition: fill .15s ease, stroke .15s ease;
+}
+.w-blade:hover > path { fill: var(--accent-soft); }
+.w-blade.armed > path { stroke: var(--accent-fg); stroke-dasharray: 5 3; }
+.w-blade.armed:hover > path { fill: var(--accent-bg); }
+.w-blade.focused > path { stroke: var(--accent-fg); stroke-width: 2.5; }
+.w-blade.empty > path { fill: var(--warning-soft); stroke: var(--warning-fg); stroke-dasharray: 5 4; }
+.w-blade-name { font-size: 10px; font-weight: 500; fill: var(--text); pointer-events: none; }
+
+.w-dots { cursor: pointer; }
+.w-dot-hit { fill: transparent; }
+.w-dot-core { fill: var(--surface); stroke: var(--subtle); stroke-width: 1.2; }
+.w-dot.picked .w-dot-core { fill: var(--accent-fg); stroke: var(--accent-fg); }
+.w-dot:hover .w-dot-core { stroke: var(--accent-fg); stroke-width: 2; }
+.w-more { font-size: 9px; fill: var(--subtle); }
+
+.w-halo { cursor: pointer; }
+.w-halo rect { fill: var(--danger-bg); stroke: var(--danger-fg); stroke-width: 1; transition: fill .12s ease, stroke .12s ease; }
+.w-halo.household text { font-size: 10px; fill: var(--danger-fg); }
+.w-halo.brother rect { fill: var(--surface); stroke-dasharray: 4 3; }
+.w-halo.brother text { font-size: 10px; fill: var(--text); }
+.w-halo-count { font-size: 9px; fill: var(--danger-fg); }
+.w-halo.brother .w-halo-count { fill: var(--subtle); }
+.w-halo:hover rect { stroke-width: 2; }
+.w-halo.picked rect { fill: var(--accent-bg); stroke: var(--accent-fg); stroke-width: 2; }
+.w-halo.picked text { fill: var(--accent-fg); }
+
+.w-panel {
+    position: absolute;
+    left: 1rem;
+    bottom: 4.6rem;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    width: 19rem;
+    padding: .8rem .9rem;
+    border: 1px solid var(--border-soft);
+    border-radius: .6rem;
+    background: var(--surface);
+    box-shadow: var(--shadow-8);
+}
+.w-panel-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.w-panel-name { font-weight: 600; font-size: .85rem; }
+.w-panel-brothers { display: flex; flex-wrap: wrap; gap: .2rem; }
+.w-panel-brother {
+    padding: .05rem .35rem;
+    border-radius: .3rem;
+    background: var(--hover);
+    font-size: .66rem;
+}
+.w-panel-households { display: flex; flex-wrap: wrap; gap: .25rem; }
+.w-panel-hint { font-size: .64rem; line-height: 1.4; color: var(--subtle); }
+
+/* ============================================================ variant S */
+
+.s-root { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 0; }
+.s-board {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 1.25rem 1.5rem 5rem;
+    background-color: light-dark(#ded5c4, #211e1a);
+    background-image: radial-gradient(light-dark(rgba(0, 0, 0, .07), rgba(255, 255, 255, .045)) 1px, transparent 1.2px);
+    background-size: 17px 17px;
+}
+.s-grid {
+    display: grid;
+    grid-template-columns: 14.5rem minmax(0, 1fr) 14.5rem;
+    gap: 1.4rem;
+    align-items: start;
+}
+.s-lane + .s-lane { margin-top: 1.6rem; }
+.s-lane-label {
+    display: inline-flex;
+    align-items: center;
+    gap: .5rem;
+    margin-bottom: .7rem;
+    padding: .3rem .9rem;
+    background: light-dark(#f7efc9, #3a352a);
+    box-shadow: var(--shadow-1);
+    transform: rotate(-1deg);
+    font-weight: 600;
+    font-size: .8rem;
+}
+.s-lane-label span { font-size: .6rem; color: var(--subtle); }
+.s-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(15.5rem, 1fr));
+    gap: 1rem;
+}
+.s-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    padding: 1.05rem .8rem .8rem;
+    border-radius: .15rem;
+    background: light-dark(#fffdf7, #2d2b27);
+    box-shadow: 0 3px 9px rgba(0, 0, 0, .3);
+    outline: 2px dashed transparent;
+    transform: rotate(var(--tilt, 0deg));
+    transition: transform .15s ease, box-shadow .15s ease, outline-color .15s ease;
+}
+.s-card.placeable { cursor: pointer; outline-color: var(--accent-soft); }
+.s-card.placeable:hover {
+    outline-color: var(--accent-fg);
+    transform: rotate(0) translateY(-3px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, .34);
+}
+.s-card.empty { outline: 2px dashed var(--warning-fg); }
+.s-tape {
+    position: absolute;
+    top: -.55rem;
+    left: 50%;
+    width: 4.2rem;
+    height: 1.05rem;
+    transform: translateX(-50%) rotate(-2deg);
+    background: light-dark(rgba(245, 232, 172, .9), rgba(196, 176, 118, .28));
+    border-left: 1px dashed rgba(0, 0, 0, .12);
+    border-right: 1px dashed rgba(0, 0, 0, .12);
+}
+.s-pin {
+    flex: none;
+    width: .55rem;
+    height: .55rem;
+    border-radius: 50%;
+    background: var(--danger-fg);
+    box-shadow: inset -1px -1px 1px rgba(0, 0, 0, .35);
+}
+.s-card-head { display: flex; align-items: center; gap: .4rem; }
+.s-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; font-size: .82rem; }
+.s-brothers { display: flex; flex-wrap: wrap; gap: .25rem; }
+.s-label { font-size: .56rem; letter-spacing: .09em; text-transform: uppercase; color: var(--subtle); }
+.s-notes { display: flex; flex-wrap: wrap; gap: .3rem; }
+.s-note {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    padding: .12rem .28rem .12rem .4rem;
+    border: 1px solid light-dark(rgba(0, 0, 0, .08), rgba(255, 255, 255, .08));
+    background: light-dark(#f3efdf, #3a362c);
+    font-size: .7rem;
+    cursor: pointer;
+    transform: rotate(var(--tilt, 0deg));
+}
+.s-note.picked { outline: 2px solid var(--accent-fg); }
+.s-muted { font-size: .68rem; font-style: italic; color: var(--subtle); }
+.s-place { width: 100%; margin-top: .25rem; font-size: .7rem; }
+.s-gutter { display: flex; flex-direction: column; gap: .5rem; }
+.s-gutter-label {
+    display: flex;
+    align-items: center;
+    gap: .4rem;
+    margin-bottom: .2rem;
+    font-size: .6rem;
+    font-weight: 600;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: light-dark(#5b5244, #b9b2a4);
+}
+.s-loose {
+    display: flex;
+    align-items: center;
+    gap: .35rem;
+    width: 100%;
+    justify-content: flex-start;
+    padding: .4rem .5rem;
+    border: 1px solid light-dark(rgba(0, 0, 0, .12), rgba(255, 255, 255, .1));
+    border-radius: .12rem;
+    background: light-dark(#fffdf7, #2d2b27);
+    box-shadow: 0 2px 5px rgba(0, 0, 0, .25);
+    font-size: .72rem;
+    text-align: left;
+    cursor: pointer;
+    transform: rotate(var(--tilt, 0deg));
+}
+.s-loose:hover { transform: rotate(0); }
+.s-loose .members { margin-left: auto; }
+.s-loose.hh { border-style: dashed; }
+.s-add { width: 100%; margin-top: .25rem; font-size: .68rem; }
+
+/* ============================================================ variant P */
+
+.p-root { display: flex; flex: 1 1 auto; flex-direction: column; min-width: 0; min-height: 0; }
+.p-queue {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    gap: .35rem;
+    padding: .55rem 1.25rem .7rem;
+    border-bottom: 1px solid var(--border-soft);
+    background: var(--surface-transparent);
+}
+.p-queue-strip { display: flex; align-items: center; gap: .6rem; min-width: 0; }
+.p-queue-label {
+    flex: none;
+    width: 11.5rem;
+    font-size: .58rem;
+    font-weight: 600;
+    letter-spacing: .07em;
+    text-transform: uppercase;
+    color: var(--subtle);
+}
+.p-queue-items { display: flex; gap: .3rem; overflow-x: auto; padding-bottom: 2px; }
+.p-cart {
+    display: inline-flex;
+    align-items: center;
+    gap: .3rem;
+    padding: .1rem .45rem .1rem .25rem;
+    border: 1px solid var(--border-soft);
+    border-radius: .45rem;
+    background: var(--surface);
+    font-size: .68rem;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.p-cart.picked { border-color: var(--accent-fg); background: var(--accent-bg); color: var(--accent-fg); }
+.p-queue-empty { font-size: .68rem; line-height: 2; color: var(--success-fg); }
+.p-floor {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow: auto;
+    padding: 1rem 1.25rem 5rem;
+    background-image: repeating-linear-gradient(90deg,
+        transparent 0 95px,
+        light-dark(rgba(0, 0, 0, .035), rgba(255, 255, 255, .04)) 95px 96px);
+}
+.p-district + .p-district { margin-top: 1.4rem; }
+.p-district-head { display: flex; align-items: baseline; gap: .6rem; margin-bottom: .55rem; }
+.p-district-head h2 { font-size: 20px; font-weight: 600; }
+.p-district-head span { font-size: .68rem; color: var(--subtle); }
+.p-add { margin-left: auto; font-size: .68rem; color: var(--accent-fg); }
+.p-racks { display: grid; grid-template-columns: repeat(auto-fill, minmax(17rem, 1fr)); gap: .8rem; }
+.p-rack {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+    padding: .55rem;
+    border: 1px solid var(--border-soft);
+    border-radius: .6rem;
+    background: var(--surface);
+    box-shadow: var(--shadow-1);
+    outline: 2px dashed transparent;
+    transition: box-shadow .15s ease, outline-color .15s ease;
+}
+.p-rack.armed { cursor: pointer; outline-color: var(--accent-soft); }
+.p-rack.armed:hover { outline-color: var(--accent-fg); box-shadow: var(--shadow-8); }
+.p-rack.armed .p-slot.empty { border-color: var(--accent-fg); background: var(--accent-bg); color: var(--accent-fg); }
+.p-rack.empty { outline: 2px dashed var(--warning-fg); }
+.p-rack.over { outline: 2px solid var(--danger-fg); }
+.p-rack-head { display: flex; align-items: center; justify-content: space-between; gap: .5rem; }
+.p-rack-name { font-weight: 600; font-size: .76rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-cap {
+    padding: .08rem .35rem;
+    border-radius: 999px;
+    background: var(--hover-strong);
+    color: var(--subtle);
+    font-size: .6rem;
+    font-variant-numeric: tabular-nums;
+}
+.p-cap.warn { background: var(--warning-bg); color: var(--warning-fg); }
+.p-cap.full { background: var(--accent-bg); color: var(--accent-fg); }
+.p-cap.over { background: var(--danger-bg); color: var(--danger-fg); }
+.p-slots { display: grid; grid-template-columns: 1fr 1fr; gap: .3rem; }
+.p-slot { display: flex; align-items: center; gap: .25rem; min-height: 2.2rem; padding: .2rem .3rem; border-radius: .4rem; font-size: .66rem; }
+.p-slot.filled { border: 1px solid var(--border-soft); background: var(--hover); cursor: pointer; }
+.p-slot.filled.picked { border-color: var(--accent-fg); background: var(--accent-bg); color: var(--accent-fg); }
+.p-slot.empty { justify-content: center; border: 1px dashed var(--border-soft); color: var(--muted); }
+.p-slot-name { flex: 1 1 auto; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.p-rack-foot { display: flex; flex-wrap: wrap; gap: .25rem; }
+.p-rack-empty { font-size: .66rem; font-style: italic; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<div id="app"></div>
+<noscript>This prototype needs JavaScript.</noscript>
+<script>
+'use strict';
+
+/* ================================================================ data */
+
+const DISTRICTS = [
+    { id: 1, name: 'Nord', interviewer: 'Andreas Wagner' },
+    { id: 2, name: 'Mitte', interviewer: 'Paul Herrmann' },
+    { id: 3, name: 'Süd', interviewer: 'Klaus Seidel' },
+];
+
+const BROTHER_SEED = [
+    ['Michael', 'Adler'], ['Stefan', 'Berger'], ['Jonas', 'Brandt'], ['Peter', 'Conrad'],
+    ['Andreas', 'Dietrich'], ['Thomas', 'Dorn'], ['Lukas', 'Engel'], ['Martin', 'Falk'],
+    ['Daniel', 'Fischer'], ['Johannes', 'Frank'], ['Simon', 'Graf'], ['Felix', 'Hahn'],
+    ['Matthias', 'Hartmann'], ['David', 'Haupt'], ['Elias', 'Heller'], ['Benedikt', 'Herrmann'],
+    ['Paul', 'Hoffmann'], ['Samuel', 'Horn'], ['Markus', 'Jäger'], ['Jakob', 'Jung'],
+    ['Nathanael', 'Kaiser'], ['Gabriel', 'Keller'], ['Tobias', 'Kern'], ['Lorenz', 'Klein'],
+    ['Jonathan', 'Koch'], ['Christoph', 'König'], ['Stephan', 'Krause'], ['Aaron', 'Lang'],
+    ['Michael', 'Lehmann'], ['Tobias', 'Lorenz'], ['Peter', 'Ludwig'], ['Johannes', 'Maier'],
+    ['Andreas', 'Marquardt'], ['Tim', 'Meier'], ['Sven', 'Mertens'], ['Nils', 'Meyer'],
+    ['Daniel', 'Müller'], ['Jan', 'Neumann'], ['Erik', 'Nowak'],
+];
+
+const HOUSEHOLD_SEED = [
+    ['Adler', 4], ['Bauer', 2], ['Berger', 5], ['Brandt', 1], ['Conrad', 3],
+    ['Dietrich', 2], ['Dorn', 4], ['Engel', 3], ['Falk', 2], ['Fischer', 6],
+    ['Frank', 2], ['Graf', 4], ['Hahn', 3], ['Hartmann', 2], ['Haupt', 5],
+    ['Heller', 1], ['Herrmann', 3], ['Hoffmann', 4], ['Horn', 2], ['Jäger', 3],
+    ['Jung', 2], ['Kaiser', 4], ['Keller', 2], ['Kern', 3], ['Klein', 1],
+    ['Koch', 4], ['König', 2], ['Krause', 3], ['Lang', 2], ['Lehmann', 5],
+    ['Lorenz', 3], ['Ludwig', 2], ['Maier', 4], ['Marquardt', 2], ['Meier', 1],
+    ['Mertens', 3], ['Meyer', 2], ['Müller', 4], ['Neumann', 2], ['Nowak', 3],
+    ['Otto', 2], ['Peters', 5], ['Pfeiffer', 1], ['Richter', 3], ['Roth', 2],
+    ['Sander', 4], ['Schäfer', 2], ['Schmidt', 3],
+];
+
+const COMPANIONSHIP_SEED = [
+    { districtId: 1, brotherIds: [1, 2], householdIds: [1, 2, 3] },
+    { districtId: 1, brotherIds: [3, 4], householdIds: [4, 5] },
+    { districtId: 1, brotherIds: [5, 6], householdIds: [6, 7, 8] },
+    { districtId: 1, brotherIds: [7, 8], householdIds: [9, 10] },
+    { districtId: 1, brotherIds: [9, 10, 11], householdIds: [11, 12, 13] },
+    { districtId: 2, brotherIds: [12, 13], householdIds: [14, 15] },
+    { districtId: 2, brotherIds: [14, 15], householdIds: [16, 17] },
+    { districtId: 2, brotherIds: [16, 17], householdIds: [18, 19, 20] },
+    { districtId: 2, brotherIds: [18, 19], householdIds: [21, 22, 23] },
+    { districtId: 2, brotherIds: [20, 21], householdIds: [24, 25] },
+    { districtId: 2, brotherIds: [22, 23], householdIds: [26, 27, 28] },
+    { districtId: 3, brotherIds: [24, 25], householdIds: [29, 30] },
+    { districtId: 3, brotherIds: [26, 27], householdIds: [31, 32] },
+    { districtId: 3, brotherIds: [28, 29], householdIds: [33, 34, 35] },
+    { districtId: 3, brotherIds: [30, 31], householdIds: [36, 37] },
+    /* two brothers, no household — a gap the screen has to show */
+    { districtId: 3, brotherIds: [32, 33], householdIds: [] },
+];
+
+const VARIANTS = [
+    { key: 'A', name: 'Twin trays & district spine', blurb: 'Unassigned brothers and households pinned as side trays around a district-ordered card spine.' },
+    { key: 'D', name: 'Constellation map', blurb: 'Districts as bands, companionships as hubs, households as satellites; gaps float in a dock below.' },
+    { key: 'D2', name: 'Map & trays', blurb: 'The same constellation map, but the open brothers and households are pinned left and right like A.' },
+    { key: 'W', name: 'Wheel & halo', blurb: 'A sunburst wheel: districts as arcs, companionships as blades, households in orbit, gaps in two halos.' },
+    { key: 'S', name: 'String board', blurb: 'A corkboard of pinned paper cards, tape and pins. Tactile and fun; deliberately bad at scale.' },
+    { key: 'P', name: 'Slots', blurb: 'Each companionship is a rack with visible empty slots; gaps wait in two queues above the floor.' },
+];
+
+const brothers = BROTHER_SEED.map(([firstName, lastName], i) => ({ id: i + 1, firstName, lastName }));
+const households = HOUSEHOLD_SEED.map(([name, members], i) => ({ id: i + 1, name, members }));
+const districts = DISTRICTS;
+const brotherById = new Map(brothers.map(b => [b.id, b]));
+const householdById = new Map(households.map(h => [h.id, h]));
+
+/* =============================================================== store */
+
+let companionships = seedCompanionships();
+let history = [];
+let picked = null;
+let variantKey = readVariant();
+let wheelFocus = null;
+
+function seedCompanionships() {
+    return COMPANIONSHIP_SEED.map((c, i) => ({
+        id: i + 1,
+        districtId: c.districtId,
+        brotherIds: [...c.brotherIds],
+        householdIds: [...c.householdIds],
+    }));
+}
+
+function cloneAll(list) {
+    return list.map(c => ({ ...c, brotherIds: [...c.brotherIds], householdIds: [...c.householdIds] }));
+}
+
+function mutate(_action, update) {
+    history.push(cloneAll(companionships));
+    if (history.length > 40) history.shift();
+    const next = cloneAll(companionships);
+    update(next);
+    companionships = next;
+}
+
+function undo() {
+    const previous = history.pop();
+    if (!previous) return;
+    companionships = previous;
+    picked = null;
+    render();
+}
+
+function resetDemo() {
+    companionships = seedCompanionships();
+    history = [];
+    picked = null;
+    wheelFocus = null;
+    render();
+}
+
+function companionshipOfBrother(id) {
+    return companionships.find(c => c.brotherIds.includes(id));
+}
+
+function companionshipOfHousehold(id) {
+    return companionships.find(c => c.householdIds.includes(id));
+}
+
+function brothersOf(c) {
+    return c.brotherIds.map(id => brotherById.get(id)).filter(Boolean);
+}
+
+function householdsOf(c) {
+    return c.householdIds.map(id => householdById.get(id)).filter(Boolean);
+}
+
+function freeBrothers() {
+    return brothers.filter(b => !companionshipOfBrother(b.id));
+}
+
+function uncoveredHouseholds() {
+    return households.filter(h => !companionshipOfHousehold(h.id));
+}
+
+function emptyCompanionships() {
+    return companionships.filter(c => c.householdIds.length === 0);
+}
+
+function coveredCount() {
+    return households.length - uncoveredHouseholds().length;
+}
+
+function coveragePercent() {
+    return Math.round(100 * coveredCount() / households.length);
+}
+
+function companionshipName(c) {
+    if (!c) return 'a companionship';
+    const names = brothersOf(c).map(b => b.lastName);
+    if (!names.length) return 'New companionship';
+    if (names.length === 1) return names[0];
+    if (names.length === 2) return names[0] + ' & ' + names[1];
+    return names.slice(0, -1).join(', ') + ' & ' + names[names.length - 1];
+}
+
+function districtOf(c) {
+    return districts.find(d => d.id === c.districtId);
+}
+
+function companionshipsOfDistrict(districtId) {
+    return companionships.filter(c => c.districtId === districtId);
+}
+
+function brotherCountOfDistrict(districtId) {
+    return companionshipsOfDistrict(districtId).reduce((n, c) => n + c.brotherIds.length, 0);
+}
+
+function householdCountOfDistrict(districtId) {
+    return companionshipsOfDistrict(districtId).reduce((n, c) => n + c.householdIds.length, 0);
+}
+
+function assignHousehold(householdId, companionshipId) {
+    const household = householdById.get(householdId);
+    if (!household) return;
+    if ((companionshipOfHousehold(householdId)?.id ?? null) === companionshipId) return;
+    const target = companionshipId == null ? null : companionships.find(c => c.id === companionshipId);
+    mutate(companionshipId == null || !target
+        ? 'Removed ' + household.name + ' from its companionship'
+        : 'Assigned ' + household.name + ' to ' + companionshipName(target), next => {
+            for (const c of next) c.householdIds = c.householdIds.filter(id => id !== householdId);
+            if (companionshipId != null) next.find(c => c.id === companionshipId)?.householdIds.push(householdId);
+        });
+    render();
+}
+
+function assignBrother(brotherId, companionshipId) {
+    const brother = brotherById.get(brotherId);
+    if (!brother) return;
+    if ((companionshipOfBrother(brotherId)?.id ?? null) === companionshipId) return;
+    mutate(companionshipId == null
+        ? 'Removed ' + brother.firstName + ' ' + brother.lastName + ' from his companionship'
+        : 'Added ' + brother.firstName + ' ' + brother.lastName, next => {
+            for (const c of next) c.brotherIds = c.brotherIds.filter(id => id !== brotherId);
+            if (companionshipId != null) next.find(c => c.id === companionshipId)?.brotherIds.push(brotherId);
+        });
+    render();
+}
+
+function createCompanionship(districtId) {
+    mutate('Added a companionship', next => {
+        const id = next.reduce((max, c) => Math.max(max, c.id), 0) + 1;
+        next.push({ id, districtId, brotherIds: [], householdIds: [] });
+    });
+    render();
+}
+
+/* ============================================================= helpers */
+
+const esc = value => String(value).replace(/[&<>"']/g, ch => ({
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+}[ch]));
+
+const ICONS = {
+    search: '<circle cx="11" cy="11" r="6"/><path d="M16 16l4 4"/>',
+    close: '<path d="M6 6l12 12M18 6L6 18"/>',
+    plus: '<path d="M12 5v14M5 12h14"/>',
+    check: '<path d="M5 13l4 4L19 7"/>',
+    undo: '<path d="M9 14L4 9l5-5"/><path d="M4 9h9a6 6 0 0 1 0 12h-3"/>',
+    left: '<path d="M15 6l-6 6 6 6"/>',
+    right: '<path d="M9 6l6 6-6 6"/>',
+    people: '<circle cx="9" cy="8" r="3"/><path d="M3 20c0-3 3-5 6-5s6 2 6 5"/><circle cx="17" cy="9" r="2.5"/><path d="M16 15c2.5.3 5 1.7 5 4"/>',
+    person: '<circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/>',
+    briefcase: '<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"/>',
+    comment: '<path d="M4 5h16v11H8l-4 4z"/>',
+    presenter: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M12 16v4M8 20h8"/>',
+    warning: '<path d="M12 3l9 16H3z"/><path d="M12 9v4"/><circle cx="12" cy="17" r=".8"/>',
+    link: '<path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/>',
+    checkCircle: '<circle cx="12" cy="12" r="9"/><path d="M8 12.5l2.5 2.5L16 9.5"/>',
+};
+
+function icon(name, cls = '') {
+    return '<svg class="icon ' + cls + '" viewBox="0 0 24 24" aria-hidden="true">' + (ICONS[name] || '') + '</svg>';
+}
+
+function logo() {
+    return '<svg class="logo" viewBox="0 0 32 32" aria-hidden="true">'
+        + '<circle cx="20" cy="11" r="6" fill="currentColor" opacity=".9"/>'
+        + '<circle cx="11" cy="16" r="5" fill="currentColor" opacity=".5"/>'
+        + '<circle cx="16" cy="22" r="5.5" fill="currentColor" opacity=".7"/>'
+        + '<circle cx="24" cy="21" r="3.5" fill="currentColor" opacity=".4"/>'
+        + '</svg>';
+}
+
+function initials(b) {
+    return esc(b.firstName.charAt(0) + b.lastName.charAt(0));
+}
+
+function brotherName(b) {
+    return esc(b.firstName + ' ' + b.lastName);
+}
+
+function isPicked(kind, id) {
+    return !!picked && picked.kind === kind && picked.id === id;
+}
+
+function pickedLabel() {
+    if (!picked) return '';
+    if (picked.kind === 'brother') {
+        const brother = brotherById.get(picked.id);
+        return brother ? brother.firstName + ' ' + brother.lastName : '';
+    }
+    return householdById.get(picked.id)?.name || '';
+}
+
+function plural(count, singular) {
+    return count + ' ' + singular + (count === 1 ? '' : 's');
+}
+
+function stat(value, label, tone) {
+    return '<div class="stat ' + tone + '"><strong>' + value + '</strong><span>' + label + '</span></div>';
+}
+
+function gapStats() {
+    return stat(freeBrothers().length, 'brothers free', 'danger')
+        + stat(uncoveredHouseholds().length, 'households uncovered', 'danger')
+        + stat(emptyCompanionships().length, 'empty companionship', 'warning');
+}
+
+function variantHeader(subtitle, extra = '') {
+    return '<header class="a-head">'
+        + '<div class="a-title"><h1>Ministering</h1><span class="muted">' + esc(subtitle) + '</span></div>'
+        + extra
+        + '<div class="stats">' + gapStats() + '</div>'
+        + undoButton()
+        + '</header>';
+}
+
+function doneBox(text) {
+    return '<div class="done-box">' + icon('checkCircle', 'sm') + '<span>' + esc(text) + '</span></div>';
+}
+
+function truncate(value, max) {
+    return value.length > max ? value.slice(0, max - 1) + '…' : value;
+}
+
+function scrollState() {
+    const saved = {};
+    document.querySelectorAll('[data-scroll]').forEach(el => {
+        saved[el.dataset.scroll] = [el.scrollTop, el.scrollLeft];
+    });
+    return saved;
+}
+
+function restoreScroll(saved) {
+    document.querySelectorAll('[data-scroll]').forEach(el => {
+        const entry = saved[el.dataset.scroll];
+        if (!entry) return;
+        el.scrollTop = entry[0];
+        el.scrollLeft = entry[1];
+    });
+}
+
+/* ============================================================== render */
+
+const app = document.getElementById('app');
+
+function readVariant() {
+    const fromQuery = new URLSearchParams(location.search).get('variant');
+    const raw = (fromQuery || location.hash.slice(1) || 'A').toUpperCase();
+    return VARIANTS.some(v => v.key === raw) ? raw : 'A';
+}
+
+function currentVariant() {
+    return VARIANTS.find(v => v.key === variantKey) || VARIANTS[0];
+}
+
+function setVariant(key) {
+    if (key === variantKey) return;
+    variantKey = key;
+    picked = null;
+    try { location.hash = key; } catch (e) { /* file:// history quirks — ignore */ }
+    render();
+    const canvas = document.querySelector('.canvas');
+    if (canvas) canvas.scrollTop = 0;
+}
+
+function showFatal(error) {
+    const existing = document.querySelector('.fatal');
+    if (existing) existing.remove();
+    const box = document.createElement('pre');
+    box.className = 'fatal';
+    box.textContent = 'Prototype error — click to dismiss\n\n' + (error && error.stack ? error.stack : String(error));
+    box.addEventListener('click', () => box.remove());
+    document.body.appendChild(box);
+}
+
+window.addEventListener('error', event => showFatal(event.error || event.message));
+window.addEventListener('unhandledrejection', event => showFatal(event.reason));
+
+function render() {
+    try {
+        const saved = scrollState();
+        const variant = currentVariant();
+        const body = renderVariant(variant.key);
+        app.innerHTML = shell(body) + switcher(variant) ;
+        restoreScroll(saved);
+    } catch (error) {
+        showFatal(error);
+        throw error;
+    }
+}
+
+function shell(body) {
+    const rail = [
+        { label: 'Meetings', icon: 'comment' },
+        { label: 'Members', icon: 'people' },
+        { label: 'Callings', icon: 'briefcase', active: true },
+        { label: 'Sacrament', icon: 'presenter' },
+        { label: 'Users', icon: 'person', bottom: true },
+    ];
+    return '<div class="proto">'
+        + '<header class="proto-header">'
+        + '<div class="brand">' + logo() + '<span class="proto-name">Ward Tools</span>'
+        + '<span class="badge" title="Throwaway prototype — fake ward, in-memory only">prototype</span></div>'
+        + '<div class="fake-search" title="Not wired up">' + icon('search', 'sm') + '<span>Search</span></div>'
+        + '<div class="spacer"></div>'
+        + '<div class="user-bubble" title="Fake signed-in user">IB</div>'
+        + '</header>'
+        + '<div class="proto-body">'
+        + '<nav class="rail" aria-label="Prototype navigation (not functional)">'
+        + rail.map(t => '<div class="rail-tab ' + (t.active ? 'active' : '') + (t.bottom ? ' bottom' : '') + '">'
+            + icon(t.icon) + '<span>' + t.label + '</span></div>').join('')
+        + '</nav>'
+        + '<main class="canvas"><div class="variant">' + body + '</div></main>'
+        + '</div></div>';
+}
+
+function switcher(variant) {
+    const index = VARIANTS.findIndex(v => v.key === variant.key);
+    const dots = VARIANTS.map((v, i) =>
+        '<button class="sw-dot ' + (i === index ? 'active' : '') + '" data-action="variant" data-index="' + i
+        + '" title="' + esc(v.key + ' — ' + v.name) + '"></button>').join('');
+    return '<div class="switcher" role="toolbar" aria-label="Prototype variants">'
+        + '<button class="sw-btn" data-action="variant-prev" title="Previous variant (left arrow)">' + icon('left') + '</button>'
+        + '<div class="sw-label"><div class="sw-line"><span class="sw-key">' + variant.key + '</span>'
+        + '<span class="sw-name">' + esc(variant.name) + '</span></div>'
+        + '<div class="sw-blurb">' + esc(variant.blurb) + '</div></div>'
+        + '<div class="sw-dots">' + dots + '</div>'
+        + '<div class="sw-sep"></div>'
+        + '<button class="sw-reset" data-action="reset" title="Put the fake ward back the way it started">'
+        + icon('undo', 'sm') + '<span>Reset data</span></button>'
+        + '<button class="sw-btn" data-action="variant-next" title="Next variant (right arrow)">' + icon('right') + '</button>'
+        + '</div>';
+}
+
+function renderVariant(key) {
+    switch (key) {
+        case 'D': return renderD();
+        case 'D2': return renderD2();
+        case 'W': return renderW();
+        case 'S': return renderS();
+        case 'P': return renderP();
+        default: return renderA();
+    }
+}
+
+/* ============================================================ variant A */
+
+/** Both A and D2 use the same two pinned trays. */
+function trayBrothers() {
+    const free = freeBrothers();
+    const list = free.map(b =>
+        '<button class="person ' + (isPicked('brother', b.id) ? 'picked' : '') + '" data-action="pick-brother" data-id="' + b.id + '">'
+        + '<span class="avatar">' + initials(b) + '</span>'
+        + '<span class="person-name">' + brotherName(b) + '</span>'
+        + (isPicked('brother', b.id) ? icon('check', 'sm') : '')
+        + '</button>').join('') || doneBox('Every brother has a companionship.');
+    return '<aside class="a-tray a-left">'
+        + '<div class="a-tray-head"><h2>Brothers without a companionship</h2>'
+        + '<span class="pill danger">' + free.length + '</span></div>'
+        + '<p class="a-hint">Select a name, then click a companionship.</p>'
+        + '<div class="a-list" data-scroll="a-left">' + list + '</div></aside>';
+}
+
+function trayHouseholds() {
+    const uncovered = uncoveredHouseholds();
+    const list = uncovered.map(h =>
+        '<button class="person ' + (isPicked('household', h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + h.id + '">'
+        + '<span class="avatar hh">' + esc(h.name.charAt(0)) + '</span>'
+        + '<span class="person-name">' + esc(h.name) + '</span>'
+        + '<span class="person-meta">' + h.members + '</span>'
+        + (isPicked('household', h.id) ? icon('check', 'sm') : '')
+        + '</button>').join('') || doneBox('Every household is ministered to.');
+    return '<aside class="a-tray a-right">'
+        + '<div class="a-tray-head"><h2>Households not ministered to</h2>'
+        + '<span class="pill danger">' + uncovered.length + '</span></div>'
+        + '<p class="a-hint">Select a household, then click a companionship.</p>'
+        + '<div class="a-list" data-scroll="a-right">' + list + '</div></aside>';
+}
+
+function renderA() {
+    return '<div class="a-root">'
+        + variantHeader('Companionships, districts and households')
+        + '<div class="a-grid">'
+        + trayBrothers()
+        + '<main class="a-spine" data-scroll="a-spine">' + districts.map(districtSectionA).join('') + '</main>'
+        + trayHouseholds()
+        + '</div></div>';
+}
+
+function districtSectionA(d) {
+    const comps = companionshipsOfDistrict(d.id);
+    return '<section class="a-district">'
+        + '<div class="a-district-head">'
+        + '<div class="a-district-name"><h2>' + esc(d.name) + '</h2>'
+        + '<span class="a-district-meta">' + esc(d.interviewer) + ' · ' + brotherCountOfDistrict(d.id) + ' brothers · '
+        + householdCountOfDistrict(d.id) + ' households</span></div>'
+        + '<span class="a-district-count">' + comps.length + ' companionships</span>'
+        + '<button class="btn subtle a-add" data-action="add-companionship" data-id="' + d.id + '">'
+        + icon('plus', 'sm') + 'Companionship</button>'
+        + '</div>'
+        + '<div class="a-cards">' + comps.map(cardA).join('') + '</div>'
+        + '</section>';
+}
+
+function cardA(c) {
+    const empty = c.householdIds.length === 0;
+    const placeable = picked !== null;
+    const brotherChips = brothersOf(c).map(b =>
+        '<span class="chip ' + (isPicked('brother', b.id) ? 'picked' : '') + '" data-action="pick-brother" data-id="' + b.id + '">'
+        + brotherName(b)
+        + '<button class="x" data-action="unassign-brother" data-id="' + b.id + '" title="Remove from companionship">'
+        + icon('close', 'xs') + '</button></span>').join('')
+        || '<span class="slot">No brother yet</span>';
+    const householdChips = householdsOf(c).map(h =>
+        '<span class="chip hh ' + (isPicked('household', h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + h.id + '">'
+        + esc(h.name) + '<span class="members">' + h.members + '</span>'
+        + '<button class="x" data-action="unassign-household" data-id="' + h.id + '" title="Remove household">'
+        + icon('close', 'xs') + '</button></span>').join('')
+        || '<span class="slot warning">No household yet — pick one on the right.</span>';
+    const load = c.householdIds.length;
+    return '<article class="card a-card ' + (placeable ? 'placeable ' : '') + (empty ? 'empty' : '') + '"'
+        + (placeable ? ' data-action="place" data-id="' + c.id + '"' : '') + '>'
+        + '<div class="a-card-head"><span class="a-card-name">' + esc(companionshipName(c)) + '</span>'
+        + '<span class="pill ' + (load === 0 ? 'warn' : load > 4 ? 'high' : '') + '">' + load + '</span></div>'
+        + '<div class="a-section"><span class="a-label">Brothers</span><div class="chips">' + brotherChips + '</div></div>'
+        + '<div class="a-section"><span class="a-label">Households</span><div class="chips">' + householdChips + '</div></div>'
+        + (placeable ? '<button class="btn primary a-place" data-action="place" data-id="' + c.id + '">Place '
+            + esc(pickedLabel()) + ' here</button>' : '')
+        + '</article>';
+}
+
+/* ============================================================ variant D */
+
+function mapLayout(options = {}) {
+    const bandWidth = options.bandWidth || 380;
+    const bandGap = options.bandGap || 20;
+    const hubWidth = options.hubWidth || 148;
+    const hubHeight = 52;
+    const satWidth = options.satWidth || 178;
+    const satHeight = 24;
+    const satStep = 30;
+    const rowGap = 14;
+    const headerHeight = 76;
+    const bands = [];
+    let maxY = 0;
+
+    districts.forEach((district, index) => {
+        const x = 24 + index * (bandWidth + bandGap);
+        let y = headerHeight;
+        const hubs = [];
+        companionshipsOfDistrict(district.id).forEach(c => {
+            const list = householdsOf(c);
+            const sats = list.map((h, i) => ({
+                h,
+                x: x + 16 + hubWidth + 14,
+                y: y + i * satStep,
+            }));
+            hubs.push({ c, x: x + 16, y, sats });
+            y += Math.max(hubHeight, list.length * satStep) + rowGap;
+        });
+        bands.push({ district, x, width: bandWidth, height: y, hubs });
+        maxY = Math.max(maxY, y);
+    });
+
+    return {
+        width: 48 + districts.length * bandWidth + (districts.length - 1) * bandGap,
+        height: maxY + 24,
+        bands,
+        hubWidth,
+        hubHeight,
+        satWidth,
+        satHeight,
+    };
+}
+
+function wirePath(hub, sat, hubWidth, hubHeight, satHeight) {
+    const x1 = hub.x + hubWidth;
+    const y1 = hub.y + hubHeight / 2;
+    const x2 = sat.x;
+    const y2 = sat.y + satHeight / 2;
+    const middle = (x1 + x2) / 2;
+    return 'M ' + x1 + ' ' + y1 + ' C ' + middle + ' ' + y1 + ', ' + middle + ' ' + y2 + ', ' + x2 + ' ' + y2;
+}
+
+function hubLabel(c) {
+    const names = brothersOf(c).map(b => b.lastName);
+    return names.length ? names.join(' & ') : 'No brothers';
+}
+
+function constellationSvg(layout) {
+    const hubW = layout.hubWidth;
+    const hubH = layout.hubHeight;
+    const satW = layout.satWidth;
+    const satH = layout.satHeight;
+
+    const content = layout.bands.map(band => {
+        const groups = band.hubs.map(hub => {
+            const wires = hub.sats.map(sat =>
+                '<path class="wire" d="' + wirePath(hub, sat, hubW, hubH, satH) + '"/>').join('');
+            const hubGroup =
+                '<g class="hub ' + (picked ? 'armed' : '') + '" data-action="place" data-id="' + hub.c.id + '">'
+                + '<rect x="' + hub.x + '" y="' + hub.y + '" width="' + hubW + '" height="' + hubH + '" rx="10"/>'
+                + '<text class="hub-name" x="' + (hub.x + 10) + '" y="' + (hub.y + 21) + '">'
+                + esc(truncate(hubLabel(hub.c), hubW > 140 ? 20 : 16)) + '</text>'
+                + '<text class="hub-meta ' + (hub.sats.length === 0 ? 'warning' : '') + '" x="' + (hub.x + 10)
+                + '" y="' + (hub.y + 38) + '">'
+                + (hub.sats.length === 0 ? 'no household yet' : plural(hub.sats.length, 'household')) + '</text>'
+                + (picked ? '<circle class="hub-add" cx="' + (hub.x + hubW - 13) + '" cy="' + (hub.y + 13) + '" r="8"/>'
+                    + '<text class="hub-add-text" x="' + (hub.x + hubW - 13) + '" y="' + (hub.y + 16.5) + '">+</text>' : '')
+                + '</g>';
+
+            const sats = hub.sats.map(sat =>
+                '<g class="sat ' + (isPicked('household', sat.h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + sat.h.id + '">'
+                + '<rect x="' + sat.x + '" y="' + sat.y + '" width="' + satW + '" height="' + satH + '" rx="7"/>'
+                + '<text x="' + (sat.x + 9) + '" y="' + (sat.y + 16) + '">'
+                + esc(truncate(sat.h.name, satW > 160 ? 14 : 11)) + ' · ' + sat.h.members + '</text>'
+                + '<g class="sat-remove" data-action="unassign-household" data-id="' + sat.h.id + '">'
+                + '<circle cx="' + (sat.x + satW - 13) + '" cy="' + (sat.y + satH / 2) + '" r="7"/>'
+                + '<text x="' + (sat.x + satW - 13) + '" y="' + (sat.y + satH / 2 + 3.5) + '">×</text></g>'
+                + '</g>').join('');
+
+            return '<g class="hub-group ' + (hub.sats.length === 0 ? 'empty' : '') + '">'
+                + wires + hubGroup + sats + '</g>';
+        }).join('');
+
+        return '<rect class="band-bg" x="' + band.x + '" y="0" width="' + band.width + '" height="' + band.height + '" rx="18"/>'
+            + '<text class="band-title" x="' + (band.x + 18) + '" y="30">' + esc(band.district.name) + '</text>'
+            + '<text class="band-sub" x="' + (band.x + 18) + '" y="48">Interviewer: ' + esc(band.district.interviewer) + '</text>'
+            + '<text class="band-sub" x="' + (band.x + 18) + '" y="64">' + band.hubs.length + ' companionships</text>'
+            + groups;
+    }).join('');
+
+    return '<svg class="d-svg" width="' + layout.width + '" height="' + layout.height
+        + '" viewBox="0 0 ' + layout.width + ' ' + layout.height + '" aria-label="Ministering coverage map">'
+        + content + '</svg>';
+}
+
+function gapLegend() {
+    return '<div class="d-legend">'
+        + '<span class="d-legend-item"><span class="d-dot danger"></span>no companionship</span>'
+        + '<span class="d-legend-item"><span class="d-dot warning"></span>nothing to care for</span>'
+        + '</div>';
+}
+
+function renderD() {
+    const free = freeBrothers();
+    const uncovered = uncoveredHouseholds();
+    const nodesFree = free.map(b =>
+        '<button class="d-node ' + (isPicked('brother', b.id) ? 'picked' : '') + '" data-action="pick-brother" data-id="' + b.id + '">'
+        + '<span class="avatar">' + initials(b) + '</span>' + brotherName(b) + '</button>').join('')
+        || '<span class="d-empty">All brothers are in a companionship.</span>';
+    const nodesUncovered = uncovered.map(h =>
+        '<button class="d-node ' + (isPicked('household', h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + h.id + '">'
+        + '<span class="avatar hh">' + esc(h.name.charAt(0)) + '</span>' + esc(h.name)
+        + '<span class="d-node-meta">' + h.members + '</span></button>').join('')
+        || '<span class="d-empty">Every household is ministered to.</span>';
+
+    return '<div class="d-root">'
+        + variantHeader('Coverage map · districts, companionships and households', gapLegend())
+        + '<div class="d-scroll" data-scroll="d-scroll">' + constellationSvg(mapLayout()) + '</div>'
+        + '<footer class="d-dock">'
+        + '<div class="d-status">'
+        + (picked
+            ? '<span class="d-picked-name">' + esc(pickedLabel()) + '</span><span>selected — now click a companionship on the map.</span>'
+            : '<span>Click a name below, then click a companionship. Click a household on the map to move it.</span>')
+        + undoButton()
+        + '</div>'
+        + '<div class="d-pools">'
+        + '<section class="d-pool"><header class="d-pool-head"><span>Brothers without a companionship</span>'
+        + '<span class="d-pill danger">' + free.length + '</span></header>'
+        + '<div class="d-nodes" data-scroll="d-free">' + nodesFree + '</div></section>'
+        + '<section class="d-pool"><header class="d-pool-head"><span>Households not ministered to</span>'
+        + '<span class="d-pill danger">' + uncovered.length + '</span></header>'
+        + '<div class="d-nodes" data-scroll="d-uncovered">' + nodesUncovered + '</div></section>'
+        + '</div></footer></div>';
+}
+
+/* =========================================================== variant D2 */
+
+function renderD2() {
+    const layout = mapLayout({ bandWidth: 330, bandGap: 16, hubWidth: 128, satWidth: 158 });
+    return '<div class="d2-root">'
+        + variantHeader('The same map, with the open brothers and households pinned left and right')
+        + '<div class="d2-grid">'
+        + trayBrothers()
+        + '<main class="d2-map" data-scroll="d2-map">'
+        + '<div class="d2-hint">'
+        + (picked
+            ? '<b>' + esc(pickedLabel()) + '</b> selected — click a companionship on the map.'
+            : 'Select a name in a tray, then click a companionship on the map.')
+        + '</div>'
+        + constellationSvg(layout)
+        + '</main>'
+        + trayHouseholds()
+        + '</div></div>';
+}
+
+/* ============================================================ variant W */
+
+const WHEEL = { cx: 600, cy: 325, hole: 72, ring1: 80, ring2: 132, blade1: 140, blade2: 224, dots: 233, haloHouseholds: 264, haloBrothers: 300 };
+
+function polar(radius, angle) {
+    const radians = (angle - 90) * Math.PI / 180;
+    return { x: WHEEL.cx + radius * Math.cos(radians), y: WHEEL.cy + radius * Math.sin(radians) };
+}
+
+function arcPath(r1, r2, start, end) {
+    const p1 = polar(r2, start);
+    const p2 = polar(r2, end);
+    const p3 = polar(r1, end);
+    const p4 = polar(r1, start);
+    const large = end - start > 180 ? 1 : 0;
+    return 'M ' + p1.x.toFixed(2) + ' ' + p1.y.toFixed(2)
+        + ' A ' + r2 + ' ' + r2 + ' 0 ' + large + ' 1 ' + p2.x.toFixed(2) + ' ' + p2.y.toFixed(2)
+        + ' L ' + p3.x.toFixed(2) + ' ' + p3.y.toFixed(2)
+        + ' A ' + r1 + ' ' + r1 + ' 0 ' + large + ' 0 ' + p4.x.toFixed(2) + ' ' + p4.y.toFixed(2) + ' Z';
+}
+
+function wheelBlade(c, start, end) {
+    const empty = c.householdIds.length === 0;
+    const focused = wheelFocus === c.id;
+    const mid = (start + end) / 2;
+    const flip = mid > 90 && mid < 270;
+    const point = polar(flip ? WHEEL.blade2 - 8 : WHEEL.blade1 + 8, mid);
+    const rotation = flip ? mid + 180 : mid;
+
+    return '<g class="w-blade ' + (picked ? 'armed ' : '') + (empty ? 'empty ' : '') + (focused ? 'focused' : '') + '"'
+        + ' data-action="w-blade" data-id="' + c.id + '">'
+        + '<path d="' + arcPath(WHEEL.blade1, WHEEL.blade2, start, end) + '"/>'
+        + '<text class="w-blade-name" x="' + point.x.toFixed(1) + '" y="' + point.y.toFixed(1) + '"'
+        + ' text-anchor="' + (flip ? 'end' : 'start') + '"'
+        + ' transform="rotate(' + rotation.toFixed(1) + ' ' + point.x.toFixed(1) + ' ' + point.y.toFixed(1) + ')">'
+        + esc(truncate(companionshipName(c), 13)) + '</text>'
+        + '</g>';
+}
+
+function wheelDots(c, start, end) {
+    const list = householdsOf(c);
+    const shown = list.slice(0, 5);
+    const step = (end - start) / (Math.max(shown.length, 1) + 0.2);
+    const dots = shown.map((h, i) => {
+        const angle = start + step * (i + 0.6);
+        const p = polar(WHEEL.dots, angle);
+        return '<g class="w-dot ' + (isPicked('household', h.id) ? 'picked' : '') + '"'
+            + ' data-action="pick-household" data-id="' + h.id + '">'
+            + '<title>' + esc(h.name) + ' · ' + h.members + '</title>'
+            + '<circle class="w-dot-hit" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="11"/>'
+            + '<circle class="w-dot-core" cx="' + p.x.toFixed(1) + '" cy="' + p.y.toFixed(1) + '" r="4.6"/>'
+            + '</g>';
+    }).join('');
+    const more = list.length > 5
+        ? (() => {
+            const p = polar(WHEEL.dots + 14, (start + end) / 2);
+            return '<text class="w-more" x="' + p.x.toFixed(1) + '" y="' + p.y.toFixed(1) + '" text-anchor="middle">'
+                + '+' + (list.length - 5) + '</text>';
+        })()
+        : '';
+    return '<g class="w-dots">' + dots + more + '</g>';
+}
+
+function wheelHalo(items, radius, kind) {
+    const total = items.length;
+    return items.map((item, i) => {
+        const angle = -90 + (360 / Math.max(total, 1)) * i;
+        const p = polar(radius, angle);
+        let rotation = angle;
+        if (rotation > 90 && rotation <= 270) rotation -= 180;
+        const name = kind === 'brother'
+            ? item.firstName + ' ' + item.lastName
+            : item.name;
+        const pickedClass = isPicked(kind, item.id) ? ' picked' : '';
+        const body = kind === 'brother'
+            ? '<rect x="-45" y="-11" width="90" height="22" rx="11"/>'
+                + '<text x="0" y="3.5" text-anchor="middle">' + esc(truncate(name, 15)) + '</text>'
+            : '<rect x="-45" y="-11" width="90" height="22" rx="11"/>'
+                + '<text x="-36" y="3.5">' + esc(truncate(name, 12)) + '</text>'
+                + '<text class="w-halo-count" x="36" y="3.5" text-anchor="end">' + item.members + '</text>';
+        return '<g class="w-halo ' + kind + pickedClass + '" data-action="pick-' + kind + '" data-id="' + item.id + '">'
+            + '<title>' + esc(name) + '</title>'
+            + '<g transform="translate(' + p.x.toFixed(1) + ' ' + p.y.toFixed(1) + ') rotate(' + rotation.toFixed(1) + ')">'
+            + body + '</g></g>';
+    }).join('');
+}
+
+function renderW() {
+    const free = freeBrothers();
+    const uncovered = uncoveredHouseholds();
+    const focus = wheelFocus ? companionships.find(c => c.id === wheelFocus) : null;
+
+    const sectors = districts.map((district, index) => {
+        const start = index * 120 + 2;
+        const end = index * 120 + 118;
+        const mid = (start + end) / 2;
+        const labelPoint = polar((WHEEL.ring1 + WHEEL.ring2) / 2, mid);
+        let labelRotation = mid;
+        if (labelRotation > 90 && labelRotation < 270) labelRotation -= 180;
+        const comps = companionshipsOfDistrict(district.id);
+        const pad = 3;
+        const span = (116 - pad * 2) / Math.max(comps.length, 1);
+        const blades = comps.map((c, i) => {
+            const bladeStart = start + pad + i * span;
+            const bladeEnd = bladeStart + span;
+            return wheelBlade(c, bladeStart, bladeEnd) + wheelDots(c, bladeStart, bladeEnd);
+        }).join('');
+        return '<path class="w-district w-d' + (index % 3) + '" d="' + arcPath(WHEEL.ring1, WHEEL.ring2, start, end) + '"/>'
+            + '<text class="w-district-name" x="' + labelPoint.x.toFixed(1) + '" y="' + (labelPoint.y + 4).toFixed(1) + '"'
+            + ' text-anchor="middle" transform="rotate(' + labelRotation.toFixed(1) + ' '
+            + labelPoint.x.toFixed(1) + ' ' + labelPoint.y.toFixed(1) + ')">' + esc(district.name) + '</text>'
+            + blades;
+    }).join('');
+
+    const halo = wheelHalo(uncovered, WHEEL.haloHouseholds, 'household')
+        + wheelHalo(free, WHEEL.haloBrothers, 'brother');
+
+    const panel = focus
+        ? '<div class="w-panel">'
+            + '<div class="w-panel-head"><span class="w-panel-name">' + esc(companionshipName(focus)) + '</span>'
+            + '<button class="btn subtle" data-action="w-close" title="Close">' + icon('close', 'sm') + '</button></div>'
+            + '<div class="w-panel-brothers">'
+            + (brothersOf(focus).map(b => '<span class="w-panel-brother">' + brotherName(b) + '</span>').join('')
+                || '<span class="slot">No brother yet</span>') + '</div>'
+            + '<div class="w-panel-households">'
+            + (householdsOf(focus).map(h =>
+                '<span class="chip hh ' + (isPicked('household', h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + h.id + '">'
+                + esc(h.name) + '<span class="members">' + h.members + '</span>'
+                + '<button class="x" data-action="unassign-household" data-id="' + h.id + '" title="Remove household">'
+                + icon('close', 'xs') + '</button></span>').join('')
+                || '<span class="slot warning">No household yet — click a name in the outer halo, then this blade.</span>')
+            + '</div>'
+            + '<div class="w-panel-hint">' + (picked
+                ? esc(pickedLabel()) + ' is picked — click any blade to place.'
+                : 'Click a name in either halo to pick it.') + '</div>'
+            + '</div>'
+        : '';
+
+    return '<div class="w-root">'
+        + variantHeader('A sunburst: districts as arcs, companionships as blades, households orbiting', gapLegend())
+        + '<div class="w-stage" data-scroll="w-stage">'
+        + '<svg class="w-svg" width="1200" height="640" viewBox="0 0 1200 640" aria-label="Ministering wheel">'
+        + '<circle class="w-hole" cx="' + WHEEL.cx + '" cy="' + WHEEL.cy + '" r="' + WHEEL.hole + '"/>'
+        + '<text class="w-hole-value" x="' + WHEEL.cx + '" y="' + (WHEEL.cy - 4) + '" text-anchor="middle">'
+        + coveragePercent() + '%</text>'
+        + '<text class="w-hole-label" x="' + WHEEL.cx + '" y="' + (WHEEL.cy + 18) + '" text-anchor="middle">'
+        + coveredCount() + ' / ' + households.length + ' households</text>'
+        + sectors + halo
+        + '</svg>'
+        + panel
+        + '</div></div>';
+}
+
+/* ============================================================ variant S */
+
+function renderS() {
+    const tilt = id => (((id * 7) % 5) - 2) * 0.55;
+
+    const looseBrother = (b, index) =>
+        '<button class="s-loose" style="--tilt:' + (index % 2 ? 1.4 : -1.2) + 'deg"'
+        + ' data-action="pick-brother" data-id="' + b.id + '">'
+        + '<span class="s-pin"></span>' + brotherName(b) + '</button>';
+
+    const looseHousehold = (h, index) =>
+        '<button class="s-loose hh" style="--tilt:' + (index % 2 ? -1.6 : 1.1) + 'deg"'
+        + ' data-action="pick-household" data-id="' + h.id + '">'
+        + '<span class="s-pin"></span>' + esc(h.name) + '<span class="members">' + h.members + '</span></button>';
+
+    const card = c => {
+        const empty = c.householdIds.length === 0;
+        const load = c.householdIds.length;
+        const households = householdsOf(c);
+        return '<article class="s-card ' + (picked ? 'placeable ' : '') + (empty ? 'empty' : '') + '"'
+            + ' style="--tilt:' + tilt(c.id) + 'deg"'
+            + (picked ? ' data-action="place" data-id="' + c.id + '"' : '') + '>'
+            + '<span class="s-tape"></span>'
+            + '<div class="s-card-head"><span class="s-pin"></span>'
+            + '<span class="s-name">' + esc(companionshipName(c)) + '</span>'
+            + '<span class="pill ' + (load === 0 ? 'warn' : load > 4 ? 'high' : '') + '">' + load + '</span></div>'
+            + '<div class="s-brothers">'
+            + (brothersOf(c).map(b =>
+                '<span class="chip" data-action="pick-brother" data-id="' + b.id + '">' + brotherName(b)
+                + '<button class="x" data-action="unassign-brother" data-id="' + b.id + '" title="Remove">'
+                + icon('close', 'xs') + '</button></span>').join('')
+                || '<span class="s-muted">no brothers</span>')
+            + '</div>'
+            + '<div class="s-label">ministers to</div>'
+            + '<div class="s-notes">'
+            + (households.map((h, i) =>
+                '<span class="s-note ' + (isPicked('household', h.id) ? 'picked' : '') + '"'
+                + ' style="--tilt:' + (i % 2 ? 1.2 : -0.9) + 'deg"'
+                + ' data-action="pick-household" data-id="' + h.id + '">'
+                + esc(h.name) + '<span class="members">' + h.members + '</span>'
+                + '<button class="x" data-action="unassign-household" data-id="' + h.id + '" title="Remove household">'
+                + icon('close', 'xs') + '</button></span>').join('')
+                || '<span class="s-muted">nothing pinned here yet</span>')
+            + '</div>'
+            + (picked ? '<button class="btn primary s-place" data-action="place" data-id="' + c.id + '">Pin '
+                + esc(pickedLabel()) + ' here</button>' : '')
+            + '</article>';
+    };
+
+    const lanes = districts.map(d => {
+        const comps = companionshipsOfDistrict(d.id);
+        return '<section class="s-lane">'
+            + '<div class="s-lane-label">' + esc(d.name) + '<span>' + comps.length + '</span></div>'
+            + '<div class="s-cards">' + comps.map(card).join('') + '</div>'
+            + '</section>';
+    }).join('');
+
+    const free = freeBrothers();
+    const uncovered = uncoveredHouseholds();
+
+    return '<div class="s-root">'
+        + variantHeader('A corkboard of pinned cards — districts are lanes, tape and pins are doing their best')
+        + '<div class="s-board" data-scroll="s-board"><div class="s-grid">'
+        + '<aside class="s-gutter">'
+        + '<div class="s-gutter-label">Loose brothers <span class="d-pill danger">' + free.length + '</span></div>'
+        + (free.map(looseBrother).join('') || doneBox('Every brother has a companionship.'))
+        + '<button class="btn subtle s-add" data-action="add-companionship" data-id="1">' + icon('plus', 'sm') + 'New companionship</button>'
+        + '</aside>'
+        + '<main class="s-lanes">' + lanes + '</main>'
+        + '<aside class="s-gutter right">'
+        + '<div class="s-gutter-label">Un-pinned households <span class="d-pill danger">' + uncovered.length + '</span></div>'
+        + (uncovered.map(looseHousehold).join('') || doneBox('Every household is ministered to.'))
+        + '</aside>'
+        + '</div></div></div>';
+}
+
+/* ============================================================ variant P */
+
+const RACK_CAPACITY = 4;
+
+function renderP() {
+    const free = freeBrothers();
+    const uncovered = uncoveredHouseholds();
+
+    const queueBrother = b =>
+        '<button class="p-cart ' + (isPicked('brother', b.id) ? 'picked' : '') + '" data-action="pick-brother" data-id="' + b.id + '">'
+        + '<span class="avatar">' + initials(b) + '</span>' + brotherName(b) + '</button>';
+    const queueHousehold = h =>
+        '<button class="p-cart hh ' + (isPicked('household', h.id) ? 'picked' : '') + '" data-action="pick-household" data-id="' + h.id + '">'
+        + '<span class="avatar hh">' + esc(h.name.charAt(0)) + '</span>' + esc(h.name)
+        + '<span class="members">' + h.members + '</span></button>';
+
+    const rack = c => {
+        const list = householdsOf(c);
+        const load = list.length;
+        const slots = [];
+        for (let i = 0; i < Math.max(RACK_CAPACITY, load); i++) {
+            const h = list[i];
+            slots.push(h
+                ? '<span class="p-slot filled ' + (isPicked('household', h.id) ? 'picked' : '') + '"'
+                    + ' data-action="pick-household" data-id="' + h.id + '">'
+                    + '<span class="p-slot-name">' + esc(h.name) + '</span>'
+                    + '<span class="members">' + h.members + '</span>'
+                    + '<button class="x" data-action="unassign-household" data-id="' + h.id + '" title="Remove household">'
+                    + icon('close', 'xs') + '</button></span>'
+                : '<span class="p-slot empty" title="Empty slot">' + icon('plus', 'xs') + '</span>');
+        }
+        return '<article class="p-rack ' + (picked ? 'armed ' : '') + (load === 0 ? 'empty ' : '') + (load > RACK_CAPACITY ? 'over' : '') + '"'
+            + ' data-action="place" data-id="' + c.id + '">'
+            + '<header class="p-rack-head"><span class="p-rack-name">' + esc(companionshipName(c)) + '</span>'
+            + '<span class="p-cap ' + (load === 0 ? 'warn' : load > RACK_CAPACITY ? 'over' : load === RACK_CAPACITY ? 'full' : '') + '">'
+            + load + ' / ' + RACK_CAPACITY + '</span></header>'
+            + '<div class="p-slots">' + slots.join('') + '</div>'
+            + '<div class="p-rack-foot">'
+            + (brothersOf(c).map(b =>
+                '<span class="chip" data-action="pick-brother" data-id="' + b.id + '">' + brotherName(b)
+                + '<button class="x" data-action="unassign-brother" data-id="' + b.id + '" title="Remove">'
+                + icon('close', 'xs') + '</button></span>').join('')
+                || '<span class="p-rack-empty">no brothers on this rack</span>')
+            + '</div></article>';
+    };
+
+    const sections = districts.map(d => {
+        const comps = companionshipsOfDistrict(d.id);
+        return '<section class="p-district">'
+            + '<div class="p-district-head">'
+            + '<h2>' + esc(d.name) + '</h2><span>' + esc(d.interviewer) + ' · ' + comps.length + ' racks</span>'
+            + '<button class="btn subtle p-add" data-action="add-companionship" data-id="' + d.id + '">'
+            + icon('plus', 'sm') + 'Rack</button>'
+            + '</div>'
+            + '<div class="p-racks">' + comps.map(rack).join('') + '</div>'
+            + '</section>';
+    }).join('');
+
+    return '<div class="p-root">'
+        + variantHeader('Each companionship is a rack with visible slots — an empty slot is room you have')
+        + '<div class="p-queue">'
+        + '<div class="p-queue-strip"><span class="p-queue-label">Brothers without a companionship</span>'
+        + '<div class="p-queue-items">' + (free.map(queueBrother).join('') || '<span class="p-queue-empty">all on a rack</span>') + '</div></div>'
+        + '<div class="p-queue-strip"><span class="p-queue-label">Households not ministered to</span>'
+        + '<div class="p-queue-items">' + (uncovered.map(queueHousehold).join('') || '<span class="p-queue-empty">all racked</span>') + '</div></div>'
+        + '</div>'
+        + '<div class="p-floor" data-scroll="p-floor">' + sections + '</div>'
+        + '</div>';
+}
+
+/* ============================================================== actions */
+
+function undoButton() {
+    return '<button class="btn secondary" data-action="undo"' + (history.length ? '' : ' disabled') + '>'
+        + icon('undo', 'sm') + 'Undo</button>';
+}
+
+function togglePick(kind, id) {
+    picked = isPicked(kind, id) ? null : { kind, id };
+    render();
+}
+
+function placeOn(companionshipId) {
+    if (!picked) return;
+    const payload = picked;
+    picked = null;
+    if (payload.kind === 'brother') assignBrother(payload.id, companionshipId);
+    else assignHousehold(payload.id, companionshipId);
+}
+
+function onClick(event) {
+    const el = event.target.closest('[data-action]');
+    if (!el) return;
+    const action = el.dataset.action;
+    const id = Number(el.dataset.id);
+
+    switch (action) {
+        case 'pick-brother': togglePick('brother', id); break;
+        case 'pick-household': togglePick('household', id); break;
+        case 'place': placeOn(Number(el.dataset.id)); break;
+        case 'w-blade': {
+            const bladeId = Number(el.dataset.id);
+            wheelFocus = wheelFocus === bladeId ? null : bladeId;
+            if (picked) placeOn(bladeId);
+            else render();
+            break;
+        }
+        case 'w-close': wheelFocus = null; render(); break;
+        case 'unassign-brother': assignBrother(id, null); break;
+        case 'unassign-household': assignHousehold(id, null); break;
+        case 'undo': undo(); break;
+        case 'reset': resetDemo(); break;
+        case 'add-companionship': createCompanionship(id); break;
+        case 'variant': {
+            const variant = VARIANTS[Number(el.dataset.index)];
+            if (variant) setVariant(variant.key);
+            break;
+        }
+        case 'variant-prev': {
+            const index = VARIANTS.findIndex(v => v.key === variantKey);
+            setVariant(VARIANTS[(index - 1 + VARIANTS.length) % VARIANTS.length].key);
+            break;
+        }
+        case 'variant-next': {
+            const index = VARIANTS.findIndex(v => v.key === variantKey);
+            setVariant(VARIANTS[(index + 1) % VARIANTS.length].key);
+            break;
+        }
+        default: break;
+    }
+}
+
+function onKeydown(event) {
+    const target = event.target;
+    if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA'
+        || target.tagName === 'SELECT' || target.isContentEditable)) return;
+    if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
+    event.preventDefault();
+    const index = VARIANTS.findIndex(v => v.key === variantKey);
+    const next = event.key === 'ArrowLeft'
+        ? (index - 1 + VARIANTS.length) % VARIANTS.length
+        : (index + 1) % VARIANTS.length;
+    setVariant(VARIANTS[next].key);
+}
+
+document.addEventListener('click', onClick);
+document.addEventListener('keydown', onKeydown);
+window.addEventListener('hashchange', () => {
+    const key = readVariant();
+    if (key !== variantKey) {
+        variantKey = key;
+        render();
+    }
+});
+
+render();
+</script>
+</body>
+</html>
