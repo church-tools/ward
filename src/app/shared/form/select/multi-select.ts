@@ -1,8 +1,8 @@
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { booleanAttribute, Component, input, signal, viewChild } from '@angular/core';
-import { Icon } from '../../icon/icon';
 import { assureArray } from '../../utils/array-utils';
 import { xcomputed } from '../../utils/signal-utils';
+import { Chip } from '../../widget/chip/chip';
 import { getProviders, InputBase } from '../shared/input-base';
 import { Select } from './select';
 import type { SelectOption } from './select-utils';
@@ -15,8 +15,7 @@ type MultiSelectChip<T> = SelectOption<MultiSelectValue<T>> & {
 
 @Component({
 	selector: 'app-multi-select',
-	imports: [Select, Icon, LocalizePipe],
-	styleUrls: ['./multi-select.scss'],
+	imports: [Select, Chip, LocalizePipe],
 	providers: getProviders(() => MultiSelect),
 	template: `
 		<app-select #select
@@ -41,22 +40,18 @@ type MultiSelectChip<T> = SelectOption<MultiSelectValue<T>> & {
 			@if (selectedOptions().length) {
 				<div class="value-container row wrap gap-1">
 					@for (option of selectedOptions(); track getOptionTrackId(option)) {
-						<div class="value-btn subtle row no-wrap items-center"
-							[class.clickable]="!disabled() && onOptionClick()"
-							(click)="onOptionClick() ? onOptionClick()!(option, $event) : null">
-							<span class="{{option.color}}-text">
-								@if (translateOptions() && !isCustomOption(option)) {
-									{{ option.view | localize }}
-								} @else {
-									{{ option.view }}
-								}
-							</span>
-							@if (!disabled() && !hideClear()) {
-								<button class="delete-btn subtle icon-only tiny" type="button" aria-label="Remove selection" (click)="removeSelection(option.value, $event)">
-									<app-icon icon="dismiss" size="xs"/>
-								</button>
+						<app-chip
+							[color]="option.color"
+							[clickable]="!disabled() && !!onOptionClick()"
+							[removable]="!disabled() && !hideClear()"
+							(click)="onOptionClick() ? onOptionClick()!(option, $event) : null"
+							(removeClick)="removeSelection(option.value)">
+							@if (translateOptions() && !isCustomOption(option)) {
+								{{ option.view | localize }}
+							} @else {
+								{{ option.view }}
 							}
-						</div>
+						</app-chip>
 					}
 				</div>
 			}
@@ -118,9 +113,7 @@ export class MultiSelect<T> extends InputBase<MultiSelectValue<T>[], MultiSelect
 		this.addCustomSelection(search);
 	}
 
-	protected removeSelection(value: MultiSelectValue<T>, event?: MouseEvent) {
-		event?.stopPropagation();
-		event?.preventDefault();
+	protected removeSelection(value: MultiSelectValue<T>) {
 		const selected = assureArray(this.viewValue() ?? []).filter(item => item !== value);
 		this.setViewValue(selected);
 		this.select().focusInput(false);

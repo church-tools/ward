@@ -13,39 +13,90 @@
     </app-link-button>
     <app-file-button type="secondary" size="large"
         [accept]="FileType.pdf"
-        (onUpload)="importPdf($event)">
-        {{ 'MEMBERS_IMPORT_PAGE.UPLOAD_BUTTON' | localize }}
+        (onUpload)="setMembersFile($event)">
+        {{ 'MEMBERS_IMPORT_PAGE.UPLOAD_MEMBERS_BUTTON' | localize }}
+    </app-file-button>
+    <app-file-button type="secondary" size="large"
+        [accept]="FileType.pdf"
+        (onUpload)="setHouseholdsFile($event)">
+        {{ 'MEMBERS_IMPORT_PAGE.UPLOAD_HOUSEHOLDS_BUTTON' | localize }}
     </app-file-button>
 </div>
-<app-collapse [show]="importedMember().length > 0">
-    <div class="row">
-        <app-checkbox [value]="selectAll()" (valueChange)="selectAll.set($event!);">
-            <span class="no-text-wrap">{{ 'SELECT_ALL' | localize }}</span>
-        </app-checkbox>
-        <app-tag [options]="[]" [value]=""/>
-    </div>
-    <div class="column gap-4">
-        <div class="names-container card canvas-background-card gap-0 overflow-scroll">
-            @for (member of importedMember(); track $index) {
-                <div class="row items-center gap-1">
-                    <app-checkbox
-                        [disabled]="member.duplicate ?? false"
-                        [value]="member.import || member.duplicate === true" (valueChange)="member.import = $event!; onImportChange()">
-                        <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
-                            <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
-                                {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | localize }}
-                            </span>
-                            {{ member.first_name }} {{ member.last_name }}
-                        </span>
-                    </app-checkbox>
-                </div>
+@if (parsing()) {
+    <div class="row center-content subtle-text">{{ 'MEMBERS_IMPORT_PAGE.PARSING' | localize }}</div>
+}
+@if (importedMember(); as info) {
+    <app-collapse [show]="true">
+        <div class="row">
+            <app-checkbox [value]="selectAll()" (valueChange)="selectAll.set($event!);">
+                <span class="no-text-wrap">{{ 'SELECT_ALL' | localize }}</span>
+            </app-checkbox>
+        </div>
+        <div class="column gap-4">
+            <div class="names-container card canvas-background-card gap-0 overflow-scroll">
+                @for (household of info.households; track $index; let householdIndex = $index) {
+                    @if (household.members.length) {
+                        <div class="row items-center gap-1 household-row canvas-background p-1">
+                            @if (hasSelectable(household)) {
+                                <app-checkbox
+                                    [value]="isHouseholdSelected(household)"
+                                    (valueChange)="toggleHousehold(householdIndex, $event!)">
+                                    <span class="no-text-wrap semibold-text">{{ household.name }}</span>
+                                </app-checkbox>
+                            } @else {
+                                <span class="no-text-wrap semibold-text ms-6">{{ household.name }}</span>
+                            }
+                            <span class="subtle-text ms-auto">{{ selectedMembers(household) }} / {{ selectableMembers(household) }}</span>
+                        </div>
+                        @for (member of household.members; track $index; let memberIndex = $index) {
+                            <div class="row items-center gap-1 ps-6">
+                                <app-checkbox
+                                    [disabled]="member.duplicate ?? false"
+                                    [value]="member.import || member.duplicate === true"
+                                    (valueChange)="toggleMember(householdIndex, memberIndex, $event!)">
+                                    <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
+                                        <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
+                                            {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | localize }}
+                                        </span>
+                                        {{ member.first_name }} {{ member.last_name }}
+                                    </span>
+                                </app-checkbox>
+                            </div>
+                        }
+                    }
+                }
+                @if (info.unlinked.length) {
+                    <div class="row items-center gap-1 household-row canvas-background p-1">
+                        <span class="no-text-wrap semibold-text">{{ 'MEMBERS_IMPORT_PAGE.NO_HOUSEHOLD_MATCH' | localize }}</span>
+                    </div>
+                    @for (member of info.unlinked; track $index; let memberIndex = $index) {
+                        <div class="row items-center gap-1 ps-6">
+                            <app-checkbox
+                                [disabled]="member.duplicate ?? false"
+                                [value]="member.import || member.duplicate === true"
+                                (valueChange)="toggleUnlinked(memberIndex, $event!)">
+                                <span class="no-text-wrap" [class.subtle-text]="member.duplicate">
+                                    <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
+                                        {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | localize }}
+                                    </span>
+                                    {{ member.first_name }} {{ member.last_name }}
+                                </span>
+                            </app-checkbox>
+                            <span class="subtle-text no-text-wrap">{{ 'MEMBERS_IMPORT_PAGE.OWN_HOUSEHOLD' | localize }}</span>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="ms-auto mt--2 subtle-text">{{ count() }} {{ 'MEMBERS_IMPORT_PAGE.SELECTED' | localize }}</div>
+            @if (parsedNothing) {
+                <div class="row center-content red-text">{{ 'MEMBERS_IMPORT_PAGE.NOTHING_PARSED' | localize }}</div>
             }
+            <div class="row center-content">
+                <app-async-button icon="save" type="primary" size="large" [onClick]="save"
+                    [disabled]="count() === 0">
+                    {{ 'MEMBERS_IMPORT_PAGE.IMPORT_BUTTON' | localize }}
+                </app-async-button>
+            </div>
         </div>
-        <div class="ms-auto mt--2 subtle-text">{{ count() }} {{ 'MEMBERS_IMPORT_PAGE.SELECTED' | localize }}</div>
-        <div class="row center-content">
-            <app-async-button icon="save" type="primary" size="large" [onClick]="save">
-                {{ 'MEMBERS_IMPORT_PAGE.IMPORT_BUTTON' | localize }}
-            </app-async-button>
-        </div>
-    </div>
-</app-collapse>
+    </app-collapse>
+}

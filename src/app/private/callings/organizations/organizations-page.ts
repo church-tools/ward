@@ -7,23 +7,22 @@ import { Table } from '@/modules/shared/table.types';
 import { getRowRoute } from '@/private/private.routes';
 import { AsyncButton } from '@/shared/form/button/async/async-button';
 import LinkButton from '@/shared/form/button/link/link-button';
-import { Icon } from "@/shared/icon/icon";
 import { LanguageService } from '@/shared/language/language.service';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SupabaseService } from '@/shared/service/supabase.service';
-import Collapse from '@/shared/widget/collapse/collapse';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DrawerRouterOutlet } from "../../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../../shared/private-page';
+import ExpandToggle from '@/shared/widget/expand-toggle/expand-toggle';
+import ExpandableCard from '@/shared/widget/expandable-card/expandable-card';
 import { OrganizationCallings } from './organization-callings';
 
 @Component({
     selector: 'app-organizations-page',
     templateUrl: './organizations-page.html',
     imports: [LocalizePipe, RowCardList, OrganizationListRow, OrganizationListInsert,
-        DrawerRouterOutlet, AsyncButton, LinkButton, Collapse, Icon, OrganizationCallings],
-    styleUrl: './organizations-page.scss',
+        DrawerRouterOutlet, AsyncButton, LinkButton, ExpandableCard, ExpandToggle, OrganizationCallings],
     host: { class: 'full-width' },
 })
 export class OrganizationsPage extends PrivatePage {
@@ -35,7 +34,6 @@ export class OrganizationsPage extends PrivatePage {
     private readonly language = inject(LanguageService);
 
     protected readonly activeOrganizationId = signal<number | null>(null);
-    protected readonly rowClickCallback = signal<((org: Organization.Row) => void) | undefined>(undefined);
     
     protected readonly getQuery = {
         query: (table: Table<'organization'>) => table.readAll(),
@@ -50,9 +48,6 @@ export class OrganizationsPage extends PrivatePage {
         this.activeOrganizationId.set(id ? +id : null);
     }
 
-    protected getCollapseToggleFn(collapse: Collapse) {
-        return (_: Organization.Row) => collapse.toggle();
-    }
 
     protected getSettingsUrl = (org: Organization.Row) => getRowRoute({ table: 'organization', row: org })
 

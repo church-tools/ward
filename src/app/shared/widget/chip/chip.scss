@@ -1,0 +1,106 @@
+@use "animation";
+@use "button";
+@use "card";
+@use "font";
+@use "input";
+
+$border-radius: input.$border-radius;
+$min-height: 2rem;
+$min-height-clickable: 1.75rem;
+$enter-offset: input.$padding-y;
+
+// An interactive token — a select's chosen value that can be removed, and often
+// clicked. Its states are the point of it: the same shape with no reaction to a click
+// or dismissal would be a tag, which does not exist (see DECISIONS.md).
+:host {
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0.125rem;
+    box-sizing: border-box;
+    width: auto;
+    max-width: 100%;
+    min-width: 0;
+    min-height: $min-height;
+    padding: 0 input.$padding-x;
+    border-radius: $border-radius;
+    font-family: font.$family;
+    font-size: font.$size;
+    line-height: font.$line-height;
+    transition: opacity animation.$duration-sm animation.$ease-out,
+        translate animation.$duration-xs animation.$ease-out,
+        background-color animation.$duration-sm ease,
+        scale animation.$duration ease;
+    opacity: 1;
+    translate: 0;
+    @starting-style {
+        opacity: 0;
+        translate: 0 $enter-offset;
+    }
+
+    // Projected content is wrapped here because component styles cannot reach it, and
+    // a long value must ellipsize rather than push the dismiss button out of the chip.
+    .chip-view {
+        display: block;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    &.clickable:not(.filled) {
+        cursor: pointer;
+        min-height: $min-height-clickable;
+        margin: calc(input.$padding-y / 2) 0;
+        background-color: input.$border-color-transparent;
+        &:focus, &:hover {
+            background-color: input.$border-color;
+            @include card.vibrant(300%);
+        }
+        &:active, &.active {
+            scale: button.$active-scale;
+            background-color: input.$border-color-transparent;
+            @include card.vibrant(400%);
+        }
+    }
+
+    // A filled chip's background comes from the global `fg-gradient` classes, so its
+    // states must not touch `background-color` or the gradient disappears on hover.
+    &.clickable.filled {
+        cursor: pointer;
+        min-height: $min-height-clickable;
+        margin: calc(input.$padding-y / 2) 0;
+        transition: opacity animation.$duration-sm animation.$ease-out,
+            translate animation.$duration-xs animation.$ease-out,
+            filter animation.$duration-sm ease,
+            scale animation.$duration ease;
+        &:focus, &:hover {
+            filter: brightness(1.15);
+        }
+        &:active, &.active {
+            scale: button.$active-scale;
+            filter: brightness(0.95);
+        }
+    }
+
+    .delete-btn {
+        flex: 0 0 auto;
+        width: auto;
+        min-width: 1.5rem;
+        opacity: 1;
+        transition: opacity animation.$duration-sm ease-out;
+    }
+}
+
+// On devices with a real pointer the dismiss button stays out of the way until the
+// chip is hovered or focused. Touch devices have no hover, so it is always visible.
+@media (hover: hover) and (pointer: fine) {
+    :host .delete-btn {
+        opacity: 0;
+    }
+    :host(:hover), :host(:focus-within), :host(:focus) {
+        .delete-btn {
+            opacity: 1;
+        }
+    }
+}

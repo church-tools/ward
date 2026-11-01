@@ -1,9 +1,9 @@
 import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
 import { booleanAttribute, Component, ElementRef, inject, Injector, input, OutputRefSubscription, signal, viewChild } from "@angular/core";
-import { Icon } from "../../icon/icon";
 import { SupabaseService } from "../../service/supabase.service";
 import { wait } from "../../utils/flow-control-utils";
 import { xcomputed, xeffect } from "../../utils/signal-utils";
+import { Chip } from "../../widget/chip/chip";
 import ErrorMessage from "../../widget/error-message/error-message";
 import { SelectOptions } from "../select/select-options";
 import { createPendingValueTracker, shouldFocusInputFromContainerMouseDown, schedulePopupCleanup } from "../select/select-utils";
@@ -33,17 +33,13 @@ type CustomRowSelectedOption = {
                 @if (selectedOptions().length) {
                     <div class="value-container row wrap gap-1">
                         @for (option of selectedOptions(); track option.id) {
-                            <div class="value-btn subtle row no-wrap items-center"
-                                [class.clickable]="!disabled() && onOptionClick()"
-                                (click)="onOptionClick() ? onOptionClick()!(option, $event) : null">
-                                <span>{{ option.view }}</span>
-                                @if (!disabled() && !hideClear()) {
-                                    <button class="delete-btn subtle icon-only tiny" type="button" aria-label="Remove selection"
-                                        (click)="removeSelection(option.value, $event)">
-                                        <app-icon icon="dismiss" size="xs"/>
-                                    </button>
-                                }
-                            </div>
+                            <app-chip
+                                [clickable]="!disabled() && !!onOptionClick()"
+                                [removable]="!disabled() && !hideClear()"
+                                (click)="onOptionClick() ? onOptionClick()!(option, $event) : null"
+                                (removeClick)="removeSelection(option.value)">
+                                {{ option.view }}
+                            </app-chip>
                         }
                     </div>
                 }
@@ -68,9 +64,9 @@ type CustomRowSelectedOption = {
         </div>
         <app-error-message/>
     `,
-    styleUrls: ['../select/select.scss', '../select/multi-select.scss'],
+    styleUrls: ['../select/select.scss'],
     providers: getProviders(() => CustomRowSelect),
-    imports: [InputLabel, ErrorMessage, SelectOptions, Icon],
+    imports: [InputLabel, ErrorMessage, SelectOptions, Chip],
 })
 export class CustomRowSelect<T extends TableName> extends InputBase<string | string[]> {
 

@@ -46,12 +46,10 @@ body {
     app-icon.#{"" + $color}-high-contrast-bg { background-color: get-variant($color, 'high-contrast'); }
 
     .bg-gradient.from-#{"" + $color} {
-        --to-bg: #{get-variant($color, 'active')};
-        background: radial-gradient(circle at top left,
-            get-variant($color, 'background') 0%,
-            get-variant($color, 'background') 25%,
-            var(--to-bg) 75%,
-            var(--to-bg) 100%);
+        --to-bg: #{get-variant($color, 'background')};
+        background: linear-gradient(to bottom right,
+            get-variant($color, 'background'),
+            var(--to-bg));
     }
     .fg-gradient.from-#{"" + $color} {
         --to-fg: #{get-variant($color, 'foreground')};
@@ -65,9 +63,37 @@ body {
 
 @each $color in $names {
     .bg-gradient.to-#{"" + $color} {
-        --to-bg: #{get-variant($color, 'active')};
+        --to-bg: #{get-variant($color, 'background')};
     }
     .fg-gradient.to-#{"" + $color} {
         --to-fg: #{get-variant($color, 'foreground')};
+    }
+}
+
+/* Semantic colours get the same gradient vocabulary as the palette, so a gradient
+   can start or end at `accent`, `danger`, and friends instead of only at a hue name. */
+@each $name, $hue in $semantic-colors {
+    .bg-gradient.from-#{"" + $name} {
+        --to-bg: #{get-variant($hue, 'background')};
+        background: linear-gradient(to bottom right,
+            get-variant($hue, 'background'),
+            var(--to-bg));
+    }
+    .fg-gradient.from-#{"" + $name} {
+        --to-fg: #{get-variant($hue, 'foreground')};
+        background: radial-gradient(circle at top left,
+            get-variant($hue, 'active') 0%,
+            get-variant($hue, 'active') 25%,
+            var(--to-fg) 75%,
+            var(--to-fg) 100%);
+    }
+}
+
+@each $name, $hue in $semantic-colors {
+    .bg-gradient.to-#{"" + $name} {
+        --to-bg: #{get-variant($hue, 'background')};
+    }
+    .fg-gradient.to-#{"" + $name} {
+        --to-fg: #{get-variant($hue, 'foreground')};
     }
 }

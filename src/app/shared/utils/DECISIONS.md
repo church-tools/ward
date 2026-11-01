@@ -17,3 +17,7 @@ The **positioned path** (`extractPositionedRuns`) exists for importers that need
 - The line-stream extractor's known fragility is untouched: `TJ` arrays are still discarded there, so such a PDF still yields empty text and an empty import.
 - The positioned path now handles the `'` (T* then show) and `"` (set spacing, T* then show) operators; the line-stream path does not, so text drawn with them still disappears there.
 - Two extractors in one file means two mental models; if the member import is ever revisited, collapsing them is the first thing to try.
+
+## 2026-10-31 — A newly registered table needs a `version` to pull rows that already exist
+
+Sync fetches `updated_at > lastSync` against one per-database watermark, so a table added later starts with an empty store and receives only rows changed after that watermark: on an existing install, nothing. Declaring `version: 1` on the table forces the full pull. Bumping it later forces another, but clears that table's local store first, so it also discards offline writes that have not been sent.

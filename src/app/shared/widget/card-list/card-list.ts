@@ -46,6 +46,9 @@ export class CardList<T, ID extends number | string> {
     readonly columns = input(1);
     readonly getId = input.required<(item: T) => ID>();
     readonly orderByKey = input<keyof T | null | undefined>();
+    /** Sorts the whole list after every merge, for order that is derived (a name) rather than
+     *  stored in an order column. */
+    readonly sortComparator = input<((a: T, b: T) => number)>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
@@ -269,7 +272,15 @@ export class CardList<T, ID extends number | string> {
         const itemCards = this.itemCards();
         moveItemInArray(itemCards, data.fromPosition, data.toPosition);
         const orderByKey = this.orderByKey();
-        if (!orderByKey) return;
+        if (!orderByKey) {
+            // Nothing to persist: restore the derived order rather than leave the cards in a
+            // position that contradicts it until the next update.
+            if (this.sortComparator()) {
+                this.sort(itemCards);
+                this.itemCards.set([...itemCards]);
+            }
+            return;
+        }
         const itemCard = itemCards.find(c => c.item === data.item);
         if (!itemCard) return;
         itemCard.item[orderByKey] = this.getPositionForIndex(itemCards, data.toPosition);
@@ -362,12 +373,25 @@ export class CardList<T, ID extends number | string> {
     }
 
     private sort(itemCards: ItemCard<T, ID>[]) {
+        const comparator = this.sortComparator();
+        if (comparator) {
+            if (itemCards.length > 1)
+                itemCards.sort((a, b) => comparator(a.item, b.item));
+            return;
+        }
         const orderByKey = this.orderByKey();
         if (!orderByKey || itemCards.length <= 1) return;
         itemCards.sort((a, b) => (a.item[orderByKey] as number) - (b.item[orderByKey] as number));
     }
 
     private orderIsCorrect(itemCards: ItemCard<T, ID>[]) {
+        const comparator = this.sortComparator();
+        if (comparator) {
+            for (let i = 1; i < itemCards.length; i++)
+                if (comparator(itemCards[i - 1].item, itemCards[i].item) > 0)
+                    return false;
+            return true;
+        }
         const orderByKey = this.orderByKey();
         if (!orderByKey) return true;
         for (let i = 0; i < itemCards.length; i++)

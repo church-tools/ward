@@ -303,7 +303,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string
-          deleted: boolean
+          deleted?: boolean
           id?: number
           name: string
           unit: number
@@ -410,7 +410,7 @@ export type Database = {
           deleted: boolean
           first_name: string
           gender: Database["public"]["Enums"]["gender"]
-          household: number | null
+          household: number
           id: number
           last_name: string | null
           nick_name: string | null
@@ -423,7 +423,7 @@ export type Database = {
           deleted?: boolean
           first_name: string
           gender: Database["public"]["Enums"]["gender"]
-          household?: number | null
+          household: number
           id: number
           last_name?: string | null
           nick_name?: string | null
@@ -436,7 +436,7 @@ export type Database = {
           deleted?: boolean
           first_name?: string
           gender?: Database["public"]["Enums"]["gender"]
-          household?: number | null
+          household?: number
           id?: number
           last_name?: string | null
           nick_name?: string | null

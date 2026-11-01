@@ -1,5 +1,11 @@
 @use "animation";
 
+:host {
+    display: flex;
+    align-items: center;
+    flex-shrink: 0;
+}
+
 .chevron {
     transition: transform animation.$duration-lg animation.$ease-out;
     &.rotated {
