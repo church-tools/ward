@@ -6,6 +6,8 @@
 @use "./layout-classes";
 @use "./shadow-classes";
 
+$hovering-body: ':has(app-collapse *:hover)';
+
 @mixin card-body-base($gap-size) {
     @include layout.gap($gap-size);
     padding: 1rem;
@@ -70,17 +72,20 @@
         }
     }
 
-    &.selectable-card {
-        cursor: pointer;
+    // A card is interactive when the list links it (`selectable-card`) or when it expands on its own
+    // header. The pointer and the hover lift only show while its interactive part is hovered.
+    &.selectable-card, &:has(app-expandable-card) {
         transition: all animation.$duration animation.$ease-out;
-        &:hover, &.hover {
+        &:hover:not(#{$hovering-body}),
+        &.hover {
+            cursor: pointer;
             background-color: $hover-background-color;
             @include shadow.box(2);
             &.selectable-outlined-card {
                 @include outlined;
             }
         }
-        &:active {
+        &:active:not(#{$hovering-body}) {
             scale: $active-scale;
         }
         &.active {
@@ -102,13 +107,13 @@
                 color: color.get-variant($color, 'foreground');
             }
         }
-        &.selectable-card {
+        &.selectable-card, &:has(app-expandable-card) {
             &.disabled {
                 pointer-events: none;
                 background-color: $disabled-background-transparent-color;
             }
             &:not(.disabled) {
-                &:hover {
+                &:hover:not(#{$hovering-body}) {
                     @include vibrant(300%);
                     &.drop-target {
 
@@ -118,7 +123,7 @@
                         @include shadow.box(2);
                     }
                 }
-                &:active {
+                &:active:not(#{$hovering-body}) {
                     scale: $active-scale;
                     background-color: $active-background-transparent-color;
                     @include vibrant(400%);

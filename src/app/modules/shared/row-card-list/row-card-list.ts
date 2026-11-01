@@ -55,6 +55,8 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly page = input<Page>();
     readonly emptyIcon = input<IconCode | null>(null);
     readonly rowClicked = input<(row: Row<T>) => void>();
+    /** Cards handle their own clicks (an expandable header) but should still look interactive. */
+    readonly selectable = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly orderKey = input<keyof Row<T> | null>(null);
     readonly fixedOrder = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly nudgeFactor = input<number>(1);

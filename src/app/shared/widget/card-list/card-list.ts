@@ -190,9 +190,11 @@ export class CardList<T, ID extends number | string> {
     }
 
     protected onCardMouseEnter(event: MouseEvent, force = false): void {
-        if (!force && !this.cardsSelectable()) return;
         const target = event.currentTarget;
         if (!(target instanceof HTMLElement)) return;
+        const expandable = target.querySelector('app-expandable-card');
+        if (!force && !this.cardsSelectable() && !expandable) return;
+        if (expandable?.querySelector('app-collapse')?.querySelector(':hover')) return;
         this.hoverNudge.nudgeOnMouseEnter(event, target, { distance: 2 * this.nudgeFactor() });
     }
 
@@ -239,7 +241,7 @@ export class CardList<T, ID extends number | string> {
         this._dragDropGroup()?.setDrag(event.source, itemCard.item, card);
     }
 
-    protected onDragEnd(itemCard: ItemCard<T, ID>) {
+    protected onDragEnd(_itemCard: ItemCard<T, ID>) {
         setTimeout(() => {
             this.dragDropMutex.release();
             this._dragDropGroup()?.clearDrag();
@@ -258,13 +260,10 @@ export class CardList<T, ID extends number | string> {
 
     protected onDrop(data: DropData<T>) {
         const fromHere = data.from === this.dropList();
-        data.to === this.dropList()
-            ? fromHere
-                ? this.moveDroppedItem(data)
-                : this.addDroppedItem(data)
-            : fromHere
-                ? this.removeDroppedItem(data)
-                : null;
+        const toHere = data.to === this.dropList();
+        if (toHere && fromHere) this.moveDroppedItem(data);
+        else if (toHere) this.addDroppedItem(data);
+        else if (fromHere) this.removeDroppedItem(data);
     }
 
     private moveDroppedItem(data: DropData<T>) {

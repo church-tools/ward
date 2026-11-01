@@ -41,6 +41,10 @@ export const privateTabs: { [path: string]: PrivateTab } = {
             insideParent: true,
             loadComponent: () => import('./members/member-page').then(m => m.MemberPage),
         },
+        'settings/:household': {
+            insideParent: true,
+            loadComponent: () => import('./members/household-page').then(m => m.HouseholdPage),
+        },
     },
     callings: {
         labelKey: 'CALLINGS', icon: 'briefcase',
@@ -136,6 +140,7 @@ export function getRowRoute(tableRow: TableRow): string {
                     return `/meetings/agenda/${row.agenda}/item/${row.id}`;
             }
         case 'organization': return `/callings/organizations/settings/${row.id}`;
+        case 'household': return `/members/settings/${row.id}`;
         case 'calling': return `/callings/organizations/calling/${row.id}`;
         case 'member_calling':
             switch (currentPage) {

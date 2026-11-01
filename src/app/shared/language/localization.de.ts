@@ -168,7 +168,6 @@ export const LOCALIZATION: Localization = {
     LAST_NAME: "Nachname",
   },
   HOUSEHOLD_PAGE: {
-    NAME: "Name des Haushalts",
   },
   CALLING_PAGE: {
     FULL_NAME: "Vollständiger Name",
