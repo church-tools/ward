@@ -111,6 +111,8 @@ export const LOCALIZATION: Localization = {
     MEETINGS: "Sitzungen",
     MEMBER: "Mitglied",
     MEMBERS: "Mitglieder",
+    HOUSEHOLD: "Haushalt",
+    HOUSEHOLDS: "Haushalte",
     HYMN: "Lied",
     HYMNS: "Lieder",
     MESSAGE: "Ansprache",
@@ -151,8 +153,10 @@ export const LOCALIZATION: Localization = {
   },
   MEMBERS_IMPORT_PAGE: {
     TITLE: "Mitglieder aus LCR importieren",
-    INSTRUCTIONS_1: "Drucken Sie das Mitgliederverzeichnis von LCR als PDF-Datei",
-    INSTRUCTIONS_2: "laden Sie die PDF hier hoch",
+    INSTRUCTIONS_1: "Drucken Sie die Mitgliederliste und die Haushaltsliste aus LCR als PDF-Dateien",
+    INSTRUCTIONS_2: "laden Sie beide PDF-Dateien hier hoch",
+    UPLOAD_MEMBERS_BUTTON: "Mitgliederliste hochladen",
+    UPLOAD_HOUSEHOLDS_BUTTON: "Haushaltsliste hochladen",
     UPLOAD_BUTTON: "PDF hochladen",
     IMPORT_BUTTON: "Mitglieder importieren",
     SELECTED: "ausgewählt",
@@ -162,6 +166,9 @@ export const LOCALIZATION: Localization = {
     FIRST_NAME: "Vorname",
     NICK_NAME: "Spitzname",
     LAST_NAME: "Nachname",
+  },
+  HOUSEHOLD_PAGE: {
+    NAME: "Name des Haushalts",
   },
   CALLING_PAGE: {
     FULL_NAME: "Vollständiger Name",

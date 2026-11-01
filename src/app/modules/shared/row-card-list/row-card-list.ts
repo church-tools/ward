@@ -41,7 +41,9 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
 
     readonly tableName = input.required<T>();
     readonly getQuery = input<({ query: (table: Table<T>) => TableQuery<T, Row<T>[]>, id: string, mutable?: boolean }) | null>(null);
+    readonly sort = input<((a: Row<T>, b: Row<T>) => number)>();
     readonly editable = input<boolean, unknown>(false, { transform: booleanAttribute });
+    readonly dragBetweenLists = input<boolean, unknown>(false, { transform: booleanAttribute });
     readonly gap = input(2);
     readonly columns = input(1);
     readonly cardsVisible = input(true);

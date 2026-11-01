@@ -13,6 +13,7 @@ export async function getViewService<T extends TableName>(injector: Injector, ta
             case 'calling': return (await import('../calling/calling-view.service')).CallingViewService;
             case 'organization': return (await import('../organization/organization-view.service')).OrganizationViewService;
             case 'member': return (await import('../member/member-view.service')).MemberViewService;
+            case 'household': return (await import('../household/household-view.service')).HouseholdViewService;
             case 'member_calling': return (await import('../member-calling/member-calling-view.service')).MemberCallingViewService;
             case 'sacrament_meeting': return (await import('../sacrament-meeting/sacrament-meeting-view.service')).SacramentMeetingViewService;
             case 'message': return (await import('../sacrament-meeting/item/message/message-view.service')).MessageViewService;

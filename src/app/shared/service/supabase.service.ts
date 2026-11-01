@@ -2,6 +2,7 @@ import { AgendaViewService } from '@/modules/agenda/agenda-view.service';
 import { AgendaItemViewService } from '@/modules/agenda/item/agenda-item-view.service';
 import { CallingCalculated } from '@/modules/calling/calling-calculated';
 import { CallingViewService } from '@/modules/calling/calling-view.service';
+import { HouseholdViewService } from '@/modules/household/household-view.service';
 import { MemberCallingCalculated } from '@/modules/member-calling/member-calling-calculated';
 import { MemberCallingViewService } from '@/modules/member-calling/member-calling-view.service';
 import { MemberViewService } from '@/modules/member/member-view.service';
@@ -45,8 +46,10 @@ export class SupabaseService {
         calling: { orderKey: 'position', indexed: { organization: Number, gender_restriction: String },
             calculated: CallingCalculated,
             getSummaryString: inject(CallingViewService).toString },
-        member: { indexed: { profile: Number, gender: String },
+        member: { indexed: { profile: Number, gender: String, household: Number },
             getSummaryString: inject(MemberViewService).toString },
+        household: { version: 1, indexed: { name: String, unit: Number },
+            getSummaryString: inject(HouseholdViewService).toString },
         member_calling: { idKeys: ['member', 'calling'], createOffline: true,
             indexed: { member: Number, calling: Number, state: String },
             calculated: MemberCallingCalculated,
