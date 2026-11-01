@@ -1,5 +1,5 @@
 import { SupabaseService } from "@/shared/service/supabase.service";
-import { computed, inject, Service, signal } from "@angular/core";
+import { inject, Service, signal } from "@angular/core";
 import type { Household } from "./household";
 
 @Service()
@@ -8,7 +8,6 @@ export class HouseholdService {
     private readonly supabase = inject(SupabaseService);
 
     private readonly _expandedIds = signal<ReadonlySet<number>>(new Set<number>());
-    readonly expandedIds = computed(() => this._expandedIds());
 
     isExpanded(id: number): boolean {
         return this._expandedIds().has(id);
@@ -24,10 +23,6 @@ export class HouseholdService {
         else
             next.delete(id);
         this._expandedIds.set(next);
-    }
-
-    toggleExpanded(id: number) {
-        this.setExpanded(id, !this.isExpanded(id));
     }
 
     nameKey(name: string): string {

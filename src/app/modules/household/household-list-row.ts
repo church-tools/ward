@@ -3,7 +3,8 @@ import { Component, computed, inject, input, viewChild } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Button } from '@/shared/form/button/button';
 import { TextInput } from '@/shared/form/text/text-input';
-import Collapse from '@/shared/widget/collapse/collapse';
+import ExpandToggle from '@/shared/widget/expand-toggle/expand-toggle';
+import ExpandableCard from '@/shared/widget/expandable-card/expandable-card';
 import { ListRow } from '../shared/row-card-list/list-row';
 import { HouseholdMemberList } from './household-member-list';
 import { HouseholdService } from './household.service';
@@ -12,30 +13,26 @@ import type { Household } from './household';
 @Component({
     selector: 'app-household-list-row',
     template: `
-        <div class="row items-center gap-2 full-width m-2">
-            <app-button type="subtle" class="icon-only"
-                [icon]="expanded() ? 'chevron_down' : 'chevron_up'"
-                (onClick)="toggle()"/>
-            <app-text-input #nameInput class="grow-1" [value]="row().name"
-                (valueChange)="rename($event)"
-                placeholder="{{ 'HOUSEHOLD_PAGE.NAME' | localize }}"/>
-            <span class="subtle-text no-text-wrap">
-                {{ memberList()?.memberCount() ?? 0 }}
-            </span>
-            <app-button icon="delete" type="subtle" class="icon-only"
-                [title]="deleteBlocked() ? ('HOUSEHOLD_PAGE.DELETE_BLOCKED' | localize) : ('DELETE' | localize)"
-                [disabled]="deleteBlocked()"
-                (onClick)="remove()"/>
-        </div>
-        <app-collapse [show]="expanded()">
+        <app-expandable-card #card [expanded]="expanded()" (expandedChange)="setExpanded($event)">
+            <div cardHeader class="row items-center gap-2 full-width m-2">
+                <app-expand-toggle [expanded]="expanded()" (toggle)="card.toggle()"/>
+                <app-text-input class="grow-1" [value]="row().name"
+                    (valueChange)="rename($event)"
+                    placeholder="{{ 'HOUSEHOLD_PAGE.NAME' | localize }}"/>
+                <span class="subtle-text no-text-wrap">{{ memberList()?.memberCount() ?? 0 }}</span>
+                <app-button icon="delete" type="subtle" class="icon-only"
+                    [title]="deleteBlocked() ? ('HOUSEHOLD_PAGE.DELETE_BLOCKED' | localize) : ('DELETE' | localize)"
+                    [disabled]="deleteBlocked()"
+                    (onClick)="remove()"/>
+            </div>
             <app-household-member-list
                 [householdId]="row().id"
                 [activeMemberId]="activeMemberId()"
                 [page]="page()"/>
-        </app-collapse>
+        </app-expandable-card>
     `,
-    imports: [LocalizePipe, Button, TextInput, Collapse, HouseholdMemberList],
-    host: { class: 'full-width column' },
+    imports: [LocalizePipe, Button, TextInput, ExpandToggle, ExpandableCard, HouseholdMemberList],
+    host: { class: 'full-width' },
 })
 export class HouseholdListRow extends ListRow<'household'> {
 
@@ -49,8 +46,8 @@ export class HouseholdListRow extends ListRow<'household'> {
     protected readonly expanded = computed(() => this.householdService.isExpanded(this.row().id));
     protected readonly deleteBlocked = computed(() => (this.memberList()?.memberCount() ?? 0) > 0);
 
-    protected toggle() {
-        this.householdService.toggleExpanded(this.row().id);
+    protected setExpanded(expanded: boolean) {
+        this.householdService.setExpanded(this.row().id, expanded);
     }
 
     protected async rename(name: string | null) {

@@ -1,13 +1,12 @@
-import { Member } from '@/modules/member/member';
-import { MemberListInsert } from '@/modules/member/member-list-insert';
-import { MemberListRow } from '@/modules/member/member-list-row';
+import { Household } from '@/modules/household/household';
+import { HouseholdListInsert } from '@/modules/household/household-list-insert';
+import { HouseholdListRow } from '@/modules/household/household-list-row';
 import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
 import { Table } from '@/modules/shared/table.types';
 import LinkButton from '@/shared/form/button/link/link-button';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { getRowRoute } from '../private.routes';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
 import { PrivatePage } from '../shared/private-page';
 
@@ -27,18 +26,18 @@ import { PrivatePage } from '../shared/private-page';
                     </app-link-button>
                 </div>
                 <app-row-card-list
-                    tableName="member"
+                    tableName="household"
                     [getQuery]="getQuery"
+                    [sort]="sortHouseholds"
                     editable
-                    [page]="this"
-                    [getUrl]="getUrl"
-                    [activeId]="activeMemberId()">
+                    [page]="this">
                     <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
-                        <app-member-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                        <app-household-list-row [row]="row" [page]="page" [onRemove]="onRemove"
+                            [activeMemberId]="activeMemberId()"/>
                     </ng-template>
                     <ng-template #insertTemplate let-functions
                         let-prepareInsert="prepareInsert" let-context="context">
-                        <app-member-list-insert
+                        <app-household-list-insert
                             [insert]="functions.insert"
                             [cancel]="functions.cancel"
                             [prepareInsert]="prepareInsert"
@@ -52,8 +51,8 @@ import { PrivatePage } from '../shared/private-page';
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [LocalizePipe, RowCardList, MemberListRow, MemberListInsert, LinkButton,
-    LinkButton, DrawerRouterOutlet],
+    imports: [LocalizePipe, RowCardList, HouseholdListRow, HouseholdListInsert, LinkButton,
+        DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
 export class MembersPage extends PrivatePage {
@@ -62,15 +61,13 @@ export class MembersPage extends PrivatePage {
     private readonly router = inject(Router);
 
     protected readonly activeMemberId = signal<number | null>(null);
-    
+
     protected readonly getQuery = {
-        query: (table: Table<'member'>) => table.readAll(),
-        id: 'members',
+        query: (table: Table<'household'>) => table.readAll(),
+        id: 'households',
     };
 
-    protected getUrl = (member: Member.Row | null) =>  member
-        ? getRowRoute({ table: 'member', row: member })
-        : '/members';
+    protected readonly sortHouseholds = (a: Household.Row, b: Household.Row) => compareText(a.name, b.name);
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });
@@ -79,4 +76,8 @@ export class MembersPage extends PrivatePage {
     protected onActivate(id: string | null) {
         this.activeMemberId.set(id ? +id : null);
     }
+}
+
+function compareText(a: string, b: string) {
+    return a.localeCompare(b, undefined, { sensitivity: 'base' }) || a.localeCompare(b);
 }

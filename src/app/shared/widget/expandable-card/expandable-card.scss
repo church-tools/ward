@@ -1,0 +1,10 @@
+:host {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+}
+
+/* Keeps the projected header row in the card's own layout while still catching its clicks. */
+.contents {
+    display: contents;
+}

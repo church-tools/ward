@@ -2,58 +2,88 @@ import { PDFArray, PDFContext, PDFDict, PDFDocument, PDFName, PDFPage,
     PDFRawStream, PDFRef, PDFStream, decodePDFRawStream } from 'pdf-lib';
 
 const SAFE_TEXT_DECODER = typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8') : undefined;
-const TD_HORIZONTAL_SPACE_THRESHOLD = 40;
-const TD_VERTICAL_NEWLINE_THRESHOLD = 1;
+const DEFAULT_ROW_TOLERANCE = 6;
+
+export type PdfTextRun = { text: string; x: number; y: number };
+export type PdfRow = { y: number; runs: PdfTextRun[] };
 
 type FontInfo = { name: string; unicodeMap?: ToUnicodeMap };
 type ToUnicodeMap = { map: Map<string, string>; codeLengths: number[] };
-type TextState = { currentFont?: FontInfo };
+type TextState = { currentFont?: FontInfo; x: number; y: number };
 type Operand =
     | { kind: 'name'; value: string }
     | { kind: 'number'; value: number }
     | { kind: 'bytes'; value: Uint8Array };
 type Token = Operand | { kind: 'operator'; value: string };
 
-export async function extractTextFromPdf(file: File): Promise<string> {
-    if (!file) return '';
+/** One entry per page. Each run carries its absolute Tm origin. */
+export async function extractTextRuns(file: File): Promise<PdfTextRun[][]> {
+    if (!file) return [];
     try {
         const arrayBuffer = await file.arrayBuffer();
         const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
         const context = pdf.context;
-        const pageTexts: string[] = [];
-        for (const page of pdf.getPages()) {
-            const pageText = extractTextFromPage(page, context);
-            if (pageText) pageTexts.push(pageText);
-        }
-        return pageTexts.join('\n\n').trim();
+        const pages: PdfTextRun[][] = [];
+        for (const page of pdf.getPages()) pages.push(extractRunsFromPage(page, context));
+        return pages;
     } catch (error) {
         console.error('Failed to extract text from PDF', error);
-        return '';
+        return [];
     }
 }
 
-function extractTextFromPage(page: PDFPage, context: PDFContext): string {
+/** Group runs into visual rows by y (default tolerance 6), rows sorted ascending by y,
+ *  runs within a row sorted ascending by x. */
+export function groupRunsIntoRows(runs: PdfTextRun[], tolerance = DEFAULT_ROW_TOLERANCE): PdfRow[] {
+    if (!runs.length) return [];
+    const sorted = [...runs].sort((a, b) => a.y - b.y || a.x - b.x);
+    const rows: PdfRow[] = [];
+    let current: PdfRow | undefined;
+
+    for (const run of sorted) {
+        if (current && Math.abs(run.y - current.y) <= tolerance) current.runs.push(run);
+        else {
+            current = { y: run.y, runs: [run] };
+            rows.push(current);
+        }
+    }
+
+    for (const row of rows) row.runs.sort((a, b) => a.x - b.x);
+    return rows;
+}
+
+/** Concatenate a row's runs in x order without inserting separators, then normalize whitespace. */
+export function joinRuns(runs: PdfTextRun[]): string {
+    if (!runs.length) return '';
+    return [...runs]
+        .sort((a, b) => a.x - b.x)
+        .map(run => run.text)
+        .join('')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function extractRunsFromPage(page: PDFPage, context: PDFContext): PdfTextRun[] {
     const contents = page.node.get(PDFName.of('Contents'));
     const streams = collectContentStreams(contents, context);
-    if (!streams.length) return '';
+    if (!streams.length) return [];
 
     const fonts = buildFontMap(page, context);
-    const state: TextState = {};
-    const chunks: string[] = [];
+    const state: TextState = { x: 0, y: 0 };
+    const runs: PdfTextRun[] = [];
 
     for (const stream of streams) {
         const rawContent = decodeStream(stream);
         if (!rawContent) continue;
-        const segments = interpretContent(rawContent, fonts, state);
-        if (segments.length) chunks.push(...segments);
+        runs.push(...interpretContent(rawContent, fonts, state));
     }
 
-    return normalizeChunks(chunks);
+    return runs;
 }
 
-function interpretContent(content: string, fonts: Record<string, FontInfo>, state: TextState): string[] {
+function interpretContent(content: string, fonts: Record<string, FontInfo>, state: TextState): PdfTextRun[] {
     const scanner = new ContentScanner(content);
-    const segments: string[] = [];
+    const runs: PdfTextRun[] = [];
     const stack: Operand[] = [];
     let currentFont = state.currentFont;
 
@@ -72,7 +102,16 @@ function interpretContent(content: string, fonts: Record<string, FontInfo>, stat
     const emitBytes = (bytes?: Uint8Array) => {
         if (!bytes) return;
         const text = decodeBytes(bytes, currentFont);
-        if (text) segments.push(text);
+        if (text) runs.push({ text, x: state.x, y: state.y });
+    };
+    const readMatrixTranslation = () => {
+        const f = popNumber();
+        const e = popNumber();
+        popNumber();
+        popNumber();
+        popNumber();
+        popNumber();
+        return { e, f };
     };
 
     let token: Token | undefined;
@@ -98,15 +137,19 @@ function interpretContent(content: string, fonts: Record<string, FontInfo>, stat
             case 'TD': {
                 const ty = popNumber();
                 const tx = popNumber();
-                if (typeof ty === 'number' && Math.abs(ty) > TD_VERTICAL_NEWLINE_THRESHOLD) appendLineBreak(segments);
-                else if (typeof tx === 'number' && Math.abs(tx) > TD_HORIZONTAL_SPACE_THRESHOLD) segments.push(' ');
+                if (typeof tx === 'number') state.x += tx;
+                if (typeof ty === 'number') state.y += ty;
+                break;
+            }
+            case 'Tm': {
+                const { e, f } = readMatrixTranslation();
+                if (typeof e === 'number') state.x = e;
+                if (typeof f === 'number') state.y = f;
                 break;
             }
             case 'T*':
-            case 'Tm':
             case 'BT':
             case 'ET':
-                appendLineBreak(segments);
                 break;
         }
 
@@ -114,7 +157,7 @@ function interpretContent(content: string, fonts: Record<string, FontInfo>, stat
     }
 
     state.currentFont = currentFont;
-    return segments;
+    return runs;
 }
 
 class ContentScanner {
@@ -484,36 +527,6 @@ function decodeWithToUnicode(bytes: Uint8Array, unicodeMap: ToUnicodeMap): strin
         if (!matched) parts.push(String.fromCharCode(bytes[idx++]));
     }
     return parts.join('');
-}
-
-function appendLineBreak(segments: string[]): void {
-    if (!segments.length || segments[segments.length - 1] === '\n') return;
-    segments.push('\n');
-}
-
-function normalizeChunks(chunks: string[]): string {
-    if (!chunks.length) return '';
-    const lines: string[] = [];
-    let currentLine = '';
-    const pushLine = () => {
-        const cleaned = currentLine.replace(/\s+/g, ' ').trim();
-        if (cleaned) lines.push(cleaned);
-        currentLine = '';
-    };
-    for (const chunk of chunks) {
-        if (chunk === '\n') {
-            pushLine();
-            continue;
-        }
-        const normalized = chunk.replace(/\s+/g, ' ');
-        if (!normalized.trim()) {
-            if (normalized.includes(' ') && currentLine && !currentLine.endsWith(' ')) currentLine += ' ';
-            continue;
-        }
-        currentLine += normalized;
-    }
-    pushLine();
-    return lines.join('\n');
 }
 
 function bytesToAscii(bytes: Uint8Array): string {

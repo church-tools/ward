@@ -1,0 +1,6 @@
+<div class="contents" (click)="onHeaderClick($event)">
+    <ng-content select="[cardHeader]"/>
+</div>
+<app-collapse [show]="expanded()">
+    <ng-content/>
+</app-collapse>
