@@ -1,5 +1,6 @@
 import { PDFArray, PDFContext, PDFDict, PDFDocument, PDFName, PDFPage,
     PDFRawStream, PDFRef, PDFStream, decodePDFRawStream } from 'pdf-lib';
+import type { TextRun } from './pdf-positioned.types';
 
 const SAFE_TEXT_DECODER = typeof TextDecoder !== 'undefined' ? new TextDecoder('utf-8') : undefined;
 const TD_HORIZONTAL_SPACE_THRESHOLD = 40;
@@ -8,11 +9,19 @@ const TD_VERTICAL_NEWLINE_THRESHOLD = 1;
 type FontInfo = { name: string; unicodeMap?: ToUnicodeMap };
 type ToUnicodeMap = { map: Map<string, string>; codeLengths: number[] };
 type TextState = { currentFont?: FontInfo };
+type PositionedTextState = TextState & {
+    x?: number;
+    y?: number;
+    leading?: number;
+    fontSize?: number;
+};
 type Operand =
     | { kind: 'name'; value: string }
     | { kind: 'number'; value: number }
     | { kind: 'bytes'; value: Uint8Array };
-type Token = Operand | { kind: 'operator'; value: string };
+type ArrayToken = { kind: 'array'; items: ArrayItem[] };
+type ArrayItem = Operand | ArrayToken;
+type Token = Operand | ArrayToken | { kind: 'operator'; value: string };
 
 export async function extractTextFromPdf(file: File): Promise<string> {
     if (!file) return '';
@@ -29,6 +38,43 @@ export async function extractTextFromPdf(file: File): Promise<string> {
     } catch (error) {
         console.error('Failed to extract text from PDF', error);
         return '';
+    }
+}
+
+/**
+ * Positioned extraction path. Independent of `extractTextFromPdf`: it never
+ * touches that function's scanner configuration, so the line-stream output is
+ * unchanged.
+ */
+export async function extractPositionedRuns(file: File): Promise<TextRun[]> {
+    if (!file) return [];
+    try {
+        const arrayBuffer = await file.arrayBuffer();
+        const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+        const context = pdf.context;
+        const runs: TextRun[] = [];
+        const pages = pdf.getPages();
+
+        for (let pageIndex = 0; pageIndex < pages.length; pageIndex++) {
+            const page = pages[pageIndex];
+            const contents = page.node.get(PDFName.of('Contents'));
+            const streams = collectContentStreams(contents, context);
+            if (!streams.length) continue;
+
+            const fonts = buildFontMap(page, context);
+            const state: PositionedTextState = {};
+
+            for (let streamIndex = 0; streamIndex < streams.length; streamIndex++) {
+                const rawContent = decodeStream(streams[streamIndex]);
+                if (!rawContent) continue;
+                runs.push(...runsFromContentStream(rawContent, fonts, state, pageIndex, streamIndex));
+            }
+        }
+
+        return runs;
+    } catch (error) {
+        console.error('Failed to extract positioned runs from PDF', error);
+        return [];
     }
 }
 
@@ -54,7 +100,7 @@ function extractTextFromPage(page: PDFPage, context: PDFContext): string {
 function interpretContent(content: string, fonts: Record<string, FontInfo>, state: TextState): string[] {
     const scanner = new ContentScanner(content);
     const segments: string[] = [];
-    const stack: Operand[] = [];
+    const stack: ArrayItem[] = [];
     let currentFont = state.currentFont;
 
     const popNumber = () => {
@@ -117,11 +163,194 @@ function interpretContent(content: string, fonts: Record<string, FontInfo>, stat
     return segments;
 }
 
+/**
+ * Extracts positioned runs from one content stream.
+ *
+ * Tracks the text matrix only: `Tm` sets the origin, `Td`/`TD`/`TL`/`T*`
+ * advance it, `Tf` updates font and size, and each `Tj`/`TJ`/`'`/`"` emits a
+ * run. `page` and `stream` are both 0-based.
+ *
+ * Deliberately ignored for now: `cm`, `q`, and `Q`. A non-identity CTM
+ * (scaling, rotation, translation) is therefore not applied, so coordinates
+ * are text-space rather than device-space.
+ *
+ * Also deliberately ignored for now: `Do` and Form XObjects. Only the page's
+ * `/Contents` streams are read, so a report drawn inside a Form XObject yields
+ * no runs at all — a silent total failure rather than a degraded result.
+ */
+export function runsFromContentStream(
+    content: string,
+    fonts: Record<string, FontInfo>,
+    state: PositionedTextState,
+    page: number,
+    stream: number,
+): TextRun[] {
+    const scanner = new ContentScanner(content, true);
+    const runs: TextRun[] = [];
+    const stack: ArrayItem[] = [];
+    let currentFont = state.currentFont;
+    let x = state.x ?? 0;
+    let y = state.y ?? 0;
+    let leading = state.leading ?? 0;
+    let fontSize = state.fontSize;
+
+    const popNumber = () => {
+        const operand = stack.pop();
+        return operand?.kind === 'number' ? operand.value : undefined;
+    };
+    const popName = () => {
+        const operand = stack.pop();
+        return operand?.kind === 'name' ? operand.value : undefined;
+    };
+    const popBytes = () => {
+        const operand = stack.pop();
+        return operand?.kind === 'bytes' ? operand.value : undefined;
+    };
+    const popArray = () => {
+        const operand = stack.pop();
+        return operand?.kind === 'array' ? operand : undefined;
+    };
+    /**
+     * Emits a run at the current origin, then moves the origin past the shown
+     * text. The advance is only an estimate: glyph widths are NOT resolved from
+     * the font (no `/Widths` or `/FontDescriptor` lookup), so consecutive show
+     * operators drift from the real position. A `Tm` between runs makes the
+     * origin exact again.
+     */
+    const showText = (text: string, kerningTotal = 0) => {
+        if (text) runs.push({ text, x, y, page, stream, font: currentFont?.name, size: fontSize });
+        x += estimateTextAdvance(text, fontSize, kerningTotal);
+    };
+    const decodeArray = (items: ArrayItem[]): string => {
+        const parts: string[] = [];
+        for (const item of items) {
+            if (item.kind === 'bytes') parts.push(decodeBytes(item.value, currentFont));
+        }
+        return parts.join('');
+    };
+    const sumKerning = (items: ArrayItem[]): number => {
+        let total = 0;
+        for (const item of items) if (item.kind === 'number') total += item.value;
+        return total;
+    };
+
+    let token: Token | undefined;
+    while ((token = scanner.next())) {
+        if (token.kind !== 'operator') {
+            stack.push(token);
+            continue;
+        }
+
+        switch (token.value) {
+            case 'BT':
+                // Text matrix resets to identity; text state (font, leading) persists.
+                x = 0;
+                y = 0;
+                break;
+            case 'ET':
+                // Runs are emitted eagerly, so there is nothing to flush here.
+                break;
+            case 'Tm': {
+                const operands: (number | undefined)[] = [];
+                for (let idx = 0; idx < 6; idx++) operands.unshift(popNumber());
+                if (operands.every((value): value is number => typeof value === 'number')) {
+                    x = operands[4];
+                    y = operands[5];
+                }
+                break;
+            }
+            case 'Td':
+            case 'TD': {
+                const ty = popNumber();
+                const tx = popNumber();
+                if (typeof tx === 'number') x += tx;
+                if (typeof ty === 'number') {
+                    y += ty;
+                    if (token.value === 'TD') leading = -ty;
+                }
+                break;
+            }
+            case 'TL':
+                leading = popNumber() ?? leading;
+                break;
+            case 'T*':
+                y -= leading;
+                break;
+            case 'Tf': {
+                const size = popNumber();
+                const fontName = popName();
+                if (typeof size === 'number') fontSize = size;
+                const normalizedName = fontName ? trimName(fontName) : undefined;
+                // No fallback to the previous font: an unresolved name must not
+                // decode later bytes with another font's ToUnicode map (that
+                // produces garbage). Clearing it makes decoding fall back to the
+                // ASCII/identity path instead.
+                currentFont = normalizedName ? fonts[normalizedName] : undefined;
+                break;
+            }
+            case 'Tj':
+                showText(decodeBytes(popBytes() ?? new Uint8Array(), currentFont));
+                break;
+            case 'TJ': {
+                const array = popArray();
+                if (array) showText(decodeArray(array.items), sumKerning(array.items));
+                break;
+            }
+            case "'": {
+                // `'` = T*, then show text. The word/char spacing it ignores is
+                // irrelevant to the origin.
+                const bytes = popBytes();
+                y -= leading;
+                showText(decodeBytes(bytes ?? new Uint8Array(), currentFont));
+                break;
+            }
+            case '"': {
+                // `"` = set word spacing, set char spacing, T*, show text.
+                // Operands arrive as `aw ac string`, so pop them in reverse.
+                const bytes = popBytes();
+                popNumber(); // ac — character spacing, ignored
+                popNumber(); // aw — word spacing, ignored
+                y -= leading;
+                showText(decodeBytes(bytes ?? new Uint8Array(), currentFont));
+                break;
+            }
+            // `cm` (CTM), `q`/`Q` (graphics state) and `Do` (Form XObjects) are
+            // intentionally ignored.
+        }
+
+        stack.length = 0;
+    }
+
+    state.currentFont = currentFont;
+    state.x = x;
+    state.y = y;
+    state.leading = leading;
+    state.fontSize = fontSize;
+    return runs;
+}
+
+/**
+ * Estimated advance for one show operation, in text space. Widths are not
+ * resolved from the font: every character is assumed to be half an em, and
+ * `TJ` kerning numbers (`n` moves the pen by `-n/1000 * size`) are applied on
+ * top. Exact after any `Tm`, approximate in between.
+ */
+function estimateTextAdvance(text: string, fontSize: number | undefined, kerningTotal = 0): number {
+    const size = fontSize ?? 0;
+    return size * 0.5 * text.length - (kerningTotal / 1000) * size;
+}
+
 class ContentScanner {
     private index = 0;
-    constructor(private readonly source: string) {}
+    private pending?: Token;
+    constructor(private readonly source: string, private readonly emitArrays = false) {}
 
     next(): Token | undefined {
+        if (this.pending) {
+            const pending = this.pending;
+            this.pending = undefined;
+            return pending;
+        }
         while (this.index < this.source.length) {
             this.skipWhitespace();
             if (this.index >= this.source.length) return undefined;
@@ -149,6 +378,7 @@ class ContentScanner {
                 continue;
             }
             if (char === '[') {
+                if (this.emitArrays) return this.readArray();
                 this.skipArray();
                 continue;
             }
@@ -290,6 +520,26 @@ class ContentScanner {
             }
             this.index++;
         }
+    }
+
+    private readArray(): ArrayToken {
+        const items: ArrayItem[] = [];
+        this.index++;
+        while (this.index < this.source.length) {
+            const token = this.next();
+            // EOF before the closing `]`: the array is unterminated, so there is
+            // nothing left to drain — bail out with what was collected.
+            if (!token) break;
+            if (token.kind === 'operator') {
+                // Only `]` can legally appear in an array. Anything else means
+                // the `[` was never closed, so hand the operator back instead of
+                // swallowing it (and every later token) as array content.
+                if (token.value !== ']') this.pending = token;
+                break;
+            }
+            items.push(token);
+        }
+        return { kind: 'array', items };
     }
 
     private skipWhitespace(): void {
