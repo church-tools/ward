@@ -333,6 +333,55 @@ export type Database = {
           },
         ]
       }
+      household_ministered_in: {
+        Row: {
+          created_at: string
+          deleted: boolean
+          household: number
+          ministering_area: number
+          unit: number
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          deleted?: boolean
+          household: number
+          ministering_area: number
+          unit: number
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          deleted?: boolean
+          household?: number
+          ministering_area?: number
+          unit?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_ministered_in_household_unit_fkey"
+            columns: ["household", "unit"]
+            isOneToOne: false
+            referencedRelation: "household"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministered_in_ministering_area_unit_fkey"
+            columns: ["ministering_area", "unit"]
+            isOneToOne: false
+            referencedRelation: "ministering_area"
+            referencedColumns: ["id", "unit"]
+          },
+          {
+            foreignKeyName: "member_ministered_in_unit_fkey"
+            columns: ["unit"]
+            isOneToOne: false
+            referencedRelation: "unit"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hymn: {
         Row: {
           deleted: boolean
@@ -611,63 +660,10 @@ export type Database = {
           },
         ]
       }
-      member_ministered_in: {
-        Row: {
-          created_at: string
-          deleted: boolean
-          id: number
-          member: number
-          ministering_area: number
-          unit: number
-          updated_at: string | null
-        }
-        Insert: {
-          created_at?: string
-          deleted?: boolean
-          id?: number
-          member: number
-          ministering_area: number
-          unit: number
-          updated_at?: string | null
-        }
-        Update: {
-          created_at?: string
-          deleted?: boolean
-          id?: number
-          member?: number
-          ministering_area?: number
-          unit?: number
-          updated_at?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "member_ministered_in_member_unit_fkey"
-            columns: ["member", "unit"]
-            isOneToOne: false
-            referencedRelation: "member"
-            referencedColumns: ["id", "unit"]
-          },
-          {
-            foreignKeyName: "member_ministered_in_ministering_area_unit_fkey"
-            columns: ["ministering_area", "unit"]
-            isOneToOne: false
-            referencedRelation: "ministering_area"
-            referencedColumns: ["id", "unit"]
-          },
-          {
-            foreignKeyName: "member_ministered_in_unit_fkey"
-            columns: ["unit"]
-            isOneToOne: false
-            referencedRelation: "unit"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       member_ministering_in: {
         Row: {
           created_at: string
           deleted: boolean
-          id: number
           member: number
           ministering_area: number
           unit: number
@@ -676,7 +672,6 @@ export type Database = {
         Insert: {
           created_at?: string
           deleted?: boolean
-          id?: number
           member: number
           ministering_area: number
           unit: number
@@ -685,7 +680,6 @@ export type Database = {
         Update: {
           created_at?: string
           deleted?: boolean
-          id?: number
           member?: number
           ministering_area?: number
           unit?: number
