@@ -294,6 +294,8 @@ export type Database = {
       }
       household: {
         Row: {
+          color_1: Database["public"]["Enums"]["color"]
+          color_2: Database["public"]["Enums"]["color"]
           created_at: string
           deleted: boolean
           id: number
@@ -302,6 +304,8 @@ export type Database = {
           updated_at: string | null
         }
         Insert: {
+          color_1: Database["public"]["Enums"]["color"]
+          color_2: Database["public"]["Enums"]["color"]
           created_at?: string
           deleted?: boolean
           id?: number
@@ -310,6 +314,8 @@ export type Database = {
           updated_at?: string | null
         }
         Update: {
+          color_1?: Database["public"]["Enums"]["color"]
+          color_2?: Database["public"]["Enums"]["color"]
           created_at?: string
           deleted?: boolean
           id?: number

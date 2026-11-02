@@ -1,4 +1,3 @@
-import { HouseholdService } from "@/modules/household/household.service";
 import { Member } from "@/modules/member/member";
 import { MemberViewService } from "@/modules/member/member-view.service";
 import { ProfileService } from "@/modules/profile/profile.service";
@@ -9,6 +8,7 @@ import LinkButton from "@/shared/form/button/link/link-button";
 import Checkbox from "@/shared/form/checkbox/checkbox";
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SupabaseService } from "@/shared/service/supabase.service";
+import { randomColorPair } from "@/shared/utils/color-utils";
 import { FileType } from "@/shared/utils/file-utils";
 import { xeffect } from "@/shared/utils/signal-utils";
 import Collapse from "@/shared/widget/collapse/collapse";
@@ -49,7 +49,6 @@ type ImportInfo = {
 export class MembersImportPage extends PrivatePage {
 
     private readonly supabase = inject(SupabaseService);
-    private readonly householdService = inject(HouseholdService);
     protected readonly memberView = inject(MemberViewService);
     protected readonly profileService = inject(ProfileService);
 
@@ -218,16 +217,31 @@ export class MembersImportPage extends PrivatePage {
             .filter(household => household.members.length);
         const selectedUnlinked = info.unlinked.filter(member => member.import && !member.duplicate);
 
-        const singletonName = (member: ImportMember) => this.householdService.singletonName(member);
-        const householdsByName = await this.householdService.findOrCreateMany(profile.unit, [
+        const names = [
             ...selectedHouseholds.map(household => household.name),
             ...selectedUnlinked.map(singletonName),
-        ]);
+        ];
+
+        const existing = await this.supabase.sync.from('household').find().eq('unit', profile.unit).get();
+        const householdsByName = new Map(existing.map(household => [nameKey(household.name), household]));
+        const missing = new Map<string, string>();
+        for (const name of names) {
+            const trimmed = name.trim();
+            const key = nameKey(trimmed);
+            if (trimmed && !householdsByName.has(key) && !missing.has(key))
+                missing.set(key, trimmed);
+        }
+        const created = missing.size
+            ? await this.supabase.sync.from('household').insert(
+                [...missing.values()].map(name => ({ name, unit: profile.unit, ...randomColorPair() })))
+            : [];
+        for (const household of created)
+            householdsByName.set(nameKey(household.name), household);
 
         let nextId = await this.supabase.sync.from('member').findLargestId() ?? 0;
         const inserts: Member.Insert[] = [];
         const addMember = (member: ImportMember, householdName: string) => {
-            const household = householdsByName.get(this.householdService.nameKey(householdName));
+            const household = householdsByName.get(nameKey(householdName));
             if (!household) return;
             inserts.push({
                 first_name: member.first_name,
@@ -250,6 +264,14 @@ export class MembersImportPage extends PrivatePage {
         await this.supabase.sync.from('member').insert(inserts);
         this.closePage?.();
     }
+}
+
+function nameKey(name: string): string {
+    return name.trim().replace(/\s+/g, ' ').toLowerCase();
+}
+
+function singletonName(member: { first_name: string, last_name?: string | null }): string {
+    return `${member.last_name ?? ''}, ${member.first_name}`.replace(/^,\s*/, '');
 }
 
 function duplicateKey(member: { first_name: string, last_name?: string | null }): string {

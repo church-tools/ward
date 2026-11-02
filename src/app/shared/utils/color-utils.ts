@@ -37,3 +37,6 @@ export const PALETTE_COLORS = [
 
 export type PaletteColor = typeof PALETTE_COLORS[number];
 export type ColorName = typeof SEMANTIC_COLORS[number] | PaletteColor;
+
+export const randomColor = () => PALETTE_COLORS[Math.floor(Math.random() * PALETTE_COLORS.length)];
+export const randomColorPair = () => ({ color_1: randomColor(), color_2: randomColor() });

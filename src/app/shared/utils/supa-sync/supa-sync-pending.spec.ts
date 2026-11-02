@@ -22,6 +22,7 @@ const STALE_ROW: RemoteRow<TestDb, 'member'> = {
 /** Minimal Supabase stub: no server state, but it records what the client sends. */
 function createMockClient(syncRows: RemoteRow<TestDb, 'member'>[] = []) {
     const sent: { table: string; row: RemoteRow<TestDb, 'member'> }[] = [];
+    const upserted: RemoteRow<TestDb, 'member'>[][] = [];
     const channel = {
         on: () => channel,
         subscribe: () => channel,
@@ -34,7 +35,12 @@ function createMockClient(syncRows: RemoteRow<TestDb, 'member'>[] = []) {
                 throwOnError: async () => ({ data: syncRows }),
             }),
         }),
-        upsert: () => ({ throwOnError: async () => ({ data: [] }) }),
+        upsert: (rows: RemoteRow<TestDb, 'member'>[] | RemoteRow<TestDb, 'member'>) => {
+            const data = Array.isArray(rows) ? rows : [rows];
+            upserted.push(data);
+            const result = { throwOnError: async () => ({ data }) };
+            return { ...result, select: () => result };
+        },
         insert: () => ({ select: () => ({ throwOnError: async () => ({ data: [] }) }) }),
         update: (row: RemoteRow<TestDb, 'member'>) => ({
             eq: () => ({
@@ -49,6 +55,7 @@ function createMockClient(syncRows: RemoteRow<TestDb, 'member'>[] = []) {
     });
     return {
         sent,
+        upserted,
         client: {
             from,
             channel: () => channel,
@@ -135,6 +142,15 @@ describe('SupaSync remote changes vs. pending local edits', () => {
 
         const row = await table.read(1).get();
         expect(row?.value).toBe('Martin');
+    });
+
+    it('revives a soft-deleted remote row instead of colliding with its primary key', async () => {
+        const { table, mock } = await createSync();
+
+        await table.insert({ value: 'New' });
+
+        expect(mock.upserted).toHaveLength(1);
+        expect(mock.upserted[0]).toMatchObject([{ id: 1, value: 'New', deleted: false }]);
     });
 
     it('does not let a background sync overwrite a pending local edit', async () => {

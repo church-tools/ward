@@ -322,7 +322,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 }
             }
             const { data } = await this.supabaseClient.from(this.name)
-                .insert(rows)
+                .upsert(rows.map(row => ({ ...row, [this.deletedKey]: false } as Insert<D, T>)))
                 .select("*")
                 .throwOnError();
             const rowsWithCalculatedValues = await this.addCalculatedValues(data as LocalRow<D, T, C>[]);
