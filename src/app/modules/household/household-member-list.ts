@@ -6,6 +6,7 @@ import { MemberListInsert } from '../member/member-list-insert';
 import { MemberListRow } from '../member/member-list-row';
 import { RowCardList } from '../shared/row-card-list/row-card-list';
 import type { Table } from '../shared/table.types';
+import { Household } from './household';
 
 @Component({
     selector: 'app-household-member-list',
@@ -20,7 +21,8 @@ import type { Table } from '../shared/table.types';
             [prepareInsert]="prepareInsert"
             [page]="page()">
             <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
-                <app-member-list-row [row]="row" [page]="page" [onRemove]="onRemove"/>
+                <app-member-list-row [row]="row" [page]="page" [onRemove]="onRemove"
+                    [household]="household().name"/>
             </ng-template>
             <ng-template #insertTemplate let-functions
                 let-prepareInsert="prepareInsert" let-context="context">
@@ -37,7 +39,7 @@ import type { Table } from '../shared/table.types';
 })
 export class HouseholdMemberList {
 
-    readonly householdId = input.required<number>();
+    readonly household = input.required<Household.Row>();
     readonly activeMemberId = input<number | null>(null);
     readonly page = input<Page>();
 
@@ -46,7 +48,7 @@ export class HouseholdMemberList {
     readonly memberCount = computed(() => this.list()?.rowCount() ?? 0);
 
     protected readonly getQuery = computed(() => {
-        const householdId = this.householdId();
+        const householdId = this.household().id;
         return {
             query: (table: Table<'member'>) => table.find().eq('household', householdId),
             id: `household_members_${householdId}`,
@@ -57,7 +59,7 @@ export class HouseholdMemberList {
         compareText(a.last_name ?? '', b.last_name ?? '') || compareText(a.first_name, b.first_name);
 
     protected readonly prepareInsert = (member: Member.Insert) => {
-        member.household = this.householdId();
+        member.household = this.household().id;
     };
 
     protected getUrl = (member: Member.Row | null) => member
