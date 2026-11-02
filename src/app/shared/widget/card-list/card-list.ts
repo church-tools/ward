@@ -46,12 +46,11 @@ export class CardList<T, ID extends number | string> {
     readonly columns = input(1);
     readonly getId = input.required<(item: T) => ID>();
     readonly orderByKey = input<keyof T | null | undefined>();
-    /** Sorts the whole list after every merge, for order that is derived (a name) rather than
-     *  stored in an order column. */
     readonly sortComparator = input<((a: T, b: T) => number)>();
     readonly reorderable = input<boolean>(false);
     readonly getFilterText = input<(item: T) => string>();
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
+    readonly getCardClasses = input<(item: T) => string>(() => '');
     readonly itemInserted = input<(item: T) => PromiseOrValue<void>>();
     readonly getUrl = input<(item: T) => string | UrlTree>();
     readonly getReplaceUrl = input<(item: T) => boolean>();

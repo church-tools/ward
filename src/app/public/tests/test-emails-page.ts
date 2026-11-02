@@ -5,7 +5,7 @@ import { FunctionsService } from '@/shared/service/functions.service';
 import { Component, inject } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
 import type { AuthEmailType } from '@root/functions/api/auth/emails/auth-emails';
-import { asyncComputed, xcomputed, xsignal } from '../shared/utils/signal-utils';
+import { asyncComputed, xcomputed, xsignal } from '@/shared/utils/signal-utils';
 
 const EMAIL_TEMPLATE_OPTIONS = [
     { value: 'invite', view: 'Invitation' },

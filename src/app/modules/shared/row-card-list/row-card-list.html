@@ -4,6 +4,7 @@
 @if (table && (!editable || projectedInsertTemplate)) {
     <app-card-list
         [cardClasses]="cardsVisible() ? cardClasses() : ''"
+        [getCardClasses]="getCardClasses()"
         [reorderable]="editable && (dragBetweenLists() || (!fixedOrder() && !!(orderKey() || table.info.orderKey)))"
         [editable]="editable"
         [activeId]="activeId()"

@@ -29,6 +29,7 @@ import { PrivatePage } from '../shared/private-page';
                     tableName="household"
                     [getQuery]="getQuery"
                     [sort]="sortHouseholds"
+                    [getCardClasses]="getHouseholdCardClasses"
                     editable
                     [page]="this">
                     <ng-template #rowTemplate let-row let-page="page" let-onRemove="onRemove">
@@ -68,6 +69,9 @@ export class MembersPage extends PrivatePage {
     };
 
     protected readonly sortHouseholds = (a: Household.Row, b: Household.Row) => compareText(a.name, b.name);
+
+    protected readonly getHouseholdCardClasses = (household: Household.Row) =>
+        `duo from-${household.color_1} to-${household.color_2}`;
 
     protected navigateHere() {
         this.router.navigate(['.'], { relativeTo: this.route, replaceUrl: true });

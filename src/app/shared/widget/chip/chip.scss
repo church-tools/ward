@@ -83,6 +83,19 @@ $enter-offset: input.$padding-y;
         }
     }
 
+    &.duo {
+        background-image: linear-gradient(to right, var(--duo-1-tint), var(--duo-2-tint));
+        color: var(--duo-1-text);
+
+        .chip-view {
+            background-image: linear-gradient(90deg, var(--duo-1-text), var(--duo-2-text));
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            font-weight: 500;
+        }
+    }
+
     .delete-btn {
         flex: 0 0 auto;
         width: auto;

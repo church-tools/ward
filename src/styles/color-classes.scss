@@ -97,3 +97,25 @@ body {
         --to-fg: #{get-variant($hue, 'foreground')};
     }
 }
+
+.duo {
+    --duo-2-line: var(--duo-1-line);
+    --duo-2-tint: var(--duo-1-tint);
+    --duo-2-text: var(--duo-1-text);
+}
+
+@mixin duo-vars($slot, $name) {
+    --#{$slot}-line: #{get-variant($name, 'background')};
+    --#{$slot}-tint: #{get-variant($name, 'mute')};
+    --#{$slot}-text: #{get-variant($name, 'foreground')};
+}
+
+@each $color in $names {
+    .duo.from-#{"" + $color} { @include duo-vars('duo-1', $color); }
+    .duo.to-#{"" + $color} { @include duo-vars('duo-2', $color); }
+}
+
+@each $name, $hue in $semantic-colors {
+    .duo.from-#{"" + $name} { @include duo-vars('duo-1', $hue); }
+    .duo.to-#{"" + $name} { @include duo-vars('duo-2', $hue); }
+}

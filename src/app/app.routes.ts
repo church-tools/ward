@@ -9,7 +9,6 @@ const PUBLIC_ROOT_PATHS = new Set([
     'join',
     'setup',
     'test',
-    'test-emails',
     'confirm-email',
     'bulletin-board',
 ]);

@@ -16,7 +16,7 @@ import { HouseholdService } from './household.service';
     template: `
         <app-expandable-card #card [expanded]="expanded()" (expandedChange)="setExpanded($event)">
             <div cardHeader class="row items-center gap-2 m-4">
-                <h4 class="grow-1">{{ row().name }}</h4>
+                <h4 class="grow-1 duo-title">{{ row().name }}</h4>
                 <app-link-button icon="edit" type="subtle" class="icon-only" hideNewTab
                     [href]="getSettingsUrl(row())"/>
                 @if (!deleteBlocked()) {

@@ -51,6 +51,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
     readonly prepareInsert = input<(row: Insert<T>) => PromiseOrValue<void>>();
     readonly insertContext = input<unknown>(null);
     readonly cardClasses = input<string>('card canvas-card suppress-canvas-card-animation');
+    readonly getCardClasses = input<(row: Row<T>) => string>(() => '');
     readonly activeId = input<number | null>(null);
     readonly page = input<Page>();
     readonly emptyIcon = input<IconCode | null>(null);

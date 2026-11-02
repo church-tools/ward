@@ -3,6 +3,8 @@ import { ColorName } from "../../utils/color-utils";
 import { xcomputed } from "../../utils/signal-utils";
 import { Icon } from "../../icon/icon";
 
+/** One colour fills the chip; a pair is a household's two theme colours, shown as a
+    tinted body with a label that runs through both foregrounds (see chip.scss). */
 export type ChipFill = ColorName | readonly [ColorName, ColorName];
 
 @Component({
@@ -36,9 +38,10 @@ export class Chip {
     protected readonly classes = xcomputed([this.color, this.background], (color, background) => {
         if (background == null)
             return color ? `${color}-text` : '';
-        const from = typeof background === 'string' ? background : background[0];
-        const to = typeof background === 'string' ? background : background[1];
-        return `filled bg-gradient from-${from} to-${to} ${color ?? from}-text`;
+        if (typeof background === 'string')
+            return `filled bg-gradient from-${background} to-${background} ${color ?? background}-text`;
+        // `filled` is what gives a duo chip its hover and press feedback.
+        return `duo filled from-${background[0]} to-${background[1]}`;
     });
 
     protected remove(event: MouseEvent) {

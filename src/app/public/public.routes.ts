@@ -12,8 +12,15 @@ export const publicTabs: RouteObject = {
         rejected: { loadComponent: () => import('./setup/setup-rejected-page').then(m => m.SetupRejectedPage) },
         loadComponent: () => import('./setup/setup-page').then(m => m.SetupPage),
     },
-    test: { loadComponent: () => import('./test-page').then(m => m.Test) },
-    'test-emails': { loadComponent: () => import('./test-emails-page').then(m => m.TestEmailsPage) },
+    test: {
+        loadComponent: () => import('./tests/test-page').then(m => m.Test),
+        font: { loadComponent: () => import('./tests/test-font-page').then(m => m.TestFontPage) },
+        cards: { loadComponent: () => import('./tests/test-cards-page').then(m => m.TestCardsPage) },
+        colors: { loadComponent: () => import('./tests/test-colors-page').then(m => m.TestColorsPage) },
+        chips: { loadComponent: () => import('./tests/test-chips-page').then(m => m.TestChipsPage) },
+        markdown: { loadComponent: () => import('./tests/test-markdown-page').then(m => m.TestMarkdownPage) },
+        emails: { loadComponent: () => import('./tests/test-emails-page').then(m => m.TestEmailsPage) },
+    },
     'confirm-email': { loadComponent: () => import('./confirm-email').then(m => m.ConfirmEmailPage) },
     'bulletin-board': { loadComponent: () => import('./bulletin-board/bulletin-board-page').then(m => m.BulletinBoardPage) },
 };

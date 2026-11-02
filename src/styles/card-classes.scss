@@ -50,6 +50,16 @@ $hovering-body: ':has(app-collapse *:hover)';
         }
     }
 
+    &.duo {
+        background-image: linear-gradient(to right, var(--duo-1-line), var(--duo-2-line));
+        background-size: 100% 3px;
+        background-repeat: no-repeat;
+
+        .duo-title {
+            color: var(--duo-1-text);
+        }
+    }
+
     &.clear {
         background-color: transparent;
     }
