@@ -36,6 +36,7 @@
         @if (getUrl(); as getUrl) {
             <a #card cdkDrag
                 [cdkDragStartDelay]="dragStartDelay"
+                [cdkDragDisabled]="!reorderable() || !editable()"
                 [routerLink]="getUrl(itemCard.item)"
                 [replaceUrl]="shouldReplaceUrl(itemCard)"
                 class="drag-card-host stealth"
@@ -49,6 +50,7 @@
         } @else {
             <div #card cdkDrag
                 [cdkDragStartDelay]="dragStartDelay"
+                [cdkDragDisabled]="!reorderable() || !editable()"
                 class="drag-card-host"
                 [class.active]="activeId() === itemCard.id"
                 (cdkDragStarted)="onDragStart($event, itemCard, card)"
