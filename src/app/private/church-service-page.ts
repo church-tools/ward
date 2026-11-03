@@ -1,10 +1,9 @@
-import { Component, inject } from '@angular/core';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
-import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { SacramentMeetingViewService } from '@/modules/sacrament-meeting/sacrament-meeting-view.service';
 import { SacramentMeetingService } from '@/modules/sacrament-meeting/sacrament-meeting.service';
-import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
-import { Icon } from '../shared/icon/icon';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
+import LinkCard from '@/shared/widget/link-card/link-card';
+import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { DrawerRouterOutlet } from './shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from './shared/private-page';
 
@@ -14,19 +13,12 @@ import { PrivatePage } from './shared/private-page';
         <app-drawer-router-outlet (onClose)="navigateHere()">
             <div class="page narrow gap-4">
                 <span class="h0">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
-                <a class="stealth card canvas-card selectable-card" routerLink="/sacrament-meeting/planning" appHoverNudge>
-                    <div class="row no-wrap items-center m-6-8">
-                        <h3 class="grow-1">
-                            <app-icon [icon]="sacramentMeetingView.icon" filled/>
-                            <span class="overflow-ellipsis">{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}</span>
-                        </h3>
-                        <app-icon class="ms-auto" icon="chevron_right"/>
-                    </div>
-                </a>
+                <app-link-card href="/sacrament-meeting/planning" [icon]="sacramentMeetingView.icon"
+                    label="{{ 'SACRAMENT_MEETING_PAGE.TITLE' | localize }}"/>
             </div>
         </app-drawer-router-outlet>
     `,
-    imports: [LocalizePipe, RouterModule, Icon, HoverNudgeDirective, DrawerRouterOutlet],
+    imports: [LocalizePipe, LinkCard, DrawerRouterOutlet],
     host: { class: 'full-width' },
 })
 export class CurrentSacramentMeetingPage extends PrivatePage {

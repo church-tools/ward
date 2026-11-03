@@ -190,6 +190,17 @@ export const LOCALIZATION = {
   ORGANIZATIONS_PAGE: {
     TITLE: "Organizations",
   },
+  MINISTERING_PAGE: {
+    TITLE: "Ministering",
+    IMPORT_FROM_LCR: "Import from LCR",
+  },
+  MINISTERING_IMPORT_PAGE: {
+    TITLE: "Import ministering from LCR",
+    INSTRUCTIONS_1: "Print the ministering assignments report from LCR as a PDF file",
+    INSTRUCTIONS_2: "upload the PDF file here",
+    UPLOAD_BUTTON: "Upload PDF",
+    IMPORT_BUTTON: "Import",
+  },
   ORGANIZATION_PAGE: {
     ABBREVIATION: "Abbreviation",
     GENDER: "Only Brothers/Sisters",

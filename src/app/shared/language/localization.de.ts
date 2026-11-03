@@ -191,6 +191,17 @@ export const LOCALIZATION: Localization = {
   ORGANIZATIONS_PAGE: {
     TITLE: "Organisationen",
   },
+  MINISTERING_PAGE: {
+    TITLE: "Betreuung",
+    IMPORT_FROM_LCR: "Aus LCR importieren",
+  },
+  MINISTERING_IMPORT_PAGE: {
+    TITLE: "Betreuung aus LCR importieren",
+    INSTRUCTIONS_1: "Drucken Sie den Bericht der Betreuungszuteilungen aus LCR als PDF-Datei",
+    INSTRUCTIONS_2: "laden Sie die PDF-Datei hier hoch",
+    UPLOAD_BUTTON: "PDF hochladen",
+    IMPORT_BUTTON: "Importieren",
+  },
   ORGANIZATION_PAGE: {
     ABBREVIATION: "Abkürzung",
     GENDER: "Nur Brüder/Schwestern",

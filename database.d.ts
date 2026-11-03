@@ -299,6 +299,7 @@ export type Database = {
           created_at: string
           deleted: boolean
           id: number
+          ministering_position: number
           name: string
           unit: number
           updated_at: string | null
@@ -309,6 +310,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id?: number
+          ministering_position?: number
           name: string
           unit: number
           updated_at?: string | null
@@ -319,6 +321,7 @@ export type Database = {
           created_at?: string
           deleted?: boolean
           id?: number
+          ministering_position?: number
           name?: string
           unit?: number
           updated_at?: string | null
@@ -468,6 +471,7 @@ export type Database = {
           household: number
           id: number
           last_name: string | null
+          ministering_position: number
           nick_name: string | null
           notes: string | null
           unit: number
@@ -481,6 +485,7 @@ export type Database = {
           household: number
           id: number
           last_name?: string | null
+          ministering_position?: number
           nick_name?: string | null
           notes?: string | null
           unit: number
@@ -494,6 +499,7 @@ export type Database = {
           household?: number
           id?: number
           last_name?: string | null
+          ministering_position?: number
           nick_name?: string | null
           notes?: string | null
           unit?: number
@@ -766,23 +772,39 @@ export type Database = {
       ministering_area: {
         Row: {
           created_at: string
+          deleted: boolean
           id: number
+          ministering_district: number
+          position: number
           unit: number
           updated_at: string | null
         }
         Insert: {
           created_at?: string
+          deleted?: boolean
           id?: number
+          ministering_district: number
+          position?: number
           unit: number
           updated_at?: string | null
         }
         Update: {
           created_at?: string
+          deleted?: boolean
           id?: number
+          ministering_district?: number
+          position?: number
           unit?: number
           updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "ministering_area_ministering_district_unit_fkey"
+            columns: ["ministering_district", "unit"]
+            isOneToOne: false
+            referencedRelation: "ministering_district"
+            referencedColumns: ["id", "unit"]
+          },
           {
             foreignKeyName: "ministering_area_unit_fkey"
             columns: ["unit"]
@@ -795,25 +817,31 @@ export type Database = {
       ministering_district: {
         Row: {
           created_at: string
+          deleted: boolean
           id: number
           interviewer: number | null
           name: string
+          position: number
           unit: number
           updated_at: string | null
         }
         Insert: {
           created_at?: string
+          deleted?: boolean
           id?: number
           interviewer?: number | null
           name?: string
+          position?: number
           unit: number
           updated_at?: string | null
         }
         Update: {
           created_at?: string
+          deleted?: boolean
           id?: number
           interviewer?: number | null
           name?: string
+          position?: number
           unit?: number
           updated_at?: string | null
         }

@@ -37,7 +37,7 @@ function serializeIndexedFields<D extends Database, T extends TableName<D>>(inde
     return indexEntries.map(([key, type]) => `${key}_${type}`).join(',');
 }
 
-function serializeCalculatedVersions<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues>(
+function serializeCalculatedVersions<C extends AnyCalculatedValues>(
     calculated?: Partial<Record<keyof C & string, { version?: number }>>,
 ) {
     const fields = calculated ? Object.entries(calculated) as [keyof C & string, { version?: number }][] : [];
@@ -134,9 +134,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this.tableVersionNeedsUpgrade = this.info.version != null
             && localStorage.getItem(TABLE_VERSION_PREFIX + name) !== this.info.version.toString();
         this.calculatedNeedsUpgrade = localStorage.getItem(CALCULATED_VERSION_PREFIX + name)
-            !== serializeCalculatedVersions<D, T, C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined);
+            !== serializeCalculatedVersions<C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined);
         const indexEntries = Object.entries(this.indexed) as [Column<D, T>, IndexType][];
-        const boolKeys = indexEntries.filter(([_, t]) => t === Boolean).map(([key, _]) => key);
+        const boolKeys = indexEntries.filter(([, type]) => type === Boolean).map(([key]) => key);
         if (boolKeys.length) {
             this._storeAdapter.mappingInFunction = (row: LocalRow<D, T, C>) => {
                 for (const key of boolKeys)
@@ -207,7 +207,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         if (this.calculatedNeedsUpgrade) {
             localStorage.setItem(
                 CALCULATED_VERSION_PREFIX + this.name,
-                serializeCalculatedVersions<D, T, C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined),
+                serializeCalculatedVersions<C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined),
             );
             if (this._calculatedInfo.length) {
                 const allItems = await this.readAll().dontWaitForDataSync().get();
@@ -322,7 +322,9 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 }
             }
             const { data } = await this.supabaseClient.from(this.name)
-                .upsert(rows.map(row => ({ ...row, [this.deletedKey]: false } as Insert<D, T>)))
+                .upsert(this.info.deletable === false
+                    ? rows
+                    : rows.map(row => ({ ...row, [this.deletedKey]: false } as Insert<D, T>)))
                 .select("*")
                 .throwOnError();
             const rowsWithCalculatedValues = await this.addCalculatedValues(data as LocalRow<D, T, C>[]);
@@ -357,16 +359,23 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
     }
 
     public async delete(row: RemoteRow<D, T>) {
-        let query = (this.updateOffline
+        const id = this.getId(row);
+        // A write still queued for this row would be sent after the delete and resurrect it, so the
+        // queue entry goes first. (Clearing it does not cancel an already in-flight send.)
+        const pending = (await this._pendingAdapter.readAll()).filter(update => this.getId(update) === id);
+        if (pending.length)
+            await this._pendingAdapter.deleteMany(pending.map(update => update.__index!));
+        // A table with no `deleted` column cannot be soft-deleted, whatever `updateOffline` says.
+        let query = (this.updateOffline && this.info.deletable !== false
             ? this.supabaseClient.from(this.name).update({ [this.deletedKey]: true } as any)
             : this.supabaseClient.from(this.name).delete());
         for (const idKey of this.idKeys)
             query = query.eq(idKey as any, row[idKey]);
         await Promise.all([
-            this._storeAdapter.delete(this.getId(row)),
+            this._storeAdapter.delete(id),
             query.throwOnError()
         ]);
-        this.pendingLocalWrites.delete(this.getId(row));
+        this.pendingLocalWrites.delete(id);
     }
     
     public async findLargestId(idKey: IdColumn<D, T> = this.firstIdKey) {
@@ -444,7 +453,10 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         try {
             const { matched: inserts, unmatched: updates } = classifyArray<Insert<D, T>, Update<D, T>>(rows, row => {
                 const isNew = row.__new;
-                if (isNew) { delete row.__new; row[this.deletedKey] = false; }
+                if (isNew) {
+                    delete row.__new;
+                    if (this.info.deletable !== false) row[this.deletedKey] = false;
+                }
                 delete row.__index; delete row._calculated;
                 if ('id' in row && !this.idKeys.includes('id' as any)) delete row.id;
                 return isNew;

@@ -11,18 +11,17 @@ import { Insert, Table } from '@/modules/shared/table.types';
 import { Button } from '@/shared/form/button/button';
 import { CustomRowSelect } from '@/shared/form/row-select/custom-row-select';
 import { MultiSelect } from '@/shared/form/select/multi-select';
-import { Icon } from '@/shared/icon/icon';
 import { LanguageService } from '@/shared/language/language.service';
-import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
-import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
-import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
-import { xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { SupabaseService } from '@/shared/service/supabase.service';
-import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
+import { SundayIndex, sundayIndexToDate } from '@/shared/utils/date-utils';
+import { xcomputed, xsignal } from '@/shared/utils/signal-utils';
 import { SupaSyncedRow } from '@/shared/utils/supa-sync/supa-synced-row';
+import { SyncedFieldDirective } from '@/shared/utils/supa-sync/synced-field.directive';
+import LinkCard from '@/shared/widget/link-card/link-card';
 import { DatePipe } from '@angular/common';
 import { Component, inject } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { DrawerRouterOutlet } from '../shared/drawer-router-outlet/drawer-router-outlet';
 import { PrivatePage } from '../shared/private-page';
@@ -32,7 +31,7 @@ type ItemTableName = 'message' | 'hymn' | 'musical_performance';
 @Component({
     selector: 'app-current-sacrament-meeting-page',
     templateUrl: './current-sacrament-meeting-page.html',
-    imports: [DatePipe, LocalizePipe, RouterModule, Icon, HoverNudgeDirective,
+    imports: [DatePipe, LocalizePipe, LinkCard,
         DrawerRouterOutlet, SyncedFieldDirective, CustomRowSelect, MultiSelect,
         MemberCallingListRow, RowCardList, RowCardListMulti, FixedHymnCard,
         MessageListRow, HymnListRow, MusicalPerformanceListRow, Button],

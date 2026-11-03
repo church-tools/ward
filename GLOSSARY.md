@@ -112,6 +112,14 @@ _Avoid_: route, area, allocation
 A household that a companionship is assigned to minister to.
 _Avoid_: ministered family, flock
 
+**Unassigned brother**:
+A male member who belongs to no companionship.
+_Avoid_: brother without a ministering assignment, free brother
+
+**Unassigned household**:
+A household that no companionship is assigned to.
+_Avoid_: uncovered household, unministered household
+
 ### Bulletin board
 
 **Bulletin board**:
@@ -228,6 +236,7 @@ Ward Tools is an **Angular 22** application running **zoneless** with full **sig
 - A **Unit** contains **Ministering districts**, each with at most one **Interviewer**.
 - A **Ministering district** contains **Companionships**.
 - A **Companionship** is formed by one or more **Members** and holds zero or more **Ministering assignments**.
+- A **Member** belongs to at most one **Companionship**.
 - A **Ministering assignment** pairs a **Companionship** with an **Assigned household**.
 
 ## Example dialogue

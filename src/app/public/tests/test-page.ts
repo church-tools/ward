@@ -1,8 +1,7 @@
-import { Icon, IconCode } from '@/shared/icon/icon';
+import { IconCode } from '@/shared/icon/icon';
 import { Page } from '@/shared/page/page';
+import LinkCard from '@/shared/widget/link-card/link-card';
 import { Component } from '@angular/core';
-import { RouterModule } from '@angular/router';
-import { HoverNudgeDirective } from '@/shared/utils/hover-nudge.directive';
 
 type TestPageLink = {
     href: string;
@@ -15,18 +14,10 @@ type TestPageLink = {
     template: `
         <span class="display-text">Test</span>
         @for (page of testPages; track page.href) {
-            <a class="stealth card canvas-card selectable-card" [routerLink]="page.href" appHoverNudge>
-                <div class="row no-wrap items-center m-6-8">
-                    <h3 class="grow-1">
-                        <app-icon [icon]="page.icon" filled/>
-                        <span class="overflow-ellipsis">{{ page.label }}</span>
-                    </h3>
-                    <app-icon class="ms-auto" icon="chevron_right"/>
-                </div>
-            </a>
+            <app-link-card [href]="page.href" [icon]="page.icon" [label]="page.label"/>
         }
     `,
-    imports: [RouterModule, Icon, HoverNudgeDirective],
+    imports: [LinkCard],
     host: { class: 'page narrow' },
 })
 export class Test extends Page {

@@ -10,9 +10,11 @@ import type { MessageCalculatedValues } from "../sacrament-meeting/item/message/
 export type TableName =
     | 'agenda' | 'agenda_item' | 'agenda_section'
     | 'calling' | 'custom_text'
-    | 'household'
+    | 'household' | 'household_ministered_in'
     | 'hymn'
-    | 'member' | 'member_calling' | 'message' | 'musical_performance'
+    | 'member' | 'member_calling' | 'member_ministering_in' | 'message'
+    | 'ministering_area' | 'ministering_district'
+    | 'musical_performance'
     | 'organization'
     | 'profile'
     | 'sacrament_meeting'
