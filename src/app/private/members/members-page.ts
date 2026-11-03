@@ -45,10 +45,12 @@ import { PrivatePage } from '../shared/private-page';
                             [context]="context"/>
                     </ng-template>
                 </app-row-card-list>
-                <app-link-button icon="archive_arrow_back" type="subtle" size="large" hideNewTab
-                    href="/members/import">
-                    {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
-                </app-link-button>
+                @if (adminService.editMode()) {
+                    <app-link-button icon="archive_arrow_back" size="large" hideNewTab
+                        href="/members/import">
+                        {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
+                    </app-link-button>
+                }
             </div>
         </app-drawer-router-outlet>
     `,

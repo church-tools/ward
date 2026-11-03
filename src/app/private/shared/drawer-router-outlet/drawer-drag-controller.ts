@@ -64,6 +64,7 @@ export class DrawerDragController {
         element.addEventListener('pointerdown', this.onPointerDown, { passive: false, signal });
         element.addEventListener('pointermove', this.onPointerMove, { passive: false, signal });
         element.addEventListener('pointerup', this.onPointerUp, { passive: false, signal });
+        element.addEventListener('pointerup', this.onWindowPointerUp, { passive: true, signal });
         element.addEventListener('pointercancel', this.onPointerCancel, { passive: true, signal });
         element.addEventListener('touchstart', this.onTouchStart, { passive: false, signal });
         element.addEventListener('touchmove', this.onTouchMove, { passive: false, signal });
@@ -154,7 +155,7 @@ export class DrawerDragController {
                 (startTarget as HTMLInputElement).focus();
             if (typeof (startTarget as HTMLElement).click === 'function')
                 (startTarget as HTMLElement).click();
-        } catch (_e) {
+        } catch {
             // best-effort; ignore failures
         }
     }
@@ -184,8 +185,6 @@ export class DrawerDragController {
         if (!this.canStartDrag(drawer, target))
             return;
 
-        const isDragHandle = target.closest('.drag-handle') !== null;
-        const isEditableStart = this.isEditableTarget(target);
         const isBottom = this.options.isBottom();
 
         const axis = isBottom ? 'y' : 'x';
@@ -202,7 +201,13 @@ export class DrawerDragController {
             isDragActive: false,
             activationThreshold: DrawerDragController.DRAG_THRESHOLD,
         };
-        drawer.setPointerCapture(event.pointerId);
+    };
+
+    private readonly onWindowPointerUp = (event: PointerEvent) => {
+        const state = this.dragState;
+        if (!state || state.kind !== 'pointer' || state.pointerId !== event.pointerId)
+            return;
+        this.completeInteraction(state, false);
     };
 
     private readonly onTouchStart = (event: TouchEvent) => {
