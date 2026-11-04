@@ -1,0 +1,133 @@
+@use "animation";
+@use "card";
+@use "font";
+@use "input";
+
+// Desktop-first (see DECISIONS.md): under this width the board scrolls sideways instead of
+// stacking the trays above the companionhips.
+$board-min-width: 62rem;
+$tray-width: 13rem;
+
+.ministering-board {
+    display: grid;
+    grid-template-columns: $tray-width minmax(20rem, 1fr) $tray-width;
+    gap: 1rem;
+    align-items: start;
+    min-width: $board-min-width;
+}
+
+.ministering-tray {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    padding: 0.5rem;
+    position: sticky;
+    top: 0;
+    background-color: card.$background-transparent-color;
+    backdrop-filter: card.$acrylic-blur;
+
+    h3 {
+        margin: 0 0 0.25rem;
+        font-size: font.$size;
+        font-weight: 600;
+        opacity: 0.7;
+    }
+}
+
+.ministering-companionships {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(19rem, 1fr));
+    gap: 0.5rem;
+    align-items: start;
+    min-height: 4rem;
+}
+
+.ministering-card {
+    gap: 0.25rem;
+    padding: 0.5rem;
+    border-radius: input.$border-radius;
+
+    header:empty {
+        display: none;
+    }
+}
+
+.ministering-columns {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 0.5rem;
+}
+
+.ministering-column {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    min-height: 2.5rem;
+    padding: 0.125rem;
+    border-radius: input.$border-radius;
+
+    &.cdk-drop-list-dragging,
+    &.cdk-drop-list-receiving {
+        background-color: card.$hover-background-color;
+    }
+}
+
+.ministering-person {
+    padding: 0.25rem 0.5rem;
+    border-radius: input.$border-radius;
+    background-color: card.$hover-background-color;
+    font-size: font.$size;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.ministering-handle {
+    display: inline-flex;
+    opacity: 0.4;
+    cursor: grab;
+
+    &:hover {
+        opacity: 0.8;
+    }
+}
+
+.ministering-hint {
+    margin: 0;
+    padding: 0.25rem 0.5rem;
+    font-size: font.$size;
+    opacity: 0.4;
+}
+
+.ministering-add {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 4rem;
+    border: 1px dashed card.$divider-color;
+    border-radius: input.$border-radius;
+    background: none;
+    color: inherit;
+    cursor: pointer;
+    opacity: 0.5;
+
+    &:hover {
+        opacity: 1;
+    }
+}
+
+// Both are rendered at the document root, so they only keep this component's styling through the
+// cloned encapsulation attributes.
+.cdk-drag-preview {
+    box-shadow: none;
+    opacity: 0.9;
+    scale: 0.97;
+}
+
+.cdk-drag-placeholder {
+    opacity: 0.25;
+}
+
+.cdk-drag-animating {
+    transition: transform animation.$duration-sm ease;
+}

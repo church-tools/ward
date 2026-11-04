@@ -39,11 +39,6 @@ type ImportInfo = {
         .names-container {
             max-height: 50vh;
         }
-        .household-row {
-            position: sticky;
-            top: 0;
-            z-index: 1;
-        }
     `]
 })
 export class MembersImportPage extends PrivatePage {
@@ -176,10 +171,6 @@ export class MembersImportPage extends PrivatePage {
 
     protected selectedMembers(household: ImportHousehold): number {
         return household.members.filter(member => member.import && !member.duplicate).length;
-    }
-
-    protected selectableMembers(household: ImportHousehold): number {
-        return household.members.filter(member => !member.duplicate).length;
     }
 
     protected get parsedNothing(): boolean {

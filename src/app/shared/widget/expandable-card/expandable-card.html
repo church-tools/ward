@@ -1,4 +1,6 @@
 <ng-content select="[cardHeader]"/>
-<app-collapse [show]="expanded()">
-    <ng-content/>
+<app-collapse [show]="expanded()" (onChange)="onAnimationEnd($event)">
+    @if (content()) {
+        <ng-content/>
+    }
 </app-collapse>

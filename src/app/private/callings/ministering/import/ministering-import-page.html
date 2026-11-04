@@ -1,0 +1,67 @@
+<div class="m-4-6 column gap-4 max-width-128">
+    <h2>{{ 'MINISTERING_IMPORT_PAGE.TITLE' | localize }}</h2>
+    <div class="row gap-4 center-content">
+        <app-link-button href="https://lcr.churchofjesuschrist.org/ministering?lang=eng&type=EQ"
+            icon="open" size="large"
+            outside newTab type="secondary">
+            <span outside>{{ 'MINISTERING_IMPORT_PAGE.LCR_MINISTERING' | localize }}</span>
+        </app-link-button>
+        <span>{{ 'MINISTERING_IMPORT_PAGE.INSTRUCTIONS' | localize }}</span>
+        <app-file-button type="secondary" size="large"
+            [accept]="FileType.pdf" [asyncUpload]="parse">
+            {{ 'MINISTERING_IMPORT_PAGE.UPLOAD_BUTTON' | localize }}
+        </app-file-button>
+    </div>
+    @if (imported(); as report) {
+        @if (step() === 'people') {
+            <div class="scroll-container card canvas-background p-2 overflow-scroll column gap-1">
+                @for (group of newPeople(); track group.key) {
+                    <div class="row gap-1">
+                        @if (group.created) { <span class="success-text">+</span> }
+                        {{ group.name }}
+                    </div>
+                    @for (member of group.members; track member.key) {
+                        @let salutation = memberView.salutationOptionsByGender[member.gender];
+                        <span class="row gap-1 ps-6">
+                            <span class="success-text">+</span>
+                            <span class="{{ salutation.color }}-text">{{ salutation.view | localize }}</span>
+                            {{ member.name }}
+                        </span>
+                    }
+                }
+                @for (move of report.plan.rehome; track move.member) {
+                    <span class="subtle-text">{{ memberName(move.member) }} → {{ householdName(move.household) }}</span>
+                }
+            </div>
+            <div class="row center-content">
+                <app-async-button icon="save" type="primary" size="large"
+                    [onClick]="importPeople">
+                    {{ 'MINISTERING_IMPORT_PAGE.IMPORT_BUTTON' | localize }}
+                </app-async-button>
+            </div>
+        } @else {
+            <div class="scroll-container card canvas-background p-2 overflow-scroll column gap-2">
+                @for (district of report.districts; track $index) {
+                    <section class="column gap-1">
+                        <h3>{{ district.name }}</h3>
+                        @for (companionship of district.companionships; track $index) {
+                            <p class="m-0">
+                                <span>{{ names(companionship.ministers) }}</span>
+                                <span class="subtle-text">→</span>
+                                <span>{{ households(companionship) }}</span>
+                            </p>
+                        }
+                    </section>
+                }
+            </div>
+            @if (adminService.editMode()) {
+                <div class="row center-content">
+                    <app-async-button icon="warning" type="primary" size="large"
+                        [onClick]="importMinistering">
+                        {{ 'MINISTERING_IMPORT_PAGE.IMPORT_BUTTON' | localize }}
+                    </app-async-button>
+                </div>
+            }
+        }
+    }
+</div>

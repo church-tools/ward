@@ -22,10 +22,10 @@ import { PrivatePage } from '../shared/private-page';
                     <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
                         icon="open"
                         outside newTab type="secondary">
-                        <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | localize }}</span>
+                        <span outside>{{ 'MEMBERS_IMPORT_PAGE.LCR_MEMBER_LIST' | localize }}</span>
                     </app-link-button>
                 </div>
-                <app-row-card-list
+                <app-row-card-list #householdList
                     tableName="household"
                     [getQuery]="getQuery"
                     [sort]="sortHouseholds"
@@ -47,6 +47,7 @@ import { PrivatePage } from '../shared/private-page';
                 </app-row-card-list>
                 @if (adminService.editMode()) {
                     <app-link-button icon="archive_arrow_back" size="large" hideNewTab
+                    [type]="householdList.rowCount() == 0 ? 'primary' : 'secondary'"
                         href="/members/import">
                         {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
                     </app-link-button>

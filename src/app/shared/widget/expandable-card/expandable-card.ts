@@ -1,4 +1,4 @@
-import { Component, model } from '@angular/core';
+import { Component, effect, model, signal } from '@angular/core';
 import Collapse from '../collapse/collapse';
 
 @Component({
@@ -15,6 +15,13 @@ export default class ExpandableCard {
 
     readonly expanded = model(false);
 
+    /** Body is only built once expanded, and dropped after the collapse animation finished. */
+    protected readonly content = signal(false);
+
+    constructor() {
+        effect(() => { if (this.expanded()) this.content.set(true); });
+    }
+
     toggle() {
         this.expanded.set(!this.expanded());
     }
@@ -27,5 +34,9 @@ export default class ExpandableCard {
             'app-text-input, app-select, app-checkbox'))
             return;
         this.toggle();
+    }
+
+    protected onAnimationEnd(expanded: boolean) {
+        if (!expanded) this.content.set(false);
     }
 }

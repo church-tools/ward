@@ -1,6 +1,9 @@
 import { Component, ElementRef, Signal, inject, input, output, signal, viewChild } from '@angular/core';
 import { wait } from '../../utils/flow-control-utils';
 
+/** Matches the transition in collapse.scss ($duration-lg). */
+const transitionMs = 500;
+
 @Component({
     selector: 'app-collapse',
     template: `<div #measuring class="measuring"><ng-content/></div>`,
@@ -38,14 +41,24 @@ export default class Collapse {
         } else {
             div.style.overflow = "hidden";
             await wait(1);
-            const height = this.measuring().nativeElement.clientHeight;
+            const content = this.measuring().nativeElement;
+            const height = content.clientHeight;
             if (!this._show && div.style.height === 'auto') {
                 div.style.height = height + "px";
                 await new Promise(resolve => setTimeout(resolve, 50));
             }
             div.style.height = (this._show ? height : 0) + "px";
             div.style.opacity = this._show ? "1" : "0";
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // content that loads after the first measure (async data, images) is still animated to
+            const followContent = this._show
+                ? new ResizeObserver(() => {
+                    if (div.style.height !== 'auto')
+                        div.style.height = content.clientHeight + 'px';
+                })
+                : undefined;
+            followContent?.observe(content);
+            await new Promise(resolve => setTimeout(resolve, transitionMs));
+            followContent?.disconnect();
             if (this._show) {
                 div.style.height = 'auto';
                 div.style.overflow = 'visible';

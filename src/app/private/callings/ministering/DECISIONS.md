@@ -23,8 +23,8 @@ A ministering report is a complete snapshot, so the import deletes the unit's ar
 
 - Area and district ids churn on every import, so nothing durable may hang off them (notes, history, external references).
 - The delete happens before the insert and there is no transaction: a failure between the two leaves the unit with no ministering data until the PDF is uploaded again. This was accepted knowingly — do not "fix" it by adding an insert-then-delete phase without revisiting the trade-off.
-- The preview is the only guard against a bad parse: the approve button has no confirmation dialog, and nothing checks the report for completeness before the delete. Correctness rests on the human reading the preview. The parser itself is covered by `ministering-import.spec.ts` (synthetic text runs, no PDF); nothing tests the write sequence.
-- The snapshot includes the unit's *people*: an import also creates the members and households it cannot match, before it touches a single assignment. See "The import creates what it cannot match".
+- The previews are the only guard against a bad parse: neither Import button has a confirmation dialog, and nothing checks the report for completeness before the delete. Correctness rests on the human reading them. The parser itself is covered by `ministering-import-page.spec.ts` (synthetic text runs, no PDF); nothing tests the write sequence.
+- The snapshot includes the unit's *people*: an import also creates the members and households it cannot match, before it touches a single assignment, as its own confirmed step. See "The import creates what it cannot match" and "The import is two confirmed steps".
 
 ## 2026-11-02 — Companionship order is stored on the member and the household
 
@@ -42,9 +42,11 @@ This only holds because a reassignment **moves**: dropping a brother on another 
 
 - **Position on the assignment rows** — correct if a member may sit in several companionships (an elders quorum and a relief society companionship could both be given the same household), at the cost of two order columns and a rule for which one the trays read.
 
-## 2026-11-02 — The board is the only source of districts and companionships
+## 2026-11-02 — The board is the only source of hand-made districts and companionships
 
-There is no ministering report import yet, so `/callings/ministering` has to be able to create its own structure: a new district, a new companionship inside a district, and deletion of both. A district may only be deleted while it has no companionships — `ministering_area.ministering_district` is NOT NULL, and whether the deployed FK cascades is not something the page should rely on.
+The board creates its own structure: a district, a companionship inside it, and deletion of both. A district may only be deleted while it has no companionships — `ministering_area.ministering_district` is NOT NULL, and whether the deployed FK cascades is not something the page should rely on. The guard is the delete button's disabled state, because the district goes through `RowCardList`'s own `onRemove`.
+
+Both go through `RowCardList` (`ministering_district`) rather than the service: cards are created by its insert card and removed by its `onRemove`. A write through `MinisteringService` instead would leave the list unchanged, because SupaSync does not publish inserts and deletes to subscribers — see the known limits below.
 
 Every mutation on the board — assignment, ordering, creation, deletion — is gated behind `AdminService.editMode`, the same unit-admin switch the organizations and agenda pages already use.
 
@@ -53,13 +55,16 @@ Every mutation on the board — assignment, ordering, creation, deletion — is 
 - An empty companionship is a legal state: it is what the insert card leaves behind before a brother is dropped into it. It is not auto-deleted when its last minister leaves, because that would silently take its household assignments with it.
 - The import decision above still wins later: a report replaces every area, so anything created here is disposable by design.
 
-## 2026-11-02 — Reordering districts and companionships is edit-mode only
+## 2026-11-02 — Only companionships reorder by drag
 
-`ministering_district.position` and `ministering_area.position` order the board, and drag-reordering them is available only in edit mode, matching every other mutation on this page. The order inside a companionship is a different gesture with a different target, so the two must not compete for the same pointer: a district or companionship is dragged by an explicit handle, while a brother or household is dragged by its own body.
+`ministering_area.position` orders the cards inside a district, and drag-reordering them is available only in edit mode. The order inside a companionship is a different gesture with a different target, so the two must not compete for the same pointer: a companionship is dragged by an explicit handle, while a brother or household is dragged by its own body.
+
+A district does **not** reorder: it is a `RowCardList` with `fixedOrder`, and its cards never drag. That is deliberate rather than a lost feature — `CardList` drags a card from anywhere on it, which would fight every drop list nested inside a district card.
 
 ### Consequences
 
-- Three drop-list levels are nested (districts, companionships, and the two columns inside a card). The card's handle is the only drag origin that reorders cards; without it a drag aimed at the ministers column would move the whole card.
+- Three drop-list levels remain (the district list, the companionships inside a district, and the two columns inside a card), but only the lower two accept drags from a handle.
+- `CardList` still gets a `[cdkDragDisabled]` binding, in `card-list.html`: it is what keeps a district card's own drag out of the way when the list is not reorderable. It also stops read-only lists elsewhere in the app from dragging cards that have nowhere to go. See `shared/utils/DECISIONS.md`.
 - Read-only viewers get the same board with no handles, no insert cards and no delete buttons.
 
 ## 2026-11-02 — The UI says companionship, the table says `ministering_area`
@@ -82,9 +87,8 @@ This is one-off wiring, not the row-popover mechanism: `PopoverService`'s existi
 ### Consequences
 
 - A child route with no outlet renders nothing; the URL is real, the rendering is not. Anyone adding another `insideParent` child here gets a silent no-op, which is why this is written down.
-- Reading the report is split: `parseReport` and `resolveReport` in `modules/ministering/ministering-import.ts` are pure, and `MinisteringService.parseReport` supplies the file and the unit's rows. Keeping the data access in the service also keeps the parser's spec free of the app's data layer.
-- The approve button is rendered only in edit mode, like the link that opens the page. The write lives in `MinisteringService.importReport`, so the board's six live signals are reloaded when it finishes.
-- A name the unit does not have is not an error: the preview marks it with `+`, lists it under "will be created", and the import creates it.
+- Reading the report is split: `parseReport` and `resolveReport` are pure functions of the extracted text and live beside the page in `import/ministering-import-page.ts`, while `MinisteringImportPage.readReport` supplies the file and the unit's rows. The spec imports that page module, so it runs with `src/test-setup.ts`'s `fake-indexeddb` shim even though it touches no database.
+- Both Import buttons are rendered only in edit mode, like the link that opens the page. Reading and writing the report both live on `MinisteringImportPage`, so the board's six live signals are reloaded explicitly through `MinisteringService.reload()` at the end of each step.- A name the unit does not have is not an error: the preview marks it with `+`, lists it under "will be created", and the import creates it.
 
 ## 2026-11-02 — The import creates what it cannot match
 
@@ -106,10 +110,22 @@ the destructive half, so a failure there leaves the old assignments intact.
 
 ### People
 
-- A printed `Family, Given` is matched by that pair; failing that, by a first name unique inside the
-  resolved household; otherwise it is created. Guessing further — a unit-wide first-name match or a
-  prefix rule like `matchSlot` — could hand a family to the wrong brother, so a false negative (a
-  duplicate person) is the accepted failure.
+- A printed `Family, Given` is matched against stored rows by surname and given name, where a stored
+  first name counts as a match for any printed name that starts with it as a whole word; failing
+  that, by a first name unique inside the resolved household; otherwise it is created. Guessing
+  further — a unit-wide first-name match or a prefix rule like `matchSlot` — could hand a family to
+  the wrong brother, so a false negative (a duplicate person) is the accepted failure.
+- A created member stores one given name, not the printed list: the first word, plus a trailing
+  number when the report prints one (`Daniel III`). A second person of the same family who would end
+  up with the same name takes the next word instead (`Daniel Diether IV`). That is why matching has
+  to accept a printed name that merely starts with the stored one — otherwise every import would
+  create the same people again.
+- A trailing bracketed word is the nickname, not a given name: `Ikwo, Ukiwe Kalu (Chucks)` stores
+  `first_name` `Ukiwe` and `nick_name` `Chucks`.
+- The same name printed twice for one household is two people — a father and a son — not one person
+  placed twice. Each row claims the person it matched, so the second row never reuses the first
+  row's stored or planned member, and a unit that already stores both keeps matching them one to
+  one.
 - Gender comes from the report's `male`/`female` column. Ministers print no gender at all, so a
   created minister is `male`, marked `shortcut:` in the code: it is a default, not something the
   report says.
@@ -135,8 +151,8 @@ above the companionships. Nothing on the board reads the column yet.
   member import's failure modes.
 - Re-importing the same PDF is stable: the households and members it created are matched by the
   names the same parse produces.
-- A report whose companionships all fail to parse is not imported at all: the parse returns a
-  `problem` key and the page renders no approve button.
+- A report whose companionships all fail to parse is not imported at all: the page renders no
+  steps and carries no message saying why.
 
 ## 2026-11-02 — Known limits of the board
 
@@ -153,3 +169,27 @@ Three things the board does not handle, recorded so they are not rediscovered as
 ### A queued insert can still outlive a delete it raced
 
 `delete` now clears the queue entry for the row first, which covers unassigning straight after assigning. If the send was already in flight the delete still lands before the insert, so the row can come back on the next sync. Deleting through the queue as well would close it.
+
+## 2026-11-03 — The import is two confirmed steps
+
+The popover no longer writes the whole report on one button. It writes in two steps, each with its own preview and its own Import button:
+
+1. **People** — the households and members the report names that the unit does not have, plus the rehomings that move a matched member into the household the report prints. Nothing is deleted; the only rows amended are rehomed members.
+2. **Ministering** — districts, companionships, roster and assignments, replacing the unit's whole structure, plus `ministering_position` on every minister and assigned household.
+
+Both steps are always shown: a report that creates nobody still gets its people step, whose button then only advances. The people step disappears once it has run — its rows exist, so a second press would re-insert them.
+
+The real ids the people step hands out are stashed as `placeholder → id`, and the ministering step resolves its placeholders through that map, so its preview is exactly what the first step committed. Re-resolving the report after the insert was rejected: `resolveReport` would then match the created people by name and could choose a different household, so the second preview could differ from the one that was approved.
+
+### Considered options
+
+- **One approve, as before** — simplest, and it keeps the whole import in one write sequence, but the human confirms the destructive half and the additive half in the same click, and a partially applied import is invisible.
+- **Re-resolve between the steps** — self-correcting against other devices, at the cost of a preview that can move under the cursor. Rejected for that reason.
+
+### Consequences
+
+- The destructive half is still a delete-then-insert with no transaction (see 2026-10-29). The split does not make it atomic; it only puts a human confirmation in front of the additive half.
+- A failed people step leaves created people behind. That is the harmless direction the old "people first" ordering already chose, now visible and interruptible.
+- The ministering step no longer merges changes into rows that are still only planned — the created people are ordinary stored rows by the time it runs — so the planned-row bookkeeping is gone.
+- An unreadable PDF shows nothing at all: the page has no copy for failures, so the steps simply do not appear.
+- Closing the popover between the steps gives up the parse; the PDF has to be uploaded again. The created people are already written and are matched by name on the next attempt.

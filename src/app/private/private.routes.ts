@@ -68,7 +68,7 @@ export const privateTabs: { [path: string]: PrivateTab } = {
             loadComponent: () => import('./callings/ministering/ministering-page').then(m => m.MinisteringPage),
             'import': {
                 insideParent: true,
-                loadComponent: () => import('./callings/ministering/ministering-import-page').then(m => m.MinisteringImportPage),
+                loadComponent: () => import('./callings/ministering/import/ministering-import-page').then(m => m.MinisteringImportPage),
             },
         },
         'member-calling/:member_calling': {

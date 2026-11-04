@@ -1,0 +1,149 @@
+<div class="page full-width gap-4" cdkDropListGroup>
+    <header class="row no-wrap items-center gap-3">
+        <span class="h0">{{ 'MINISTERING_PAGE.TITLE' | localize }}</span>
+        <div class="row gap-2 ms-auto">
+            @if (adminService.isUnitAdmin() && !adminService.editMode()) {
+                <app-async-button icon="edit" [onClick]="enableEditMode">
+                    {{ 'ENABLE_EDIT_MODE' | localize }}
+                </app-async-button>
+            }
+        </div>
+    </header>
+
+    <div class="ministering-board">
+        <aside class="card ministering-tray" cdkDropList
+            [cdkDropListDisabled]="!adminService.editMode()"
+            [cdkDropListEnterPredicate]="acceptsMember"
+            (cdkDropListDropped)="onMemberDrop($event, null)">
+            @for (member of board().unassignedBrothers; track member.id) {
+                <div class="ministering-person" cdkDrag [cdkDragData]="dragMember(member)"
+                    [cdkDragDisabled]="!adminService.editMode()">
+                    {{ memberName(member) }}
+                </div>
+            } @empty {
+                <p class="ministering-hint">{{ 'MINISTERING_PAGE.ALL_BROTHERS_ASSIGNED' | localize }}</p>
+            }
+        </aside>
+
+        <div class="column gap-4">
+            <app-row-card-list #districtList tableName="ministering_district"
+                [getQuery]="districtQuery"
+                [editable]="adminService.editMode()"
+                [fixedOrder]="true">
+                <ng-template #rowTemplate let-row let-onRemove="onRemove">
+                    <div class="column gap-2 p-2">
+                        <header class="row no-wrap items-center gap-2">
+                            <app-text-input class="grow-1"
+                                [value]="row.name"
+                                (valueChange)="renameDistrict(row.id, $event)"
+                                [disabled]="!adminService.editMode()"
+                                placeholder="{{ 'MINISTERING_PAGE.DISTRICT_NAME' | localize }}"/>
+                            @if (adminService.editMode()) {
+                                <app-button class="icon-only" type="subtle" icon="delete"
+                                    [title]="'MINISTERING_PAGE.DELETE_DISTRICT' | localize"
+                                    [disabled]="companionshipsOf(row.id).length > 0"
+                                    (onClick)="onRemove(row)"/>
+                            }
+                        </header>
+
+                        <div class="ministering-companionships" cdkDropList
+                            [cdkDropListDisabled]="!adminService.editMode()"
+                            [cdkDropListEnterPredicate]="acceptsArea"
+                            (cdkDropListDropped)="onAreaDrop($event, row.id)">
+                            @for (companionship of companionshipsOf(row.id); track companionship.area.id) {
+                                <article class="card canvas-card ministering-card" cdkDrag
+                                    [cdkDragData]="dragArea(companionship.area)"
+                                    [cdkDragDisabled]="!adminService.editMode()">
+                                    <header class="row no-wrap items-center gap-2">
+                                        @if (adminService.editMode()) {
+                                            <span class="ministering-handle" cdkDragHandle>
+                                                <app-icon icon="re_order_dots_vertical"/>
+                                            </span>
+                                            <app-button class="icon-only ms-auto" type="subtle" icon="delete"
+                                                [title]="'MINISTERING_PAGE.DELETE_COMPANIONSHIP' | localize"
+                                                (onClick)="removeCompanionship(companionship.area.id)"/>
+                                        }
+                                    </header>
+                                    <div class="ministering-columns">
+                                        <div class="ministering-column" cdkDropList
+                                            [cdkDropListDisabled]="!adminService.editMode()"
+                                            [cdkDropListEnterPredicate]="acceptsMember"
+                                            (cdkDropListDropped)="onMemberDrop($event, companionship.area.id)">
+                                            @for (member of companionship.ministers; track member.id) {
+                                                <div class="ministering-person" cdkDrag
+                                                    [cdkDragData]="dragMember(member)"
+                                                    [cdkDragDisabled]="!adminService.editMode()">
+                                                    {{ memberName(member) }}
+                                                </div>
+                                            } @empty {
+                                                <p class="ministering-hint">{{ 'MINISTERING_PAGE.NO_MINISTERS' | localize }}</p>
+                                            }
+                                        </div>
+                                        <div class="ministering-column" cdkDropList
+                                            [cdkDropListDisabled]="!adminService.editMode()"
+                                            [cdkDropListEnterPredicate]="acceptsHousehold"
+                                            (cdkDropListDropped)="onHouseholdDrop($event, companionship.area.id)">
+                                            @for (household of companionship.households; track household.id) {
+                                                <div cdkDrag [cdkDragData]="dragHousehold(household)"
+                                                    [cdkDragDisabled]="!adminService.editMode()">
+                                                    <app-chip [background]="[household.color_1, household.color_2]">
+                                                        {{ household.name }}
+                                                    </app-chip>
+                                                </div>
+                                            } @empty {
+                                                <p class="ministering-hint">{{ 'MINISTERING_PAGE.NO_HOUSEHOLDS' | localize }}</p>
+                                            }
+                                        </div>
+                                    </div>
+                                </article>
+                            }
+                            @if (adminService.editMode()) {
+                                <button type="button" class="ministering-add"
+                                    [title]="'MINISTERING_PAGE.ADD_COMPANIONSHIP' | localize"
+                                    (click)="addCompanionship(row.id)">
+                                    <app-icon icon="add"/>
+                                </button>
+                            }
+                        </div>
+                    </div>
+                </ng-template>
+
+                <ng-template #insertTemplate let-functions let-prepareInsert="prepareInsert">
+                    <div class="row gap-2 items-center">
+                        <app-text-input class="grow-1"
+                            [value]="newDistrictName()"
+                            (valueChange)="newDistrictName.set($event ?? '')"
+                            placeholder="{{ 'MINISTERING_PAGE.DISTRICT_NAME' | localize }}"/>
+                        <app-button icon="checkmark" [disabled]="!canInsertDistrict()"
+                            (onClick)="insertDistrict(functions.insert, prepareInsert)"/>
+                        <app-button icon="dismiss" type="subtle" (onClick)="functions.cancel()"/>
+                    </div>
+                </ng-template>
+            </app-row-card-list>
+
+            @if (adminService.editMode() || districtList.rowCount() == 0) {
+                <app-link-button icon="archive_arrow_back" size="large" hideNewTab
+                    [type]="districtList.rowCount() == 0 ? 'primary' : 'secondary'"
+                    href="/callings/ministering/import">
+                    {{ 'MINISTERING_PAGE.IMPORT_FROM_LCR' | localize }}
+                </app-link-button>
+            }
+        </div>
+
+        <aside class="card ministering-tray" cdkDropList
+            [cdkDropListDisabled]="!adminService.editMode()"
+            [cdkDropListEnterPredicate]="acceptsHousehold"
+            (cdkDropListDropped)="onHouseholdDrop($event, null)">
+            @for (household of board().unassignedHouseholds; track household.id) {
+                <div cdkDrag [cdkDragData]="dragHousehold(household)"
+                    [cdkDragDisabled]="!adminService.editMode()">
+                    <app-chip [background]="[household.color_1, household.color_2]">
+                        {{ household.name }}
+                    </app-chip>
+                </div>
+            } @empty {
+                <p class="ministering-hint">{{ 'MINISTERING_PAGE.ALL_HOUSEHOLDS_MINISTERED' | localize }}</p>
+            }
+        </aside>
+    </div>
+</div>

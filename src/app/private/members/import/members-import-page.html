@@ -9,7 +9,7 @@
     <app-link-button href="https://lcr.churchofjesuschrist.org/records/member-list"
         icon="open" size="large"
         outside newTab type="secondary">
-        <span outside>{{ 'MEMBERS_PAGE.LCR_MEMBER_LIST' | localize }}</span>
+        <span outside>{{ 'MEMBERS_IMPORT_PAGE.LCR_MEMBER_LIST' | localize }}</span>
     </app-link-button>
     <app-file-button type="secondary" size="large"
         [accept]="FileType.pdf"
@@ -33,10 +33,10 @@
             </app-checkbox>
         </div>
         <div class="column gap-4">
-            <div class="names-container card canvas-background-card gap-0 overflow-scroll">
+            <div class="names-container card canvas-background gap-0 overflow-scroll">
                 @for (household of info.households; track $index; let householdIndex = $index) {
                     @if (household.members.length) {
-                        <div class="row items-center gap-1 household-row canvas-background p-1">
+                        <div class="row items-center gap-1 p-1 no-wrap">
                             @if (hasSelectable(household)) {
                                 <app-checkbox
                                     [value]="isHouseholdSelected(household)"
@@ -46,7 +46,6 @@
                             } @else {
                                 <span class="no-text-wrap semibold-text ms-6">{{ household.name }}</span>
                             }
-                            <span class="subtle-text ms-auto">{{ selectedMembers(household) }} / {{ selectableMembers(household) }}</span>
                         </div>
                         @for (member of household.members; track $index; let memberIndex = $index) {
                             <div class="row items-center gap-1 ps-6">
@@ -58,7 +57,7 @@
                                         <span class="{{member.duplicate ? '' : (member.gender === 'male' ? memberView.brotherColor : memberView.sisterColor)}}-text">
                                             {{ (member.gender === 'male' ? 'BROTHER_SHORT' : 'SISTER_SHORT') | localize }}
                                         </span>
-                                        {{ member.first_name }} {{ member.last_name }}
+                                        {{ member.first_name }}
                                     </span>
                                 </app-checkbox>
                             </div>
@@ -66,7 +65,7 @@
                     }
                 }
                 @if (info.unlinked.length) {
-                    <div class="row items-center gap-1 household-row canvas-background p-1">
+                    <div class="row items-center gap-1 p-1">
                         <span class="no-text-wrap semibold-text">{{ 'MEMBERS_IMPORT_PAGE.NO_HOUSEHOLD_MATCH' | localize }}</span>
                     </div>
                     @for (member of info.unlinked; track $index; let memberIndex = $index) {

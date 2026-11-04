@@ -147,13 +147,13 @@ export const LOCALIZATION = {
   MEMBERS_PAGE: {
     TITLE: "Members",
     JOIN_REQUESTS: "Join Requests",
-    LCR_MEMBER_LIST: "LCR Member Directory",
     IMPORT_FROM_LCR: "Import from LCR",
   },
   MEMBERS_IMPORT_PAGE: {
     TITLE: "Import Members from LCR",
     INSTRUCTIONS_1: "Print the member list and the household list from LCR as PDF files",
     INSTRUCTIONS_2: "Upload both PDF files here",
+    LCR_MEMBER_LIST: "LCR Member Directory",
     UPLOAD_MEMBERS_BUTTON: "Upload Member List",
     UPLOAD_HOUSEHOLDS_BUTTON: "Upload Household List",
     UPLOAD_BUTTON: "Upload PDF",
@@ -196,8 +196,8 @@ export const LOCALIZATION = {
   },
   MINISTERING_IMPORT_PAGE: {
     TITLE: "Import ministering from LCR",
-    INSTRUCTIONS_1: "Print the ministering assignments report from LCR as a PDF file",
-    INSTRUCTIONS_2: "upload the PDF file here",
+    INSTRUCTIONS: "Print > All Assignments > Single Copy > Print > Save",
+    LCR_MINISTERING: "LCR Ministering Assignments",
     UPLOAD_BUTTON: "Upload PDF",
     IMPORT_BUTTON: "Import",
   },
