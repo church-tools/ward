@@ -47,7 +47,7 @@ import { PrivatePage } from '../shared/private-page';
                 </app-row-card-list>
                 @if (adminService.editMode()) {
                     <app-link-button icon="archive_arrow_back" size="large" hideNewTab
-                    [type]="householdList.rowCount() == 0 ? 'primary' : 'secondary'"
+                    [type]="householdList.initialized() && !householdList.rowCount() ? 'primary' : 'secondary'"
                         href="/members/import">
                         {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
                     </app-link-button>

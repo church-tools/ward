@@ -65,4 +65,21 @@ describe('ExpandableCard', () => {
         fixture.detectChanges();
         expect(body()).toBeNull();
     });
+
+    it('keeps the body when reopened before the collapse animation finished', async () => {
+        const component = fixture.componentInstance;
+        component.expanded.set(true);
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(600);
+
+        component.expanded.set(false);
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(100);
+
+        component.expanded.set(true);
+        fixture.detectChanges();
+        await vi.advanceTimersByTimeAsync(600);
+        fixture.detectChanges();
+        expect(body()).not.toBeNull();
+    });
 });
