@@ -126,6 +126,7 @@ describe('parseReport', () => {
             ...text(HOUSEHOLD_X, 'Becker', 60),
             ...text(MEMBER_X, 'Becker, Immanuel', 60),
             ...text(GENDER_X, 'male 45 Mar', 60),
+            ...text(HOUSEHOLD_X, 'becker@example.com', 72),
             ...text(HOUSEHOLD_X, 'Rohdenburg', 80),
             ...text(MEMBER_X, 'Rohdenburg, Dane Joseph', 92),
             ...text(GENDER_X, 'male 17 Aug', 92),
@@ -144,6 +145,69 @@ describe('parseReport', () => {
                 ],
             },
         ]);
+    });
+
+    it('keeps members in the household even when its printed name is not their surname', () => {
+        // A blended household prints the household record's name (`Davila`), not the members'.
+        const districts = parseReport([[
+            ...header('Nord', 'Becker, Immanuel', 20),
+            ...text(HOUSEHOLD_X, 'Aryeetey', 60),
+            ...text(MEMBER_X, 'Aryeetey, Emmanuel', 60),
+            ...text(GENDER_X, 'male 14 Aug', 60),
+            ...text(HOUSEHOLD_X, 'maximilianoiirrazabal@gmail.com', 72),
+            ...text(HOUSEHOLD_X, 'Davila', 80),
+            ...text(MEMBER_X, 'Irrazabal, Maximiliano Sebastian', 92),
+            ...text(GENDER_X, 'male 15 Mar', 92),
+            ...text(MEMBER_X, 'Irrazábal, Paulina', 104),
+            ...text(GENDER_X, 'female 7 Jan', 104),
+            ...rule(128),
+        ]]);
+
+        expect(districts[0].companionships[0].households).toEqual([
+            { name: 'Aryeetey', members: [{ name: 'Aryeetey, Emmanuel', gender: 'male' }] },
+            {
+                name: 'Davila',
+                members: [
+                    { name: 'Irrazabal, Maximiliano Sebastian', gender: 'male' },
+                    { name: 'Irrazábal, Paulina', gender: 'female' },
+                ],
+            },
+        ]);
+    });
+
+    it('does not mistake a contact line for a family name', () => {
+        const districts = parseReport([[
+            ...header('Nord', 'Becker, Immanuel', 20),
+            ...text(HOUSEHOLD_X, 'Lainez', 60),
+            ...text(MEMBER_X, 'Lainez, Lilian Arely', 60),
+            ...text(GENDER_X, 'female 15 Mar', 60),
+            ...text(HOUSEHOLD_X, '+491625738887', 72),
+            ...text(HOUSEHOLD_X, 'DE Hamburgo', 80),
+            ...text(MEMBER_X, 'Lainez, Angel Martinez', 80),
+            ...text(GENDER_X, 'male 25 Sep', 80),
+            ...rule(104),
+        ]]);
+
+        expect(districts[0].companionships[0].households).toEqual([{
+            name: 'Lainez',
+            members: [
+                { name: 'Lainez, Lilian Arely', gender: 'female' },
+                { name: 'Lainez, Angel Martinez', gender: 'male' },
+            ],
+        }]);
+    });
+
+    it('reads a member name that runs past the old member column', () => {
+        const districts = parseReport([[
+            ...header('Nord', 'Becker, Immanuel', 20),
+            ...text(HOUSEHOLD_X, 'Essenwanger Valderrama', 60),
+            ...text(MEMBER_X, 'Essenwanger Valderrama, Ludwig Walter', 60),
+            ...text(GENDER_X, 'male 7 Oct', 60),
+            ...rule(72),
+        ]]);
+
+        expect(districts[0].companionships[0].households[0].members)
+            .toEqual([{ name: 'Essenwanger Valderrama, Ludwig Walter', gender: 'male' }]);
     });
 
     it('reads a presidency line that runs past the minister column', () => {
@@ -304,6 +368,11 @@ describe('splitName', () => {
             .toEqual({ last: 'Ikwo', first: 'Ukiwe Kalu', nick: 'Chucks' });
         expect(splitName('Ikwo, Ukiwe Kalu'))
             .toEqual({ last: 'Ikwo', first: 'Ukiwe Kalu' });
+    });
+
+    it('closes the printer’s space after a hyphen', () => {
+        expect(splitName('Lüning, Jobst- Dieter')).toEqual({ last: 'Lüning', first: 'Jobst-Dieter' });
+        expect(splitName('Aboagye- Sarpong, Carl')).toEqual({ last: 'Aboagye-Sarpong', first: 'Carl' });
     });
 });
 

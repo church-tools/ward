@@ -21,7 +21,7 @@
                     {{ memberName(member) }}
                 </div>
             } @empty {
-                <p class="ministering-hint">{{ 'MINISTERING_PAGE.ALL_BROTHERS_ASSIGNED' | localize }}</p>
+                <p class="ministering-hint">–</p>
             }
         </aside>
 
@@ -76,7 +76,7 @@
                                                     {{ memberName(member) }}
                                                 </div>
                                             } @empty {
-                                                <p class="ministering-hint">{{ 'MINISTERING_PAGE.NO_MINISTERS' | localize }}</p>
+                                                <p class="ministering-hint">–</p>
                                             }
                                         </div>
                                         <div class="ministering-column" cdkDropList
@@ -91,7 +91,7 @@
                                                     </app-chip>
                                                 </div>
                                             } @empty {
-                                                <p class="ministering-hint">{{ 'MINISTERING_PAGE.NO_HOUSEHOLDS' | localize }}</p>
+                                                <p class="ministering-hint">–</p>
                                             }
                                         </div>
                                     </div>
@@ -142,7 +142,7 @@
                     </app-chip>
                 </div>
             } @empty {
-                <p class="ministering-hint">{{ 'MINISTERING_PAGE.ALL_HOUSEHOLDS_MINISTERED' | localize }}</p>
+                <p class="ministering-hint">–</p>
             }
         </aside>
     </div>

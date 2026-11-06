@@ -149,6 +149,8 @@ export const LOCALIZATION: Localization = {
     TITLE: "Mitglieder",
     JOIN_REQUESTS: "Beitrittsanfragen",
     IMPORT_FROM_LCR: "Aus LCR importieren",
+    RESET_ALL: "Alle löschen",
+    RESET_ALL_CONFIRMATION: "Alle Mitglieder, Haushalte, Berufungen und Betreuungs-Zuweisungen löschen?",
   },
   MEMBERS_IMPORT_PAGE: {
     TITLE: "Mitglieder aus LCR importieren",

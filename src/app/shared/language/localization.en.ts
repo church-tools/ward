@@ -148,6 +148,8 @@ export const LOCALIZATION = {
     TITLE: "Members",
     JOIN_REQUESTS: "Join Requests",
     IMPORT_FROM_LCR: "Import from LCR",
+    RESET_ALL: "Delete all",
+    RESET_ALL_CONFIRMATION: "Delete all members, households, callings and ministering assignments?",
   },
   MEMBERS_IMPORT_PAGE: {
     TITLE: "Import Members from LCR",

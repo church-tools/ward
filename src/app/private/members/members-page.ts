@@ -2,9 +2,12 @@ import { Household } from '@/modules/household/household';
 import { HouseholdListInsert } from '@/modules/household/household-list-insert';
 import { HouseholdListRow } from '@/modules/household/household-list-row';
 import { RowCardList } from "@/modules/shared/row-card-list/row-card-list";
-import { Table } from '@/modules/shared/table.types';
+import { Table, TableName } from '@/modules/shared/table.types';
+import { AsyncButton } from '@/shared/form/button/async/async-button';
 import LinkButton from '@/shared/form/button/link/link-button';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
+import { SupabaseService } from '@/shared/service/supabase.service';
+import { PopoverService } from '@/shared/widget/popover/popover.service';
 import { Component, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DrawerRouterOutlet } from "../shared/drawer-router-outlet/drawer-router-outlet";
@@ -51,18 +54,24 @@ import { PrivatePage } from '../shared/private-page';
                         href="/members/import">
                         {{ 'MEMBERS_PAGE.IMPORT_FROM_LCR' | localize }}
                     </app-link-button>
+                    <app-async-button icon="delete" type="secondary" size="large"
+                        [onClick]="resetMembers">
+                        {{ 'MEMBERS_PAGE.RESET_ALL' | localize }}
+                    </app-async-button>
                 }
             </div>
         </app-drawer-router-outlet>
     `,
     imports: [LocalizePipe, RowCardList, HouseholdListRow, HouseholdListInsert, LinkButton,
-        DrawerRouterOutlet],
+        DrawerRouterOutlet, AsyncButton],
     host: { class: 'full-width' },
 })
 export class MembersPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
+    private readonly supabase = inject(SupabaseService);
+    private readonly popover = inject(PopoverService);
 
     protected readonly activeMemberId = signal<number | null>(null);
 
@@ -82,6 +91,29 @@ export class MembersPage extends PrivatePage {
 
     protected onActivate(id: string | null) {
         this.activeMemberId.set(id ? +id : null);
+    }
+
+    protected readonly resetMembers = async () => {
+        const confirmed = await this.popover.confirm(
+            'DELETE_CONFIRMATION.TITLE',
+            'MEMBERS_PAGE.RESET_ALL_CONFIRMATION',
+            'DELETE_CONFIRMATION.CONFIRM',
+            'DELETE_CONFIRMATION.CANCEL');
+        if (!confirmed) return;
+
+        const names: TableName[] = ['member_ministering_in', 'household_ministered_in',
+            'ministering_area', 'ministering_district', 'member_calling', 'member', 'household'];
+        for (const name of names) await this.deleteAll(name);
+
+        for (const profile of await this.supabase.sync.from('profile').readAll().get())
+            if (profile.member !== null)
+                await this.supabase.sync.from('profile').update({ ...profile, member: null });
+    };
+
+    private async deleteAll(name: TableName) {
+        const table: Table<TableName> = this.supabase.sync.from(name);
+        const rows = await table.readAll().get();
+        if (rows.length) await table.update(rows.map(row => ({ ...row, deleted: true })));
     }
 }
 

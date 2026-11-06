@@ -329,13 +329,15 @@ export type ReportedHousehold = { name: string; members: ReportedPerson[] };
 export type ReportedCompanionship = { ministers: ReportedPerson[]; households: ReportedHousehold[] };
 export type ReportedDistrict = { name: string; interviewer: ReportedPerson | null; companionships: ReportedCompanionship[] };
 
-/** Column bands, measured from `.references/Ministering Assignments.pdf`. */
+/** Column bands, measured from `.references/Ministering Assignments.pdf`. A printed name can run
+ *  past the member column (`Essenwanger Valderrama, Ludwig Walter` ends at x 518) but never
+ *  reaches the gender column at x 571. */
 const MINISTER_MAX_X = 185;
 const HOUSEHOLD_MIN_X = 185;
 const HOUSEHOLD_MAX_X = 350;
 const MEMBER_MIN_X = 350;
-const MEMBER_MAX_X = 505;
-const GENDER_MIN_X = 505;
+const MEMBER_MAX_X = 560;
+const GENDER_MIN_X = 560;
 const GENDER_MAX_X = 620;
 
 /**
@@ -362,9 +364,10 @@ const GENDER = /^(m|f|male|female)$/i;
  *   why the interviewer is taken from the header block only;
  * - ministers in the left column (`Surname, Given`) with their phone/address/email stacked below;
  * - the household's family name at x ≈ 195, its members (`Surname, Given`) at x ≈ 361, gender at
- *   x ≈ 571. The name is centred on the family's contact block, so it prints either on the first
- *   member's row or on a row of its own above it; the members below it, until the next name, are
- *   its members.
+ *   x ≈ 571. The name is the first line of the household's contact block, so it prints either on
+ *   the first member's row or on a row of its own above it; the members below it, until the next
+ *   name, are its members. The name is the household record's — a blended family's members carry
+ *   a different surname, so the printed name is taken as it is rather than matched to them.
  */
 export function parseReport(pages: PdfTextRun[][]): ReportedDistrict[] {
     const districts: ReportedDistrict[] = [];
@@ -584,9 +587,10 @@ function readCompanionship(block: PdfRow[]): ReportedCompanionship | null {
     const ministers: ReportedPerson[] = [];
     const households: ReportedHousehold[] = [];
     let household: ReportedHousehold | null = null;
-    // The report centres a family's name on its contact block, so it can print on a row that has
-    // no member on it. That name still belongs to the members printed below it.
+    // A family name can print on a row with no member on it, so the household it opens starts
+    // with the first member printed under it.
     let pending = '';
+    let previous = '';
 
     for (const row of block) {
         if (isPresidencyRow(row)) continue;
@@ -594,21 +598,30 @@ function readCompanionship(block: PdfRow[]): ReportedCompanionship | null {
         if (minister) ministers.push(minister);
 
         const contact = band(row, HOUSEHOLD_MIN_X, HOUSEHOLD_MAX_X).trim();
+        if (isFamilyName(contact) && endsBlock(previous)) pending = contact;
+        if (contact) previous = contact;
+
         const person = personIn(band(row, MEMBER_MIN_X, MEMBER_MAX_X));
-        if (!person) {
-            if (isFamilyName(contact)) pending = contact;
-            continue;
-        }
+        if (!person) continue;
         person.gender = genderIn(band(row, GENDER_MIN_X, GENDER_MAX_X));
-        const name = isFamilyNameOf(contact, person.name) ? contact : pending;
-        if (isFamilyNameOf(name, person.name)) {
-            household = { name, members: [] };
+        if (pending) {
+            household = { name: pending, members: [] };
             households.push(household);
+            pending = '';
         }
-        pending = '';
-        if (household) household.members.push(person);
+        household?.members.push(person);
     }
     return ministers.length || households.length ? { ministers, households } : null;
+}
+
+/**
+ * A household's contact block ends with its email or its postal line; every other line of the
+ * block is a phone, street or note. Only a line that ends a block can be followed by a new
+ * family name — without this, an address line such as `bei Schulte` or `DE Hamburgo` would open
+ * a household of its own.
+ */
+function endsBlock(text: string): boolean {
+    return !text || text.includes('@') || /^(?:D-)?\d{5}\b/.test(text);
 }
 
 function presidencyPerson(block: PdfRow[]): ReportedPerson | null {
@@ -628,12 +641,6 @@ function isPresidencyRow(row: PdfRow): boolean {
 /** A cell that can only hold a family name: no digits, no contact details, at least two letters. */
 function isFamilyName(text: string): boolean {
     return !/[\d@,:|]/.test(text) && /\p{L}{2}/u.test(text);
-}
-
-function isFamilyNameOf(contact: string, name: string): boolean {
-    if (!isFamilyName(contact)) return false;
-    const surname = normalize(surnameOf(name));
-    return normalize(contact) === surname || normalize(lastWord(contact)) === surname;
 }
 
 function personIn(text: string): ReportedPerson | null {
@@ -657,7 +664,9 @@ function band(row: PdfRow, minX: number, maxX: number): string {
  * bracketed word is the nickname the report prints beside the given names. */
 export function splitName(name: string): { last: string; first: string; nick?: string } {
     const bracket = /\s*\(([^)]*)\)\s*$/.exec(name);
-    const printed = (bracket ? name.slice(0, bracket.index) : name).trim();
+    // LCR prints a hyphenated name as `Jobst- Dieter`; the space after the hyphen is the printer's,
+    // not the name's.
+    const printed = (bracket ? name.slice(0, bracket.index) : name).replace(/(\p{L})-\s+/gu, '$1-').trim();
     const nick = bracket?.[1].trim();
 
     const comma = printed.indexOf(',');
@@ -699,10 +708,6 @@ export function chooseGivenNames(members: ImportPlan['members']): Map<number, st
     return chosen;
 }
 
-function surnameOf(name: string): string {
-    return splitName(name).last;
-}
-
 function personKey(lastName: string, firstName: string): string {
     return `${normalize(lastName)}|${normalize(firstName)}`;
 }
@@ -710,10 +715,6 @@ function personKey(lastName: string, firstName: string): string {
 /** Household names are `Family, First` from the member import, `Family` from this one. */
 function surnameKey(name: string): string {
     return normalize(name.split(',')[0]);
-}
-
-function lastWord(text: string): string {
-    return text.trim().split(/\s+/).pop() ?? '';
 }
 
 function normalize(value: string): string {
