@@ -168,6 +168,7 @@ export const LOCALIZATION: Localization = {
     FIRST_NAME: "Vorname",
     NICK_NAME: "Spitzname",
     LAST_NAME: "Nachname",
+    CAN_MINISTER: "Kann Betreuen",
   },
   HOUSEHOLD_PAGE: {
   },
@@ -366,4 +367,10 @@ export const LOCALIZATION: Localization = {
   U: "U",
   S: "D",
   NONE: "Nichts",
+  EDGE_PANEL: {
+    PIN: "Offen halten",
+    UNPIN: "Nicht mehr offen halten",
+    SHOW: "Anzeigen",
+    HIDE: "Ausblenden",
+  },
 }

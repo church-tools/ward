@@ -2,14 +2,14 @@ import { MemberViewService } from '@/modules/member/member-view.service';
 import { RichText } from "@/shared/form/rich-text/rich-text";
 import { Select } from "@/shared/form/select/select";
 import { SelectResult } from "@/shared/form/select/select-result";
+import Switch from '@/shared/form/switch/switch';
 import { TextInput } from '@/shared/form/text/text-input';
+import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { asyncComputed } from '@/shared/utils/signal-utils';
 import { SyncedFieldDirective } from "@/shared/utils/supa-sync/synced-field.directive";
 import { Component, inject } from '@angular/core';
-import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
-import Switch from '@/shared/form/switch/switch';
 
 @Component({
     selector: 'app-member-page',

@@ -163,10 +163,11 @@ export const LOCALIZATION = {
     SELECTED: "selected",
   },
   MEMBER_PAGE: {
-    SALUTATION: "Anrede",
+    SALUTATION: "Salutation",
     FIRST_NAME: "First Name",
     NICK_NAME: "Nickname",
     LAST_NAME: "Last Name",
+    CAN_MINISTER: "Can Minister",
   },
   HOUSEHOLD_PAGE: {
   },
@@ -365,6 +366,12 @@ export const LOCALIZATION = {
   U: "U",
   S: "S",
   NONE: "None",
+  EDGE_PANEL: {
+    PIN: "Keep open",
+    UNPIN: "Stop keeping open",
+    SHOW: "Show",
+    HIDE: "Hide",
+  },
 } as const;
 
 type DeepStringLeaves<T> = T extends string ? string : { [K in keyof T]: DeepStringLeaves<T[K]> };
