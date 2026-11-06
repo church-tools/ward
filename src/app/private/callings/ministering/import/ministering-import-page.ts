@@ -217,6 +217,11 @@ export class MinisteringImportPage extends PrivatePage {
             }
         }
 
+        const assignedMembers = new Set(roster.map(entry => entry.member));
+        for (const row of memberTable)
+            if (row.gender === 'male' && row.can_minister && !assignedMembers.has(row.id))
+                memberChanges.set(row.id, { ...row, can_minister: false });
+
         await Promise.all([
             ...rosterRows.map(row => sync.from('member_ministering_in').delete(row)),
             ...assignmentRows.map(row => sync.from('household_ministered_in').delete(row)),

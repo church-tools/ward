@@ -9,6 +9,7 @@ import { Component, inject } from '@angular/core';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import { RowHistory } from "../shared/row-history";
 import { RowPage } from '../shared/row-page';
+import Switch from '@/shared/form/switch/switch';
 
 @Component({
     selector: 'app-member-page',
@@ -32,20 +33,22 @@ import { RowPage } from '../shared/row-page';
                 class="col-md-5" name="nick_name"
                 label="{{ 'MEMBER_PAGE.NICK_NAME' | localize }}"/>
             <app-text-input [syncedRow]="syncedRow" column="last_name"
-                class="col-12" name="last_name"
+                class="col-6" name="last_name"
                 label="{{ 'MEMBER_PAGE.LAST_NAME' | localize }}"/>
             <app-select [syncedRow]="syncedRow" column="household"
-                class="col-12" name="household" [required]="true"
+                class="col-6" name="household" [required]="true"
                 [options]="householdOptions()"
-                label="{{ 'MEMBER_PAGE.HOUSEHOLD' | localize }}"/>
+                label="{{ 'VIEW.HOUSEHOLD' | localize }}"/>
             <app-rich-text [syncedRow]="syncedRow" column="notes" name="notes"
                 class="col-12" label="{{ 'NOTES' | localize }}"/>
+            <app-switch [syncedRow]="syncedRow" column="can_minister" name="can_minister"
+                class="col-12" label="{{ 'MEMBER_PAGE.CAN_MINISTER' | localize }}"/>
         </div>
         <app-row-history [row]="syncedRow.value()" class="mt-auto"/>
     `,
     host: { class: 'page narrow full-height' },
     imports: [LocalizePipe, TextInput, RowHistory,
-    SyncedFieldDirective, Select, SelectResult, RichText],
+        SyncedFieldDirective, Select, SelectResult, RichText, Switch],
 })
 export class MemberPage extends RowPage<'member'> {
 

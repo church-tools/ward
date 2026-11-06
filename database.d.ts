@@ -10,7 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.15"
+    PostgrestVersion: "14.18"
   }
   public: {
     Tables: {
@@ -464,6 +464,7 @@ export type Database = {
       }
       member: {
         Row: {
+          can_minister: boolean
           created_at: string
           deleted: boolean
           first_name: string
@@ -478,6 +479,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          can_minister?: boolean
           created_at?: string
           deleted?: boolean
           first_name: string
@@ -492,6 +494,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          can_minister?: boolean
           created_at?: string
           deleted?: boolean
           first_name?: string
