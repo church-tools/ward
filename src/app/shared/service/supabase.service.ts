@@ -46,7 +46,7 @@ export class SupabaseService {
         calling: { orderKey: 'position', indexed: { organization: Number, gender_restriction: String },
             calculated: CallingCalculated,
             getSummaryString: inject(CallingViewService).toString },
-        member: { version: 1, indexed: { profile: Number, gender: String, household: Number },
+        member: { version: 2, indexed: { profile: Number, gender: String, household: Number },
             getSummaryString: inject(MemberViewService).toString },
         household: { version: 1, indexed: { name: String, unit: Number },
             getSummaryString: inject(HouseholdViewService).toString },

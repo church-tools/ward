@@ -1,0 +1,18 @@
+<div #slot class="slot"
+    (pointerenter)="onPointerEnter($event)"
+    (pointerleave)="onPointerLeave($event)">
+    <div #card class="panel-card acrylic-card" tabindex="0" role="group"
+        [attr.aria-label]="(open() ? 'EDGE_PANEL.HIDE' : 'EDGE_PANEL.SHOW') | localize"
+        [style.translate]="translation() === null ? null : translation() + 'px'"
+        (pointerdown)="onPointerDown($event)"
+        (lostpointercapture)="$event.target === card && slide.onPointerCancel($event)"
+        (focusin)="focused.set(true)"
+        (focusout)="onFocusOut($event)"
+        (keydown)="onKeyDown($event)">
+        <app-button class="icon-only corner-pin" type="subtle"
+            [icon]="pinned() ? 'pin_off' : 'pin'"
+            [title]="(pinned() ? 'EDGE_PANEL.UNPIN' : 'EDGE_PANEL.PIN') | localize"
+            (onClick)="togglePin()"/>
+        <ng-content/>
+    </div>
+</div>

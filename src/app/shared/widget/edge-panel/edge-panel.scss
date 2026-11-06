@@ -1,0 +1,95 @@
+@use "animation";
+
+:host {
+    --edge-panel-gap: 1rem;
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    overflow: clip;
+    pointer-events: none;
+    z-index: 10;
+
+    &.right {
+        justify-content: flex-end;
+    }
+}
+
+.slot {
+    width: min(calc(var(--edge-panel-width) + var(--edge-panel-gap)), 100%);
+    box-sizing: border-box;
+    padding-left: var(--edge-panel-gap);
+    max-height: 100%;
+    display: flex;
+
+    :host(.right) & {
+        padding-left: 0;
+        padding-right: var(--edge-panel-gap);
+    }
+
+    // Only the open slot catches input: its padding keeps the gap hoverable.
+    :host(.open) & {
+        pointer-events: auto;
+    }
+}
+
+.panel-card {
+    position: relative;
+    width: 100%;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    padding: 2.5rem 1rem 1rem;
+    overflow-y: auto;
+    pointer-events: auto;
+    touch-action: pan-y;
+    cursor: grab;
+    translate: calc(-100% - var(--edge-panel-gap) + var(--edge-panel-peek));
+    transition: translate animation.$duration animation.$ease-out, visibility 0s;
+
+    :host(.right) & {
+        translate: calc(100% + var(--edge-panel-gap) - var(--edge-panel-peek));
+    }
+
+    :host(.open) & {
+        translate: 0;
+    }
+
+    :host(.hidden) & {
+        translate: calc(-100% - var(--edge-panel-gap));
+        visibility: hidden;
+        pointer-events: none;
+        transition-delay: 0s, animation.$duration;
+    }
+
+    :host(.right.hidden) & {
+        translate: calc(100% + var(--edge-panel-gap));
+    }
+
+    :host(.sliding) & {
+        transition: none;
+        cursor: grabbing;
+        user-select: none;
+    }
+
+    &:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: -2px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        transition: none;
+    }
+}
+
+.corner-pin {
+    position: absolute;
+    top: 0.25rem;
+    right: 0.25rem;
+
+    :host(.right) & {
+        right: auto;
+        left: 0.25rem;
+    }
+}

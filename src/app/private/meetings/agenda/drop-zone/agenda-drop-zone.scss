@@ -1,50 +1,19 @@
-@use "animation";
+@use "card";
 
+// The card itself is the panel's; these are the rows it holds.
 :host {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    width: 0;
-    pointer-events: none;
-    transition: transform animation.$duration animation.$ease-out,
-                opacity animation.$duration animation.$ease-out;
-    transform: translateX(-10rem);
-    opacity: 0;
-    transition-timing-function: animation.$ease-in;
-    &.visible {
-        opacity: 1;
-        pointer-events: auto;
-        transition-timing-function: animation.$ease-out;
-        transform: translateX(1rem);
-    }
+    display: contents;
 }
 
+.card {
+    position: relative;
+    justify-content: center;
 
-.drop-zone {
-    top: 50%;
-    position: sticky;
-    transition: transform animation.$duration animation.$ease-out;
-    transform: translateY(-50%);
-    padding-left: 3rem;
-    right: 0;
-    justify-self: right;
-    &.drag-over {
-        transform: translate(calc(100% - 6rem), -50%);
+    .indicator {
+        position: absolute;
+        width: 4px;
+        height: 32px;
+        right: 4px;
+        border-radius: 2px;
     }
-    .acrylic-card {
-        min-width: 200pt;
-        .card {
-            position: relative;
-            justify-content: center;
-            .indicator {
-                position: absolute;
-                width: 4px;
-                height: 32px;
-                right: 4px;
-                border-radius: 2px;
-            }
-        }
-    }
-
 }

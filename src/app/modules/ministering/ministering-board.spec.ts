@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { buildBoard, placement, type BoardHousehold, type BoardMember } from './ministering-board';
 
-function member(id: number, first: string, position: number, gender: 'male' | 'female' = 'male'): BoardMember {
-    return { id, first_name: first, last_name: 'Smith', nick_name: null, gender, ministering_position: position };
+function member(id: number, first: string, position: number, gender: 'male' | 'female' = 'male', canMinister = true): BoardMember {
+    return { id, first_name: first, last_name: 'Smith', nick_name: null, gender, can_minister: canMinister, ministering_position: position };
 }
 
 function household(id: number, name: string, position: number): BoardHousehold {
@@ -32,10 +32,11 @@ describe('buildBoard', () => {
         expect(board.districts[0].companionships[1].ministers.map(m => m.first_name)).toEqual(['Ada', 'Amy', 'Bob', 'Zed']);
     });
 
-    it('puts a brother in no companionship in the unassigned list, and sisters never', () => {
+    it('puts a brother in no companionship in the unassigned list, and sisters or brothers who cannot minister never', () => {
         const board = buildBoard({
             districts, areas,
-            members: [member(1, 'Assigned', 0), member(2, 'Unassigned', 1), member(3, 'Sister', 2, 'female')],
+            members: [member(1, 'Assigned', 0), member(2, 'Unassigned', 1),
+                member(3, 'Sister', 2, 'female'), member(4, 'NotCalled', 3, 'male', false)],
             households: [],
             roster: [{ member: 1, ministering_area: 10 }],
             assignments: [],

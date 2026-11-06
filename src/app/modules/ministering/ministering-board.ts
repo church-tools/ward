@@ -3,7 +3,7 @@ import type { Member } from "../member/member";
 import type { HouseholdMinisteredIn, MemberMinisteringIn, MinisteringArea, MinisteringDistrict } from "./ministering";
 
 /** What the board needs to know about each row, and nothing else. */
-export type BoardMember = Pick<Member.Row, 'id' | 'first_name' | 'last_name' | 'nick_name' | 'gender' | 'ministering_position'>;
+export type BoardMember = Pick<Member.Row, 'id' | 'first_name' | 'last_name' | 'nick_name' | 'gender' | 'can_minister' | 'ministering_position'>;
 export type BoardHousehold = Pick<Household.Row, 'id' | 'name' | 'color_1' | 'color_2' | 'ministering_position'>;
 export type BoardCompanionship = {
     area: Pick<MinisteringArea.Row, 'id' | 'position'>;
@@ -79,9 +79,9 @@ export function buildBoard({ districts, areas, members, households, roster, assi
                 companionships: (companionshipsByDistrict.get(district.id) ?? [])
                     .sort((a, b) => a.area.position - b.area.position || a.area.id - b.area.id),
             })),
-        // Only brothers minister here; a companionship of sisters is out of this board's scope.
+        // Only brothers who can minister are offered here; a companionship of sisters is out of this board's scope.
         unassignedBrothers: members
-            .filter(member => member.gender === 'male' && !assignedMemberIds.has(member.id))
+            .filter(member => member.gender === 'male' && member.can_minister && !assignedMemberIds.has(member.id))
             .sort(compareMinisters),
         unassignedHouseholds: households
             .filter(household => !assignedHouseholdIds.has(household.id))

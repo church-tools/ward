@@ -1,36 +1,24 @@
 @use "animation";
 @use "card";
+@use "color";
 @use "font";
 @use "input";
-
-// Desktop-first (see DECISIONS.md): under this width the board scrolls sideways instead of
-// stacking the trays above the companionhips.
-$board-min-width: 62rem;
-$tray-width: 13rem;
-
-.ministering-board {
-    display: grid;
-    grid-template-columns: $tray-width minmax(20rem, 1fr) $tray-width;
-    gap: 1rem;
-    align-items: start;
-    min-width: $board-min-width;
-}
 
 .ministering-tray {
     display: flex;
     flex-direction: column;
     gap: 0.25rem;
-    padding: 0.5rem;
-    position: sticky;
-    top: 0;
-    background-color: card.$background-transparent-color;
-    backdrop-filter: card.$acrylic-blur;
 
     h3 {
         margin: 0 0 0.25rem;
         font-size: font.$size;
         font-weight: 600;
         opacity: 0.7;
+    }
+
+    // The tray takes the item under the pointer, so it says so before the release.
+    &.accepts {
+        outline: 2px solid color.$accent;
     }
 }
 
@@ -73,10 +61,14 @@ $tray-width: 13rem;
 }
 
 .ministering-person {
+    display: block;
     padding: 0.25rem 0.5rem;
     border-radius: input.$border-radius;
     background-color: card.$hover-background-color;
+    color: inherit;
     font-size: font.$size;
+    text-decoration: none;
+    cursor: pointer;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;

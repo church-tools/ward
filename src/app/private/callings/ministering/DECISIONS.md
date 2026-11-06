@@ -193,3 +193,50 @@ The real ids the people step hands out are stashed as `placeholder → id`, and 
 - The ministering step no longer merges changes into rows that are still only planned — the created people are ordinary stored rows by the time it runs — so the planned-row bookkeeping is gone.
 - An unreadable PDF shows nothing at all: the page has no copy for failures, so the steps simply do not appear.
 - Closing the popover between the steps gives up the parse; the PDF has to be uploaded again. The created people are already written and are matched by name on the next attempt.
+
+## 2026-11-06 — The trays are edge panels, and decide their own drops
+
+The two unassigned trays sit at the canvas edges instead of taking permanent board columns.
+They reveal on hover, focus, or an approaching drag of the matching kind, and can be pinned.
+
+Trays remain `cdkDropList` sources: without a container their items cannot enter companionships.
+They refuse CDK entry because CDK caches list rectangles before the panel slides. The page uses
+CDK's moved/released events for mouse and touch, not DOM pointer-enter/up on the tray.
+
+Release snapshots which visible panel owns the pointer. The item's `dropped` event is the only
+write path, checking that snapshot before the cached CDK destination behind it. This survives
+CDK's `ended → item dropped → list dropped` ordering and the snap-back animation. A matching
+tray unassigns once; a wrong-kind tray or a drop within the already-unassigned pool does nothing.
+Ordinary companionship drops retain CDK's ordering. Touch cancellation and Escape suppress writes
+(Escape does not end CDK's visual drag; release still finishes that gesture).
+
+Subscriptions are removed on drop, the next drag, and page destruction. Existing edit-mode gates,
+member-popover links and companionship ordering remain unchanged.
+
+## 2026-11-06 — A brother opens the member popover, through the URL
+
+Clicking a brother on the board (or in the unassigned tray) opens the shared member popover, the same way cards do elsewhere: the row is an `<a routerLink>` to `?popover=member&id=…`, and the page binds `bindRowPopoverRoute` so the query param is what actually opens and closes the overlay. Nothing is held in component state, so the URL is shareable and a reload lands on the same brother.
+
+### Consequences
+
+- CDK already swallows the click that ends a drag, so dragging a brother still never opens him.
+- The popover is the row page, so edits made through it write the same `member` row the board reads.
+
+## 2026-11-06 — The unassigned tray offers only brothers who can minister
+
+`member.can_minister` gates the unassigned brothers list: the toggle on the member page is the only place a person is taken out of the pool, so a brother who is not to be assigned never clutters the tray. It is the tray only — an existing companionship keeps whoever it already holds, so clearing the flag never silently removes an assignment.
+
+### Consequences
+
+- Brothers who can minister but are already assigned stay off the tray for the usual reason (they have an area), not because of the flag.
+- An import that never sets `can_minister` leaves whatever the database default gives that row, so a unit that wants the flag to matter has to check imported members.
+
+## 2026-11-06 — The ministering import clears `can_minister` for every brother it leaves unassigned
+
+The report is the unit's whole ministry picture, so a brother who appears in no companionship of a successful import is not available to minister: the import writes `can_minister = false` on him. Combined with the tray filter, the tray after an import holds exactly the people the report does not know about — no stale pool of people LCR has already stopped assigning.
+
+### Consequences
+
+- Assigning a brother by hand is the only way back into the tray: the member page's switch, or a new report that assigns him (which imports do not touch the flag for).
+- The write rides the existing `member` update batch of the ministering step, after the companionships are known and before anything is deleted; rows already `false` are not rewritten.
+- The people step is unaffected: a member it creates keeps the database default until a later import of his own either assigns him or clears him.

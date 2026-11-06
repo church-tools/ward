@@ -12,9 +12,11 @@ import { LocalizePipe } from '@/shared/language/localize.pipe';
 import type { PromiseOrValue } from '@/shared/types';
 import { xcomputed, xeffect } from '@/shared/utils/signal-utils';
 import { Chip } from '@/shared/widget/chip/chip';
-import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
-import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { EdgePanel, PanelPoint } from '@/shared/widget/edge-panel/edge-panel';
+import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragStart, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
+import { Component, computed, inject, signal, viewChild } from '@angular/core';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { fromEvent, Subscription } from 'rxjs';
 import { PrivatePage } from '../../shared/private-page';
 import { MinisteringImportPage } from './import/ministering-import-page';
 
@@ -23,14 +25,15 @@ type DraggedItem =
     | { kind: 'household'; value: BoardHousehold }
     | { kind: 'area'; value: BoardCompanionship['area'] };
 
-type DropEvent = CdkDragDrop<unknown>;
+type DropTarget = { kind: DraggedItem['kind']; id: number | null };
+type DropEvent = CdkDragDrop<DropTarget>;
 
 @Component({
     selector: 'app-ministering-page',
     templateUrl: './ministering-page.html',
     styleUrl: './ministering-page.scss',
     imports: [LocalizePipe, TextInput, AsyncButton, Button, Icon, Chip, RowCardList,
-        CdkDrag, CdkDropList, CdkDropListGroup, CdkDragHandle, LinkButton],
+        CdkDrag, CdkDropList, CdkDropListGroup, CdkDragHandle, LinkButton, EdgePanel, RouterLink],
     host: { class: 'full-width' },
 })
 export class MinisteringPage extends PrivatePage {
@@ -44,12 +47,21 @@ export class MinisteringPage extends PrivatePage {
     private readonly importOpen = xcomputed([this.windowService.currentRoute],
         route => route === '/callings/ministering/import');
 
+    private readonly popoverRouteSubscription: Subscription;
+
     constructor() {
         super();
+        this.popoverRouteSubscription = this.popoverService.bindRowPopoverRoute(this.route);
         xeffect([this.importOpen], importOpen => {
             if (importOpen)
                 void this.popoverService.open(MinisteringImportPage, () => this.navigateHere());
         });
+    }
+
+    override ngOnDestroy() {
+        this.dragSubscriptions.unsubscribe();
+        this.popoverRouteSubscription.unsubscribe();
+        super.ngOnDestroy();
     }
 
     protected readonly board = this.ministering.board;
@@ -70,28 +82,81 @@ export class MinisteringPage extends PrivatePage {
     protected readonly acceptsMember = (drag: CdkDrag) => kindOf(drag) === 'member';
     protected readonly acceptsHousehold = (drag: CdkDrag) => kindOf(drag) === 'household';
     protected readonly acceptsArea = (drag: CdkDrag) => kindOf(drag) === 'area';
+    // CDK caches list rectangles before the panels slide; trays are sources, never CDK targets.
+    protected readonly acceptsNothing = () => false;
+    private readonly brothersPanel = viewChild.required<EdgePanel>('brothersPanel');
+    private readonly householdsPanel = viewChild.required<EdgePanel>('householdsPanel');
+    private dragSubscriptions = new Subscription();
+    protected readonly dragged = signal<DraggedItem | null>(null);
+    protected readonly dragPosition = signal<PanelPoint | null>(null);
+    protected readonly hoveredTray = computed(() => {
+        const point = this.dragPosition();
+        const kind = point ? this.trayAt(point) : null;
+        return kind === this.dragged()?.kind ? kind : null;
+    });
+
+    protected onDragStarted({ source }: CdkDragStart): void {
+        this.dragSubscriptions.unsubscribe();
+        this.dragSubscriptions = new Subscription();
+        this.dragged.set(source.data as DraggedItem);
+        let releasedTray: 'member' | 'household' | null = null;
+        let cancelled = false;
+        this.dragSubscriptions.add(fromEvent<KeyboardEvent>(document, 'keydown', { capture: true }).subscribe(event => {
+            if (event.key === 'Escape') cancelled = true;
+        }));
+        this.dragSubscriptions.add(source.moved.subscribe(event => {
+            this.dragPosition.set({ x: event.pointerPosition.x - window.scrollX, y: event.pointerPosition.y - window.scrollY });
+        }));
+        this.dragSubscriptions.add(source.released.subscribe(({ event }) => {
+            cancelled ||= event.type === 'touchcancel';
+            const pointer = 'changedTouches' in event ? event.changedTouches[0] : event;
+            releasedTray = pointer ? this.trayAt({ x: pointer.clientX, y: pointer.clientY }) : null;
+        }));
+        this.dragSubscriptions.add(source.dropped.subscribe(event => {
+            try {
+                if (!cancelled) this.onDrop(event as DropEvent, releasedTray);
+            } finally {
+                this.dragged.set(null);
+                this.dragPosition.set(null);
+                this.dragSubscriptions.unsubscribe();
+            }
+        }));
+    }
+
+    private trayAt(point: PanelPoint): 'member' | 'household' | null {
+        if (this.brothersPanel().contains(point)) return 'member';
+        if (this.householdsPanel().contains(point)) return 'household';
+        return null;
+    }
+
+    protected readonly memberPopoverUrl = (member: BoardMember) =>
+        this.popoverService.getRowPopoverUrl(this.route, 'member', member.id);
 
     protected memberName(member: BoardMember): string {
         return `${member.nick_name || member.first_name} ${member.last_name ?? ''}`.trim();
     }
 
-    /** `areaId` is null for a tray: dropping there means "no companionship". */
-    protected onMemberDrop(event: DropEvent, areaId: number | null) {
-        const dragged = event.item.data as DraggedItem | undefined;
-        if (dragged?.kind !== 'member' || isSameSpot(event)) return;
-        void this.ministering.placeMember(dragged.value.id, areaId, event.currentIndex);
-    }
-
-    protected onHouseholdDrop(event: DropEvent, areaId: number | null) {
-        const dragged = event.item.data as DraggedItem | undefined;
-        if (dragged?.kind !== 'household' || isSameSpot(event)) return;
-        void this.ministering.placeHousehold(dragged.value.id, areaId, event.currentIndex);
-    }
-
-    protected onAreaDrop(event: DropEvent, districtId: number) {
-        const dragged = event.item.data as DraggedItem | undefined;
-        if (dragged?.kind !== 'area' || isSameSpot(event)) return;
-        void this.ministering.placeCompanionship(dragged.value.id, districtId, event.currentIndex);
+    private onDrop(event: DropEvent, tray: 'member' | 'household' | null): void {
+        const dragged = event.item.data as DraggedItem;
+        if (!this.adminService.editMode()) return;
+        // The visible panel wins over any cached CDK rectangle behind it. Exactly one write follows.
+        if (tray) {
+            if (dragged.kind !== tray) return;
+            if (dragged.kind === 'member' && !this.board().unassignedBrothers.some(row => row.id === dragged.value.id))
+                void this.ministering.placeMember(dragged.value.id, null, this.board().unassignedBrothers.length);
+            if (dragged.kind === 'household' && !this.board().unassignedHouseholds.some(row => row.id === dragged.value.id))
+                void this.ministering.placeHousehold(dragged.value.id, null, this.board().unassignedHouseholds.length);
+            return;
+        }
+        const target = event.container.data;
+        if (!event.isPointerOverContainer || !target || target.id === null
+            || target.kind !== dragged.kind || isSameSpot(event)) return;
+        if (dragged.kind === 'member')
+            void this.ministering.placeMember(dragged.value.id, target.id, event.currentIndex);
+        else if (dragged.kind === 'household')
+            void this.ministering.placeHousehold(dragged.value.id, target.id, event.currentIndex);
+        else
+            void this.ministering.placeCompanionship(dragged.value.id, target.id, event.currentIndex);
     }
 
     protected readonly enableEditMode = async () => this.adminService.setEditMode(true);
