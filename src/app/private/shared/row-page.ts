@@ -65,9 +65,7 @@ export abstract class RowPage<T extends TableName> extends PrivatePage implement
 
     async ngOnInit() {
         this.subscription = this.route.paramMap.subscribe(async params => {
-            
-            const { rowId, forceRepaint, swapCallback } = this.getRowIdFromRoute(this.route,
-            ) ?? {};
+            const { rowId, forceRepaint, swapCallback } = this.getRowIdFromRoute(this.route) ?? {};
             if (rowId) await this.setRowId(rowId, forceRepaint);
             swapCallback?.();
         });
