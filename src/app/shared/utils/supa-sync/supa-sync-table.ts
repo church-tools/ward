@@ -306,7 +306,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 row.__new = true;
             }
             const rowsWithCalculatedValues = await this.addCalculatedValues(rows);
-            this._storeAdapter.writeMany(rowsWithCalculatedValues as Insert<D, T>[]);
+            await this.writeAndNotify(rowsWithCalculatedValues);
             await this.writePending(rows);
             return (isArray
                 ? rowsWithCalculatedValues
@@ -328,7 +328,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 .select("*")
                 .throwOnError();
             const rowsWithCalculatedValues = await this.addCalculatedValues(data as LocalRow<D, T, C>[]);
-            await this._storeAdapter.writeMany(rowsWithCalculatedValues);
+            await this.writeAndNotify(rowsWithCalculatedValues);
             return (isArray
                 ? rowsWithCalculatedValues
                 : rowsWithCalculatedValues[0]) as I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>;
@@ -371,11 +371,28 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             : this.supabaseClient.from(this.name).delete());
         for (const idKey of this.idKeys)
             query = query.eq(idKey as any, row[idKey]);
+        const old = this._storeAdapter.onChange.hasSubscriptions
+            ? await this._storeAdapter.read(id) as LocalRow<D, T, C> | undefined
+            : undefined;
         await Promise.all([
             this._storeAdapter.delete(id),
             query.throwOnError()
         ]);
         this.pendingLocalWrites.delete(id);
+        if (old)
+            await this.notify([{ old, new: undefined } as Change<LocalRow<D, T, C>>]);
+    }
+
+    private async writeAndNotify(rows: LocalRow<D, T, C>[]) {
+        return await (this._storeAdapter.onChange.hasSubscriptions
+            ? this.notify(await this._storeAdapter.writeAndGet(rows))
+            : this._storeAdapter.writeMany(rows));
+    }
+
+    private async notify(changes: Change<LocalRow<D, T, C>>[]) {
+        if (!changes.length) return;
+        this._storeAdapter.onChange.emit(changes);
+        await this._updateDependentCalculatedValues(changes);
     }
     
     public async findLargestId(idKey: IdColumn<D, T> = this.firstIdKey) {

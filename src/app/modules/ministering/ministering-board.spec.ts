@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { buildBoard, placement, type BoardHousehold, type BoardMember } from './ministering-board';
+import { buildBoard, placement, type BoardHouseholdRow, type BoardMember } from './ministering-board';
 
 function member(id: number, first: string, position: number, gender: 'male' | 'female' = 'male', canMinister = true): BoardMember {
-    return { id, first_name: first, last_name: 'Smith', nick_name: null, gender, can_minister: canMinister, ministering_position: position };
+    return { id, first_name: first, last_name: 'Smith', nick_name: null, gender, can_minister: canMinister, ministering_position: position, household: 5 };
 }
 
-function household(id: number, name: string, position: number): BoardHousehold {
+function household(id: number, name: string, position: number): BoardHouseholdRow {
     return { id, name, color_1: 'blue', color_2: 'red', ministering_position: position };
 }
 
@@ -42,6 +42,18 @@ describe('buildBoard', () => {
             assignments: [],
         });
         expect(board.unassignedBrothers.map(m => m.first_name)).toEqual(['Unassigned']);
+    });
+
+    it('lists a household\'s members by first name under its name', () => {
+        const board = buildBoard({
+            districts, areas,
+            members: [member(1, 'Zed', 0), member(2, 'Ada', 0), { ...member(3, 'Noah', 0), household: 6 }],
+            households: [household(5, 'Smith', 0), household(6, 'Other', 0)],
+            roster: [],
+            assignments: [{ household: 6, ministering_area: 10 }],
+        });
+        expect(board.unassignedHouseholds[0].firstNames).toEqual(['Ada', 'Zed']);
+        expect(board.districts[0].companionships[1].households[0].firstNames).toEqual(['Noah']);
     });
 
     it('treats an assignment to a missing companionship as unassigned', () => {

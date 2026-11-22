@@ -46,7 +46,7 @@ This only holds because a reassignment **moves**: dropping a brother on another 
 
 The board creates its own structure: a district, a companionship inside it, and deletion of both. A district may only be deleted while it has no companionships — `ministering_area.ministering_district` is NOT NULL, and whether the deployed FK cascades is not something the page should rely on. The guard is the delete button's disabled state, because the district goes through `RowCardList`'s own `onRemove`.
 
-Both go through `RowCardList` (`ministering_district`) rather than the service: cards are created by its insert card and removed by its `onRemove`. A write through `MinisteringService` instead would leave the list unchanged, because SupaSync does not publish inserts and deletes to subscribers — see the known limits below.
+Both go through `RowCardList` (`ministering_district`) rather than the service: cards are created by its insert card and removed by its `onRemove`, which is the component that owns those gestures and animates the card in and out.
 
 Every mutation on the board — assignment, ordering, creation, deletion — is gated behind `AdminService.editMode`, the same unit-admin switch the organizations and agenda pages already use.
 
@@ -88,7 +88,8 @@ This is one-off wiring, not the row-popover mechanism: `PopoverService`'s existi
 
 - A child route with no outlet renders nothing; the URL is real, the rendering is not. Anyone adding another `insideParent` child here gets a silent no-op, which is why this is written down.
 - Reading the report is split: `parseReport` and `resolveReport` are pure functions of the extracted text and live beside the page in `import/ministering-import-page.ts`, while `MinisteringImportPage.readReport` supplies the file and the unit's rows. The spec imports that page module, so it runs with `src/test-setup.ts`'s `fake-indexeddb` shim even though it touches no database.
-- Both Import buttons are rendered only in edit mode, like the link that opens the page. Reading and writing the report both live on `MinisteringImportPage`, so the board's six live signals are reloaded explicitly through `MinisteringService.reload()` at the end of each step.- A name the unit does not have is not an error: the preview marks it with `+`, lists it under "will be created", and the import creates it.
+- Both Import buttons are rendered only in edit mode, like the link that opens the page. Reading and writing the report both live on `MinisteringImportPage`; the board's six live signals follow the writes themselves, so the import needs no explicit reload.
+- A name the unit does not have is not an error: the preview marks it with `+`, lists it under "will be created", and the import creates it.
 
 ## 2026-11-02 — The import creates what it cannot match
 
@@ -156,15 +157,11 @@ above the companionships. Nothing on the board reads the column yet.
 
 ## 2026-11-02 — Known limits of the board
 
-Three things the board does not handle, recorded so they are not rediscovered as surprises.
+Two things the board does not handle, recorded so they are not rediscovered as surprises.
 
 ### A hard delete leaves no trace for other devices
 
 `ministering_area` and `ministering_district` have no `deleted` column, so a delete is a real `DELETE`. SupaSync's incremental pull only asks for rows with `updated_at >` the last sync, so a second device never learns the row is gone; its own later edits to that row match zero rows remotely and vanish silently. Closing it needs a tombstone column or a forced resync after a hard delete, neither of which exists.
-
-### SupaSync does not publish its own inserts and deletes
-
-`insert` and `delete` write IndexedDB without emitting `onChange`, so a page fed only by subscriptions never sees its own writes until a realtime echo arrives. The board re-reads its six tables after every mutation instead. Online this is redundant; offline it is the only thing that makes a drop visible.
 
 ### A queued insert can still outlive a delete it raced
 
@@ -240,3 +237,33 @@ The report is the unit's whole ministry picture, so a brother who appears in no 
 - Assigning a brother by hand is the only way back into the tray: the member page's switch, or a new report that assigns him (which imports do not touch the flag for).
 - The write rides the existing `member` update batch of the ministering step, after the companionships are known and before anything is deleted; rows already `false` are not rewritten.
 - The people step is unaffected: a member it creates keeps the database default until a later import of his own either assigns him or clears him.
+
+## 2026-11-22 — The household chip is its own component, fed by the board
+
+The chip moved out of the page into `modules/household/household-chip.ts`, and its second line —
+the household's members' first names — is derived by `buildBoard` into `BoardHousehold.firstNames`
+rather than read by the chip. The board already subscribes to `household` and `member`, so a renamed
+household, a recoloured one or a family that gains a member reaches the chip by the same path every
+other board value takes. The chip stays a dumb view of `{ name, color_1, color_2, firstNames }`.
+
+### Consequences
+
+- `BoardMember` now carries `household` and `BoardHouseholdRow` replaces the old `BoardHousehold`
+  as the row the board is built from; `BoardHousehold` adds `firstNames`.
+- First names are `first_name`, sorted by name, not `nick_name` — the board's brother labels use the
+  nickname because a ministry assignment names a person, while a family line is the printed roster.
+- Each of the two lines ellipsizes on its own inside the chip's single-line slot, so a long name and
+  a long family list truncate independently. Nothing tests the rendering; the grouping does have a
+  `buildBoard` test.
+
+## 2026-11-22 — SupaSync publishes its own inserts and deletes
+
+`insert` and `delete` now emit `onChange`, like `update`, sync pulls and realtime echoes already did, so a query that is listening sees this client's own write without waiting for an echo — which offline never arrives. Both go through `SupaSyncTable.writeAndNotify`, and a delete reads the stored row first so the change can name the row that disappeared.
+
+### Consequences
+
+- The board is a plain chain now: six `syncedArraySignal`s → `computed` board → template. `MinisteringService.reload()` and its five call sites are gone, and the import no longer puts the board back in step by hand.
+- A filtered query sees own inserts and deletes too (`IDBQueryBase.listenToChanges` filters them), so a row that starts matching appears without a re-read.
+- An online insert still arrives a second time as its realtime echo; every subscriber merges by id, and `CardList.updateItems` is id-keyed, so the duplicate is an update rather than a second row.
+- Dependents of the written table are recalculated on insert and delete, as they already were on update and on realtime changes.
+- Covered by two tests in `supa-sync-pending.spec.ts`; nothing tests a *filtered* query receiving an own insert.

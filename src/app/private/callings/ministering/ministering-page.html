@@ -75,9 +75,7 @@
                                         <div cdkDrag [cdkDragData]="dragHousehold(household)"
                                             [cdkDragDisabled]="!adminService.editMode()"
                                             (cdkDragStarted)="onDragStarted($event)">
-                                            <app-chip [background]="[household.color_1, household.color_2]">
-                                                {{ household.name }}
-                                            </app-chip>
+                                            <app-household-chip [household]="household"/>
                                         </div>
                                     } @empty {
                                         <p class="ministering-hint">–</p>
@@ -150,9 +148,7 @@
                     [cdkDragData]="dragHousehold(household)"
                     [cdkDragDisabled]="!adminService.editMode()"
                     (cdkDragStarted)="onDragStarted($event)">
-                    <app-chip [background]="[household.color_1, household.color_2]">
-                        {{ household.name }}
-                    </app-chip>
+                    <app-household-chip [household]="household"/>
                 </div>
             } @empty {
                 <p class="ministering-hint">–</p>

@@ -16,6 +16,14 @@ type TN<D extends DB> = TableName<D>;
 
 export function syncedArraySignal<
 	D extends DB, T extends TN<D>,
+	C extends AnyCalculatedValues
+>(
+	dependencies: [],
+	queryComputation: () => IDBQueryBase<D, T, C, LocalRow<D, T, C>[]>,
+): SyncedArraySignal<LocalRow<D, T, C>>;
+
+export function syncedArraySignal<
+	D extends DB, T extends TN<D>,
 	Dep1,
 	C extends AnyCalculatedValues
 >(

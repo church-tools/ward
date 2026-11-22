@@ -1,7 +1,6 @@
 import type { Household } from '@/modules/household/household';
 import type { Member } from '@/modules/member/member';
 import { MemberViewService } from '@/modules/member/member-view.service';
-import { MinisteringService } from '@/modules/ministering/ministering.service';
 import type { HouseholdMinisteredIn, MemberMinisteringIn, MinisteringArea, MinisteringDistrict } from '@/modules/ministering/ministering';
 import { ProfileService } from '@/modules/profile/profile.service';
 import FileButton from '@/shared/form/button/file/file-button';
@@ -48,7 +47,6 @@ export class MinisteringImportPage extends PrivatePage {
 
     private readonly supabase = inject(SupabaseService);
     private readonly profileService = inject(ProfileService);
-    private readonly ministering = inject(MinisteringService);
 
     protected readonly memberView = inject(MemberViewService);
 
@@ -117,7 +115,6 @@ export class MinisteringImportPage extends PrivatePage {
         }
 
         this.step.set('ministering');
-        await this.ministering.reload();
     };
 
     /** Reads an LCR report and matches it against this unit's members and households. */
@@ -236,7 +233,6 @@ export class MinisteringImportPage extends PrivatePage {
         if (memberChanges.size) await sync.from('member').update([...memberChanges.values()]);
         if (householdChanges.size) await sync.from('household').update([...householdChanges.values()]);
 
-        await this.ministering.reload();
         await this.closePage?.();
     };
 

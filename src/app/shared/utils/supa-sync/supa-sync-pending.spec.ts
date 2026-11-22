@@ -42,16 +42,13 @@ function createMockClient(syncRows: RemoteRow<TestDb, 'member'>[] = []) {
             return { ...result, select: () => result };
         },
         insert: () => ({ select: () => ({ throwOnError: async () => ({ data: [] }) }) }),
-        update: (row: RemoteRow<TestDb, 'member'>) => ({
-            eq: () => ({
-                maybeSingle: () => ({
-                    throwOnError: async () => {
-                        sent.push({ table, row });
-                        return { data: null };
-                    },
-                }),
-            }),
-        }),
+        update: (row: RemoteRow<TestDb, 'member'>) => {
+            const write = async () => {
+                sent.push({ table, row });
+                return { data: null };
+            };
+            return { eq: () => ({ maybeSingle: () => ({ throwOnError: write }), throwOnError: write }) };
+        },
     });
     return {
         sent,
@@ -108,6 +105,42 @@ function deliverRealtimeChange(sync: SupaSync<TestDb>, row: RemoteRow<TestDb, 'm
         commit_timestamp: commit,
     });
 }
+
+describe('SupaSync own writes reach a listening query', () => {
+    beforeEach(() => installLockManager());
+
+    it('reports its own insert', async () => {
+        const { table } = await createSync();
+        const values: string[] = [];
+        const subscription = table.readAll().subscribe(({ result }) => {
+            for (const row of result ?? []) values.push(row.value ?? '');
+        });
+        await tick();
+
+        await table.insert({ id: 7, value: 'Inserted', updated_at: STALE_ROW.updated_at, deleted: false });
+        await tick();
+
+        expect(values).toEqual(['Inserted']);
+        subscription.unsubscribe();
+    });
+
+    it('reports its own delete', async () => {
+        const { table } = await createSync();
+        await table.insert({ id: 8, value: 'Doomed', updated_at: STALE_ROW.updated_at, deleted: false });
+        const deleted: number[] = [];
+        const subscription = table.readAll().subscribe(({ deletions }) => {
+            for (const id of deletions ?? []) deleted.push(id);
+        });
+        await tick();
+
+        await table.delete({ id: 8 } as RemoteRow<TestDb, 'member'>);
+        await tick();
+
+        expect(deleted).toEqual([8]);
+        expect(await table.readAll().get()).toEqual([]);
+        subscription.unsubscribe();
+    });
+});
 
 describe('SupaSync remote changes vs. pending local edits', () => {
     beforeEach(() => installLockManager());

@@ -1,7 +1,6 @@
 import { ProfileService } from "@/modules/profile/profile.service";
-import type { Row, Table, TableName, TableQuery } from "@/modules/shared/table.types";
 import { SupabaseService } from "@/shared/service/supabase.service";
-import { AwaitableWritableSignal, xsignal } from "@/shared/utils/signal-utils";
+import { syncedArraySignal } from "@/shared/utils/supa-sync/synced-array";
 import { computed, inject, Service } from "@angular/core";
 import { buildBoard, placement } from "./ministering-board";
 
@@ -16,14 +15,14 @@ export class MinisteringService {
     private readonly supabase = inject(SupabaseService);
     private readonly profileService = inject(ProfileService);
 
-    private readonly districtRows = this.live('ministering_district', table => table.readAll());
-    private readonly areaRows = this.live('ministering_area', table => table.readAll());
-    private readonly memberRows = this.live('member', table => table.readAll());
-    private readonly householdRows = this.live('household', table => table.readAll());
-    private readonly rosterRows = this.live('member_ministering_in', table => table.readAll());
-    private readonly assignmentRows = this.live('household_ministered_in', table => table.readAll());
+    private readonly districtRows = syncedArraySignal([], () => this.supabase.sync.from('ministering_district').readAll());
+    private readonly areaRows = syncedArraySignal([], () => this.supabase.sync.from('ministering_area').readAll());
+    private readonly memberRows = syncedArraySignal([], () => this.supabase.sync.from('member').readAll());
+    private readonly householdRows = syncedArraySignal([], () => this.supabase.sync.from('household').readAll());
+    private readonly rosterRows = syncedArraySignal([], () => this.supabase.sync.from('member_ministering_in').readAll());
+    private readonly assignmentRows = syncedArraySignal([], () => this.supabase.sync.from('household_ministered_in').readAll());
 
-    readonly districts = this.districtRows.readonly;
+    readonly districts = this.districtRows;
 
     readonly board = computed(() => buildBoard({
         districts: this.districtRows(),
@@ -54,7 +53,6 @@ export class MinisteringService {
         if (areaId != null && !assignments.some(entry => entry.ministering_area === areaId))
             await this.supabase.sync.from('member_ministering_in')
                 .insert({ member: member.id, ministering_area: areaId, unit: member.unit, deleted: false });
-        await this.reload();
     }
 
     async placeHousehold(householdId: number, areaId: number | null, index: number) {
@@ -77,7 +75,6 @@ export class MinisteringService {
         if (areaId != null && !assignments.some(entry => entry.ministering_area === areaId))
             await this.supabase.sync.from('household_ministered_in')
                 .insert({ household: household.id, ministering_area: areaId, unit: household.unit, deleted: false });
-        await this.reload();
     }
 
     async placeCompanionship(areaId: number, districtId: number, index: number) {
@@ -90,7 +87,6 @@ export class MinisteringService {
             const row = this.areaRows().find(entry => entry.id === id) ?? area;
             return { ...row, ministering_district: districtId, position };
         }));
-        await this.reload();
     }
 
     async renameDistrict(districtId: number, name: string) {
@@ -108,7 +104,6 @@ export class MinisteringService {
             ministering_district: districtId,
             position,
         });
-        await this.reload();
     }
 
     async removeCompanionship(areaId: number) {
@@ -123,7 +118,6 @@ export class MinisteringService {
                 .map(entry => this.supabase.sync.from('household_ministered_in').delete(entry)),
         ]);
         await this.supabase.sync.from('ministering_area').delete(area);
-        await this.reload();
     }
 
     private companionship(areaId: number) {
@@ -136,50 +130,5 @@ export class MinisteringService {
         return this.areaRows()
             .filter(area => area.ministering_district === districtId)
             .sort((a, b) => a.position - b.position || a.id - b.id);
-    }
-
-    private live<T extends TableName>(
-        tableName: T,
-        query: (table: Table<T>) => TableQuery<T, Row<T>[] >,
-    ): AwaitableWritableSignal<Row<T>[]> {
-        const rows = xsignal<Row<T>[]>([]);
-        // A subscription reports the rows that *changed*, not the whole table, so every update is
-        // merged into what is already there. Never unsubscribed: the board outlives its pages.
-        query(this.supabase.sync.from(tableName)).subscribe(({ result, deletions }) => {
-            if (!result?.length && !deletions?.length) return;
-            rows.update(current => {
-                const byId = new Map(current.map(row => [row.id, row]));
-                for (const id of deletions ?? [])
-                    byId.delete(id);
-                for (const row of result ?? [])
-                    byId.set(row.id, row);
-                return [...byId.values()];
-            });
-        });
-        return rows;
-    }
-
-    /**
-     * SupaSync does not publish its own inserts and deletes to subscribers (only updates, syncs and
-     * realtime echoes reach them), so the six tables are re-read after a write instead of waiting
-     * for an echo that may never come offline. Public because the report import writes from its own
-     * page and has to put the board back in step when it finishes.
-     */
-    async reload() {
-        const sync = this.supabase.sync;
-        const [districts, areas, members, households, roster, assignments] = await Promise.all([
-            sync.from('ministering_district').readAll().get(),
-            sync.from('ministering_area').readAll().get(),
-            sync.from('member').readAll().get(),
-            sync.from('household').readAll().get(),
-            sync.from('member_ministering_in').readAll().get(),
-            sync.from('household_ministered_in').readAll().get(),
-        ]);
-        this.districtRows.set(districts);
-        this.areaRows.set(areas);
-        this.memberRows.set(members);
-        this.householdRows.set(households);
-        this.rosterRows.set(roster);
-        this.assignmentRows.set(assignments);
     }
 }

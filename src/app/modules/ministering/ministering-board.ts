@@ -3,8 +3,10 @@ import type { Member } from "../member/member";
 import type { HouseholdMinisteredIn, MemberMinisteringIn, MinisteringArea, MinisteringDistrict } from "./ministering";
 
 /** What the board needs to know about each row, and nothing else. */
-export type BoardMember = Pick<Member.Row, 'id' | 'first_name' | 'last_name' | 'nick_name' | 'gender' | 'can_minister' | 'ministering_position'>;
-export type BoardHousehold = Pick<Household.Row, 'id' | 'name' | 'color_1' | 'color_2' | 'ministering_position'>;
+export type BoardMember = Pick<Member.Row, 'id' | 'first_name' | 'last_name' | 'nick_name' | 'gender' | 'can_minister' | 'ministering_position' | 'household'>;
+export type BoardHouseholdRow = Pick<Household.Row, 'id' | 'name' | 'color_1' | 'color_2' | 'ministering_position'>;
+/** A household row plus the first names its chip shows beneath its name. */
+export type BoardHousehold = BoardHouseholdRow & { firstNames: readonly string[] };
 export type BoardCompanionship = {
     area: Pick<MinisteringArea.Row, 'id' | 'position'>;
     ministers: BoardMember[];
@@ -25,7 +27,7 @@ export type BoardSource = {
     districts: readonly Pick<MinisteringDistrict.Row, 'id' | 'name' | 'position'>[];
     areas: readonly Pick<MinisteringArea.Row, 'id' | 'position' | 'ministering_district'>[];
     members: readonly BoardMember[];
-    households: readonly BoardHousehold[];
+    households: readonly BoardHouseholdRow[];
     roster: readonly Pick<MemberMinisteringIn.Row, 'member' | 'ministering_area'>[];
     assignments: readonly Pick<HouseholdMinisteredIn.Row, 'household' | 'ministering_area'>[];
 };
@@ -42,6 +44,14 @@ export function buildBoard({ districts, areas, members, households, roster, assi
 
     const memberById = new Map(members.map(member => [member.id, member]));
     const householdById = new Map(households.map(household => [household.id, household]));
+
+    const firstNamesByHousehold = new Map<number, string[]>();
+    for (const member of members)
+        push(firstNamesByHousehold, member.household, member.first_name);
+    const asHousehold = (household: BoardHouseholdRow): BoardHousehold => ({
+        ...household,
+        firstNames: (firstNamesByHousehold.get(household.id) ?? []).sort(compareText),
+    });
 
     const ministersByArea = new Map<number, BoardMember[]>();
     const assignedMemberIds = new Set<number>();
@@ -60,7 +70,7 @@ export function buildBoard({ districts, areas, members, households, roster, assi
         const household = householdById.get(entry.household);
         if (!household) continue;
         assignedHouseholdIds.add(household.id);
-        push(householdsByArea, entry.ministering_area, household);
+        push(householdsByArea, entry.ministering_area, asHousehold(household));
     }
 
     const companionshipsByDistrict = new Map<number, BoardCompanionship[]>();
@@ -85,7 +95,8 @@ export function buildBoard({ districts, areas, members, households, roster, assi
             .sort(compareMinisters),
         unassignedHouseholds: households
             .filter(household => !assignedHouseholdIds.has(household.id))
-            .sort(compareHouseholds),
+            .sort(compareHouseholds)
+            .map(asHousehold),
     };
 }
 
@@ -130,7 +141,7 @@ function compareMinisters(a: BoardMember, b: BoardMember) {
         || compareText(a.first_name, b.first_name);
 }
 
-function compareHouseholds(a: BoardHousehold, b: BoardHousehold) {
+function compareHouseholds(a: BoardHouseholdRow, b: BoardHouseholdRow) {
     return a.ministering_position - b.ministering_position || compareText(a.name, b.name);
 }
 

@@ -19,10 +19,10 @@ type DropEvent = CdkDragDrop<DropTarget, DropTarget, DraggedItem>;
 
 const brother: BoardMember = {
     id: 1, first_name: 'Hans', last_name: 'Müller', nick_name: null,
-    gender: 'male', can_minister: true, ministering_position: 0,
+    gender: 'male', can_minister: true, ministering_position: 0, household: 10,
 };
 const household: BoardHousehold = {
-    id: 10, name: 'Müller', color_1: 'red', color_2: 'blue', ministering_position: 0,
+    id: 10, name: 'Müller', color_1: 'red', color_2: 'blue', ministering_position: 0, firstNames: ['Hans'],
 };
 const points = {
     member: { x: 120, y: 150 },

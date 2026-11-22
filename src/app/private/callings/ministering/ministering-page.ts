@@ -1,3 +1,4 @@
+import { HouseholdChip } from '@/modules/household/household-chip';
 import type { BoardCompanionship, BoardHousehold, BoardMember } from '@/modules/ministering/ministering-board';
 import { MinisteringService } from '@/modules/ministering/ministering.service';
 import { ProfileService } from '@/modules/profile/profile.service';
@@ -11,7 +12,6 @@ import { Icon } from '@/shared/icon/icon';
 import { LocalizePipe } from '@/shared/language/localize.pipe';
 import type { PromiseOrValue } from '@/shared/types';
 import { xcomputed, xeffect } from '@/shared/utils/signal-utils';
-import { Chip } from '@/shared/widget/chip/chip';
 import { EdgePanel, PanelPoint } from '@/shared/widget/edge-panel/edge-panel';
 import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDragStart, CdkDropList, CdkDropListGroup } from '@angular/cdk/drag-drop';
 import { Component, computed, inject, signal, viewChild } from '@angular/core';
@@ -32,7 +32,7 @@ type DropEvent = CdkDragDrop<DropTarget>;
     selector: 'app-ministering-page',
     templateUrl: './ministering-page.html',
     styleUrl: './ministering-page.scss',
-    imports: [LocalizePipe, TextInput, AsyncButton, Button, Icon, Chip, RowCardList,
+    imports: [LocalizePipe, TextInput, AsyncButton, Button, Icon, HouseholdChip, RowCardList,
         CdkDrag, CdkDropList, CdkDropListGroup, CdkDragHandle, LinkButton, EdgePanel, RouterLink],
     host: { class: 'full-width' },
 })
