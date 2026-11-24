@@ -5,7 +5,7 @@ import { IDBFilterBuilder } from "./idb/idb-filter-builder";
 import { IDBRead } from "./idb/idb-read";
 import { IDBSearchIndex } from "./idb/idb-search-index";
 import { idbBoolToNumber, idbNumberToBool, IDBStoreAdapter } from "./idb/idb-store-adapter";
-import type { AnyCalculatedValues, Change, Column, Database, DependentRows, Indexed, IndexType, Insert, NoCalculatedValues, RemoteRow, LocalRow, SearchNode, SupaSyncTableInfo, TableName, Update, IdColumn, BooleanColumn } from "./supa-sync.types";
+import type { AnyCalculatedValues, Change, Column, Database, DependentRowLists, DependentRows, Indexed, IndexType, Insert, NoCalculatedValues, RemoteRow, ReverseDependencies, LocalRow, SearchNode, SupaSyncTableInfo, TableName, Update, IdColumn, BooleanColumn } from "./supa-sync.types";
 
 const INDEXED_FIELDS_PREFIX = "idx_fields_";
 const SEARCH_VERSION_PREFIX = "search_version_";
@@ -47,6 +47,10 @@ function serializeCalculatedVersions<C extends AnyCalculatedValues>(
         .join(',');
 }
 
+function reverseDependencyEntries<D extends Database, T extends TableName<D>>(map: ReverseDependencies<D, T>) {
+    return Object.entries(map) as [TableName<D>, string][];
+}
+
 function classifyArray<T, T2 = T>(array: T[], predicate: (item: T) => boolean): { matched: T[]; unmatched: T2[] } {
     const matched: T[] = [], unmatched: T2[] = [];
     for (const item of array) (predicate(item) ? matched : unmatched).push(item as any);
@@ -58,7 +62,8 @@ type PendingUpdate<D extends Database, T extends TableName<D>> = Update<D, T> & 
 type CalculatedFieldInfo<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues> = {
     key: keyof C & string;
     dependsOn: [keyof RemoteRow<D, T>, TableName<D>][];
-    calculation: (row: LocalRow<D, T, C>, dependencies: DependentRows<D, T>) => C[keyof C] | Promise<C[keyof C]>;
+    dependsOnReverse: ReverseDependencies<D, T>;
+    calculation: (row: LocalRow<D, T, C>, dependencies: DependentRows<D, T> & DependentRowLists<D, T>) => C[keyof C] | Promise<C[keyof C]>;
 };
 
 export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends AnyCalculatedValues = NoCalculatedValues, IA = {}> {
@@ -79,8 +84,13 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         adapter: IDBStoreAdapter<SearchNode, 'idx'>;
         toString: (row: LocalRow<D, T, C>) => string;
     } | undefined;
-    public readonly _calculatedInfo: CalculatedFieldInfo<D, T, C>[];
-    public readonly _reverseDependencies: { table: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>, key: string }[] = [];
+    private readonly _calculatedInfo: CalculatedFieldInfo<D, T, C>[];
+    public readonly _reverseDependencies: {
+        table: SupaSyncTable<D, TableName<D>, AnyCalculatedValues, any>,
+        key: string,
+        /** Set for a reverse dependency: the column of the changed rows that names this row. */
+        sourceKey?: string,
+    }[] = [];
     
     public readonly idKeys: ReadonlyArray<IdColumn<D, T>>;
     public readonly firstIdKey: IdColumn<D, T>;
@@ -115,8 +125,12 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         this.createOffline = info.createOffline ?? false;
         this.updateOffline = info.updateOffline ?? true;
         this._calculatedInfo = info.calculated
-            ? Object.entries(info.calculated).map(
-                ([key, { dependsOn, calculation }]) => ({ key, dependsOn: Object.entries(dependsOn ?? {}), calculation }))
+            ? Object.entries(info.calculated).map(([key, { dependsOn, dependsOnReverse, calculation }]) => ({
+                key,
+                dependsOn: Object.entries(dependsOn ?? {}),
+                dependsOnReverse: dependsOnReverse ?? {},
+                calculation,
+            }))
             : [];
         this.indexed = info.indexed ?? {};
         if (info.getSummaryString) {
@@ -165,13 +179,27 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 await index.update(updates);
             };
         }
+        for (const field of this._calculatedInfo)
+            if (Object.keys(field.dependsOnReverse).length && this.hasCompositeKeys)
+                throw new Error(`"${this.name}": a reverse dependency needs a single id key.`);
     }
 
-    public async _buildReverseDependencies() {
-        for (const [key, sourceTable] of this._calculatedInfo.map(info => info.dependsOn).flat()) {
-            const otherRevDeps = this.tablesByName[sourceTable]._reverseDependencies;
-            otherRevDeps.push({ table: this as any, key: key as string });
+    public _buildReverseDependencies() {
+        for (const { key, dependsOn, dependsOnReverse } of this._calculatedInfo) {
+            for (const [column, sourceTable] of dependsOn)
+                this.getDependencyTable(sourceTable, key)
+                    ._reverseDependencies.push({ table: this as any, key: column as string });
+            for (const [table, foreignKey] of reverseDependencyEntries(dependsOnReverse))
+                this.getDependencyTable(table, key)
+                    ._reverseDependencies.push({ table: this as any, key: this.firstIdKey as string, sourceKey: foreignKey });
         }
+    }
+
+    private getDependencyTable(table: TableName<D>, field: string) {
+        const dependency = this.tablesByName[table];
+        if (!dependency)
+            throw new Error(`"${this.name}.${field}" depends on "${table}", which is missing from the sync table infos.`);
+        return dependency;
     }
 
     public async _init(idb: Promise<IDBDatabase>) {
@@ -210,15 +238,8 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 serializeCalculatedVersions<C>(this.info.calculated as Partial<Record<keyof C & string, { version?: number }>> | undefined),
             );
             if (this._calculatedInfo.length) {
-                const allItems = await this.readAll().dontWaitForDataSync().get();
-                if (allItems.length) {
-                    const updatedRows = await this.addCalculatedValues(allItems);
-                    const changes = await this._storeAdapter.writeAndGet(updatedRows);
-                    if (changes.length) {
-                        this._storeAdapter.onChange.emit(changes);
-                        await this._updateDependentCalculatedValues(changes as Change<any>[]);
-                    }
-                }
+                const changes = await this.refreshCalculatedValues(await this._storeAdapter.readAllKeys());
+                await this.notify(changes);
             }
         }
         for (const update of await this._pendingAdapter.readAll())
@@ -305,8 +326,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             for (const row of rows) {
                 row.__new = true;
             }
-            const rowsWithCalculatedValues = await this.addCalculatedValues(rows);
-            await this.writeAndNotify(rowsWithCalculatedValues);
+            const rowsWithCalculatedValues = await this.writeAndNotify(rows.map(row => ({ ...row })));
             await this.writePending(rows);
             return (isArray
                 ? rowsWithCalculatedValues
@@ -327,8 +347,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                     : rows.map(row => ({ ...row, [this.deletedKey]: false } as Insert<D, T>)))
                 .select("*")
                 .throwOnError();
-            const rowsWithCalculatedValues = await this.addCalculatedValues(data as LocalRow<D, T, C>[]);
-            await this.writeAndNotify(rowsWithCalculatedValues);
+            const rowsWithCalculatedValues = await this.writeAndNotify(data);
             return (isArray
                 ? rowsWithCalculatedValues
                 : rowsWithCalculatedValues[0]) as I extends Insert<D, T>[] ? LocalRow<D, T, C>[] : LocalRow<D, T, C>;
@@ -342,9 +361,15 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         if (missingIds.length) throw new Error(`Missing IDs for updates: ${JSON.stringify(missingIds)}`);
         let changes: Change<LocalRow<D, T, C>>[] | undefined;
         if (this.updateOffline) {
-            await Promise.all([
-                this._storeAdapter.lock(async () => {
-                    changes = await this._writeAndDelete(updates);
+            [changes] = await Promise.all([
+                this._storeAdapter.withWriteLock(async () => {
+                    const byId = new Map<number, Update<D, T>>();
+                    for (const patch of updates) {
+                        const id = this.getId(patch);
+                        byId.set(id, { ...byId.get(id), ...patch });
+                    }
+                    const existing = await this._storeAdapter.readMany([...byId.keys()]);
+                    return this.writeRows([...byId.values()].map((patch, i) => ({ ...existing[i], ...patch })));
                 }),
                 this.writePending(updates, debounce),
             ]);
@@ -355,7 +380,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 .throwOnError();
             changes = await this._writeAndDelete(data);
         }
-        if (changes) this._storeAdapter.onChange.emit(changes);
+        if (changes) await this.notify(changes);
     }
 
     public async delete(row: RemoteRow<D, T>) {
@@ -371,22 +396,24 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
             : this.supabaseClient.from(this.name).delete());
         for (const idKey of this.idKeys)
             query = query.eq(idKey as any, row[idKey]);
-        const old = this._storeAdapter.onChange.hasSubscriptions
-            ? await this._storeAdapter.read(id) as LocalRow<D, T, C> | undefined
-            : undefined;
-        await Promise.all([
-            this._storeAdapter.delete(id),
+        const [changes] = await Promise.all([
+            this._storeAdapter.withWriteLock(() => this._storeAdapter.writeAndGet([], [id])),
             query.throwOnError()
         ]);
         this.pendingLocalWrites.delete(id);
-        if (old)
-            await this.notify([{ old, new: undefined } as Change<LocalRow<D, T, C>>]);
+        await this.notify(changes);
     }
 
-    private async writeAndNotify(rows: LocalRow<D, T, C>[]) {
-        return await (this._storeAdapter.onChange.hasSubscriptions
-            ? this.notify(await this._storeAdapter.writeAndGet(rows))
-            : this._storeAdapter.writeMany(rows));
+    private async writeAndNotify(rows: RemoteRow<D, T>[]) {
+        const { calculated, changes } = await this._storeAdapter.withWriteLock(async () => {
+            const calculated = await this.addCalculatedValues(rows);
+            const changes = this.needsChanges
+                ? await this._storeAdapter.writeAndGet(calculated)
+                : await this._storeAdapter.writeMany(calculated);
+            return { calculated, changes };
+        });
+        if (changes) await this.notify(changes);
+        return calculated;
     }
 
     private async notify(changes: Change<LocalRow<D, T, C>>[]) {
@@ -399,31 +426,42 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         return this._storeAdapter.findLargestId(idKey as unknown as keyof LocalRow<D, T, C> & string);
     }
 
-    public async _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
+    public _writeAndDelete(rows: Update<D, T>[], alwaysGetChanges = false) {
+        return this._storeAdapter.withWriteLock(() => this.writeRows(rows, alwaysGetChanges));
+    }
+
+    private async writeRows(rows: Update<D, T>[], alwaysGetChanges = false) {
         const { matched: deleted, unmatched: updated } = classifyArray(rows, row => row[this.deletedKey]);
         const rowsWithCalc = await this.addCalculatedValues(updated);
-        return await (this._storeAdapter.onChange.hasSubscriptions || alwaysGetChanges
+        return await (this.needsChanges || alwaysGetChanges
             ? this._storeAdapter.writeAndGet(rowsWithCalc, deleted.map(row => this.getId(row)))
             : this._storeAdapter.writeMany(rowsWithCalc, deleted.map(row => this.getId(row))));
     }
 
     public async _updateDependentCalculatedValues(changes: Change<any>[]) {
         if (!this._reverseDependencies.length) return;
-        const ids = changes.map(change => this.getId(change.old ?? change.new));
-        let idStrings: string[];
         await Promise.all(this._reverseDependencies.map(async target => {
-            const lookupIds = target.table.indexed[target.key] === String
-                ? (idStrings ??= ids.map(id => String(id)))
-                : ids;
-            const rows = await target.table.find().in(target.key, lookupIds).get();
-            if (!rows.length) return;
-            const updatedRows = await target.table.addCalculatedValues(rows);
-            const dependentChanges = target.table._storeAdapter.onChange.hasSubscriptions
-                ? await target.table._storeAdapter.writeAndGet(updatedRows)
-                : await target.table._storeAdapter.writeMany(updatedRows);
-            if (dependentChanges?.length)
+            const { sourceKey } = target;
+            const ids = [...new Set(sourceKey === undefined
+                ? changes.map(change => this.getId(change.old ?? change.new))
+                : changes.flatMap(change => [change.old?.[sourceKey], change.new?.[sourceKey]])
+                    .filter((id): id is number => id != null))];
+            if (!ids.length) return;
+            const keys = await target.table.find().in(target.key,
+                target.table.indexed[target.key] === String ? ids.map(String) : ids).getKeys();
+            if (!keys.length) return;
+            const dependentChanges = await target.table.refreshCalculatedValues(keys);
+            if (dependentChanges.length)
                 target.table._storeAdapter.onChange.emit(dependentChanges as Change<any>[]);
         }));
+    }
+
+    private refreshCalculatedValues(ids: IDBValidKey[]) {
+        return this._storeAdapter.withWriteLock(async () => {
+            // The lookup identified candidates, but another writer may have edited or deleted them.
+            const rows = (await this._storeAdapter.readMany(ids)).filter(Boolean);
+            return this._storeAdapter.writeAndGet(await this.addCalculatedValues(rows));
+        });
     }
 
     private async writePending(rows: Update<D, T>[], debounce = 0) {
@@ -507,16 +545,19 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 row.id = this.getId(row);
         if (this._calculatedInfo.length) {
             for (const field of this._calculatedInfo) {
-                const { dependsOn, calculation } = field;
+                const { dependsOn, dependsOnReverse, calculation } = field;
                 const dependencyData = await this.getDependentRowsData(rowsWithCalc, dependsOn);
+                const rowLists = await this.getDependentRowLists(rowsWithCalc, dependsOnReverse);
                 const values = rowsWithCalc.map(row => {
-                    const dependencies: Partial<DependentRows<D, T>> = {};
+                    const dependencies: Record<PropertyKey, unknown> = {};
                     for (const dependency of dependencyData) {
                         const dependencyId = row[dependency.key] as number | null | undefined;
                         if (!dependencyId || isNaN(dependencyId)) continue;
                         dependencies[dependency.key] = dependency.rowsById[dependencyId];
                     }
-                    return calculation(row, dependencies as unknown as DependentRows<D, T>);
+                    for (const list of rowLists)
+                        dependencies[list.tableName] = list.rowsByParent.get(row[this.firstIdKey] as number) ?? [];
+                    return calculation(row, dependencies as DependentRows<D, T> & DependentRowLists<D, T>);
                 });
                 rowsWithCalc.forEach((row: LocalRow<D, T, C>, index) => {
                     const calculated = row._calculated ??= {} as C;
@@ -528,6 +569,24 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
                 row._calculated = {} as C
         }
         return rowsWithCalc;
+    }
+
+    private async getDependentRowLists(rows: LocalRow<D, T, C>[], dependsOnReverse: ReverseDependencies<D, T>) {
+        return await Promise.all(reverseDependencyEntries(dependsOnReverse).map(async ([tableName, foreignKey]) => {
+            const table = this.tablesByName[tableName];
+            const parentIds = [...new Set(rows.map(row => row[this.firstIdKey]))] as number[];
+            const children = parentIds.length
+                ? await table.find().in(foreignKey as Column<D, TableName<D>>, parentIds).get()
+                : [];
+            const rowsByParent = new Map<number, RemoteRow<D, any>[]>();
+            for (const child of children) {
+                const parentId = (child as Record<string, number>)[foreignKey];
+                const list = rowsByParent.get(parentId);
+                if (list) list.push(child);
+                else rowsByParent.set(parentId, [child]);
+            }
+            return { tableName, rowsByParent };
+        }));
     }
 
     private async getDependentRowsData(rows: LocalRow<D, T, C>[], dependsOn: [keyof RemoteRow<D, T>, TableName<D>][]) {
@@ -553,4 +612,7 @@ export class SupaSyncTable<D extends Database, T extends TableName<D>, C extends
         return dependencies;
     }
 
+    private get needsChanges() {
+        return this._storeAdapter.onChange.hasSubscriptions || this._reverseDependencies.length > 0;
+    }
 }

@@ -31,7 +31,6 @@ export class SupaSync<
     CM extends SupaSyncCalculatedMap<D, any> = SupaSyncCalculatedMap<D>,
 > {
     private changesConnection: ChannelConnection | undefined;
-    private presenceChannel: ChannelConnection | undefined;
     private readonly onlineState = new AsyncState<boolean>(navigator.onLine);
     private readonly eventLock = new Lock();
     private readonly client: SupabaseClient<D>;
@@ -162,16 +161,11 @@ export class SupaSync<
         const inDegree = new Map(tables.map(table => [table.name, 0]));
 
         for (const table of tables) {
-            const dependencies = new Set<TableName<D>>(
-                table._calculatedInfo
-                    .flatMap(field => field.dependsOn.map(([, sourceTable]) => sourceTable as TableName<D>))
-                    .filter(sourceTable => sourceTable !== table.name)
-            );
-            for (const dependency of dependencies) {
-                const edges = outgoing.get(dependency)!;
-                if (edges.has(table.name)) continue;
-                edges.add(table.name);
-                inDegree.set(table.name, (inDegree.get(table.name) ?? 0) + 1);
+            const edges = outgoing.get(table.name)!;
+            for (const { table: dependent } of table._reverseDependencies) {
+                if (dependent.name === table.name || edges.has(dependent.name)) continue;
+                edges.add(dependent.name);
+                inDegree.set(dependent.name, inDegree.get(dependent.name)! + 1);
             }
         }
 

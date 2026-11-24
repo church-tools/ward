@@ -1,8 +1,6 @@
 import { Component, ElementRef, Signal, inject, input, output, signal, viewChild } from '@angular/core';
 import { wait } from '../../utils/flow-control-utils';
-
-/** Matches the transition in collapse.scss ($duration-lg). */
-const transitionMs = 500;
+import { animationDurationLgMs } from '@/shared/utils/style';
 
 @Component({
     selector: 'app-collapse',
@@ -15,8 +13,10 @@ export default class Collapse {
 
     protected readonly measuring: Signal<ElementRef<HTMLDivElement>> = viewChild.required('measuring', { read: ElementRef });
 
-    private readonly _collapsed = signal<boolean>(true);
+    private readonly _collapsed = signal(true);
     readonly collapsed = this._collapsed.asReadonly();
+    private readonly _contentVisible = signal(false);
+    readonly contentVisible = this._contentVisible.asReadonly();
 
     private _show = false;
     /** Identifies the running transition, so an interrupted one stops instead of finishing over the new state. */
@@ -24,7 +24,6 @@ export default class Collapse {
     private followContent?: ResizeObserver;
 
     readonly show = input<boolean, boolean>(false, { transform: v => { this.setExpanded(v); return v; } });
-    readonly onChange = output<boolean>();
 
     async toggle() {
         this.setExpanded(!this._show);
@@ -34,6 +33,8 @@ export default class Collapse {
         if (this._show === expanded) return;
         this._show = expanded;
         this._collapsed.set(!expanded);
+        if (expanded)
+            this._contentVisible.set(expanded);
         const transition = ++this.transition;
         const interrupted = () => transition !== this.transition;
         this.followContent?.disconnect();
@@ -58,7 +59,6 @@ export default class Collapse {
             }
             div.style.height = (this._show ? height : 0) + "px";
             div.style.opacity = this._show ? "1" : "0";
-            // content that loads after the first measure (async data, images) is still animated to
             if (this._show) {
                 this.followContent = new ResizeObserver(() => {
                     if (div.style.height !== 'auto')
@@ -66,7 +66,7 @@ export default class Collapse {
                 });
                 this.followContent.observe(content);
             }
-            await new Promise(resolve => setTimeout(resolve, transitionMs));
+            await new Promise(resolve => setTimeout(resolve, animationDurationLgMs));
             if (interrupted()) return;
             this.followContent?.disconnect();
             if (this._show) {
@@ -74,7 +74,7 @@ export default class Collapse {
                 div.style.overflow = 'visible';
             }
         }
-        this.onChange.emit(expanded);
+        this._contentVisible.set(expanded);
     }
 
 }

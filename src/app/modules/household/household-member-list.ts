@@ -45,7 +45,7 @@ export class HouseholdMemberList {
 
     private readonly list = viewChild<RowCardList<'member'>>('list');
 
-    readonly memberCount = computed(() => this.list()?.rowCount() ?? 0);
+    readonly memberCount = computed(() => this.list()?.rowCount());
 
     protected readonly getQuery = computed(() => {
         const householdId = this.household().id;

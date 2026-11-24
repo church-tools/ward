@@ -2,11 +2,6 @@ import { Chip } from '@/shared/widget/chip/chip';
 import { Component, computed, input } from '@angular/core';
 import type { Household } from './household';
 
-/** What the chip shows: the household's own columns plus the first names of its members. */
-export type HouseholdChipRow = Pick<Household.Row, 'name' | 'color_1' | 'color_2'> & {
-    firstNames: readonly string[];
-};
-
 @Component({
     selector: 'app-household-chip',
     imports: [Chip],
@@ -22,7 +17,7 @@ export type HouseholdChipRow = Pick<Household.Row, 'name' | 'color_1' | 'color_2
 })
 export class HouseholdChip {
 
-    readonly household = input.required<HouseholdChipRow>();
+    readonly household = input.required<Household.Row>();
 
-    protected readonly firstNames = computed(() => this.household().firstNames.join(', '));
+    protected readonly firstNames = computed(() => this.household()._calculated.firstNames.join(', '));
 }

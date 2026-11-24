@@ -43,10 +43,20 @@ export type DependentRows<
     [K in keyof Dep as Extract<Dep[K], TableName<D>> extends never ? never : K]: RemoteRow<D, Extract<Dep[K], TableName<D>>>;
 };
 
+export type ReverseDependencies<D extends Database, T extends TableName<D>> = Partial<{
+    [F in TableName<D>]: F extends keyof RemoteRow<D, T>
+        ? never
+        : IdColumn<D, F>
+}>;
+export type DependentRowLists<D extends Database, T extends TableName<D>> = {
+    [F in TableName<D> as F extends keyof RemoteRow<D, T> ? never : F]?: RemoteRow<D, F>[];
+};
+
 export type CalculatedField<D extends Database, T extends TableName<D>, V = unknown> = {
     dependsOn?: Dependencies<D, T>;
+    dependsOnReverse?: ReverseDependencies<D, T>;
     version?: number; // increment to force recalculation of this calculated field
-    calculation: (row: RemoteRow<D, T>, dependencies: DependentRows<D, T>) => V;
+    calculation: (row: RemoteRow<D, T>, dependencies: DependentRows<D, T> & DependentRowLists<D, T>) => V;
 };
 
 export type CalculatedFields<

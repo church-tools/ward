@@ -238,24 +238,6 @@ The report is the unit's whole ministry picture, so a brother who appears in no 
 - The write rides the existing `member` update batch of the ministering step, after the companionships are known and before anything is deleted; rows already `false` are not rewritten.
 - The people step is unaffected: a member it creates keeps the database default until a later import of his own either assigns him or clears him.
 
-## 2026-11-22 — The household chip is its own component, fed by the board
-
-The chip moved out of the page into `modules/household/household-chip.ts`, and its second line —
-the household's members' first names — is derived by `buildBoard` into `BoardHousehold.firstNames`
-rather than read by the chip. The board already subscribes to `household` and `member`, so a renamed
-household, a recoloured one or a family that gains a member reaches the chip by the same path every
-other board value takes. The chip stays a dumb view of `{ name, color_1, color_2, firstNames }`.
-
-### Consequences
-
-- `BoardMember` now carries `household` and `BoardHouseholdRow` replaces the old `BoardHousehold`
-  as the row the board is built from; `BoardHousehold` adds `firstNames`.
-- First names are `first_name`, sorted by name, not `nick_name` — the board's brother labels use the
-  nickname because a ministry assignment names a person, while a family line is the printed roster.
-- Each of the two lines ellipsizes on its own inside the chip's single-line slot, so a long name and
-  a long family list truncate independently. Nothing tests the rendering; the grouping does have a
-  `buildBoard` test.
-
 ## 2026-11-22 — SupaSync publishes its own inserts and deletes
 
 `insert` and `delete` now emit `onChange`, like `update`, sync pulls and realtime echoes already did, so a query that is listening sees this client's own write without waiting for an echo — which offline never arrives. Both go through `SupaSyncTable.writeAndNotify`, and a delete reads the stored row first so the change can name the row that disappeared.

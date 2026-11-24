@@ -108,9 +108,9 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
                     store.delete(id).toPromise(),
                 ]).then(([old]) => <DeleteChange<T>>{ old, new: undefined })));
                 return Promise.all([itemUpdateProm, deleteProm]);
-            }).then(([updated, deleted]) => {
+            }).then(async ([updated, deleted]) => {
                 const changes = [...updated, ...deleted.filter(d => d.old)];
-                this.writeCallback?.(changes);
+                await this.writeCallback?.(changes);
                 return changes;
             });
     }
@@ -135,7 +135,7 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
         return await idb.transaction(this.storeName, "readonly")
             .abortOn(abortSignal)
             .toPromise(store => Promise.all(keys.map(key => store.get(key).toPromise<T>()))
-                .then(rows => mapping ? rows.map(row => mapping(row)) : rows));
+                .then(rows => mapping ? rows.map(row => row && mapping(row)) : rows));
     }
 
     public async readAll(abortSignal?: AbortSignal) {
@@ -167,10 +167,8 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
             });
     }
 
-    public async delete(key: IDBValidKey) {
-        const idb = await this.idb.promise;
-        await idb.transaction(this.storeName, "readwrite")
-            .toPromise(store => store.delete(key).toPromise());
+    public delete(key: IDBValidKey) {
+        return this.withWriteLock(() => this.deleteMany([key]));
     }
 
     public async deleteMany(keys: IDBValidKey[]) {
@@ -180,10 +178,16 @@ export class IDBStoreAdapter<T extends { [P in IDKey]: IDBValidKey }, IDKey exte
             .toPromise(store => keys.forEach(key => store.delete(key)));
     }
 
-    public async clear() {
-        const idb = await this.idb.promise;
-        await idb.transaction(this.storeName, "readwrite")
-            .toPromise(store => store.clear());
+    public clear() {
+        return this.withWriteLock(async () => {
+            const idb = await this.idb.promise;
+            await idb.transaction(this.storeName, "readwrite").toPromise(store => store.clear());
+        });
+    }
+
+    public async withWriteLock<R>(write: () => Promise<R>): Promise<R> {
+        const db = await this.idb.promise;
+        return navigator.locks.request(`supa-sync:write:${db.name}:${this.storeName}`, write);
     }
 
     public lock(safeFunc: () => Promise<void>, timeout = 5000) {

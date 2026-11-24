@@ -2,15 +2,10 @@ import type { Household } from "../household/household";
 import type { Member } from "../member/member";
 import type { HouseholdMinisteredIn, MemberMinisteringIn, MinisteringArea, MinisteringDistrict } from "./ministering";
 
-/** What the board needs to know about each row, and nothing else. */
-export type BoardMember = Pick<Member.Row, 'id' | 'first_name' | 'last_name' | 'nick_name' | 'gender' | 'can_minister' | 'ministering_position' | 'household'>;
-export type BoardHouseholdRow = Pick<Household.Row, 'id' | 'name' | 'color_1' | 'color_2' | 'ministering_position'>;
-/** A household row plus the first names its chip shows beneath its name. */
-export type BoardHousehold = BoardHouseholdRow & { firstNames: readonly string[] };
 export type BoardCompanionship = {
     area: Pick<MinisteringArea.Row, 'id' | 'position'>;
-    ministers: BoardMember[];
-    households: BoardHousehold[];
+    ministers: Member.Row[];
+    households: Household.Row[];
 };
 export type BoardDistrict = {
     district: Pick<MinisteringDistrict.Row, 'id' | 'name' | 'position'>;
@@ -19,24 +14,19 @@ export type BoardDistrict = {
 
 export type Board = {
     districts: BoardDistrict[];
-    unassignedBrothers: BoardMember[];
-    unassignedHouseholds: BoardHousehold[];
+    unassignedBrothers: Member.Row[];
+    unassignedHouseholds: Household.Row[];
 };
 
 export type BoardSource = {
     districts: readonly Pick<MinisteringDistrict.Row, 'id' | 'name' | 'position'>[];
     areas: readonly Pick<MinisteringArea.Row, 'id' | 'position' | 'ministering_district'>[];
-    members: readonly BoardMember[];
-    households: readonly BoardHouseholdRow[];
+    members: readonly Member.Row[];
+    households: readonly Household.Row[];
     roster: readonly Pick<MemberMinisteringIn.Row, 'member' | 'ministering_area'>[];
     assignments: readonly Pick<HouseholdMinisteredIn.Row, 'household' | 'ministering_area'>[];
 };
 
-/**
- * Groups the six tables into the three columns. An assignment whose companionship or
- * district is gone is treated as no assignment at all, so a half-deleted district can
- * never make members disappear from both the board and the unassigned list.
- */
 export function buildBoard({ districts, areas, members, households, roster, assignments }: BoardSource): Board {
     const districtIds = new Set(districts.map(district => district.id));
     const liveAreas = areas.filter(area => districtIds.has(area.ministering_district));
@@ -45,15 +35,7 @@ export function buildBoard({ districts, areas, members, households, roster, assi
     const memberById = new Map(members.map(member => [member.id, member]));
     const householdById = new Map(households.map(household => [household.id, household]));
 
-    const firstNamesByHousehold = new Map<number, string[]>();
-    for (const member of members)
-        push(firstNamesByHousehold, member.household, member.first_name);
-    const asHousehold = (household: BoardHouseholdRow): BoardHousehold => ({
-        ...household,
-        firstNames: (firstNamesByHousehold.get(household.id) ?? []).sort(compareText),
-    });
-
-    const ministersByArea = new Map<number, BoardMember[]>();
+    const ministersByArea = new Map<number, Member.Row[]>();
     const assignedMemberIds = new Set<number>();
     for (const entry of roster) {
         if (!areaIds.has(entry.ministering_area)) continue;
@@ -63,14 +45,14 @@ export function buildBoard({ districts, areas, members, households, roster, assi
         push(ministersByArea, entry.ministering_area, member);
     }
 
-    const householdsByArea = new Map<number, BoardHousehold[]>();
+    const householdsByArea = new Map<number, Household.Row[]>();
     const assignedHouseholdIds = new Set<number>();
     for (const entry of assignments) {
         if (!areaIds.has(entry.ministering_area)) continue;
         const household = householdById.get(entry.household);
         if (!household) continue;
         assignedHouseholdIds.add(household.id);
-        push(householdsByArea, entry.ministering_area, asHousehold(household));
+        push(householdsByArea, entry.ministering_area, household);
     }
 
     const companionshipsByDistrict = new Map<number, BoardCompanionship[]>();
@@ -89,21 +71,15 @@ export function buildBoard({ districts, areas, members, households, roster, assi
                 companionships: (companionshipsByDistrict.get(district.id) ?? [])
                     .sort((a, b) => a.area.position - b.area.position || a.area.id - b.area.id),
             })),
-        // Only brothers who can minister are offered here; a companionship of sisters is out of this board's scope.
         unassignedBrothers: members
             .filter(member => member.gender === 'male' && member.can_minister && !assignedMemberIds.has(member.id))
             .sort(compareMinisters),
         unassignedHouseholds: households
             .filter(household => !assignedHouseholdIds.has(household.id))
-            .sort(compareHouseholds)
-            .map(asHousehold),
+            .sort(compareHouseholds),
     };
 }
 
-/**
- * The writes that put `movedId` at `index`: usually the moved row alone, at a position between its
- * two new neighbours.
- */
 export function placement(
     ordered: readonly { id: number; position: number }[],
     movedId: number,
@@ -135,13 +111,13 @@ function push<T>(map: Map<number, T[]>, key: number, value: T) {
     else map.set(key, [value]);
 }
 
-function compareMinisters(a: BoardMember, b: BoardMember) {
+function compareMinisters(a: Member.Row, b: Member.Row) {
     return a.ministering_position - b.ministering_position
         || compareText(a.last_name ?? '', b.last_name ?? '')
         || compareText(a.first_name, b.first_name);
 }
 
-function compareHouseholds(a: BoardHouseholdRow, b: BoardHouseholdRow) {
+function compareHouseholds(a: Household.Row, b: Household.Row) {
     return a.ministering_position - b.ministering_position || compareText(a.name, b.name);
 }
 

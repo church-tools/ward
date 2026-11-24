@@ -68,7 +68,7 @@ export class RowCardList<T extends TableName> implements OnInit, OnDestroy {
 
     protected readonly table = xcomputed([this.tableName], t => this.supabase.sync.from(t));
     protected readonly viewService = asyncComputed([this.tableName], t => getViewService(this.injector, t), null);
-    readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount() ?? 0, { trackInner: true });
+    readonly rowCount = xcomputed([this.cardListView], clv => clv?.cardCount(), { trackInner: true });
     readonly initialized = xcomputed([this.cardListView], clv => clv?.initialized() ?? false, { trackInner: true });
 
     private queryId: string | null = null;

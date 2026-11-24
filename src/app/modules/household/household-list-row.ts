@@ -9,29 +9,33 @@ import { Component, computed, inject, input, viewChild } from '@angular/core';
 import { ListRow } from '../shared/row-card-list/list-row';
 import type { Household } from './household';
 import { HouseholdMemberList } from './household-member-list';
-import { HouseholdService } from './household.service';
 
 @Component({
     selector: 'app-household-list-row',
     template: `
-        <app-expandable-card #card [expanded]="expanded()" (expandedChange)="setExpanded($event)">
+        <app-expandable-card #card>
             <div cardHeader class="row items-center gap-2 m-4">
-                <h4 class="grow-1 duo-title">{{ row().name }}</h4>
+                <div class="column duo-title grow-1">
+                    <h4 class="overflow-ellipsis">{{ row().name }}</h4>
+                    <span class="overflow-ellipsis">{{ memberNames() }}</span>
+                </div>
                 <app-link-button icon="edit" type="subtle" class="icon-only" hideNewTab
                     [href]="getSettingsUrl(row())"/>
-                @if (!deleteBlocked()) {
+                @if (memberNames().length === 0) {
                     <app-button icon="delete" type="subtle" class="icon-only"
                         [title]="'DELETE' | localize"
                         (onClick)="remove()"/>
                 }
-                <app-expand-toggle [expanded]="expanded()" (toggle)="card.toggle()"/>
+                <app-expand-toggle [expanded]="card.expanded()" (toggle)="card.toggle()"/>
             </div>
-            <div class="ps-4 pe-4 pb-4">
-                <app-household-member-list
-                    [household]="row()"
-                    [activeMemberId]="activeMemberId()"
-                    [page]="page()"/>
-            </div>
+            @if (card.contentVisible()) {
+                <div class="ps-4 pe-4 pb-4">
+                    <app-household-member-list
+                        [household]="row()"
+                        [activeMemberId]="activeMemberId()"
+                        [page]="page()"/>
+                </div>
+            }
         </app-expandable-card>
     `,
     imports: [LocalizePipe, Button, LinkButton, ExpandToggle, ExpandableCard, HouseholdMemberList],
@@ -40,21 +44,13 @@ import { HouseholdService } from './household.service';
 export class HouseholdListRow extends ListRow<'household'> {
 
     private readonly supabase = inject(SupabaseService);
-    private readonly householdService = inject(HouseholdService);
 
     readonly activeMemberId = input<number | null>(null);
 
-    private readonly memberList = viewChild(HouseholdMemberList);
-
-    protected readonly expanded = computed(() => this.householdService.isExpanded(this.row().id));
-    protected readonly deleteBlocked = computed(() => (this.memberList()?.memberCount() ?? 0) > 0);
+    protected readonly memberNames = computed(() => this.row()._calculated.firstNames.join(', '));
 
     protected readonly getSettingsUrl = (household: Household.Row) =>
         getRowRoute({ table: 'household', row: household });
-
-    protected setExpanded(expanded: boolean) {
-        this.householdService.setExpanded(this.row().id, expanded);
-    }
 
     protected async remove() {
         const count = await this.supabase.sync.from('member')

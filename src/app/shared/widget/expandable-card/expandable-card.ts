@@ -1,9 +1,16 @@
-import { Component, effect, model, signal } from '@angular/core';
+import { Component, computed, model, viewChild } from '@angular/core';
 import Collapse from '../collapse/collapse';
 
 @Component({
     selector: 'app-expandable-card',
-    templateUrl: './expandable-card.html',
+    template: `
+        <ng-content select="[cardHeader]"/>
+        <app-collapse #collapse [show]="expanded()">
+            @if (collapse.contentVisible()) {
+                <ng-content/>
+            }
+        </app-collapse>
+    `,
     styleUrl: './expandable-card.scss',
     imports: [Collapse],
     host: {
@@ -13,14 +20,11 @@ import Collapse from '../collapse/collapse';
 })
 export default class ExpandableCard {
 
+    private readonly collapseView = viewChild.required(Collapse);
+
     readonly expanded = model(false);
 
-    /** Body is only built once expanded, and dropped after the collapse animation finished. */
-    protected readonly content = signal(false);
-
-    constructor() {
-        effect(() => { if (this.expanded()) this.content.set(true); });
-    }
+    readonly contentVisible = computed(() => this.collapseView().contentVisible());
 
     toggle() {
         this.expanded.set(!this.expanded());
@@ -34,9 +38,5 @@ export default class ExpandableCard {
             'app-text-input, app-select, app-checkbox'))
             return;
         this.toggle();
-    }
-
-    protected onAnimationEnd(expanded: boolean) {
-        if (!expanded) this.content.set(false);
     }
 }

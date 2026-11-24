@@ -1,5 +1,7 @@
+import type { Household } from '@/modules/household/household';
 import { HouseholdChip } from '@/modules/household/household-chip';
-import type { BoardCompanionship, BoardHousehold, BoardMember } from '@/modules/ministering/ministering-board';
+import type { Member } from '@/modules/member/member';
+import type { BoardCompanionship } from '@/modules/ministering/ministering-board';
 import { MinisteringService } from '@/modules/ministering/ministering.service';
 import { ProfileService } from '@/modules/profile/profile.service';
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
@@ -21,8 +23,8 @@ import { PrivatePage } from '../../shared/private-page';
 import { MinisteringImportPage } from './import/ministering-import-page';
 
 type DraggedItem =
-    | { kind: 'member'; value: BoardMember }
-    | { kind: 'household'; value: BoardHousehold }
+    | { kind: 'member'; value: Member.Row }
+    | { kind: 'household'; value: Household.Row }
     | { kind: 'area'; value: BoardCompanionship['area'] };
 
 type DropTarget = { kind: DraggedItem['kind']; id: number | null };
@@ -75,8 +77,8 @@ export class MinisteringPage extends PrivatePage {
         return this.board().districts.find(group => group.district.id === districtId)?.companionships ?? [];
     }
 
-    protected readonly dragMember = (member: BoardMember): DraggedItem => ({ kind: 'member', value: member });
-    protected readonly dragHousehold = (household: BoardHousehold): DraggedItem => ({ kind: 'household', value: household });
+    protected readonly dragMember = (member: Member.Row): DraggedItem => ({ kind: 'member', value: member });
+    protected readonly dragHousehold = (household: Household.Row): DraggedItem => ({ kind: 'household', value: household });
     protected readonly dragArea = (area: BoardCompanionship['area']): DraggedItem => ({ kind: 'area', value: area });
 
     protected readonly acceptsMember = (drag: CdkDrag) => kindOf(drag) === 'member';
@@ -129,10 +131,10 @@ export class MinisteringPage extends PrivatePage {
         return null;
     }
 
-    protected readonly memberPopoverUrl = (member: BoardMember) =>
+    protected readonly memberPopoverUrl = (member: Member.Row) =>
         this.popoverService.getRowPopoverUrl(this.route, 'member', member.id);
 
-    protected memberName(member: BoardMember): string {
+    protected memberName(member: Member.Row): string {
         return `${member.nick_name || member.first_name} ${member.last_name ?? ''}`.trim();
     }
 

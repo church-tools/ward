@@ -96,9 +96,10 @@ export class IDBFilterBuilder<D extends Database, T extends TableName<D>, C exte
             const condition = this.conditions[0];
             if ('field' in condition) {
                 const index = await this.store.getIndex(condition.field);
-                return await this.queryCondition<R>(condition, keysOnly
-                    ? index.getAllKeys.bind(index)
-                    : index.getAll.bind(index));
+                if (keysOnly) return this.queryCondition<R>(condition, index.getAllKeys.bind(index));
+                const rows = await this.queryCondition<LocalRow<D, T, C>>(condition, index.getAll.bind(index));
+                const decode = this.store.mappingOutFunction;
+                return (decode ? rows.map(row => decode(row)) : rows) as R[];
             } else {
                 if (!this.searchIndex) throw new Error(`no search defined for table ${this.store.storeName}`);
                 const keys = [...await this.searchIndex.queryCondition(condition)];
