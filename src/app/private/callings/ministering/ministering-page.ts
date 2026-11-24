@@ -1,8 +1,9 @@
 import type { Household } from '@/modules/household/household';
 import { HouseholdChip } from '@/modules/household/household-chip';
 import type { Member } from '@/modules/member/member';
-import type { BoardCompanionship } from '@/modules/ministering/ministering-board';
-import { MinisteringService } from '@/modules/ministering/ministering.service';
+import type { MinisteringArea } from '@/modules/ministering/ministering';
+import { MinisteringBoard } from '@/modules/ministering/ministering-board';
+import { SupabaseService } from '@/shared/service/supabase.service';
 import { ProfileService } from '@/modules/profile/profile.service';
 import { RowCardList } from '@/modules/shared/row-card-list/row-card-list';
 import type { Insert, Table } from '@/modules/shared/table.types';
@@ -25,7 +26,7 @@ import { MinisteringImportPage } from './import/ministering-import-page';
 type DraggedItem =
     | { kind: 'member'; value: Member.Row }
     | { kind: 'household'; value: Household.Row }
-    | { kind: 'area'; value: BoardCompanionship['area'] };
+    | { kind: 'area'; value: MinisteringArea.Row };
 
 type DropTarget = { kind: DraggedItem['kind']; id: number | null };
 type DropEvent = CdkDragDrop<DropTarget>;
@@ -42,8 +43,8 @@ export class MinisteringPage extends PrivatePage {
 
     private readonly route = inject(ActivatedRoute);
     private readonly router = inject(Router);
-    private readonly ministering = inject(MinisteringService);
     private readonly profileService = inject(ProfileService);
+    private readonly ministering = new MinisteringBoard(inject(SupabaseService), this.profileService);
 
     /** The `/import` child route renders nothing: this is what turns that URL into the overlay. */
     private readonly importOpen = xcomputed([this.windowService.currentRoute],
@@ -79,7 +80,7 @@ export class MinisteringPage extends PrivatePage {
 
     protected readonly dragMember = (member: Member.Row): DraggedItem => ({ kind: 'member', value: member });
     protected readonly dragHousehold = (household: Household.Row): DraggedItem => ({ kind: 'household', value: household });
-    protected readonly dragArea = (area: BoardCompanionship['area']): DraggedItem => ({ kind: 'area', value: area });
+    protected readonly dragArea = (area: MinisteringArea.Row): DraggedItem => ({ kind: 'area', value: area });
 
     protected readonly acceptsMember = (drag: CdkDrag) => kindOf(drag) === 'member';
     protected readonly acceptsHousehold = (drag: CdkDrag) => kindOf(drag) === 'household';
